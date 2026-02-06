@@ -66,19 +66,23 @@ public class MainActivity extends AppCompatActivity {
             if (gameManager.play(row, col)) {
                 new Handler(Looper.getMainLooper()).postDelayed(() -> showVictoryScreen(currentSymbol), 2000);
             }
+            updateHeaderStatus();
             updateSkillVisuals();
         });
 
+        setupMetaControls();
         setupSkills();
         setupPreMatchFlow();
 
         btnRestart.setOnClickListener(v -> {
             hideVictoryScreen();
             gameManager.resetGame();
+            updateHeaderStatus();
             updateSkillVisuals();
             setupPreMatchFlow();
         });
 
+        updateHeaderStatus();
         updateSkillVisuals();
     }
 
@@ -151,6 +155,31 @@ public class MainActivity extends AppCompatActivity {
         }, 1500);
     }
 
+    private void setupMetaControls() {
+        txtHeaderStatus.setOnClickListener(v -> {
+            GameState.GameMode nextMode = gameManager.getGameMode() == GameState.GameMode.CASUAL
+                    ? GameState.GameMode.RANKED
+                    : GameState.GameMode.CASUAL;
+            gameManager.setGameMode(nextMode);
+            updateHeaderStatus();
+        });
+
+        txtHeaderStatus.setOnLongClickListener(v -> {
+            GameState.SymbolSkin current = gameManager.getSymbolSkin();
+            GameState.SymbolSkin next;
+            if (current == GameState.SymbolSkin.CLASSIC) {
+                next = GameState.SymbolSkin.NEON;
+            } else if (current == GameState.SymbolSkin.NEON) {
+                next = GameState.SymbolSkin.GLITCH;
+            } else {
+                next = GameState.SymbolSkin.CLASSIC;
+            }
+            gameManager.setSymbolSkin(next);
+            updateHeaderStatus();
+            return true;
+        });
+    }
+
     private void setupSkills() {
         btnTriangle.setOnClickListener(v -> {
             if (!matchStarted) {
@@ -161,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             if (state.canUseTriangle()) {
                 gameManager.useTriangle();
                 spinAnimation(v);
+                updateHeaderStatus();
                 updateSkillVisuals();
             } else {
                 shakeButton(v);
@@ -176,11 +206,22 @@ public class MainActivity extends AppCompatActivity {
             if (state.canUseSquare()) {
                 gameManager.useSquare();
                 pulseAnimation(v);
+                updateHeaderStatus();
                 updateSkillVisuals();
             } else {
                 shakeButton(v);
             }
         });
+    }
+
+    private void updateHeaderStatus() {
+        txtHeaderStatus.setText(String.format(
+                "CORE CLASH | %s | %s | %s %d",
+                gameManager.getGameMode().name(),
+                gameManager.getSymbolSkin().name(),
+                gameManager.getRankLabel(),
+                gameManager.getRankedPoints()
+        ));
     }
 
     private void updateSkillVisuals() {
@@ -201,8 +242,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void showVictoryScreen(String winner) {
         txtWinnerTitle.setText("'" + winner + "' DOMINOU");
-        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves());
-        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()));
+        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() +
+                " | 🏆 WINS: " + gameManager.getTotalWins());
+        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()) +
+                " | 🔥 STREAK: " + gameManager.getWinStreak());
 
         victoryOverlay.setVisibility(View.VISIBLE);
         victoryOverlay.setAlpha(0f);
