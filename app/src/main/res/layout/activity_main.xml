@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -49,15 +48,6 @@
             android:textColor="#FFD700"
             android:layout_gravity="center"
             android:includeFontPadding="false" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:textColor="#FFD700"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="14dp"
-            android:alpha="0.7"/>
     </FrameLayout>
 
     <FrameLayout
@@ -103,38 +93,110 @@
             android:layout_gravity="center"
             android:includeFontPadding="false"
             android:translationY="-2dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:textColor="#A033FF"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="14dp"
-            android:alpha="0.7"/>
     </FrameLayout>
 
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#40FFD700"
-        app:layout_constraintStart_toEndOf="@id/containerTriangle"
-        app:layout_constraintEnd_toStartOf="@id/boardContainer"
-        app:layout_constraintTop_toTopOf="@id/containerTriangle"
-        app:layout_constraintBottom_toBottomOf="@id/containerTriangle"
-        android:layout_marginHorizontal="16dp"/>
+    <FrameLayout
+        android:id="@+id/startOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E0121218"
+        android:elevation="90dp"
+        android:clickable="true"
+        android:focusable="true">
 
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#40A033FF"
-        app:layout_constraintStart_toEndOf="@id/boardContainer"
-        app:layout_constraintEnd_toStartOf="@id/containerSquare"
-        app:layout_constraintTop_toTopOf="@id/containerSquare"
-        app:layout_constraintBottom_toBottomOf="@id/containerSquare"
-        android:layout_marginHorizontal="16dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="24dp">
 
-<FrameLayout
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CORE CLASH"
+                android:textColor="#00FBFF"
+                android:textStyle="bold"
+                android:textSize="38sp"
+                android:fontFamily="sans-serif-black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Triângulo e Quadrado. Só um sai vivo."
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnPlay"
+                android:layout_width="240dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="36dp"
+                android:text="JOGAR"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:backgroundTint="#00FBFF" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/versusOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F214141B"
+        android:visibility="gone"
+        android:elevation="95dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="24dp">
+
+            <TextView
+                android:id="@+id/txtVersusX"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="PLAYER X"
+                android:textColor="#FF4444"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:fontFamily="sans-serif-black" />
+
+            <TextView
+                android:id="@+id/txtVersusCenter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="14dp"
+                android:text="VS"
+                android:textColor="#00FBFF"
+                android:textStyle="bold"
+                android:textSize="34sp"
+                android:fontFamily="sans-serif-black" />
+
+            <TextView
+                android:id="@+id/txtVersusO"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="PLAYER O"
+                android:textColor="#00FFFF"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:fontFamily="sans-serif-black" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/victoryOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

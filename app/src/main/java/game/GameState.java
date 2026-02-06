@@ -49,8 +49,8 @@ public class GameState {
         return moveCount;
     }
 
-    public void addGhost() {
-        ghostCount++;
+    public void addGhosts(int amount) {
+        ghostCount += Math.max(0, amount);
     }
 
     public int getGhostCount() {

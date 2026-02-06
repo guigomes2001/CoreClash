@@ -24,10 +24,23 @@ public class MainActivity extends AppCompatActivity {
     private GameManager gameManager;
     private GameState state;
 
-    private FrameLayout btnTriangle, btnSquare, victoryOverlay;
+    private FrameLayout btnTriangle;
+    private FrameLayout btnSquare;
+    private FrameLayout victoryOverlay;
+    private FrameLayout startOverlay;
+    private FrameLayout versusOverlay;
     private View victoryCard;
-    private TextView txtWinnerTitle, txtStatsMoves, txtStatsGhosts;
+    private TextView txtStatus;
+    private TextView txtWinnerTitle;
+    private TextView txtStatsMoves;
+    private TextView txtStatsGhosts;
+    private TextView txtVersusX;
+    private TextView txtVersusO;
+    private TextView txtVersusCenter;
     private Button btnRestart;
+    private Button btnPlay;
+
+    private boolean matchStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,40 +58,106 @@ public class MainActivity extends AppCompatActivity {
         GridLayout gridBoard = findViewById(R.id.gridBoard);
 
         board.createBoard(this, gridBoard, (row, col) -> {
-            String currentSymbol = gameManager.getCurrentPlayerSymbol();
+            if (!matchStarted) {
+                return;
+            }
 
+            String currentSymbol = gameManager.getCurrentPlayerSymbol();
             if (gameManager.play(row, col)) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    showVictoryScreen(currentSymbol);
-                }, 2000);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> showVictoryScreen(currentSymbol), 2000);
             }
             updateSkillVisuals();
         });
 
         setupSkills();
+        setupPreMatchFlow();
 
         btnRestart.setOnClickListener(v -> {
             hideVictoryScreen();
             gameManager.resetGame();
             updateSkillVisuals();
+            setupPreMatchFlow();
         });
 
         updateSkillVisuals();
     }
 
     private void initUI() {
+        txtStatus = findViewById(R.id.txtStatus);
         btnTriangle = findViewById(R.id.containerTriangle);
         btnSquare = findViewById(R.id.containerSquare);
         victoryOverlay = findViewById(R.id.victoryOverlay);
+        startOverlay = findViewById(R.id.startOverlay);
+        versusOverlay = findViewById(R.id.versusOverlay);
         victoryCard = findViewById(R.id.victoryCard);
         txtWinnerTitle = findViewById(R.id.txtWinnerTitle);
         txtStatsMoves = findViewById(R.id.txtStatsMoves);
         txtStatsGhosts = findViewById(R.id.txtStatsGhosts);
+        txtVersusX = findViewById(R.id.txtVersusX);
+        txtVersusO = findViewById(R.id.txtVersusO);
+        txtVersusCenter = findViewById(R.id.txtVersusCenter);
         btnRestart = findViewById(R.id.btnRestart);
+        btnPlay = findViewById(R.id.btnPlay);
+    }
+
+    private void setupPreMatchFlow() {
+        matchStarted = false;
+        txtStatus.setText("CORE CLASH");
+
+        startOverlay.setVisibility(View.VISIBLE);
+        startOverlay.setAlpha(1f);
+        versusOverlay.setVisibility(View.GONE);
+
+        btnPlay.setOnClickListener(v -> startMatchIntro());
+    }
+
+    private void startMatchIntro() {
+        startOverlay.animate()
+                .alpha(0f)
+                .setDuration(250)
+                .withEndAction(() -> {
+                    startOverlay.setVisibility(View.GONE);
+                    showVersusOverlay();
+                })
+                .start();
+    }
+
+    private void showVersusOverlay() {
+        versusOverlay.setVisibility(View.VISIBLE);
+        versusOverlay.setAlpha(0f);
+
+        txtVersusX.setTranslationX(-260f);
+        txtVersusO.setTranslationX(260f);
+        txtVersusCenter.setScaleX(0.7f);
+        txtVersusCenter.setScaleY(0.7f);
+
+        versusOverlay.animate().alpha(1f).setDuration(180).start();
+        txtVersusX.animate().translationX(0f).setDuration(500).setInterpolator(new OvershootInterpolator(1.1f)).start();
+        txtVersusO.animate().translationX(0f).setDuration(500).setInterpolator(new OvershootInterpolator(1.1f)).start();
+        txtVersusCenter.animate().scaleX(1.2f).scaleY(1.2f).setDuration(260)
+                .withEndAction(() -> txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(180).start())
+                .start();
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            versusOverlay.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction(() -> {
+                        versusOverlay.setVisibility(View.GONE);
+                        txtStatus.setText("BATALHA EM CURSO");
+                        matchStarted = true;
+                    })
+                    .start();
+        }, 1500);
     }
 
     private void setupSkills() {
         btnTriangle.setOnClickListener(v -> {
+            if (!matchStarted) {
+                shakeButton(v);
+                return;
+            }
+
             if (state.canUseTriangle()) {
                 gameManager.useTriangle();
                 spinAnimation(v);
@@ -89,6 +168,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnSquare.setOnClickListener(v -> {
+            if (!matchStarted) {
+                shakeButton(v);
+                return;
+            }
+
             if (state.canUseSquare()) {
                 gameManager.useSquare();
                 pulseAnimation(v);
@@ -103,11 +187,16 @@ public class MainActivity extends AppCompatActivity {
         float triAlpha = state.canUseTriangle() ? 1.0f : 0.2f;
         float sqAlpha = state.canUseSquare() ? 1.0f : 0.2f;
 
+        if (!matchStarted) {
+            triAlpha = 0.25f;
+            sqAlpha = 0.25f;
+        }
+
         btnTriangle.animate().alpha(triAlpha).setDuration(300).start();
         btnSquare.animate().alpha(sqAlpha).setDuration(300).start();
 
-        btnTriangle.setElevation(state.canUseTriangle() ? 20f : 0f);
-        btnSquare.setElevation(state.canUseSquare() ? 20f : 0f);
+        btnTriangle.setElevation(state.canUseTriangle() && matchStarted ? 20f : 0f);
+        btnSquare.setElevation(state.canUseSquare() && matchStarted ? 20f : 0f);
     }
 
     private void showVictoryScreen(String winner) {
