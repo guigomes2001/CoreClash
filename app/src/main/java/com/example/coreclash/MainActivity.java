@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
         versusOverlay.setAlpha(0f);
 
         txtVersusX.setText("Você");
-        txtVersusCenter.setText(selectedMode == SelectedMode.RANKED ? "RANQUEADA" : "CASUAL");
+        txtVersusCenter.setText(selectedMode == SelectedMode.RANKED ? "RANK" : "CASUAL");
         txtVersusO.setText(opponentName);
 
         txtVersusX.setTranslationX(-220f);
@@ -481,9 +481,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDrawScreen() {
-        txtWinnerTitle.setText("DEU VELHA");
-        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() + " | 🤝 RESULTADO: EMPATE");
-        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()) + " | 🔥 STREAK: " + gameManager.getWinStreak());
+        txtWinnerTitle.setText("EMPATE");
+        txtStatsMoves.setText("⚡ MOV: " + gameManager.getFinalMoves() + " | =");
+        txtStatsGhosts.setText("👻 GHO: " + String.format("%02d", gameManager.getFinalGhosts()) + " | 🔥 STK: " + gameManager.getWinStreak());
 
         victoryOverlay.setVisibility(View.VISIBLE);
         victoryOverlay.setAlpha(0f);
@@ -494,9 +494,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showVictoryScreen(String winner) {
-        txtWinnerTitle.setText("'" + winner + "' DOMINOU");
-        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() + " | 🏆 WINS: " + gameManager.getTotalWins());
-        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()) + " | 🔥 STREAK: " + gameManager.getWinStreak());
+        txtWinnerTitle.setText("" + winner + " WIN");
+        txtStatsMoves.setText("⚡ MOV: " + gameManager.getFinalMoves() + " | 🏆 W: " + gameManager.getTotalWins());
+        txtStatsGhosts.setText("👻 GHO: " + String.format("%02d", gameManager.getFinalGhosts()) + " | 🔥 STK: " + gameManager.getWinStreak());
 
         victoryOverlay.setVisibility(View.VISIBLE);
         victoryOverlay.setAlpha(0f);
@@ -515,9 +515,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateHeaderStatus() {
-        String modeLabel = selectedMode == SelectedMode.RANKED ? "RANQUEADA" : "CASUAL";
+        String modeLabel = selectedMode == SelectedMode.RANKED ? "RANK" : "CASUAL";
         String rivalLabel = opponentName;
-        txtStatus.setText("CORE CLASH | " + modeLabel + " | " + rivalLabel);
+        txtStatus.setText("CC • " + modeLabel + " • " + rivalLabel);
     }
 
     private void updateSkillVisuals() {
