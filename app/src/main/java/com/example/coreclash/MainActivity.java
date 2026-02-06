@@ -508,41 +508,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pulseAnimation(View v) {
-        v.animate().cancel();
-        v.animate()
-                .scaleX(0.88f)
-                .scaleY(0.88f)
-                .setDuration(90)
-                .withEndAction(() -> v.animate()
-                        .scaleX(1.08f)
-                        .scaleY(1.08f)
-                        .setDuration(130)
-                        .withEndAction(() -> v.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(140)
-                                .setInterpolator(new android.view.animation.DecelerateInterpolator())
-                                .start())
-                        .start())
-                .start();
+        v.animate().scaleX(0.85f).scaleY(0.85f).setDuration(100).withEndAction(() ->
+                v.animate().scaleX(1f).scaleY(1f).setDuration(180)
+                        .setInterpolator(new android.view.animation.BounceInterpolator()));
     }
 
     private void spinAnimation(View v) {
-        v.animate().cancel();
-        v.animate()
-                .rotationBy(360f)
-                .setDuration(520)
-                .setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator())
-                .withStartAction(() -> v.animate().scaleX(1.06f).scaleY(1.06f).setDuration(160).start())
-                .withEndAction(() -> v.animate().scaleX(1f).scaleY(1f).setDuration(120).start())
-                .start();
+        v.animate().rotationBy(360f).setDuration(450).setInterpolator(new OvershootInterpolator()).start();
     }
 
     private void shakeButton(View v) {
-        v.animate().cancel();
-        v.animate().translationX(10f).setDuration(40).withEndAction(() ->
-                v.animate().translationX(-8f).setDuration(40).withEndAction(() ->
-                        v.animate().translationX(6f).setDuration(35).withEndAction(() ->
-                                v.animate().translationX(0f).setDuration(35).start()).start()).start()).start();
+        v.animate().translationX(14).setDuration(45).withEndAction(() ->
+                v.animate().translationX(-14).setDuration(45).withEndAction(() ->
+                        v.animate().translationX(0).setDuration(45).start()).start()).start();
     }
 }
