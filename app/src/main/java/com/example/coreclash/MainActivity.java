@@ -1,5 +1,7 @@
 package com.example.coreclash;
 
+import android.content.res.ColorStateList;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,26 +18,38 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.coreclash.view.VictoryLineView;
+
+import java.util.List;
+import java.util.Random;
+
 import game.GameState;
 import manager.BoardManager;
 import manager.GameManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    private enum SelectedMode {
-        CASUAL,
-        RANKED
+    private enum SelectedMode { CASUAL, RANKED }
+
+    private enum BotDifficulty {
+        INICIANTE("Iniciante"),
+        MODERADA("Moderada"),
+        MESTRE("Mestre do Jogo");
+
+        final String label;
+
+        BotDifficulty(String label) {
+            this.label = label;
+        }
     }
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Random random = new Random();
 
     private GameManager gameManager;
     private GameState state;
+    private BoardManager board;
 
-    private FrameLayout btnTriangle;
-    private FrameLayout btnSquare;
-    private FrameLayout victoryOverlay;
-    private FrameLayout homeOverlay;
-    private FrameLayout versusOverlay;
-    private View victoryCard;
     private TextView txtStatus;
     private TextView txtWinnerTitle;
     private TextView txtStatsMoves;
@@ -44,16 +58,33 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtVersusO;
     private TextView txtVersusCenter;
 
-    private Button btnRestart;
-    private Button btnExit;
-    private Button btnPlay;
+    private FrameLayout btnTriangle;
+    private FrameLayout btnSquare;
+    private FrameLayout homeOverlay;
+    private FrameLayout versusOverlay;
+    private FrameLayout victoryOverlay;
+    private View victoryCard;
+    private VictoryLineView victoryLineView;
+
+    private FrameLayout modeOverlay;
+    private View modeCard;
     private Button btnModeCasual;
     private Button btnModeRanked;
+    private Button btnModeCancel;
+    private Button btnModeConfirm;
+
+    private Button btnPlay;
+    private Button btnOnline;
     private Button btnStore;
     private Button btnSettings;
+    private Button btnRestart;
+    private Button btnExit;
 
     private boolean matchStarted = false;
+    private boolean versusBot = false;
     private SelectedMode selectedMode = SelectedMode.CASUAL;
+    private BotDifficulty currentBotDifficulty = BotDifficulty.INICIANTE;
+    private String opponentName = "Aguardando";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,73 +92,37 @@ public class MainActivity extends AppCompatActivity {
 
         hideSystemBars();
         setContentView(R.layout.activity_main);
-
         initUI();
 
         state = new GameState();
-        BoardManager board = new BoardManager();
+        board = new BoardManager();
         gameManager = new GameManager(board, state);
 
         GridLayout gridBoard = findViewById(R.id.gridBoard);
         board.createBoard(this, gridBoard, (row, col) -> {
-            if (!matchStarted) {
+            if (!matchStarted || gameManager.isGameOver()) {
                 return;
             }
 
-            String currentSymbol = gameManager.getCurrentPlayerSymbol();
-            if (gameManager.play(row, col)) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> showVictoryScreen(currentSymbol), 2000);
+            if (versusBot && !state.isXTurn()) {
+                return;
             }
-            updateHeaderStatus();
-            updateSkillVisuals();
+
+            playTurn(row, col);
         });
 
-        setupMetaControls();
         setupSkills();
         setupHomeFlow();
+        setupMetaControls();
 
-        btnRestart.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            updateHeaderStatus();
-            updateSkillVisuals();
-            startMatchIntro();
-        });
-
-        btnExit.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            showHomeScreen();
-            updateSkillVisuals();
-            startMatchIntro();
-        });
-
-        btnExit.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            showHomeScreen();
-            updateSkillVisuals();
-        });
-
-        btnExit.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            showHomeScreen();
-            updateSkillVisuals();
-        });
-
+        showHomeScreen();
+        updateModeButtonStyles();
         updateHeaderStatus();
         updateSkillVisuals();
     }
 
     private void initUI() {
         txtStatus = findViewById(R.id.txtStatus);
-        btnTriangle = findViewById(R.id.containerTriangle);
-        btnSquare = findViewById(R.id.containerSquare);
-        victoryOverlay = findViewById(R.id.victoryOverlay);
-        homeOverlay = findViewById(R.id.homeOverlay);
-        versusOverlay = findViewById(R.id.versusOverlay);
-        victoryCard = findViewById(R.id.victoryCard);
         txtWinnerTitle = findViewById(R.id.txtWinnerTitle);
         txtStatsMoves = findViewById(R.id.txtStatsMoves);
         txtStatsGhosts = findViewById(R.id.txtStatsGhosts);
@@ -135,53 +130,173 @@ public class MainActivity extends AppCompatActivity {
         txtVersusO = findViewById(R.id.txtVersusO);
         txtVersusCenter = findViewById(R.id.txtVersusCenter);
 
-        btnRestart = findViewById(R.id.btnRestart);
-        btnExit = findViewById(R.id.btnExit);
-        btnPlay = findViewById(R.id.btnPlay);
+        btnTriangle = findViewById(R.id.containerTriangle);
+        btnSquare = findViewById(R.id.containerSquare);
+        homeOverlay = findViewById(R.id.homeOverlay);
+        versusOverlay = findViewById(R.id.versusOverlay);
+        victoryOverlay = findViewById(R.id.victoryOverlay);
+        victoryCard = findViewById(R.id.victoryCard);
+        victoryLineView = findViewById(R.id.victoryLineView);
+
+        modeOverlay = findViewById(R.id.modeOverlay);
+        modeCard = findViewById(R.id.modeCard);
         btnModeCasual = findViewById(R.id.btnModeCasual);
         btnModeRanked = findViewById(R.id.btnModeRanked);
+        btnModeCancel = findViewById(R.id.btnModeCancel);
+        btnModeConfirm = findViewById(R.id.btnModeConfirm);
+
+        btnPlay = findViewById(R.id.btnPlay);
+        btnOnline = findViewById(R.id.btnOnline);
         btnStore = findViewById(R.id.btnStore);
         btnSettings = findViewById(R.id.btnSettings);
+        btnRestart = findViewById(R.id.btnRestart);
+        btnExit = findViewById(R.id.btnExit);
     }
 
     private void setupHomeFlow() {
+        btnPlay.setOnClickListener(v -> openModeModal());
+
+        btnOnline.setOnClickListener(v -> {
+            Toast.makeText(this, "Buscando partida online...", Toast.LENGTH_SHORT).show();
+            startMatchmaking(true);
+        });
+
+        btnStore.setOnClickListener(v -> Toast.makeText(this, "Loja em desenvolvimento 🚧", Toast.LENGTH_SHORT).show());
+        btnSettings.setOnClickListener(v -> Toast.makeText(this, "Configurações em desenvolvimento ⚙", Toast.LENGTH_SHORT).show());
+
         btnModeCasual.setOnClickListener(v -> {
             selectedMode = SelectedMode.CASUAL;
-            updateHomeModeButtons();
+            updateModeButtonStyles();
         });
 
         btnModeRanked.setOnClickListener(v -> {
             selectedMode = SelectedMode.RANKED;
-            updateHomeModeButtons();
+            updateModeButtonStyles();
         });
 
-        btnStore.setOnClickListener(v -> Toast.makeText(this, "Loja em breve 🚧", Toast.LENGTH_SHORT).show());
-        btnSettings.setOnClickListener(v -> Toast.makeText(this, "Configurações em breve ⚙", Toast.LENGTH_SHORT).show());
+        btnModeCancel.setOnClickListener(v -> closeModeModal());
+        btnModeConfirm.setOnClickListener(v -> {
+            closeModeModal();
+            startMatchmaking(false);
+        });
 
-        btnPlay.setOnClickListener(v -> startMatchIntro());
-
-        showHomeScreen();
-        updateHomeModeButtons();
+        modeOverlay.setOnClickListener(v -> closeModeModal());
+        modeCard.setOnClickListener(v -> {
+            // consume click
+        });
     }
 
-    private void updateHomeModeButtons() {
-        if (selectedMode == SelectedMode.CASUAL) {
-            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE2E8F0));
-            btnModeCasual.setTextColor(0xFF0F172A);
-            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF334155));
-            btnModeRanked.setTextColor(0xFFFFFFFF);
+    private void setupMetaControls() {
+        btnRestart.setOnClickListener(v -> {
+            hideVictoryScreen();
+            gameManager.resetGame();
+            victoryLineView.clear();
+            updateSkillVisuals();
+            startMatchIntro();
+        });
+
+        btnExit.setOnClickListener(v -> {
+            hideVictoryScreen();
+            gameManager.resetGame();
+            victoryLineView.clear();
+            showHomeScreen();
+            updateHeaderStatus();
+            updateSkillVisuals();
+        });
+    }
+
+    private void setupSkills() {
+        btnTriangle.setOnClickListener(v -> {
+            if (!matchStarted || gameManager.isGameOver()) {
+                shakeButton(v);
+                return;
+            }
+
+            if (!state.canUseTriangle()) {
+                shakeButton(v);
+                return;
+            }
+
+            gameManager.useTriangle();
+            spinAnimation(v);
+            updateHeaderStatus();
+            updateSkillVisuals();
+        });
+
+        btnSquare.setOnClickListener(v -> {
+            if (!matchStarted || gameManager.isGameOver()) {
+                shakeButton(v);
+                return;
+            }
+
+            if (!state.canUseSquare()) {
+                shakeButton(v);
+                return;
+            }
+
+            gameManager.useSquare();
+            pulseAnimation(v);
+            updateHeaderStatus();
+            updateSkillVisuals();
+        });
+    }
+
+    private void openModeModal() {
+        updateModeButtonStyles();
+        modeOverlay.setVisibility(View.VISIBLE);
+        modeOverlay.setAlpha(0f);
+        modeCard.setScaleX(0.9f);
+        modeCard.setScaleY(0.9f);
+
+        modeOverlay.animate().alpha(1f).setDuration(180).start();
+        modeCard.animate().scaleX(1f).scaleY(1f).setDuration(220).start();
+    }
+
+    private void closeModeModal() {
+        modeOverlay.animate()
+                .alpha(0f)
+                .setDuration(150)
+                .withEndAction(() -> modeOverlay.setVisibility(View.GONE))
+                .start();
+    }
+
+    private void updateModeButtonStyles() {
+        boolean casual = selectedMode == SelectedMode.CASUAL;
+        int selectedBg = 0xFFE2E8F0;
+        int selectedText = 0xFF0F172A;
+        int defaultBg = 0xFF334155;
+        int defaultText = 0xFFFFFFFF;
+
+        btnModeCasual.setBackgroundTintList(ColorStateList.valueOf(casual ? selectedBg : defaultBg));
+        btnModeCasual.setTextColor(casual ? selectedText : defaultText);
+
+        btnModeRanked.setBackgroundTintList(ColorStateList.valueOf(casual ? defaultBg : selectedBg));
+        btnModeRanked.setTextColor(casual ? defaultText : selectedText);
+    }
+
+    private void startMatchmaking(boolean fromOnlineButton) {
+        boolean foundPlayer = fromOnlineButton && random.nextFloat() < 0.45f;
+        versusBot = !foundPlayer;
+
+        if (versusBot) {
+            opponentName = randomBotName();
+            currentBotDifficulty = randomDifficulty();
         } else {
-            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF334155));
-            btnModeCasual.setTextColor(0xFFFFFFFF);
-            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE2E8F0));
-            btnModeRanked.setTextColor(0xFF0F172A);
+            opponentName = "RivalOnline" + (100 + random.nextInt(900));
+            currentBotDifficulty = BotDifficulty.MODERADA;
+            Toast.makeText(this, "Partida online encontrada contra " + opponentName, Toast.LENGTH_SHORT).show();
         }
+
+        state.setGameMode(selectedMode == SelectedMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
+        gameManager.resetGame();
+        victoryLineView.clear();
+        updateHeaderStatus();
+        updateSkillVisuals();
+        startMatchIntro();
     }
 
     private void showHomeScreen() {
         matchStarted = false;
-        txtStatus.setText("CORE CLASH | " + selectedMode.name());
-
         homeOverlay.setVisibility(View.VISIBLE);
         homeOverlay.setAlpha(1f);
         versusOverlay.setVisibility(View.GONE);
@@ -190,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
     private void startMatchIntro() {
         homeOverlay.animate()
                 .alpha(0f)
-                .setDuration(250)
+                .setDuration(260)
                 .withEndAction(() -> {
                     homeOverlay.setVisibility(View.GONE);
                     showVersusOverlay();
@@ -202,116 +317,181 @@ public class MainActivity extends AppCompatActivity {
         versusOverlay.setVisibility(View.VISIBLE);
         versusOverlay.setAlpha(0f);
 
-        txtVersusX.setTranslationX(-260f);
-        txtVersusO.setTranslationX(260f);
+        txtVersusX.setText("Você");
+        txtVersusCenter.setText(selectedMode == SelectedMode.RANKED ? "RANQUEADA" : "CASUAL");
+        txtVersusO.setText(opponentName);
+
+        txtVersusX.setTranslationX(-220f);
+        txtVersusO.setTranslationX(220f);
         txtVersusCenter.setScaleX(0.7f);
         txtVersusCenter.setScaleY(0.7f);
 
-        versusOverlay.animate().alpha(1f).setDuration(180).start();
-        txtVersusX.animate().translationX(0f).setDuration(500).setInterpolator(new OvershootInterpolator(1.1f)).start();
-        txtVersusO.animate().translationX(0f).setDuration(500).setInterpolator(new OvershootInterpolator(1.1f)).start();
-        txtVersusCenter.animate().scaleX(1.2f).scaleY(1.2f).setDuration(260)
-                .withEndAction(() -> txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(180).start())
+        versusOverlay.animate().alpha(1f).setDuration(160).start();
+        txtVersusX.animate().translationX(0f).setDuration(480).setInterpolator(new OvershootInterpolator(1.1f)).start();
+        txtVersusO.animate().translationX(0f).setDuration(480).setInterpolator(new OvershootInterpolator(1.1f)).start();
+        txtVersusCenter.animate().scaleX(1.1f).scaleY(1.1f).setDuration(240)
+                .withEndAction(() -> txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(160).start())
                 .start();
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        handler.postDelayed(() -> {
             versusOverlay.animate()
                     .alpha(0f)
-                    .setDuration(300)
+                    .setDuration(240)
                     .withEndAction(() -> {
                         versusOverlay.setVisibility(View.GONE);
-                        txtStatus.setText("BATALHA " + selectedMode.name());
                         matchStarted = true;
+                        updateHeaderStatus();
+                        updateSkillVisuals();
+                        maybeRunBotTurn();
                     })
                     .start();
-        }, 1500);
+        }, 1300);
     }
 
-    private void setupSkills() {
-        btnTriangle.setOnClickListener(v -> {
-            if (!matchStarted) {
-                shakeButton(v);
-                return;
-            }
+    private void playTurn(int row, int col) {
+        int beforeMoves = gameManager.getFinalMoves();
+        String symbol = gameManager.getCurrentPlayerSymbol();
+        boolean won = gameManager.play(row, col);
 
-            if (state.canUseTriangle()) {
-                gameManager.useTriangle();
-                spinAnimation(v);
-                updateHeaderStatus();
-                updateSkillVisuals();
-            } else {
-                shakeButton(v);
-            }
-        });
-
-        btnSquare.setOnClickListener(v -> {
-            if (!matchStarted) {
-                shakeButton(v);
-                return;
-            }
-
-            if (state.canUseSquare()) {
-                gameManager.useSquare();
-                pulseAnimation(v);
-                updateHeaderStatus();
-                updateSkillVisuals();
-            } else {
-                shakeButton(v);
-            }
-        });
-    }
-
-    private void updateHeaderStatus() {
-        txtHeaderStatus.setText(String.format(
-                "CORE CLASH | %s | %s | %s %d",
-                gameManager.getGameMode().name(),
-                gameManager.getSymbolSkin().name(),
-                gameManager.getRankLabel(),
-                gameManager.getRankedPoints()
-        ));
-    }
-
-    private void updateSkillVisuals() {
-        float triAlpha = state.canUseTriangle() ? 1.0f : 0.2f;
-        float sqAlpha = state.canUseSquare() ? 1.0f : 0.2f;
-
-        if (!matchStarted) {
-            triAlpha = 0.25f;
-            sqAlpha = 0.25f;
+        if (beforeMoves == gameManager.getFinalMoves()) {
+            return;
         }
 
-        btnTriangle.animate().alpha(triAlpha).setDuration(300).start();
-        btnSquare.animate().alpha(sqAlpha).setDuration(300).start();
+        updateHeaderStatus();
+        updateSkillVisuals();
 
-        btnTriangle.setElevation(state.canUseTriangle() && matchStarted ? 20f : 0f);
-        btnSquare.setElevation(state.canUseSquare() && matchStarted ? 20f : 0f);
+        if (won) {
+            matchStarted = false;
+            drawVictoryLine();
+            handler.postDelayed(() -> showVictoryScreen(symbol), 450);
+            return;
+        }
+
+        if (gameManager.isGameOver()) {
+            matchStarted = false;
+            Toast.makeText(this, "Empate!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        maybeRunBotTurn();
+    }
+
+    private void maybeRunBotTurn() {
+        if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
+            return;
+        }
+
+        handler.postDelayed(() -> {
+            if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
+                return;
+            }
+
+            if (currentBotDifficulty == BotDifficulty.MESTRE) {
+                if (state.canUseTriangle() && random.nextFloat() < 0.35f) {
+                    gameManager.useTriangle();
+                }
+                if (state.canUseSquare() && random.nextFloat() < 0.25f) {
+                    gameManager.useSquare();
+                }
+            }
+
+            int[] move = chooseBotMove(currentBotDifficulty);
+            if (move != null) {
+                playTurn(move[0], move[1]);
+            }
+        }, 550);
+    }
+
+    private int[] chooseBotMove(BotDifficulty difficulty) {
+        List<int[]> moves = gameManager.getAvailableMoves();
+        if (moves.isEmpty()) return null;
+
+        if (difficulty == BotDifficulty.INICIANTE) {
+            return moves.get(random.nextInt(moves.size()));
+        }
+
+        int[] win = gameManager.findWinningMoveFor("O");
+        if (win != null) return win;
+
+        int[] block = gameManager.findWinningMoveFor("X");
+        if (block != null) return block;
+
+        if (difficulty == BotDifficulty.MODERADA) {
+            int[] center = gameManager.getCenterIfAvailable();
+            return center != null ? center : moves.get(random.nextInt(moves.size()));
+        }
+
+        int[] best = gameManager.findBestMoveForO();
+        return best != null ? best : moves.get(random.nextInt(moves.size()));
+    }
+
+    private void drawVictoryLine() {
+        GameManager.WinInfo win = gameManager.getLastWin();
+        if (win == null) return;
+
+        PointF start = board.getCellCenterOnScreen(win.r1(), win.c1());
+        PointF end = board.getCellCenterOnScreen(win.r3(), win.c3());
+
+        int[] lineLoc = new int[2];
+        victoryLineView.getLocationOnScreen(lineLoc);
+
+        victoryLineView.setData(
+                start.x - lineLoc[0],
+                start.y - lineLoc[1],
+                end.x - lineLoc[0],
+                end.y - lineLoc[1]
+        );
     }
 
     private void showVictoryScreen(String winner) {
         txtWinnerTitle.setText("'" + winner + "' DOMINOU");
-        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() +
-                " | 🏆 WINS: " + gameManager.getTotalWins());
-        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()) +
-                " | 🔥 STREAK: " + gameManager.getWinStreak());
+        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() + " | 🏆 WINS: " + gameManager.getTotalWins());
+        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()) + " | 🔥 STREAK: " + gameManager.getWinStreak());
 
         victoryOverlay.setVisibility(View.VISIBLE);
         victoryOverlay.setAlpha(0f);
-        victoryCard.setTranslationY(400f);
+        victoryCard.setTranslationY(300f);
 
-        victoryOverlay.animate().alpha(1f).setDuration(400).start();
-        victoryCard.animate()
-                .translationY(0f)
-                .setInterpolator(new OvershootInterpolator(1.0f))
-                .setDuration(700)
-                .start();
+        victoryOverlay.animate().alpha(1f).setDuration(280).start();
+        victoryCard.animate().translationY(0f).setDuration(520).setInterpolator(new OvershootInterpolator(1f)).start();
     }
 
     private void hideVictoryScreen() {
         victoryOverlay.animate()
                 .alpha(0f)
-                .setDuration(300)
+                .setDuration(240)
                 .withEndAction(() -> victoryOverlay.setVisibility(View.GONE))
                 .start();
+    }
+
+    private void updateHeaderStatus() {
+        String modeLabel = selectedMode == SelectedMode.RANKED ? "RANQUEADA" : "CASUAL";
+        String rivalLabel = opponentName;
+        txtStatus.setText("CORE CLASH | " + modeLabel + " | " + rivalLabel);
+    }
+
+    private void updateSkillVisuals() {
+        float triAlpha = state.canUseTriangle() && matchStarted ? 1f : 0.25f;
+        float sqAlpha = state.canUseSquare() && matchStarted ? 1f : 0.25f;
+
+        btnTriangle.animate().alpha(triAlpha).setDuration(220).start();
+        btnSquare.animate().alpha(sqAlpha).setDuration(220).start();
+
+        btnTriangle.setElevation(state.canUseTriangle() && matchStarted ? 20f : 0f);
+        btnSquare.setElevation(state.canUseSquare() && matchStarted ? 20f : 0f);
+    }
+
+    private String randomBotName() {
+        String[] names = {
+                "GuaxinimDaNoite", "NinjaDoVazio", "CorujaSuprema", "TigreNebuloso",
+                "FalcaoTatico", "LinceArcano", "DracoDeAço", "RaptorDigital"
+        };
+        return names[random.nextInt(names.length)];
+    }
+
+    private BotDifficulty randomDifficulty() {
+        BotDifficulty[] levels = BotDifficulty.values();
+        return levels[random.nextInt(levels.length)];
     }
 
     private void hideSystemBars() {
@@ -324,17 +504,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void pulseAnimation(View v) {
         v.animate().scaleX(0.85f).scaleY(0.85f).setDuration(100).withEndAction(() ->
-                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200)
+                v.animate().scaleX(1f).scaleY(1f).setDuration(180)
                         .setInterpolator(new android.view.animation.BounceInterpolator()));
     }
 
     private void spinAnimation(View v) {
-        v.animate().rotationBy(360).setDuration(500).setInterpolator(new OvershootInterpolator());
+        v.animate().rotationBy(360f).setDuration(450).setInterpolator(new OvershootInterpolator()).start();
     }
 
     private void shakeButton(View v) {
-        v.animate().translationX(15).setDuration(50).withEndAction(() ->
-                v.animate().translationX(-15).setDuration(50).withEndAction(() ->
-                        v.animate().translationX(0).setDuration(50)));
+        v.animate().translationX(14).setDuration(45).withEndAction(() ->
+                v.animate().translationX(-14).setDuration(45).withEndAction(() ->
+                        v.animate().translationX(0).setDuration(45).start()).start()).start();
     }
 }
