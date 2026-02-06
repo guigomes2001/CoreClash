@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSettings;
     private Button btnRestart;
     private Button btnExit;
+    private Button btnNewMatch;
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
@@ -156,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
         btnSettings = findViewById(R.id.btnSettings);
         btnRestart = findViewById(R.id.btnRestart);
         btnExit = findViewById(R.id.btnExit);
+        btnNewMatch = findViewById(R.id.btnNewMatch);
     }
 
     private void setupHomeFlow() {
@@ -207,6 +209,13 @@ public class MainActivity extends AppCompatActivity {
             showHomeScreen();
             updateHeaderStatus();
             updateSkillVisuals();
+        });
+
+        btnNewMatch.setOnClickListener(v -> {
+            hideVictoryScreen();
+            gameManager.resetGame();
+            victoryLineView.clear();
+            startMatchmaking(true);
         });
     }
 
@@ -374,7 +383,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (gameManager.isGameOver()) {
             matchStarted = false;
-            Toast.makeText(this, "Empate!", Toast.LENGTH_SHORT).show();
+            drawDrawLine();
+            handler.postDelayed(this::showDrawScreen, 420);
             return;
         }
 
@@ -448,6 +458,41 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+
+    private void drawDrawLine() {
+        PointF topLeft = board.getCellCenterOnScreen(0, 0);
+        PointF topRight = board.getCellCenterOnScreen(0, 2);
+        PointF bottomLeft = board.getCellCenterOnScreen(2, 0);
+        PointF bottomRight = board.getCellCenterOnScreen(2, 2);
+
+        int[] lineLoc = new int[2];
+        victoryLineView.getLocationOnScreen(lineLoc);
+
+        victoryLineView.setDrawData(
+                topLeft.x - lineLoc[0],
+                topLeft.y - lineLoc[1],
+                bottomRight.x - lineLoc[0],
+                bottomRight.y - lineLoc[1],
+                topRight.x - lineLoc[0],
+                topRight.y - lineLoc[1],
+                bottomLeft.x - lineLoc[0],
+                bottomLeft.y - lineLoc[1]
+        );
+    }
+
+    private void showDrawScreen() {
+        txtWinnerTitle.setText("DEU VELHA");
+        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() + " | 🤝 RESULTADO: EMPATE");
+        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()) + " | 🔥 STREAK: " + gameManager.getWinStreak());
+
+        victoryOverlay.setVisibility(View.VISIBLE);
+        victoryOverlay.setAlpha(0f);
+        victoryCard.setTranslationY(300f);
+
+        victoryOverlay.animate().alpha(1f).setDuration(280).start();
+        victoryCard.animate().translationY(0f).setDuration(520).setInterpolator(new OvershootInterpolator(1f)).start();
+    }
+
     private void showVictoryScreen(String winner) {
         txtWinnerTitle.setText("'" + winner + "' DOMINOU");
         txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() + " | 🏆 WINS: " + gameManager.getTotalWins());
@@ -508,18 +553,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pulseAnimation(View v) {
-        v.animate().scaleX(0.85f).scaleY(0.85f).setDuration(100).withEndAction(() ->
-                v.animate().scaleX(1f).scaleY(1f).setDuration(180)
-                        .setInterpolator(new android.view.animation.BounceInterpolator()));
+        v.animate().cancel();
+        v.animate()
+                .scaleX(0.88f)
+                .scaleY(0.88f)
+                .setDuration(90)
+                .withEndAction(() -> v.animate()
+                        .scaleX(1.08f)
+                        .scaleY(1.08f)
+                        .setDuration(130)
+                        .withEndAction(() -> v.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(140)
+                                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                .start())
+                        .start())
+                .start();
     }
 
     private void spinAnimation(View v) {
-        v.animate().rotationBy(360f).setDuration(450).setInterpolator(new OvershootInterpolator()).start();
+        v.animate().cancel();
+        v.animate()
+                .rotationBy(360f)
+                .setDuration(520)
+                .setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator())
+                .withStartAction(() -> v.animate().scaleX(1.06f).scaleY(1.06f).setDuration(160).start())
+                .withEndAction(() -> v.animate().scaleX(1f).scaleY(1f).setDuration(120).start())
+                .start();
     }
 
     private void shakeButton(View v) {
-        v.animate().translationX(14).setDuration(45).withEndAction(() ->
-                v.animate().translationX(-14).setDuration(45).withEndAction(() ->
-                        v.animate().translationX(0).setDuration(45).start()).start()).start();
+        v.animate().cancel();
+        v.animate().translationX(10f).setDuration(40).withEndAction(() ->
+                v.animate().translationX(-8f).setDuration(40).withEndAction(() ->
+                        v.animate().translationX(6f).setDuration(35).withEndAction(() ->
+                                v.animate().translationX(0f).setDuration(35).start()).start()).start()).start();
     }
 }
