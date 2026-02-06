@@ -99,6 +99,14 @@ public class MainActivity extends AppCompatActivity {
             gameManager.resetGame();
             showHomeScreen();
             updateSkillVisuals();
+            startMatchIntro();
+        });
+
+        btnExit.setOnClickListener(v -> {
+            hideVictoryScreen();
+            gameManager.resetGame();
+            showHomeScreen();
+            updateSkillVisuals();
         });
 
         btnExit.setOnClickListener(v -> {
@@ -158,15 +166,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateHomeModeButtons() {
         if (selectedMode == SelectedMode.CASUAL) {
-            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFBC02D));
-            btnModeCasual.setTextColor(0xFF3E2723);
-            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF6A5ACD));
+            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE2E8F0));
+            btnModeCasual.setTextColor(0xFF0F172A);
+            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF334155));
             btnModeRanked.setTextColor(0xFFFFFFFF);
         } else {
-            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF6A5ACD));
+            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF334155));
             btnModeCasual.setTextColor(0xFFFFFFFF);
-            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFBC02D));
-            btnModeRanked.setTextColor(0xFF3E2723);
+            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE2E8F0));
+            btnModeRanked.setTextColor(0xFF0F172A);
         }
     }
 
