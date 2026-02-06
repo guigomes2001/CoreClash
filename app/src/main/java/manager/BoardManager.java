@@ -266,7 +266,11 @@ public class BoardManager {
         return cells[r][c];
     }
 
-  private PointF getCellCenter(int r, int c) {
+    public PointF getCellCenterOnScreen(int r, int c) {
+        return getCellCenter(r, c);
+    }
+
+    private PointF getCellCenter(int r, int c) {
         FrameLayout cell = cellContainers[r][c];
 
         int[] cellLocation = new int[2];
