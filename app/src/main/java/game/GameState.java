@@ -13,6 +13,7 @@ public class GameState {
         GLITCH
     }
 
+    private static final int TRIANGLE_UNLOCK_MOVE = 3;
     private static final int SQUARE_UNLOCK_MOVE = 4;
 
     private boolean xTurn = true;
@@ -39,7 +40,7 @@ public class GameState {
     }
 
     public boolean canUseTriangle() {
-        if (!triangleExists) return false;
+        if (!triangleExists || moveCount < TRIANGLE_UNLOCK_MOVE) return false;
         return triangleOwnerIsX == null || triangleOwnerIsX == xTurn;
     }
 
@@ -48,6 +49,10 @@ public class GameState {
             return false;
         }
         return squareOwnerIsX == null || squareOwnerIsX == xTurn;
+    }
+
+    public int getTriangleUnlockMove() {
+        return TRIANGLE_UNLOCK_MOVE;
     }
 
     public int getSquareUnlockMove() {
