@@ -13,12 +13,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="CORE CLASH"
-        android:textColor="#00FBFF"
+        android:textColor="#FFF8E1"
         android:textSize="24sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-black"
         android:letterSpacing="0.15"
-        android:shadowColor="#8000FBFF"
+        android:shadowColor="#664B2E83"
         android:shadowDx="0"
         android:shadowDy="0"
         android:shadowRadius="20"
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:text="△"
             android:textSize="48sp"
-            android:textColor="#FFD700"
+            android:textColor="#FFECB3"
             android:layout_gravity="center"
             android:includeFontPadding="false" />
     </FrameLayout>
@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
             android:text="▢"
             android:textSize="40sp"
-            android:textColor="#A033FF"
+            android:textColor="#D1C4E9"
             android:layout_gravity="center"
             android:includeFontPadding="false"
             android:translationY="-2dp"/>
@@ -99,7 +99,7 @@
         android:id="@+id/homeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#EE0E1018"
+        android:background="#D9231835"
         android:elevation="92dp"
         android:clickable="true"
         android:focusable="true">
@@ -118,9 +118,9 @@
                 android:text="CORE CLASH"
                 android:textSize="40sp"
                 android:textStyle="bold"
-                android:textColor="#00FBFF"
+                android:textColor="#FFF8E1"
                 android:fontFamily="sans-serif-black"
-                android:shadowColor="#6600FBFF"
+                android:shadowColor="#664B2E83"
                 android:shadowRadius="20"
                 android:shadowDx="0"
                 android:shadowDy="0"/>
@@ -130,7 +130,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="Escolha o modo e entre na arena"
-                android:textColor="#CCFFFFFF"
+                android:textColor="#E6DCC8"
                 android:textSize="14sp"/>
 
             <LinearLayout
@@ -145,8 +145,8 @@
                     android:layout_height="48dp"
                     android:text="CASUAL"
                     android:textStyle="bold"
-                    android:textColor="#10131A"
-                    android:backgroundTint="#00FBFF"/>
+                    android:textColor="#3E2723"
+                    android:backgroundTint="#FBC02D"/>
 
                 <Button
                     android:id="@+id/btnModeRanked"
@@ -156,7 +156,7 @@
                     android:text="RANQUEADO"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"
-                    android:backgroundTint="#3E4A63"/>
+                    android:backgroundTint="#6A5ACD"/>
             </LinearLayout>
 
             <Button
@@ -167,7 +167,7 @@
                 android:text="JOGAR"
                 android:textStyle="bold"
                 android:textColor="#000000"
-                android:backgroundTint="#00FBFF"/>
+                android:backgroundTint="#FBC02D"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -180,20 +180,20 @@
                     android:id="@+id/btnStore"
                     android:layout_width="150dp"
                     android:layout_height="46dp"
-                    android:text="🛒 LOJA"
+                    android:text="LOJA"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"
-                    android:backgroundTint="#222A3A"/>
+                    android:backgroundTint="#4E3A73"/>
 
                 <Button
                     android:id="@+id/btnSettings"
                     android:layout_width="150dp"
                     android:layout_height="46dp"
                     android:layout_marginStart="12dp"
-                    android:text="⚙ CONFIG"
+                    android:text="CONFIG"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"
-                    android:backgroundTint="#222A3A"/>
+                    android:backgroundTint="#4E3A73"/>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
@@ -202,7 +202,7 @@
         android:id="@+id/versusOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F214141B"
+        android:background="#D9392F54"
         android:visibility="gone"
         android:elevation="95dp"
         android:clickable="true"
@@ -234,7 +234,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="14dp"
                 android:text="VS"
-                android:textColor="#00FBFF"
+                android:textColor="#FFF8E1"
                 android:textStyle="bold"
                 android:textSize="34sp"
                 android:fontFamily="sans-serif-black" />
@@ -246,7 +246,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="PLAYER O"
-                android:textColor="#00FFFF"
+                android:textColor="#EF9A9A"
                 android:textStyle="bold"
                 android:textSize="30sp"
                 android:fontFamily="sans-serif-black" />
@@ -257,7 +257,7 @@
         android:id="@+id/victoryOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F2000000"
+        android:background="#E0221B38"
         android:visibility="gone"
         android:elevation="100dp"
         android:clickable="true"
@@ -278,7 +278,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="'X' VENCEU"
-                android:textColor="#00FBFF"
+                android:textColor="#FFF8E1"
                 android:textSize="36sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black" />
@@ -286,7 +286,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#3300FBFF"
+                android:background="#66D1C4E9"
                 android:layout_marginVertical="24dp" />
 
             <TextView
@@ -304,7 +304,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="FANTASMAS: 0"
-                android:textColor="#80FFFFFF"
+                android:textColor="#D1C4E9"
                 android:textSize="16sp"
                 android:layout_marginTop="12dp"
                 android:gravity="center" />
@@ -316,7 +316,18 @@
                 android:layout_marginTop="26dp"
                 android:text="REVANCHE"
                 android:textColor="#000000"
-                android:backgroundTint="#00FBFF"
+                android:backgroundTint="#FBC02D"
+                android:textStyle="bold"
+                app:cornerRadius="8dp" />
+
+            <Button
+                android:id="@+id/btnExit"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="10dp"
+                android:text="SAIR"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#5E35B1"
                 android:textStyle="bold"
                 app:cornerRadius="8dp" />
 
