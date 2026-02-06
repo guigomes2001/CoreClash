@@ -139,16 +139,9 @@ public class BoardManager {
         tv.setTextColor(color);
         tv.setShadowLayer(20, 0, 0, color);
 
-        tv.setScaleX(0.7f);
-        tv.setScaleY(0.7f);
-        tv.setAlpha(0.4f);
-        tv.animate()
-                .scaleX(1.08f)
-                .scaleY(1.08f)
-                .alpha(1f)
-                .setDuration(140)
-                .withEndAction(() -> tv.animate().scaleX(1f).scaleY(1f).setDuration(110).start())
-                .start();
+        tv.setScaleX(0f);
+        tv.setScaleY(0f);
+        tv.animate().scaleX(1f).scaleY(1f).setDuration(250).start();
 
         updateCellGhostState(r, c);
     }
@@ -162,7 +155,7 @@ public class BoardManager {
 
         overlayView.drawShape(points, COLOR_TRIANGLE);
 
-        long duration = 500;
+        long duration = 600;
         long step = duration / 3;
 
         int affected = 0;
@@ -246,10 +239,8 @@ public class BoardManager {
             gd.setColor(COLOR_DEAD);
 
             container.animate()
-                    .translationX(4f).setDuration(45)
-                    .withEndAction(() -> container.animate().translationX(-3f).setDuration(45)
-                            .withEndAction(() -> container.animate().translationX(0f).setDuration(45).start())
-                            .start())
+                    .translationX(5).setDuration(50)
+                    .withEndAction(() -> container.animate().translationX(0).setDuration(50).start())
                     .start();
         } else {
             container.setAlpha(1.0f);
