@@ -286,9 +286,6 @@ public class MainActivity extends AppCompatActivity {
         if (versusBot) {
             opponentName = randomBotName();
             currentBotDifficulty = randomDifficulty();
-            Toast.makeText(this,
-                    "Sem jogador disponível. Bot " + opponentName + " (" + currentBotDifficulty.label + ") entrou na arena.",
-                    Toast.LENGTH_LONG).show();
         } else {
             opponentName = "RivalOnline" + (100 + random.nextInt(900));
             currentBotDifficulty = BotDifficulty.MODERADA;
@@ -327,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
 
         txtVersusX.setText("Você");
         txtVersusCenter.setText(selectedMode == SelectedMode.RANKED ? "RANQUEADA" : "CASUAL");
-        txtVersusO.setText(opponentName + (versusBot ? " 🤖" : ""));
+        txtVersusO.setText(opponentName);
 
         txtVersusX.setTranslationX(-220f);
         txtVersusO.setTranslationX(220f);
@@ -474,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateHeaderStatus() {
         String modeLabel = selectedMode == SelectedMode.RANKED ? "RANQUEADA" : "CASUAL";
-        String rivalLabel = versusBot ? opponentName + " • " + currentBotDifficulty.label : opponentName;
+        String rivalLabel = opponentName;
         txtStatus.setText("CORE CLASH | " + modeLabel + " | " + rivalLabel);
     }
 
@@ -524,31 +521,5 @@ public class MainActivity extends AppCompatActivity {
         v.animate().translationX(14).setDuration(45).withEndAction(() ->
                 v.animate().translationX(-14).setDuration(45).withEndAction(() ->
                         v.animate().translationX(0).setDuration(45).start()).start()).start();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        maybeRunBotTurn();
-    }
-
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        maybeRunBotTurn();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        handler.postDelayed(this::maybeRunBotTurn, 120);
-    }
-
-    @Override
-    protected void onUserInteraction() {
-        super.onUserInteraction();
-        if (versusBot && matchStarted && !state.isXTurn()) {
-            maybeRunBotTurn();
-        }
     }
 }
