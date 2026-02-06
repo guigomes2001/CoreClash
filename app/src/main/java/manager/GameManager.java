@@ -101,42 +101,6 @@ public class GameManager {
         state.triggerSquareUsed();
     }
 
-    public void setGameMode(GameState.GameMode gameMode) {
-        state.setGameMode(gameMode);
-    }
-
-    public GameState.GameMode getGameMode() {
-        return state.getGameMode();
-    }
-
-    public void setSymbolSkin(GameState.SymbolSkin skin) {
-        state.setSymbolSkin(skin);
-    }
-
-    public GameState.SymbolSkin getSymbolSkin() {
-        return state.getSymbolSkin();
-    }
-
-    public String getRankLabel() {
-        return state.getRankLabel();
-    }
-
-    public int getRankedPoints() {
-        return state.getRankedPoints();
-    }
-
-    public int getWinStreak() {
-        return state.getWinStreak();
-    }
-
-    public int getTotalWins() {
-        return state.getTotalWins();
-    }
-
-    public int getSquareUnlockMove() {
-        return state.getSquareUnlockMove();
-    }
-
     public void resetGame() {
         isGameOver = false;
         lastWin = null;
