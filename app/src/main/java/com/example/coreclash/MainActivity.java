@@ -1,13 +1,18 @@
 package com.example.coreclash;
 
+import android.app.AlertDialog;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,19 +21,33 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.coreclash.view.VictoryLineView;
+
+import java.util.List;
+import java.util.Random;
+
 import game.GameState;
 import manager.BoardManager;
 import manager.GameManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    private enum SelectedMode {
-        CASUAL,
-        RANKED
+    private enum SelectedMode { CASUAL, RANKED }
+    private enum BotDifficulty {
+        INICIANTE("Iniciante"),
+        MODERADA("Moderada"),
+        MESTRE("Mestre do Jogo");
+
+        final String label;
+        BotDifficulty(String label) { this.label = label; }
     }
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Random random = new Random();
 
     private GameManager gameManager;
     private GameState state;
+    private BoardManager board;
 
     private FrameLayout btnTriangle;
     private FrameLayout btnSquare;
@@ -43,17 +62,20 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtVersusX;
     private TextView txtVersusO;
     private TextView txtVersusCenter;
+    private VictoryLineView victoryLineView;
 
     private Button btnRestart;
     private Button btnExit;
     private Button btnPlay;
-    private Button btnModeCasual;
-    private Button btnModeRanked;
+    private Button btnOnline;
     private Button btnStore;
     private Button btnSettings;
 
     private boolean matchStarted = false;
+    private boolean versusBot = false;
     private SelectedMode selectedMode = SelectedMode.CASUAL;
+    private BotDifficulty currentBotDifficulty = BotDifficulty.INICIANTE;
+    private String opponentName = "Adversário";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,56 +87,25 @@ public class MainActivity extends AppCompatActivity {
         initUI();
 
         state = new GameState();
-        BoardManager board = new BoardManager();
+        board = new BoardManager();
         gameManager = new GameManager(board, state);
 
         GridLayout gridBoard = findViewById(R.id.gridBoard);
         board.createBoard(this, gridBoard, (row, col) -> {
-            if (!matchStarted) {
+            if (!matchStarted || gameManager.isGameOver()) {
                 return;
             }
 
-            String currentSymbol = gameManager.getCurrentPlayerSymbol();
-            if (gameManager.play(row, col)) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> showVictoryScreen(currentSymbol), 2000);
+            if (versusBot && !state.isXTurn()) {
+                return;
             }
-            updateHeaderStatus();
-            updateSkillVisuals();
+
+            playTurn(row, col);
         });
 
         setupMetaControls();
         setupSkills();
         setupHomeFlow();
-
-        btnRestart.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            updateHeaderStatus();
-            updateSkillVisuals();
-            startMatchIntro();
-        });
-
-        btnExit.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            showHomeScreen();
-            updateSkillVisuals();
-            startMatchIntro();
-        });
-
-        btnExit.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            showHomeScreen();
-            updateSkillVisuals();
-        });
-
-        btnExit.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            showHomeScreen();
-            updateSkillVisuals();
-        });
 
         updateHeaderStatus();
         updateSkillVisuals();
@@ -134,53 +125,71 @@ public class MainActivity extends AppCompatActivity {
         txtVersusX = findViewById(R.id.txtVersusX);
         txtVersusO = findViewById(R.id.txtVersusO);
         txtVersusCenter = findViewById(R.id.txtVersusCenter);
+        victoryLineView = findViewById(R.id.victoryLineView);
 
         btnRestart = findViewById(R.id.btnRestart);
         btnExit = findViewById(R.id.btnExit);
         btnPlay = findViewById(R.id.btnPlay);
-        btnModeCasual = findViewById(R.id.btnModeCasual);
-        btnModeRanked = findViewById(R.id.btnModeRanked);
+        btnOnline = findViewById(R.id.btnOnline);
         btnStore = findViewById(R.id.btnStore);
         btnSettings = findViewById(R.id.btnSettings);
     }
 
     private void setupHomeFlow() {
-        btnModeCasual.setOnClickListener(v -> {
-            selectedMode = SelectedMode.CASUAL;
-            updateHomeModeButtons();
-        });
+        btnStore.setOnClickListener(v -> Toast.makeText(this, "Loja em desenvolvimento 🚧", Toast.LENGTH_SHORT).show());
+        btnSettings.setOnClickListener(v -> Toast.makeText(this, "Configurações em desenvolvimento ⚙", Toast.LENGTH_SHORT).show());
+        btnOnline.setOnClickListener(v -> Toast.makeText(this, "Fila online ativa (beta)", Toast.LENGTH_SHORT).show());
 
-        btnModeRanked.setOnClickListener(v -> {
-            selectedMode = SelectedMode.RANKED;
-            updateHomeModeButtons();
-        });
-
-        btnStore.setOnClickListener(v -> Toast.makeText(this, "Loja em breve 🚧", Toast.LENGTH_SHORT).show());
-        btnSettings.setOnClickListener(v -> Toast.makeText(this, "Configurações em breve ⚙", Toast.LENGTH_SHORT).show());
-
-        btnPlay.setOnClickListener(v -> startMatchIntro());
+        btnPlay.setOnClickListener(v -> openModeSelectionModal());
 
         showHomeScreen();
-        updateHomeModeButtons();
     }
 
-    private void updateHomeModeButtons() {
+    private void openModeSelectionModal() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_mode_selection, null);
+        RadioGroup radioGroup = dialogView.findViewById(R.id.radioMode);
+        RadioButton radioCasual = dialogView.findViewById(R.id.radioCasual);
+        RadioButton radioRanked = dialogView.findViewById(R.id.radioRanked);
+
         if (selectedMode == SelectedMode.CASUAL) {
-            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE2E8F0));
-            btnModeCasual.setTextColor(0xFF0F172A);
-            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF334155));
-            btnModeRanked.setTextColor(0xFFFFFFFF);
+            radioCasual.setChecked(true);
         } else {
-            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF334155));
-            btnModeCasual.setTextColor(0xFFFFFFFF);
-            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE2E8F0));
-            btnModeRanked.setTextColor(0xFF0F172A);
+            radioRanked.setChecked(true);
         }
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Buscar partida", (d, which) -> {
+                    selectedMode = radioGroup.getCheckedRadioButtonId() == R.id.radioRanked
+                            ? SelectedMode.RANKED : SelectedMode.CASUAL;
+                    startMatchmaking();
+                })
+                .create();
+
+        dialog.show();
+    }
+
+    private void startMatchmaking() {
+        boolean foundPlayer = random.nextFloat() < 0.35f;
+        versusBot = !foundPlayer;
+
+        if (versusBot) {
+            opponentName = randomBotName();
+            currentBotDifficulty = randomDifficulty();
+            Toast.makeText(this, "Sem jogadores disponíveis. Bot " + opponentName + " (" + currentBotDifficulty.label + ") entrou na partida!", Toast.LENGTH_LONG).show();
+        } else {
+            opponentName = "RivalOnline" + (100 + random.nextInt(900));
+            currentBotDifficulty = BotDifficulty.MODERADA;
+            Toast.makeText(this, "Partida online encontrada contra " + opponentName, Toast.LENGTH_SHORT).show();
+        }
+
+        startMatchIntro();
     }
 
     private void showHomeScreen() {
         matchStarted = false;
-        txtStatus.setText("CORE CLASH | " + selectedMode.name());
+        txtStatus.setText("CORE CLASH | MENU");
 
         homeOverlay.setVisibility(View.VISIBLE);
         homeOverlay.setAlpha(1f);
@@ -202,6 +211,10 @@ public class MainActivity extends AppCompatActivity {
         versusOverlay.setVisibility(View.VISIBLE);
         versusOverlay.setAlpha(0f);
 
+        txtVersusX.setText("Você");
+        txtVersusCenter.setText(selectedMode == SelectedMode.RANKED ? "RANQUEADA" : "CASUAL");
+        txtVersusO.setText(opponentName + (versusBot ? " 🤖" : ""));
+
         txtVersusX.setTranslationX(-260f);
         txtVersusO.setTranslationX(260f);
         txtVersusCenter.setScaleX(0.7f);
@@ -214,22 +227,43 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(() -> txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(180).start())
                 .start();
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        handler.postDelayed(() -> {
             versusOverlay.animate()
                     .alpha(0f)
                     .setDuration(300)
                     .withEndAction(() -> {
                         versusOverlay.setVisibility(View.GONE);
-                        txtStatus.setText("BATALHA " + selectedMode.name());
                         matchStarted = true;
+                        state.setGameMode(selectedMode == SelectedMode.CASUAL ? GameState.GameMode.CASUAL : GameState.GameMode.RANKED);
+                        updateHeaderStatus();
                     })
                     .start();
         }, 1500);
     }
 
+    private void setupMetaControls() {
+        btnRestart.setOnClickListener(v -> {
+            hideVictoryScreen();
+            gameManager.resetGame();
+            victoryLineView.clear();
+            updateHeaderStatus();
+            updateSkillVisuals();
+            startMatchIntro();
+        });
+
+        btnExit.setOnClickListener(v -> {
+            hideVictoryScreen();
+            gameManager.resetGame();
+            victoryLineView.clear();
+            showHomeScreen();
+            updateHeaderStatus();
+            updateSkillVisuals();
+        });
+    }
+
     private void setupSkills() {
         btnTriangle.setOnClickListener(v -> {
-            if (!matchStarted) {
+            if (!matchStarted || gameManager.isGameOver()) {
                 shakeButton(v);
                 return;
             }
@@ -245,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnSquare.setOnClickListener(v -> {
-            if (!matchStarted) {
+            if (!matchStarted || gameManager.isGameOver()) {
                 shakeButton(v);
                 return;
             }
@@ -261,13 +295,98 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void playTurn(int row, int col) {
+        int beforeMoves = gameManager.getFinalMoves();
+        String currentSymbol = gameManager.getCurrentPlayerSymbol();
+        boolean won = gameManager.play(row, col);
+
+        if (beforeMoves == gameManager.getFinalMoves()) {
+            return;
+        }
+
+        updateHeaderStatus();
+        updateSkillVisuals();
+
+        if (won) {
+            onWin(currentSymbol);
+            return;
+        }
+
+        if (gameManager.isGameOver()) {
+            matchStarted = false;
+            Toast.makeText(this, "Empate!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        maybeRunBotTurn();
+    }
+
+    private void onWin(String symbol) {
+        matchStarted = false;
+        drawVictoryLine();
+        handler.postDelayed(() -> showVictoryScreen(symbol), 500);
+    }
+
+    private void maybeRunBotTurn() {
+        if (!versusBot || !matchStarted || gameManager.isGameOver() || state.isXTurn()) {
+            return;
+        }
+
+        handler.postDelayed(() -> {
+            if (!matchStarted || gameManager.isGameOver() || state.isXTurn()) {
+                return;
+            }
+
+            if (currentBotDifficulty == BotDifficulty.MESTRE) {
+                if (state.canUseTriangle() && random.nextFloat() < 0.35f) {
+                    gameManager.useTriangle();
+                }
+                if (state.canUseSquare() && random.nextFloat() < 0.35f) {
+                    gameManager.useSquare();
+                }
+            }
+
+            int[] move = chooseBotMove(currentBotDifficulty);
+            if (move != null) {
+                playTurn(move[0], move[1]);
+            }
+
+            updateHeaderStatus();
+            updateSkillVisuals();
+        }, 550);
+    }
+
+    private int[] chooseBotMove(BotDifficulty difficulty) {
+        List<int[]> moves = gameManager.getAvailableMoves();
+        if (moves.isEmpty()) {
+            return null;
+        }
+
+        if (difficulty == BotDifficulty.INICIANTE) {
+            return moves.get(random.nextInt(moves.size()));
+        }
+
+        int[] winning = gameManager.findWinningMoveFor("O");
+        if (winning != null) return winning;
+
+        int[] block = gameManager.findWinningMoveFor("X");
+        if (block != null) return block;
+
+        if (difficulty == BotDifficulty.MODERADA) {
+            int[] center = gameManager.getCenterIfAvailable();
+            if (center != null) return center;
+            return moves.get(random.nextInt(moves.size()));
+        }
+
+        int[] best = gameManager.findBestMoveForO();
+        return best != null ? best : moves.get(random.nextInt(moves.size()));
+    }
+
     private void updateHeaderStatus() {
-        txtHeaderStatus.setText(String.format(
-                "CORE CLASH | %s | %s | %s %d",
-                gameManager.getGameMode().name(),
-                gameManager.getSymbolSkin().name(),
-                gameManager.getRankLabel(),
-                gameManager.getRankedPoints()
+        txtStatus.setText(String.format(
+                "CORE CLASH | %s | %s",
+                selectedMode == SelectedMode.CASUAL ? "CASUAL" : "RANQUEADA",
+                versusBot ? (opponentName + " • " + currentBotDifficulty.label) : opponentName
         ));
     }
 
@@ -314,6 +433,37 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
+    private void drawVictoryLine() {
+        GameManager.WinInfo win = gameManager.getLastWin();
+        if (win == null) return;
+
+        PointF start = board.getCellCenterOnScreen(win.r1(), win.c1());
+        PointF end = board.getCellCenterOnScreen(win.r3(), win.c3());
+
+        int[] lineLoc = new int[2];
+        victoryLineView.getLocationOnScreen(lineLoc);
+
+        victoryLineView.setData(
+                start.x - lineLoc[0],
+                start.y - lineLoc[1],
+                end.x - lineLoc[0],
+                end.y - lineLoc[1]
+        );
+    }
+
+    private String randomBotName() {
+        String[] names = {
+                "GuaxinimDaNoite", "NinjaDoVazio", "DrakeDeAço", "CorujaSuprema",
+                "TigreNebuloso", "FalcaoTatico", "LinceArcano", "RaptorDigital"
+        };
+        return names[random.nextInt(names.length)];
+    }
+
+    private BotDifficulty randomDifficulty() {
+        BotDifficulty[] values = BotDifficulty.values();
+        return values[random.nextInt(values.length)];
+    }
+
     private void hideSystemBars() {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         View decorView = getWindow().getDecorView();
@@ -336,5 +486,31 @@ public class MainActivity extends AppCompatActivity {
         v.animate().translationX(15).setDuration(50).withEndAction(() ->
                 v.animate().translationX(-15).setDuration(50).withEndAction(() ->
                         v.animate().translationX(0).setDuration(50)));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        maybeRunBotTurn();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        maybeRunBotTurn();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handler.postDelayed(this::maybeRunBotTurn, 120);
+    }
+
+    @Override
+    protected void onUserInteraction() {
+        super.onUserInteraction();
+        if (versusBot && matchStarted && !state.isXTurn()) {
+            maybeRunBotTurn();
+        }
     }
 }
