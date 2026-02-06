@@ -86,7 +86,8 @@ public class GameManager {
         if (isGameOver || !state.canUseTriangle()) {
             return;
         }
-        board.applyTriangleEffect();
+        int affected = board.applyTriangleEffect();
+        state.addGhosts(affected);
         state.triggerTriangleUsed();
     }
 
@@ -94,12 +95,9 @@ public class GameManager {
         if (isGameOver || !state.canUseSquare()) {
             return;
         }
-        board.applySquareEffect();
+        int affected = board.applySquareEffect();
+        state.addGhosts(affected);
         state.triggerSquareUsed();
-    }
-
-    public void notifyGhostCreated() {
-        state.addGhost();
     }
 
     public void resetGame() {
