@@ -276,10 +276,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateModeButtonStyles() {
         boolean casual = selectedMode == SelectedMode.CASUAL;
-        int selectedBg = 0xFFE2E8F0;
-        int selectedText = 0xFF0F172A;
-        int defaultBg = 0xFF334155;
-        int defaultText = 0xFFFFFFFF;
+        int selectedBg = 0xFF22D3EE;
+        int selectedText = 0xFF082F49;
+        int defaultBg = 0xFF312E81;
+        int defaultText = 0xFFE0E7FF;
 
         btnModeCasual.setBackgroundTintList(ColorStateList.valueOf(casual ? selectedBg : defaultBg));
         btnModeCasual.setTextColor(casual ? selectedText : defaultText);

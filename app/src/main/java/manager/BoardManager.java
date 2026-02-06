@@ -124,8 +124,8 @@ public class BoardManager {
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
         gd.setCornerRadius(16f);
-        gd.setColor(Color.parseColor("#1E1E24"));
-        gd.setStroke(2, Color.parseColor("#33FFFFFF"));
+        gd.setColor(Color.parseColor("#1A0B1020"));
+        gd.setStroke(3, Color.parseColor("#55A5F3FC"));
         container.setBackground(gd);
         container.setAlpha(1.0f);
         container.setTranslationX(0f);
@@ -135,7 +135,7 @@ public class BoardManager {
         TextView tv = symbolViews[r][c];
         tv.setText(cells[r][c].getVisualSymbol());
 
-        int color = Color.parseColor(isX ? "#FF4444" : "#00FFFF");
+        int color = Color.parseColor(isX ? "#FB7185" : "#22D3EE");
         tv.setTextColor(color);
         tv.setShadowLayer(20, 0, 0, color);
 

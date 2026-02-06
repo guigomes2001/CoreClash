@@ -15,12 +15,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="CORE CLASH"
-        android:textColor="#FFF8E1"
+        android:textColor="#E0F2FE"
         android:textSize="22sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-black"
         android:gravity="center"
-        android:shadowColor="#664B2E83"
+        android:shadowColor="#AA22D3EE"
         android:shadowDx="0"
         android:shadowDy="0"
         android:shadowRadius="14"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:text="△"
             android:textSize="40sp"
-            android:textColor="#FFECB3"
+            android:textColor="#FBCFE8"
             android:layout_gravity="center"
             android:includeFontPadding="false" />
     </FrameLayout>
@@ -56,7 +56,7 @@
         android:id="@+id/lineLeftConnector"
         android:layout_width="8dp"
         android:layout_height="2dp"
-        android:background="#44FFFFFF"
+        android:background="#667DD3FC"
         app:layout_constraintStart_toEndOf="@id/containerTriangle"
         app:layout_constraintEnd_toStartOf="@id/boardContainer"
         app:layout_constraintTop_toTopOf="@id/containerTriangle"
@@ -109,7 +109,7 @@
             android:layout_height="wrap_content"
             android:text="▢"
             android:textSize="36sp"
-            android:textColor="#D1C4E9"
+            android:textColor="#A5F3FC"
             android:layout_gravity="center"
             android:includeFontPadding="false"
             android:translationY="-2dp"/>
@@ -119,7 +119,7 @@
         android:id="@+id/lineRightConnector"
         android:layout_width="8dp"
         android:layout_height="2dp"
-        android:background="#44FFFFFF"
+        android:background="#667DD3FC"
         app:layout_constraintStart_toEndOf="@id/boardContainer"
         app:layout_constraintEnd_toStartOf="@id/containerSquare"
         app:layout_constraintTop_toTopOf="@id/containerSquare"
@@ -129,7 +129,7 @@
         android:id="@+id/homeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0D1B2A"
+        android:background="#D90A1024"
         android:elevation="92dp"
         android:clickable="true"
         android:focusable="true">
@@ -301,7 +301,7 @@
                     android:layout_weight="1"
                     android:text="Cancelar"
                     android:textStyle="bold"
-                    android:textColor="#FFF8E1"
+                    android:textColor="#E0F2FE"
                     android:backgroundTint="#334155"/>
 
                 <Button
