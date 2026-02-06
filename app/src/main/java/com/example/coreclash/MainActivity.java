@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FrameLayout btnTriangle, btnSquare, victoryOverlay;
     private View victoryCard;
-    private TextView txtWinnerTitle, txtStatsMoves, txtStatsGhosts;
+    private TextView txtHeaderStatus, txtWinnerTitle, txtStatsMoves, txtStatsGhosts;
     private Button btnRestart;
 
     @Override
@@ -48,25 +48,28 @@ public class MainActivity extends AppCompatActivity {
             String currentSymbol = gameManager.getCurrentPlayerSymbol();
 
             if (gameManager.play(row, col)) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    showVictoryScreen(currentSymbol);
-                }, 2000);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> showVictoryScreen(currentSymbol), 2000);
             }
+            updateHeaderStatus();
             updateSkillVisuals();
         });
 
+        setupMetaControls();
         setupSkills();
 
         btnRestart.setOnClickListener(v -> {
             hideVictoryScreen();
             gameManager.resetGame();
+            updateHeaderStatus();
             updateSkillVisuals();
         });
 
+        updateHeaderStatus();
         updateSkillVisuals();
     }
 
     private void initUI() {
+        txtHeaderStatus = findViewById(R.id.txtStatus);
         btnTriangle = findViewById(R.id.containerTriangle);
         btnSquare = findViewById(R.id.containerSquare);
         victoryOverlay = findViewById(R.id.victoryOverlay);
@@ -77,11 +80,37 @@ public class MainActivity extends AppCompatActivity {
         btnRestart = findViewById(R.id.btnRestart);
     }
 
+    private void setupMetaControls() {
+        txtHeaderStatus.setOnClickListener(v -> {
+            GameState.GameMode nextMode = gameManager.getGameMode() == GameState.GameMode.CASUAL
+                    ? GameState.GameMode.RANKED
+                    : GameState.GameMode.CASUAL;
+            gameManager.setGameMode(nextMode);
+            updateHeaderStatus();
+        });
+
+        txtHeaderStatus.setOnLongClickListener(v -> {
+            GameState.SymbolSkin current = gameManager.getSymbolSkin();
+            GameState.SymbolSkin next;
+            if (current == GameState.SymbolSkin.CLASSIC) {
+                next = GameState.SymbolSkin.NEON;
+            } else if (current == GameState.SymbolSkin.NEON) {
+                next = GameState.SymbolSkin.GLITCH;
+            } else {
+                next = GameState.SymbolSkin.CLASSIC;
+            }
+            gameManager.setSymbolSkin(next);
+            updateHeaderStatus();
+            return true;
+        });
+    }
+
     private void setupSkills() {
         btnTriangle.setOnClickListener(v -> {
             if (state.canUseTriangle()) {
                 gameManager.useTriangle();
                 spinAnimation(v);
+                updateHeaderStatus();
                 updateSkillVisuals();
             } else {
                 shakeButton(v);
@@ -92,11 +121,22 @@ public class MainActivity extends AppCompatActivity {
             if (state.canUseSquare()) {
                 gameManager.useSquare();
                 pulseAnimation(v);
+                updateHeaderStatus();
                 updateSkillVisuals();
             } else {
                 shakeButton(v);
             }
         });
+    }
+
+    private void updateHeaderStatus() {
+        txtHeaderStatus.setText(String.format(
+                "CORE CLASH | %s | %s | %s %d",
+                gameManager.getGameMode().name(),
+                gameManager.getSymbolSkin().name(),
+                gameManager.getRankLabel(),
+                gameManager.getRankedPoints()
+        ));
     }
 
     private void updateSkillVisuals() {
@@ -108,12 +148,20 @@ public class MainActivity extends AppCompatActivity {
 
         btnTriangle.setElevation(state.canUseTriangle() ? 20f : 0f);
         btnSquare.setElevation(state.canUseSquare() ? 20f : 0f);
+
+        if (!state.canUseSquare() && gameManager.getFinalMoves() < gameManager.getSquareUnlockMove()) {
+            btnSquare.setContentDescription("Quadrado bloqueado até a jogada " + gameManager.getSquareUnlockMove());
+        } else {
+            btnSquare.setContentDescription("Habilidade quadrado disponível");
+        }
     }
 
     private void showVictoryScreen(String winner) {
         txtWinnerTitle.setText("'" + winner + "' DOMINOU");
-        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves());
-        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()));
+        txtStatsMoves.setText("⚡ MOVIMENTOS: " + gameManager.getFinalMoves() +
+                " | 🏆 WINS: " + gameManager.getTotalWins());
+        txtStatsGhosts.setText("👻 FANTASMAS: " + String.format("%02d", gameManager.getFinalGhosts()) +
+                " | 🔥 STREAK: " + gameManager.getWinStreak());
 
         victoryOverlay.setVisibility(View.VISIBLE);
         victoryOverlay.setAlpha(0f);

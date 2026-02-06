@@ -34,6 +34,7 @@ public class GameManager {
 
         if (checkWinner()) {
             isGameOver = true;
+            state.registerWin();
             return true;
         }
 
@@ -86,7 +87,8 @@ public class GameManager {
         if (isGameOver || !state.canUseTriangle()) {
             return;
         }
-        board.applyTriangleEffect();
+        int affected = board.applyTriangleEffect();
+        state.addGhosts(affected);
         state.triggerTriangleUsed();
     }
 
@@ -94,12 +96,45 @@ public class GameManager {
         if (isGameOver || !state.canUseSquare()) {
             return;
         }
-        board.applySquareEffect();
+        int affected = board.applySquareEffect();
+        state.addGhosts(affected);
         state.triggerSquareUsed();
     }
 
-    public void notifyGhostCreated() {
-        state.addGhost();
+    public void setGameMode(GameState.GameMode gameMode) {
+        state.setGameMode(gameMode);
+    }
+
+    public GameState.GameMode getGameMode() {
+        return state.getGameMode();
+    }
+
+    public void setSymbolSkin(GameState.SymbolSkin skin) {
+        state.setSymbolSkin(skin);
+    }
+
+    public GameState.SymbolSkin getSymbolSkin() {
+        return state.getSymbolSkin();
+    }
+
+    public String getRankLabel() {
+        return state.getRankLabel();
+    }
+
+    public int getRankedPoints() {
+        return state.getRankedPoints();
+    }
+
+    public int getWinStreak() {
+        return state.getWinStreak();
+    }
+
+    public int getTotalWins() {
+        return state.getTotalWins();
+    }
+
+    public int getSquareUnlockMove() {
+        return state.getSquareUnlockMove();
     }
 
     public void resetGame() {
