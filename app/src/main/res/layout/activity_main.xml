@@ -31,27 +31,35 @@
 
     <FrameLayout
         android:id="@+id/containerTriangle"
-        android:layout_width="84dp"
-        android:layout_height="84dp"
-        android:layout_marginTop="14dp"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:background="@drawable/selector_btn_triangle"
         android:clickable="true"
         android:focusable="true"
         android:elevation="12dp"
-        app:layout_constraintTop_toBottomOf="@id/boardContainer"
-        app:layout_constraintStart_toStartOf="@id/boardContainer"
-        app:layout_constraintEnd_toStartOf="@id/containerSquare"
-        app:layout_constraintHorizontal_chainStyle="packed">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/boardContainer"
+        app:layout_constraintBottom_toBottomOf="@id/boardContainer">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="△"
-            android:textSize="40sp"
+            android:textSize="34sp"
             android:textColor="#FFECB3"
             android:layout_gravity="center"
             android:includeFontPadding="false" />
     </FrameLayout>
+
+    <View
+        android:id="@+id/lineLeftConnector"
+        android:layout_width="12dp"
+        android:layout_height="2dp"
+        android:background="#44FFFFFF"
+        app:layout_constraintStart_toEndOf="@id/containerTriangle"
+        app:layout_constraintEnd_toStartOf="@id/boardContainer"
+        app:layout_constraintTop_toTopOf="@id/containerTriangle"
+        app:layout_constraintBottom_toBottomOf="@id/containerTriangle" />
 
     <FrameLayout
         android:id="@+id/boardContainer"
@@ -59,6 +67,7 @@
         android:layout_height="291dp"
         android:background="@drawable/bg_cyber_glass"
         android:padding="6dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/txtStatus"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,28 +92,36 @@
 
     <FrameLayout
         android:id="@+id/containerSquare"
-        android:layout_width="84dp"
-        android:layout_height="84dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginStart="18dp"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:background="@drawable/selector_btn_square"
         android:clickable="true"
         android:focusable="true"
         android:elevation="12dp"
-        app:layout_constraintTop_toBottomOf="@id/boardContainer"
-        app:layout_constraintStart_toEndOf="@id/containerTriangle"
-        app:layout_constraintEnd_toEndOf="@id/boardContainer">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/boardContainer"
+        app:layout_constraintBottom_toBottomOf="@id/boardContainer">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="▢"
-            android:textSize="36sp"
+            android:textSize="31sp"
             android:textColor="#D1C4E9"
             android:layout_gravity="center"
             android:includeFontPadding="false"
             android:translationY="-2dp"/>
     </FrameLayout>
+
+    <View
+        android:id="@+id/lineRightConnector"
+        android:layout_width="12dp"
+        android:layout_height="2dp"
+        android:background="#44FFFFFF"
+        app:layout_constraintStart_toEndOf="@id/boardContainer"
+        app:layout_constraintEnd_toStartOf="@id/containerSquare"
+        app:layout_constraintTop_toTopOf="@id/containerSquare"
+        app:layout_constraintBottom_toBottomOf="@id/containerSquare" />
 
     <FrameLayout
         android:id="@+id/homeOverlay"
