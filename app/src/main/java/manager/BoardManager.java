@@ -146,7 +146,7 @@ public class BoardManager {
         updateCellGhostState(r, c);
     }
 
-    public void applyTriangleEffect() {
+    public int applyTriangleEffect() {
         List<PointF> points = new ArrayList<>();
         points.add(getCellCenter(0, 1));
         points.add(getCellCenter(2, 2));
@@ -158,12 +158,18 @@ public class BoardManager {
         long duration = 600;
         long step = duration / 3;
 
-        scheduleAffectCell(0, 1, step);
-        scheduleAffectCell(2, 2, step * 2);
-        scheduleAffectCell(2, 0, step * 3);
+        int affected = 0;
+        affected += affectCellNow(0, 1);
+        affected += affectCellNow(2, 2);
+        affected += affectCellNow(2, 0);
+
+        scheduleAffectCellAnimation(0, 1, step);
+        scheduleAffectCellAnimation(2, 2, step * 2);
+        scheduleAffectCellAnimation(2, 0, step * 3);
+        return affected;
     }
 
-    public void applySquareEffect() {
+    public int applySquareEffect() {
         List<PointF> points = new ArrayList<>();
         points.add(getCellCenter(0, 0));
         points.add(getCellCenter(0, 2));
@@ -173,25 +179,35 @@ public class BoardManager {
 
         overlayView.drawShape(points, COLOR_SQUARE);
 
+        int affected = 0;
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (r == 1 && c == 1) continue;
+                affected += affectCellNow(r, c);
+            }
+        }
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             for (int r = 0; r < 3; r++) {
                 for (int c = 0; c < 3; c++) {
                     if (r == 1 && c == 1) continue;
-                    affectCell(r, c);
+                    updateCellVisualAfterSkill(r, c);
                 }
             }
         }, 400);
+        return affected;
     }
 
-    private void scheduleAffectCell(int r, int c, long delay) {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> affectCell(r, c), delay);
+    private void scheduleAffectCellAnimation(int r, int c, long delay) {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> updateCellVisualAfterSkill(r, c), delay);
     }
 
-    private void affectCell(int r, int c) {
-        if (!cells[r][c].isEmpty()) {
-            cells[r][c].turnIntoGhost();
-            updateCellVisualAfterSkill(r, c);
+    private int affectCellNow(int r, int c) {
+        if (cells[r][c].isEmpty() || cells[r][c].isGhost()) {
+            return 0;
         }
+        cells[r][c].turnIntoGhost();
+        return 1;
     }
 
     private void updateCellGhostState(int r, int c) {
