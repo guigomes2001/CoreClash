@@ -287,8 +287,6 @@
                     android:text="RANQUEADA"
                     android:textStyle="bold"/>
             </LinearLayout>
-        </LinearLayout>
-    </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -315,7 +313,7 @@
                     android:text="Confirmar"
                     android:textStyle="bold"
                     android:textColor="#041019"
-                    android:backgroundTint="#FBC02D"/>
+                    android:backgroundTint="#F7C948"/>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
