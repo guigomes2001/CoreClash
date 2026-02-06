@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Escolha o modo"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#E5E7EB" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Se não houver adversário disponível, um bot entra na arena automaticamente."
+        android:textSize="13sp"
+        android:textColor="#94A3B8" />
+
+    <RadioGroup
+        android:id="@+id/radioMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <RadioButton
+            android:id="@+id/radioCasual"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Casual"
+            android:checked="true"
+            android:textColor="#E5E7EB"/>
+
+        <RadioButton
+            android:id="@+id/radioRanked"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ranqueada"
+            android:textColor="#E5E7EB"/>
+    </RadioGroup>
+</LinearLayout>

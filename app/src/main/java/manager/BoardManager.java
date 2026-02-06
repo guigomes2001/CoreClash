@@ -124,8 +124,8 @@ public class BoardManager {
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
         gd.setCornerRadius(16f);
-        gd.setColor(Color.parseColor("#1E1E24"));
-        gd.setStroke(2, Color.parseColor("#33FFFFFF"));
+        gd.setColor(Color.parseColor("#1A0B1020"));
+        gd.setStroke(3, Color.parseColor("#55A5F3FC"));
         container.setBackground(gd);
         container.setAlpha(1.0f);
         container.setTranslationX(0f);
@@ -135,13 +135,20 @@ public class BoardManager {
         TextView tv = symbolViews[r][c];
         tv.setText(cells[r][c].getVisualSymbol());
 
-        int color = Color.parseColor(isX ? "#FF4444" : "#00FFFF");
+        int color = Color.parseColor(isX ? "#FB7185" : "#22D3EE");
         tv.setTextColor(color);
         tv.setShadowLayer(20, 0, 0, color);
 
-        tv.setScaleX(0f);
-        tv.setScaleY(0f);
-        tv.animate().scaleX(1f).scaleY(1f).setDuration(250).start();
+        tv.setScaleX(0.7f);
+        tv.setScaleY(0.7f);
+        tv.setAlpha(0.4f);
+        tv.animate()
+                .scaleX(1.08f)
+                .scaleY(1.08f)
+                .alpha(1f)
+                .setDuration(140)
+                .withEndAction(() -> tv.animate().scaleX(1f).scaleY(1f).setDuration(110).start())
+                .start();
 
         updateCellGhostState(r, c);
     }
@@ -155,7 +162,7 @@ public class BoardManager {
 
         overlayView.drawShape(points, COLOR_TRIANGLE);
 
-        long duration = 600;
+        long duration = 500;
         long step = duration / 3;
 
         int affected = 0;
@@ -239,8 +246,10 @@ public class BoardManager {
             gd.setColor(COLOR_DEAD);
 
             container.animate()
-                    .translationX(5).setDuration(50)
-                    .withEndAction(() -> container.animate().translationX(0).setDuration(50).start())
+                    .translationX(4f).setDuration(45)
+                    .withEndAction(() -> container.animate().translationX(-3f).setDuration(45)
+                            .withEndAction(() -> container.animate().translationX(0f).setDuration(45).start())
+                            .start())
                     .start();
         } else {
             container.setAlpha(1.0f);
@@ -266,7 +275,11 @@ public class BoardManager {
         return cells[r][c];
     }
 
-  private PointF getCellCenter(int r, int c) {
+    public PointF getCellCenterOnScreen(int r, int c) {
+        return getCellCenter(r, c);
+    }
+
+    private PointF getCellCenter(int r, int c) {
         FrameLayout cell = cellContainers[r][c];
 
         int[] cellLocation = new int[2];
