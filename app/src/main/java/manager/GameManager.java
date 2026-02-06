@@ -34,6 +34,7 @@ public class GameManager {
 
         if (checkWinner()) {
             isGameOver = true;
+            state.registerWin();
             return true;
         }
 
