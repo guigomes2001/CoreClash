@@ -5,11 +5,14 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtVersusX;
     private TextView txtVersusO;
     private TextView txtVersusCenter;
+    private VictoryLineView victoryLineView;
 
     private FrameLayout btnTriangle;
     private FrameLayout btnSquare;
@@ -129,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         txtVersusX = findViewById(R.id.txtVersusX);
         txtVersusO = findViewById(R.id.txtVersusO);
         txtVersusCenter = findViewById(R.id.txtVersusCenter);
+        victoryLineView = findViewById(R.id.victoryLineView);
 
         btnTriangle = findViewById(R.id.containerTriangle);
         btnSquare = findViewById(R.id.containerSquare);
@@ -519,5 +524,31 @@ public class MainActivity extends AppCompatActivity {
         v.animate().translationX(14).setDuration(45).withEndAction(() ->
                 v.animate().translationX(-14).setDuration(45).withEndAction(() ->
                         v.animate().translationX(0).setDuration(45).start()).start()).start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        maybeRunBotTurn();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        maybeRunBotTurn();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handler.postDelayed(this::maybeRunBotTurn, 120);
+    }
+
+    @Override
+    protected void onUserInteraction() {
+        super.onUserInteraction();
+        if (versusBot && matchStarted && !state.isXTurn()) {
+            maybeRunBotTurn();
+        }
     }
 }
