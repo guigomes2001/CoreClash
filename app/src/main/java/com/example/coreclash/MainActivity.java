@@ -5,11 +5,14 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtVersusX;
     private TextView txtVersusO;
     private TextView txtVersusCenter;
+    private VictoryLineView victoryLineView;
 
     private FrameLayout btnTriangle;
     private FrameLayout btnSquare;
@@ -130,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
         txtVersusX = findViewById(R.id.txtVersusX);
         txtVersusO = findViewById(R.id.txtVersusO);
         txtVersusCenter = findViewById(R.id.txtVersusCenter);
+        victoryLineView = findViewById(R.id.victoryLineView);
 
         btnTriangle = findViewById(R.id.containerTriangle);
         btnSquare = findViewById(R.id.containerSquare);
