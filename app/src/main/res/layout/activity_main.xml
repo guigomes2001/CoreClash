@@ -96,19 +96,19 @@
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/startOverlay"
+        android:id="@+id/homeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#E0121218"
-        android:elevation="90dp"
+        android:background="#EE0E1018"
+        android:elevation="92dp"
         android:clickable="true"
         android:focusable="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_gravity="center"
+            android:orientation="vertical"
             android:gravity="center"
             android:padding="24dp">
 
@@ -116,28 +116,85 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="CORE CLASH"
-                android:textColor="#00FBFF"
+                android:textSize="40sp"
                 android:textStyle="bold"
-                android:textSize="38sp"
-                android:fontFamily="sans-serif-black" />
+                android:textColor="#00FBFF"
+                android:fontFamily="sans-serif-black"
+                android:shadowColor="#6600FBFF"
+                android:shadowRadius="20"
+                android:shadowDx="0"
+                android:shadowDy="0"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Triângulo e Quadrado. Só um sai vivo."
+                android:text="Escolha o modo e entre na arena"
                 android:textColor="#CCFFFFFF"
-                android:textSize="14sp" />
+                android:textSize="14sp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnModeCasual"
+                    android:layout_width="150dp"
+                    android:layout_height="48dp"
+                    android:text="CASUAL"
+                    android:textStyle="bold"
+                    android:textColor="#10131A"
+                    android:backgroundTint="#00FBFF"/>
+
+                <Button
+                    android:id="@+id/btnModeRanked"
+                    android:layout_width="150dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="12dp"
+                    android:text="RANQUEADO"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#3E4A63"/>
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btnPlay"
-                android:layout_width="240dp"
-                android:layout_height="56dp"
-                android:layout_marginTop="36dp"
+                android:layout_width="320dp"
+                android:layout_height="58dp"
+                android:layout_marginTop="20dp"
                 android:text="JOGAR"
                 android:textStyle="bold"
                 android:textColor="#000000"
-                android:backgroundTint="#00FBFF" />
+                android:backgroundTint="#00FBFF"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/btnStore"
+                    android:layout_width="150dp"
+                    android:layout_height="46dp"
+                    android:text="🛒 LOJA"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#222A3A"/>
+
+                <Button
+                    android:id="@+id/btnSettings"
+                    android:layout_width="150dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="12dp"
+                    android:text="⚙ CONFIG"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#222A3A"/>
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 
@@ -256,10 +313,21 @@
                 android:id="@+id/btnRestart"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="32dp"
-                android:text="REINICIAR CORE"
+                android:layout_marginTop="26dp"
+                android:text="REVANCHE"
                 android:textColor="#000000"
                 android:backgroundTint="#00FBFF"
+                android:textStyle="bold"
+                app:cornerRadius="8dp" />
+
+            <Button
+                android:id="@+id/btnExit"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="10dp"
+                android:text="SAIR"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#2C3448"
                 android:textStyle="bold"
                 app:cornerRadius="8dp" />
         </LinearLayout>

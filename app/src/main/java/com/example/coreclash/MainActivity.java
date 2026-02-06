@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
@@ -21,13 +22,18 @@ import manager.GameManager;
 
 public class MainActivity extends AppCompatActivity {
 
+    private enum SelectedMode {
+        CASUAL,
+        RANKED
+    }
+
     private GameManager gameManager;
     private GameState state;
 
     private FrameLayout btnTriangle;
     private FrameLayout btnSquare;
     private FrameLayout victoryOverlay;
-    private FrameLayout startOverlay;
+    private FrameLayout homeOverlay;
     private FrameLayout versusOverlay;
     private View victoryCard;
     private TextView txtStatus;
@@ -37,10 +43,17 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtVersusX;
     private TextView txtVersusO;
     private TextView txtVersusCenter;
+
     private Button btnRestart;
+    private Button btnExit;
     private Button btnPlay;
+    private Button btnModeCasual;
+    private Button btnModeRanked;
+    private Button btnStore;
+    private Button btnSettings;
 
     private boolean matchStarted = false;
+    private SelectedMode selectedMode = SelectedMode.CASUAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
         gameManager = new GameManager(board, state);
 
         GridLayout gridBoard = findViewById(R.id.gridBoard);
-
         board.createBoard(this, gridBoard, (row, col) -> {
             if (!matchStarted) {
                 return;
@@ -72,14 +84,21 @@ public class MainActivity extends AppCompatActivity {
 
         setupMetaControls();
         setupSkills();
-        setupPreMatchFlow();
+        setupHomeFlow();
 
         btnRestart.setOnClickListener(v -> {
             hideVictoryScreen();
             gameManager.resetGame();
             updateHeaderStatus();
             updateSkillVisuals();
-            setupPreMatchFlow();
+            startMatchIntro();
+        });
+
+        btnExit.setOnClickListener(v -> {
+            hideVictoryScreen();
+            gameManager.resetGame();
+            showHomeScreen();
+            updateSkillVisuals();
         });
 
         updateHeaderStatus();
@@ -91,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         btnTriangle = findViewById(R.id.containerTriangle);
         btnSquare = findViewById(R.id.containerSquare);
         victoryOverlay = findViewById(R.id.victoryOverlay);
-        startOverlay = findViewById(R.id.startOverlay);
+        homeOverlay = findViewById(R.id.homeOverlay);
         versusOverlay = findViewById(R.id.versusOverlay);
         victoryCard = findViewById(R.id.victoryCard);
         txtWinnerTitle = findViewById(R.id.txtWinnerTitle);
@@ -100,27 +119,65 @@ public class MainActivity extends AppCompatActivity {
         txtVersusX = findViewById(R.id.txtVersusX);
         txtVersusO = findViewById(R.id.txtVersusO);
         txtVersusCenter = findViewById(R.id.txtVersusCenter);
+
         btnRestart = findViewById(R.id.btnRestart);
+        btnExit = findViewById(R.id.btnExit);
         btnPlay = findViewById(R.id.btnPlay);
+        btnModeCasual = findViewById(R.id.btnModeCasual);
+        btnModeRanked = findViewById(R.id.btnModeRanked);
+        btnStore = findViewById(R.id.btnStore);
+        btnSettings = findViewById(R.id.btnSettings);
     }
 
-    private void setupPreMatchFlow() {
-        matchStarted = false;
-        txtStatus.setText("CORE CLASH");
+    private void setupHomeFlow() {
+        btnModeCasual.setOnClickListener(v -> {
+            selectedMode = SelectedMode.CASUAL;
+            updateHomeModeButtons();
+        });
 
-        startOverlay.setVisibility(View.VISIBLE);
-        startOverlay.setAlpha(1f);
-        versusOverlay.setVisibility(View.GONE);
+        btnModeRanked.setOnClickListener(v -> {
+            selectedMode = SelectedMode.RANKED;
+            updateHomeModeButtons();
+        });
+
+        btnStore.setOnClickListener(v -> Toast.makeText(this, "Loja em breve 🚧", Toast.LENGTH_SHORT).show());
+        btnSettings.setOnClickListener(v -> Toast.makeText(this, "Configurações em breve ⚙", Toast.LENGTH_SHORT).show());
 
         btnPlay.setOnClickListener(v -> startMatchIntro());
+
+        showHomeScreen();
+        updateHomeModeButtons();
+    }
+
+    private void updateHomeModeButtons() {
+        if (selectedMode == SelectedMode.CASUAL) {
+            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF00FBFF));
+            btnModeCasual.setTextColor(0xFF10131A);
+            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF3E4A63));
+            btnModeRanked.setTextColor(0xFFFFFFFF);
+        } else {
+            btnModeCasual.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF3E4A63));
+            btnModeCasual.setTextColor(0xFFFFFFFF);
+            btnModeRanked.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF00FBFF));
+            btnModeRanked.setTextColor(0xFF10131A);
+        }
+    }
+
+    private void showHomeScreen() {
+        matchStarted = false;
+        txtStatus.setText("CORE CLASH | " + selectedMode.name());
+
+        homeOverlay.setVisibility(View.VISIBLE);
+        homeOverlay.setAlpha(1f);
+        versusOverlay.setVisibility(View.GONE);
     }
 
     private void startMatchIntro() {
-        startOverlay.animate()
+        homeOverlay.animate()
                 .alpha(0f)
                 .setDuration(250)
                 .withEndAction(() -> {
-                    startOverlay.setVisibility(View.GONE);
+                    homeOverlay.setVisibility(View.GONE);
                     showVersusOverlay();
                 })
                 .start();
@@ -148,36 +205,11 @@ public class MainActivity extends AppCompatActivity {
                     .setDuration(300)
                     .withEndAction(() -> {
                         versusOverlay.setVisibility(View.GONE);
-                        txtStatus.setText("BATALHA EM CURSO");
+                        txtStatus.setText("BATALHA " + selectedMode.name());
                         matchStarted = true;
                     })
                     .start();
         }, 1500);
-    }
-
-    private void setupMetaControls() {
-        txtHeaderStatus.setOnClickListener(v -> {
-            GameState.GameMode nextMode = gameManager.getGameMode() == GameState.GameMode.CASUAL
-                    ? GameState.GameMode.RANKED
-                    : GameState.GameMode.CASUAL;
-            gameManager.setGameMode(nextMode);
-            updateHeaderStatus();
-        });
-
-        txtHeaderStatus.setOnLongClickListener(v -> {
-            GameState.SymbolSkin current = gameManager.getSymbolSkin();
-            GameState.SymbolSkin next;
-            if (current == GameState.SymbolSkin.CLASSIC) {
-                next = GameState.SymbolSkin.NEON;
-            } else if (current == GameState.SymbolSkin.NEON) {
-                next = GameState.SymbolSkin.GLITCH;
-            } else {
-                next = GameState.SymbolSkin.CLASSIC;
-            }
-            gameManager.setSymbolSkin(next);
-            updateHeaderStatus();
-            return true;
-        });
     }
 
     private void setupSkills() {
