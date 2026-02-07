@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Core Clash"
 include ':app'
+
 include ':game-core'

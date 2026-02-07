@@ -2,32 +2,46 @@ package com.example.coreclash.libgdx;
 
 import com.example.coreclash.core.domain.MatchStatePort;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+import game.GameState;
+import manager.GameManager;
+
 /**
- * Bridge inicial Android -> game-core (LibGDX).
- *
- * Próximo passo: conectar GameManager/GameState reais.
+ * Ponte Android -> game-core (LibGDX).
+ * Mantém a leitura de estado desacoplada para renderização futura no módulo core.
  */
 public class AndroidMatchStateBridge implements MatchStatePort {
+
+    private final GameManager gameManager;
+    private final GameState gameState;
+
+    public AndroidMatchStateBridge(GameManager gameManager, GameState gameState) {
+        this.gameManager = gameManager;
+        this.gameState = gameState;
+    }
+
     @Override
     public List<int[]> availableMoves() {
-        return Collections.emptyList();
+        List<int[]> src = gameManager.getAvailableMoves();
+        return src == null ? new ArrayList<>() : src;
     }
 
     @Override
     public boolean isMatchOver() {
-        return false;
+        return gameManager.isGameOver();
     }
 
     @Override
     public boolean isXTurn() {
-        return true;
+        return gameState.isXTurn();
     }
 
     @Override
     public String statusLabel() {
-        return "CORE CLASH";
+        String mode = gameState.getGameMode() == GameState.GameMode.RANKED ? "RANK" : "CASUAL";
+        String turn = gameState.isXTurn() ? "X" : "O";
+        return "CC • " + mode + " • TURN " + turn;
     }
 }
