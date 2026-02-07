@@ -1,6 +1,5 @@
 package com.example.coreclash;
 
-import android.app.AlertDialog;
 import android.content.res.ColorStateList;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -76,6 +75,20 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout victoryOverlay;
     private View victoryCard;
     private VictoryLineView victoryLineView;
+
+    private FrameLayout storeOverlay;
+    private FrameLayout storeTransitionOverlay;
+    private View storeScreen;
+    private TextView txtStoreCoinsFull;
+    private TextView txtCurtainTop;
+    private TextView txtCurtainMiddle;
+    private TextView txtCurtainBottom;
+    private Button btnStoreClose;
+    private Button btnThemeRoyal;
+    private Button btnThemeVoid;
+    private Button btnStyleRune;
+    private Button btnStyleFuture;
+    private Button btnBuyCoins;
 
     private FrameLayout modeOverlay;
     private View modeCard;
@@ -157,6 +170,20 @@ public class MainActivity extends AppCompatActivity {
         victoryCard = findViewById(R.id.victoryCard);
         victoryLineView = findViewById(R.id.victoryLineView);
 
+        storeOverlay = findViewById(R.id.storeOverlay);
+        storeTransitionOverlay = findViewById(R.id.storeTransitionOverlay);
+        storeScreen = findViewById(R.id.storeScreen);
+        txtStoreCoinsFull = findViewById(R.id.txtStoreCoinsFull);
+        txtCurtainTop = findViewById(R.id.txtCurtainTop);
+        txtCurtainMiddle = findViewById(R.id.txtCurtainMiddle);
+        txtCurtainBottom = findViewById(R.id.txtCurtainBottom);
+        btnStoreClose = findViewById(R.id.btnStoreClose);
+        btnThemeRoyal = findViewById(R.id.btnThemeRoyal);
+        btnThemeVoid = findViewById(R.id.btnThemeVoid);
+        btnStyleRune = findViewById(R.id.btnStyleRune);
+        btnStyleFuture = findViewById(R.id.btnStyleFuture);
+        btnBuyCoins = findViewById(R.id.btnBuyCoins);
+
         modeOverlay = findViewById(R.id.modeOverlay);
         modeCard = findViewById(R.id.modeCard);
         btnModeCasual = findViewById(R.id.btnModeCasual);
@@ -181,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
             startMatchmaking(true);
         });
 
-        btnStore.setOnClickListener(v -> openStoreDialog());
+        btnStore.setOnClickListener(v -> openStoreScreen());
         btnSettings.setOnClickListener(v -> Toast.makeText(this, "Configurações em desenvolvimento ⚙", Toast.LENGTH_SHORT).show());
 
         btnModeCasual.setOnClickListener(v -> {
@@ -566,6 +593,7 @@ public class MainActivity extends AppCompatActivity {
             currentProfile.coins += amount;
             persistProfile();
             updateHeaderStatus();
+            refreshStoreHeader();
             Toast.makeText(this, "+" + amount + " Core Coins", Toast.LENGTH_SHORT).show();
         });
 
@@ -611,58 +639,88 @@ public class MainActivity extends AppCompatActivity {
         board.resetBoard();
     }
 
-    private void openStoreDialog() {
+    private void openStoreScreen() {
         if (currentProfile == null) {
             Toast.makeText(this, "Perfil ainda carregando...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        View view = getLayoutInflater().inflate(R.layout.dialog_store, null, false);
-        TextView txtCoins = view.findViewById(R.id.txtStoreCoins);
-        Button btnThemeRoyal = view.findViewById(R.id.btnThemeRoyal);
-        Button btnThemeVoid = view.findViewById(R.id.btnThemeVoid);
-        Button btnStyleRune = view.findViewById(R.id.btnStyleRune);
-        Button btnStyleFuture = view.findViewById(R.id.btnStyleFuture);
-        Button btnBuyCoins = view.findViewById(R.id.btnBuyCoins);
+        setupStoreActions();
+        txtStoreCoinsFull.setText("Core Coins: " + currentProfile.coins);
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(view)
-                .create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
-
-        Runnable refresh = () -> txtCoins.setText("Core Coins: " + currentProfile.coins);
-        refresh.run();
-
-        btnThemeRoyal.setOnClickListener(v -> {
-            buyOrEquipTheme("ROYAL", 180, refresh);
+        playStoreTransition(() -> {
+            storeOverlay.setVisibility(View.VISIBLE);
+            storeOverlay.setAlpha(0f);
+            storeScreen.setTranslationY(40f);
+            storeOverlay.animate().alpha(1f).setDuration(200).start();
+            storeScreen.animate().translationY(0f).setDuration(240)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .start();
         });
+    }
 
-        btnThemeVoid.setOnClickListener(v -> {
-            buyOrEquipTheme("VOID", 220, refresh);
-        });
+    private void closeStoreScreen() {
+        storeScreen.animate().translationY(30f).setDuration(160).start();
+        storeOverlay.animate()
+                .alpha(0f)
+                .setDuration(180)
+                .withEndAction(() -> storeOverlay.setVisibility(View.GONE))
+                .start();
+    }
 
-        btnStyleRune.setOnClickListener(v -> {
-            buyOrEquipStyle("RUNE", 140, refresh);
-        });
+    private void setupStoreActions() {
+        btnStoreClose.setOnClickListener(v -> closeStoreScreen());
 
-        btnStyleFuture.setOnClickListener(v -> {
-            buyOrEquipStyle("FUTURE", 160, refresh);
-        });
+        btnThemeRoyal.setOnClickListener(v ->
+                buyOrEquipTheme("ROYAL", 180, this::refreshStoreHeader));
+
+        btnThemeVoid.setOnClickListener(v ->
+                buyOrEquipTheme("VOID", 220, this::refreshStoreHeader));
+
+        btnStyleRune.setOnClickListener(v ->
+                buyOrEquipStyle("RUNE", 140, this::refreshStoreHeader));
+
+        btnStyleFuture.setOnClickListener(v ->
+                buyOrEquipStyle("FUTURE", 160, this::refreshStoreHeader));
 
         btnBuyCoins.setOnClickListener(v -> {
             boolean launched = billingManager.launchCoinsPackPurchase(this);
             if (!launched) {
                 currentProfile.coins += 500;
                 persistProfile();
-                refresh.run();
+                refreshStoreHeader();
                 updateHeaderStatus();
                 Toast.makeText(this, "Pack dev aplicado (+500)", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        dialog.show();
+    private void refreshStoreHeader() {
+        if (currentProfile == null) return;
+        txtStoreCoinsFull.setText("Core Coins: " + currentProfile.coins);
+    }
+
+    private void playStoreTransition(Runnable onEnd) {
+        storeTransitionOverlay.setVisibility(View.VISIBLE);
+        storeTransitionOverlay.setAlpha(0f);
+
+        txtCurtainTop.setTranslationX(-240f);
+        txtCurtainMiddle.setTranslationX(240f);
+        txtCurtainBottom.setTranslationX(-240f);
+
+        storeTransitionOverlay.animate().alpha(1f).setDuration(120).start();
+        txtCurtainTop.animate().translationX(0f).setDuration(240).start();
+        txtCurtainMiddle.animate().translationX(0f).setDuration(280).start();
+        txtCurtainBottom.animate().translationX(0f).setDuration(320).start();
+
+        handler.postDelayed(() -> {
+            if (onEnd != null) onEnd.run();
+            storeTransitionOverlay.animate()
+                    .alpha(0f)
+                    .setDuration(180)
+                    .withEndAction(() -> storeTransitionOverlay.setVisibility(View.GONE))
+                    .start();
+        }, 360);
     }
 
     private void buyOrEquipTheme(String themeId, int price, Runnable refresh) {
