@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/bg_store_clash">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LOJA REAL"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:textColor="#FFF3C4"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/txtStoreCoins"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Core Coins: 0"
+            android:textColor="#D6E4FF"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="@drawable/bg_store_section">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TEMAS DO TABULEIRO"
+                android:textStyle="bold"
+                android:textColor="#EAF2FF"/>
+
+            <Button
+                android:id="@+id/btnThemeRoyal"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_store_item"
+                android:text="👑 ROYAL ARENA   •   180"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="#F8FAFC" />
+
+            <Button
+                android:id="@+id/btnThemeVoid"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_store_item"
+                android:text="🌌 VOID TEMPLE   •   220"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="#F8FAFC" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="@drawable/bg_store_section">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ESTILO DE SÍMBOLOS"
+                android:textStyle="bold"
+                android:textColor="#EAF2FF"/>
+
+            <Button
+                android:id="@+id/btnStyleRune"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_store_item"
+                android:text="✦ RUNE GLYPHS   •   140"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="#F8FAFC" />
+
+            <Button
+                android:id="@+id/btnStyleFuture"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_store_item"
+                android:text="⬡ FUTURE TECH   •   160"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="#F8FAFC" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnBuyCoins"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_store_buy_button"
+            android:text="+500 COINS"
+            android:textStyle="bold"
+            android:textColor="#1F1300" />
+    </LinearLayout>
+</ScrollView>
