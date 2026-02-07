@@ -38,6 +38,8 @@ import game.Cell;
 
 public class BoardManager {
 
+    private String boardTheme = "ARENA";
+    private String symbolStyle = "CLASSIC";
     private final FrameLayout[][] cellContainers = new FrameLayout[3][3];
     private final TextView[][] symbolViews = new TextView[3][3];
     private final Cell[][] cells = new Cell[3][3];
@@ -124,8 +126,18 @@ public class BoardManager {
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
         gd.setCornerRadius(16f);
-        gd.setColor(Color.parseColor("#1A0B1020"));
-        gd.setStroke(3, Color.parseColor("#55A5F3FC"));
+
+        if ("ROYAL".equals(boardTheme)) {
+            gd.setColor(Color.parseColor("#1A12233F"));
+            gd.setStroke(3, Color.parseColor("#558AA4FF"));
+        } else if ("VOID".equals(boardTheme)) {
+            gd.setColor(Color.parseColor("#1A1A1024"));
+            gd.setStroke(3, Color.parseColor("#559F7AEA"));
+        } else {
+            gd.setColor(Color.parseColor("#1A0B1020"));
+            gd.setStroke(3, Color.parseColor("#55A5F3FC"));
+        }
+
         container.setBackground(gd);
         container.setAlpha(1.0f);
         container.setTranslationX(0f);
@@ -133,7 +145,7 @@ public class BoardManager {
 
     public void updateCellVisual(int r, int c, boolean isX) {
         TextView tv = symbolViews[r][c];
-        tv.setText(cells[r][c].getVisualSymbol());
+        tv.setText(mapSymbol(cells[r][c].getVisualSymbol()));
 
         int color = Color.parseColor(isX ? "#FB7185" : "#22D3EE");
         tv.setTextColor(color);
@@ -234,7 +246,7 @@ public class BoardManager {
         FrameLayout container = cellContainers[r][c];
         Cell logic = cells[r][c];
 
-        tv.setText(logic.getVisualSymbol());
+        tv.setText(mapSymbol(logic.getVisualSymbol()));
 
         if (logic.isGhost()) {
             container.setAlpha(0.5f);
@@ -253,6 +265,39 @@ public class BoardManager {
                     .start();
         } else {
             container.setAlpha(1.0f);
+        }
+    }
+
+    public void setBoardTheme(String boardTheme) {
+        this.boardTheme = boardTheme;
+        applyThemeToBoard();
+    }
+
+    public void setSymbolStyle(String symbolStyle) {
+        this.symbolStyle = symbolStyle;
+    }
+
+    private String mapSymbol(String symbol) {
+        if ("X".equals(symbol)) {
+            if ("RUNE".equals(symbolStyle)) return "✦";
+            if ("FUTURE".equals(symbolStyle)) return "✕";
+            return "X";
+        }
+        if ("O".equals(symbol)) {
+            if ("RUNE".equals(symbolStyle)) return "◉";
+            if ("FUTURE".equals(symbolStyle)) return "⬡";
+            return "O";
+        }
+        return symbol;
+    }
+
+    private void applyThemeToBoard() {
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (cellContainers[r][c] != null) {
+                    applyInitialStyle(cellContainers[r][c]);
+                }
+            }
         }
     }
 

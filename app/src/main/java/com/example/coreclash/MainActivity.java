@@ -1,5 +1,6 @@
 package com.example.coreclash;
 
+import android.app.AlertDialog;
 import android.content.res.ColorStateList;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -15,6 +16,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.coreclash.billing.BillingManager;
+import com.example.coreclash.data.FirebaseProfileRepository;
+import com.example.coreclash.data.LocalProfileRepository;
+import com.example.coreclash.data.ProfileRepository;
+import com.example.coreclash.model.PlayerProfile;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
@@ -91,6 +98,11 @@ public class MainActivity extends AppCompatActivity {
     private BotDifficulty currentBotDifficulty = BotDifficulty.INICIANTE;
     private String opponentName = "Aguardando";
 
+    private ProfileRepository profileRepository;
+    private LocalProfileRepository localProfileRepository;
+    private BillingManager billingManager;
+    private PlayerProfile currentProfile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupSkills();
         setupHomeFlow();
+        initPlayerServices();
         setupMetaControls();
 
         showHomeScreen();
@@ -168,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
             startMatchmaking(true);
         });
 
-        btnStore.setOnClickListener(v -> Toast.makeText(this, "Loja em desenvolvimento 🚧", Toast.LENGTH_SHORT).show());
+        btnStore.setOnClickListener(v -> openStoreDialog());
         btnSettings.setOnClickListener(v -> Toast.makeText(this, "Configurações em desenvolvimento ⚙", Toast.LENGTH_SHORT).show());
 
         btnModeCasual.setOnClickListener(v -> {
@@ -517,7 +530,8 @@ public class MainActivity extends AppCompatActivity {
     private void updateHeaderStatus() {
         String modeLabel = selectedMode == SelectedMode.RANKED ? "RANK" : "CASUAL";
         String rivalLabel = opponentName;
-        txtStatus.setText("CC • " + modeLabel + " • " + rivalLabel);
+        String coins = currentProfile == null ? "--" : String.valueOf(currentProfile.coins);
+        txtStatus.setText("CC • " + modeLabel + " • " + rivalLabel + " • ⬢" + coins);
     }
 
     private void updateSkillVisuals() {
@@ -542,6 +556,164 @@ public class MainActivity extends AppCompatActivity {
     private BotDifficulty randomDifficulty() {
         BotDifficulty[] levels = BotDifficulty.values();
         return levels[random.nextInt(levels.length)];
+    }
+
+    private void initPlayerServices() {
+        localProfileRepository = new LocalProfileRepository(this);
+        billingManager = new BillingManager();
+        billingManager.start(this, amount -> {
+            if (currentProfile == null) return;
+            currentProfile.coins += amount;
+            persistProfile();
+            updateHeaderStatus();
+            Toast.makeText(this, "+" + amount + " Core Coins", Toast.LENGTH_SHORT).show();
+        });
+
+        try {
+            profileRepository = new FirebaseProfileRepository();
+        } catch (Exception ignored) {
+            profileRepository = localProfileRepository;
+        }
+
+        profileRepository.loadOrCreateProfile(new ProfileRepository.Callback() {
+            @Override
+            public void onSuccess(PlayerProfile profile) {
+                currentProfile = profile;
+                localProfileRepository.saveProfile(profile);
+                applyEquippedCosmetics();
+                updateHeaderStatus();
+            }
+
+            @Override
+            public void onError(String error) {
+                localProfileRepository.loadOrCreateProfile(new ProfileRepository.Callback() {
+                    @Override
+                    public void onSuccess(PlayerProfile profile) {
+                        currentProfile = profile;
+                        applyEquippedCosmetics();
+                        updateHeaderStatus();
+                        Toast.makeText(MainActivity.this, "Modo offline ativo para perfil", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(String localError) {
+                        Toast.makeText(MainActivity.this, "Falha ao carregar perfil", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void applyEquippedCosmetics() {
+        if (currentProfile == null) return;
+        board.setBoardTheme(currentProfile.equippedTheme);
+        board.setSymbolStyle(currentProfile.equippedSymbolStyle);
+        board.resetBoard();
+    }
+
+    private void openStoreDialog() {
+        if (currentProfile == null) {
+            Toast.makeText(this, "Perfil ainda carregando...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_store, null, false);
+        TextView txtCoins = view.findViewById(R.id.txtStoreCoins);
+        Button btnThemeRoyal = view.findViewById(R.id.btnThemeRoyal);
+        Button btnThemeVoid = view.findViewById(R.id.btnThemeVoid);
+        Button btnStyleRune = view.findViewById(R.id.btnStyleRune);
+        Button btnStyleFuture = view.findViewById(R.id.btnStyleFuture);
+        Button btnBuyCoins = view.findViewById(R.id.btnBuyCoins);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .create();
+
+        Runnable refresh = () -> txtCoins.setText("Core Coins: " + currentProfile.coins);
+        refresh.run();
+
+        btnThemeRoyal.setOnClickListener(v -> {
+            buyOrEquipTheme("ROYAL", 180, refresh);
+        });
+
+        btnThemeVoid.setOnClickListener(v -> {
+            buyOrEquipTheme("VOID", 220, refresh);
+        });
+
+        btnStyleRune.setOnClickListener(v -> {
+            buyOrEquipStyle("RUNE", 140, refresh);
+        });
+
+        btnStyleFuture.setOnClickListener(v -> {
+            buyOrEquipStyle("FUTURE", 160, refresh);
+        });
+
+        btnBuyCoins.setOnClickListener(v -> {
+            boolean launched = billingManager.launchCoinsPackPurchase(this);
+            if (!launched) {
+                currentProfile.coins += 500;
+                persistProfile();
+                refresh.run();
+                updateHeaderStatus();
+                Toast.makeText(this, "Pack dev aplicado (+500)", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void buyOrEquipTheme(String themeId, int price, Runnable refresh) {
+        if (currentProfile.ownsTheme(themeId)) {
+            currentProfile.equippedTheme = themeId;
+            persistProfile();
+            applyEquippedCosmetics();
+            Toast.makeText(this, "Tema equipado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (currentProfile.coins < price) {
+            Toast.makeText(this, "Moedas insuficientes", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        currentProfile.coins -= price;
+        currentProfile.ownedThemes.add(themeId);
+        currentProfile.equippedTheme = themeId;
+        persistProfile();
+        applyEquippedCosmetics();
+        refresh.run();
+        updateHeaderStatus();
+    }
+
+    private void buyOrEquipStyle(String styleId, int price, Runnable refresh) {
+        if (currentProfile.ownsSymbolStyle(styleId)) {
+            currentProfile.equippedSymbolStyle = styleId;
+            persistProfile();
+            applyEquippedCosmetics();
+            Toast.makeText(this, "Estilo equipado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (currentProfile.coins < price) {
+            Toast.makeText(this, "Moedas insuficientes", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        currentProfile.coins -= price;
+        currentProfile.ownedSymbolStyles.add(styleId);
+        currentProfile.equippedSymbolStyle = styleId;
+        persistProfile();
+        applyEquippedCosmetics();
+        refresh.run();
+        updateHeaderStatus();
+    }
+
+    private void persistProfile() {
+        if (currentProfile == null) return;
+        localProfileRepository.saveProfile(currentProfile);
+        if (profileRepository != null) {
+            profileRepository.saveProfile(currentProfile);
+        }
     }
 
     private void hideSystemBars() {

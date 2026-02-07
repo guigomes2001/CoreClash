@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="18dp"
+    android:background="@drawable/bg_cyber_glass">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LOJA CORE"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:textColor="#F8FAFC"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/txtStoreCoins"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Core Coins: 0"
+        android:textColor="#B8C6D8"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="Temas de Tabuleiro"
+        android:textStyle="bold"
+        android:textColor="#E2E8F0" />
+
+    <Button
+        android:id="@+id/btnThemeRoyal"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:text="Tema Royal (180)"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#2563EB" />
+
+    <Button
+        android:id="@+id/btnThemeVoid"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:text="Tema Void (220)"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#7C3AED" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="Estilos de Símbolo X/O"
+        android:textStyle="bold"
+        android:textColor="#E2E8F0" />
+
+    <Button
+        android:id="@+id/btnStyleRune"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:text="Rune (140)"
+        android:textStyle="bold"
+        android:textColor="#041019"
+        android:backgroundTint="#38BDF8" />
+
+    <Button
+        android:id="@+id/btnStyleFuture"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:text="Future (160)"
+        android:textStyle="bold"
+        android:textColor="#041019"
+        android:backgroundTint="#22D3EE" />
+
+    <Button
+        android:id="@+id/btnBuyCoins"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="14dp"
+        android:text="Comprar 500 Coins"
+        android:textStyle="bold"
+        android:textColor="#041019"
+        android:backgroundTint="#F7C948" />
+</LinearLayout>
