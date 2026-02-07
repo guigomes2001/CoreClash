@@ -628,6 +628,9 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(view)
                 .create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
 
         Runnable refresh = () -> txtCoins.setText("Core Coins: " + currentProfile.coins);
         refresh.run();
