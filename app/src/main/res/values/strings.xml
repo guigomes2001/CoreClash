@@ -1,3 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Core Clash</string>
+    <string name="app_name" translatable="false">Core Clash</string>
+
+    <string name="default_web_client_id" translatable="false">
+        318632393848-iqtmf5l526j59g9a9pi8oj0qt8uqfh5j.apps.googleusercontent.com
+    </string>
+
+    <string name="btn_play">Play</string>
+    <string name="btn_settings">Settings</string>
+    <string name="btn_close">Close</string>
+    <string name="home_subtitle">Fast arena. Less touch, more action.</string>
+    <string name="btn_language">Language</string>
+    <string name="versus_status">%1$s vs %2$s</string>
+    <string name="game_draw">Draw</string>
+    <string name="game_win">%1$s wins</string>
+    <string name="stats_moves">⚡ Moves: %1$d | %2$s</string>
+    <string name="stats_ghosts">👻 Ghosts: %1$02d | 🔥 Streak: %2$d</string>
+    <string name="status_sync">Syncing…</string>
+    <string name="toast_progress_linked">Progress linked! ✅</string>
+    <string name="toast_match_found">Match found against %1$s</string>
+    <string name="mode_ranked_label">Ranked</string>
+    <string name="mode_casual_label">Casual</string>
+    <string name="default_player_name">Beginner</string>
+    <string name="stats_wins_format">🏆 Wins: %1$d</string>
+    <string name="toast_offline_loaded">Offline Mode: Local data loaded</string>
+    <string name="online_rival_prefix">OnlineRival</string>
 </resources>

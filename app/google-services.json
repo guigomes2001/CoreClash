@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "318632393848",
+    "project_id": "core-clash-cb6bc",
+    "storage_bucket": "core-clash-cb6bc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:318632393848:android:6fcea67f0d080bc7aac18d",
+        "android_client_info": {
+          "package_name": "com.example.coreclash"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "318632393848-o05slgl5kjpmfa6lognigrsocipfti71.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coreclash",
+            "certificate_hash": "d18ae57b99864ed272a85e319fef58a0d669e3bf"
+          }
+        },
+        {
+          "client_id": "318632393848-iqtmf5l526j59g9a9pi8oj0qt8uqfh5j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGGhJSS6x9mcU2SJGjxYRtZOwNcSZaG6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "318632393848-iqtmf5l526j59g9a9pi8oj0qt8uqfh5j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

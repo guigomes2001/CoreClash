@@ -14,7 +14,7 @@ public class PlayerProfile {
     public String equippedSymbolStyle;
 
     public PlayerProfile() {
-        // Firebase constructor
+
     }
 
     public static PlayerProfile createDefault(String uid) {
