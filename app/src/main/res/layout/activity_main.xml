@@ -45,7 +45,7 @@
 	    android:layout_height="44dp"
 	    android:layout_gravity="center"
 	    android:src="@drawable/ic_triangle_outline"
-	    android:tint="#FBCFE8" />
+	    android:tint="#D6B15B" />
     </FrameLayout>
 
     <View
@@ -104,7 +104,7 @@
 	    android:layout_height="44dp"
 	    android:layout_gravity="center"
 	    android:src="@drawable/ic_square_outline"
-	    android:tint="#A5F3FC" />
+	    android:tint="#6D28D9" />
     </FrameLayout>
 
     <View
