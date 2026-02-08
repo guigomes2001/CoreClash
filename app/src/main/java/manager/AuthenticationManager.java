@@ -55,7 +55,7 @@ public class AuthenticationManager {
             }
         } catch (ApiException e) {
             Log.e("AUTH", "Google Sign-In failed", e);
-            callback.onFailure("Erro ao conectar com Google");
+            callback.onFailure(activity.getString(R.string.auth_google_connect_error));
         }
     }
 
@@ -69,7 +69,7 @@ public class AuthenticationManager {
                     })
                     .addOnFailureListener(e -> {
                         Log.e("AUTH", "Link failed", e);
-                        callback.onFailure("Falha ao vincular: Conta já em uso.");
+                        callback.onFailure(activity.getString(R.string.auth_google_link_in_use));
                     });
         }
     }
