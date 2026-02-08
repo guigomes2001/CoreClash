@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
-    private String opponentName = "Aguardando";
+    private String opponentName = "";
     private GameMode selectedMode = GameMode.CASUAL;
     private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
 
@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
         setupHomeFlow();
         initPlayerServices();
         setupMetaControls();
+
+        opponentName = getString(R.string.status_waiting);
 
         showHomeScreen();
         updateModeButtonStyles();

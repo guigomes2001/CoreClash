@@ -167,10 +167,10 @@ public class BoardManager {
 
     public int applyTriangleEffect() {
         List<PointF> points = new ArrayList<>();
-        points.add(getCellCenter(0, 2));
+        points.add(getCellCenter(0, 1));
         points.add(getCellCenter(2, 2));
         points.add(getCellCenter(2, 0));
-        points.add(getCellCenter(0, 2));
+        points.add(getCellCenter(0, 1));
 
         overlayView.drawShape(points, COLOR_TRIANGLE);
 
@@ -178,11 +178,11 @@ public class BoardManager {
         long step = duration / 3;
 
         int affected = 0;
-        affected += affectCellNow(0, 2);
+        affected += affectCellNow(0, 1);
         affected += affectCellNow(2, 2);
         affected += affectCellNow(2, 0);
 
-        scheduleAffectCellAnimation(0, 2, step);
+        scheduleAffectCellAnimation(0, 1, step);
         scheduleAffectCellAnimation(2, 2, step * 2);
         scheduleAffectCellAnimation(2, 0, step * 3);
         return affected;
