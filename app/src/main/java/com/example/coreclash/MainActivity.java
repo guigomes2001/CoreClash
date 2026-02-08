@@ -174,10 +174,12 @@ public class MainActivity extends AppCompatActivity {
                 AnimationHelper.shakeButton(v);
                 return;
             }
-            gameManager.useTriangle();
-            AnimationHelper.spin(v);
-            updateHeaderStatus();
-            updateSkillVisuals();
+            if (gameManager.useTriangle()) {
+                AnimationHelper.spin(v);
+                updateHeaderStatus();
+                updateSkillVisuals();
+                maybeRunBotTurn();
+            }
         });
 
         binding.containerSquare.setOnClickListener(v -> {
@@ -185,10 +187,12 @@ public class MainActivity extends AppCompatActivity {
                 AnimationHelper.shakeButton(v);
                 return;
             }
-            gameManager.useSquare();
-            AnimationHelper.pulse(v);
-            updateHeaderStatus();
-            updateSkillVisuals();
+            if (gameManager.useSquare()) {
+                AnimationHelper.pulse(v);
+                updateHeaderStatus();
+                updateSkillVisuals();
+                maybeRunBotTurn();
+            }
         });
     }
 
@@ -384,11 +388,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (currentBotDifficulty == Difficulty.MESTRE) {
-                if (state.canUseTriangle() && random.nextFloat() < 0.35f) {
-                    gameManager.useTriangle();
+                if (state.canUseTriangle() && random.nextFloat() < 0.35f && gameManager.useTriangle()) {
+                    updateHeaderStatus();
+                    updateSkillVisuals();
+                    return;
                 }
-                if (state.canUseSquare() && random.nextFloat() < 0.25f) {
-                    gameManager.useSquare();
+                if (state.canUseSquare() && random.nextFloat() < 0.25f && gameManager.useSquare()) {
+                    updateHeaderStatus();
+                    updateSkillVisuals();
+                    return;
                 }
             }
 
