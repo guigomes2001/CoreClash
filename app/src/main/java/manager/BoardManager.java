@@ -19,8 +19,13 @@ public class BoardManager {
         String[][] matrix = new String[3][3];
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
+                if (cells[r][c].isEmpty()) {
+                    matrix[r][c] = "";
+                    continue;
+                }
                 String symbol = cells[r][c].getVisualSymbol();
-                matrix[r][c] = (cells[r][c].isEmpty()) ? "" : mapSymbol(symbol);
+                String mapped = mapSymbol(symbol);
+                matrix[r][c] = cells[r][c].isGhost() ? "GHOST_" + mapped : mapped;
             }
         }
         return matrix;
@@ -59,9 +64,9 @@ public class BoardManager {
 
     public int applyTriangleEffect() {
         int affected = 0;
-        affected += affectCellNow(0, 2);
-        affected += affectCellNow(2, 2);
+        affected += affectCellNow(0, 1);
         affected += affectCellNow(2, 0);
+        affected += affectCellNow(2, 2);
         return affected;
     }
 
