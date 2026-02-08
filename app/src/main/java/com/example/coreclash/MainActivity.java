@@ -7,6 +7,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -271,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         state.setGameMode(selectedMode == GameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
+        skillAnimationLockUntilMs = 0L;
         gameManager.resetGame();
         binding.victoryLineView.clear();
         updateHeaderStatus();
