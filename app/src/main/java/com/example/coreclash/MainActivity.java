@@ -2,11 +2,11 @@ package com.example.coreclash;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
@@ -24,6 +24,7 @@ import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.data.ProfileRepository;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
+import view.CoreBoardView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
@@ -48,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private static final Random random = new Random();
 
     private ActivityMainBinding binding;
-
     private GameManager gameManager;
     private GameState state;
     private BoardManager board;
@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         authenticationManager = new AuthenticationManager(this);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -84,15 +83,7 @@ public class MainActivity extends AppCompatActivity {
         gameManager = new GameManager(board, state);
         settingManager = new SettingManager(this, binding);
 
-        board.createBoard(this, binding.gridBoard, (row, col) -> {
-            if (!matchStarted || gameManager.isGameOver()) {
-                return;
-            }
-            if (versusBot && !state.isXTurn()) {
-                return;
-            }
-            playTurn(row, col);
-        });
+        setupBoardInteraction();
 
         setupSkills();
         setupHomeFlow();
@@ -103,6 +94,112 @@ public class MainActivity extends AppCompatActivity {
         updateModeButtonStyles();
         updateHeaderStatus();
         updateSkillVisuals();
+    }
+
+    private void setupBoardInteraction() {
+        binding.gameBoardView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (!matchStarted || gameManager.isGameOver()) return true;
+                if (versusBot && !state.isXTurn()) return true;
+
+                float cellW = v.getWidth() / 3f;
+                float cellH = v.getHeight() / 3f;
+                int col = (int) (event.getX() / cellW);
+                int row = (int) (event.getY() / cellH);
+
+                if (row >= 0 && row < 3 && col >= 0 && col < 3) {
+                    playTurn(row, col);
+                }
+            }
+            return true;
+        });
+    }
+
+    private void playTurn(int row, int col) {
+        if (!gameManager.canPlayAt(row, col)) {
+            AnimationHelper.shakeView(binding.gameBoardView);
+            return;
+        }
+
+        String symbol = gameManager.getCurrentPlayerSymbol();
+        boolean won = gameManager.play(row, col);
+
+        binding.gameBoardView.updateBoard(board.getMatrix());
+
+        updateHeaderStatus();
+        updateSkillVisuals();
+
+        if (won) {
+            matchStarted = false;
+            drawVictoryLine();
+            handler.postDelayed(() -> showVictoryScreen(symbol), 700);
+            return;
+        }
+
+        if (gameManager.isGameOver()) {
+            matchStarted = false;
+            handler.postDelayed(this::showDrawScreen, 420);
+            return;
+        }
+
+        maybeRunBotTurn();
+    }
+
+    private void drawVictoryLine() {
+        GameManager.WinInfo win = gameManager.getLastWin();
+        if (win == null) return;
+
+        binding.victoryLineView.setData(win.r1(), win.c1(), win.r3(), win.c3());
+        binding.victoryLineView.startVictoryAnimation();
+
+        AnimationHelper.shakeView(binding.gameBoardView);
+    }
+
+    private void resetGameUI() {
+        gameManager.resetGame();
+        binding.victoryLineView.clear();
+        binding.gameBoardView.updateBoard(board.getMatrix());
+        updateSkillVisuals();
+    }
+
+    private void setupSkills() {
+        binding.containerTriangle.setOnClickListener(v -> {
+            if (!matchStarted || gameManager.isGameOver() || !state.canUseTriangle()) {
+                AnimationHelper.shakeView(v);
+                return;
+            }
+            gameManager.useTriangle();
+            binding.gameBoardView.updateBoard(board.getMatrix());
+            AnimationHelper.spin(v);
+            updateHeaderStatus();
+            updateSkillVisuals();
+        });
+
+        binding.containerSquare.setOnClickListener(v -> {
+            if (!matchStarted || gameManager.isGameOver() || !state.canUseSquare()) {
+                AnimationHelper.shakeView(v);
+                return;
+            }
+            gameManager.useSquare();
+            binding.gameBoardView.updateBoard(board.getMatrix());
+            AnimationHelper.pulse(v);
+            updateHeaderStatus();
+            updateSkillVisuals();
+        });
+    }
+
+    private void setupMetaControls() {
+        binding.btnRestart.setOnClickListener(v -> {
+            hideVictoryScreen();
+            resetGameUI();
+            startMatchIntro();
+        });
+        binding.btnExit.setOnClickListener(v -> {
+            hideVictoryScreen();
+            resetGameUI();
+            showHomeScreen();
+            updateHeaderStatus();
+        });
     }
 
     private void setupGoogleSignInLauncher() {
@@ -120,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
                                 updateHeaderStatus();
                                 Toast.makeText(MainActivity.this, getString(R.string.toast_progress_linked), Toast.LENGTH_SHORT).show();
                             }
-
                             @Override
                             public void onFailure(String message) {
                                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
@@ -135,78 +231,17 @@ public class MainActivity extends AppCompatActivity {
         binding.btnPlay.setOnClickListener(v -> openModeModal());
         binding.btnOnline.setOnClickListener(v -> startMatchmaking(true));
         binding.btnStore.setOnClickListener(v -> storeManager.openStore());
-
         binding.btnSettings.setOnClickListener(v -> settingManager.openSettings());
-
-        binding.btnModeCasual.setOnClickListener(v -> {
-            selectedMode = GameMode.CASUAL;
-            updateModeButtonStyles();
-        });
-
-        binding.btnModeRanked.setOnClickListener(v -> {
-            selectedMode = GameMode.RANKED;
-            updateModeButtonStyles();
-        });
-
+        binding.btnModeCasual.setOnClickListener(v -> { selectedMode = GameMode.CASUAL; updateModeButtonStyles(); });
+        binding.btnModeRanked.setOnClickListener(v -> { selectedMode = GameMode.RANKED; updateModeButtonStyles(); });
         binding.btnModeCancel.setOnClickListener(v -> closeModeModal());
-        binding.btnModeConfirm.setOnClickListener(v -> {
-            closeModeModal();
-            startMatchmaking(false);
-        });
-
+        binding.btnModeConfirm.setOnClickListener(v -> { closeModeModal(); startMatchmaking(false); });
         binding.modeOverlay.setOnClickListener(v -> closeModeModal());
-
-        binding.btnGoogleLoginSettings.setOnClickListener(v -> {
-            settingManager.closeSettings();
-            startGoogleSignIn();
-        });
+        binding.btnGoogleLoginSettings.setOnClickListener(v -> { settingManager.closeSettings(); startGoogleSignIn(); });
     }
 
     private void startGoogleSignIn() {
         authenticationManager.startGoogleSignIn(googleSignInLauncher);
-    }
-
-    private void setupSkills() {
-        binding.containerTriangle.setOnClickListener(v -> {
-            if (!matchStarted || gameManager.isGameOver() || !state.canUseTriangle()) {
-                AnimationHelper.shakeButton(v);
-                return;
-            }
-            gameManager.useTriangle();
-            AnimationHelper.spin(v);
-            updateHeaderStatus();
-            updateSkillVisuals();
-        });
-
-        binding.containerSquare.setOnClickListener(v -> {
-            if (!matchStarted || gameManager.isGameOver() || !state.canUseSquare()) {
-                AnimationHelper.shakeButton(v);
-                return;
-            }
-            gameManager.useSquare();
-            AnimationHelper.pulse(v);
-            updateHeaderStatus();
-            updateSkillVisuals();
-        });
-    }
-
-    private void setupMetaControls() {
-        binding.btnRestart.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            binding.victoryLineView.clear();
-            updateSkillVisuals();
-            startMatchIntro();
-        });
-
-        binding.btnExit.setOnClickListener(v -> {
-            hideVictoryScreen();
-            gameManager.resetGame();
-            binding.victoryLineView.clear();
-            showHomeScreen();
-            updateHeaderStatus();
-            updateSkillVisuals();
-        });
     }
 
     private void openModeModal() {
@@ -245,23 +280,12 @@ public class MainActivity extends AppCompatActivity {
     private void startMatchmaking(boolean fromOnlineButton) {
         boolean foundPlayer = fromOnlineButton && random.nextFloat() < 0.45f;
         versusBot = !foundPlayer;
-
-        if (versusBot) {
-            opponentName = randomBotName();
-            currentBotDifficulty = randomDifficulty();
-        } else {
-            opponentName = getString(R.string.online_rival_prefix) + (100 + random.nextInt(900));
-            currentBotDifficulty = Difficulty.MODERADA;
-
-            String matchMsg = getString(R.string.toast_match_found, opponentName);
-            Toast.makeText(this, matchMsg, Toast.LENGTH_SHORT).show();
-        }
+        opponentName = versusBot ? randomBotName() : getString(R.string.online_rival_prefix) + (100 + random.nextInt(900));
+        currentBotDifficulty = versusBot ? randomDifficulty() : Difficulty.MODERADA;
 
         state.setGameMode(selectedMode == GameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
-        gameManager.resetGame();
-        binding.victoryLineView.clear();
+        resetGameUI();
         updateHeaderStatus();
-        updateSkillVisuals();
         startMatchIntro();
     }
 
@@ -273,63 +297,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startMatchIntro() {
-        binding.homeOverlay.animate()
-                .alpha(0f)
-                .setDuration(460)
-                .withEndAction(() -> {
-                    binding.homeOverlay.setVisibility(View.GONE);
-                    showVersusOverlay();
-                })
-                .start();
+        binding.homeOverlay.animate().alpha(0f).setDuration(460).withEndAction(() -> {
+            binding.homeOverlay.setVisibility(View.GONE);
+            showVersusOverlay();
+        }).start();
     }
 
     private void showVersusOverlay() {
         binding.versusOverlay.setVisibility(View.VISIBLE);
         binding.versusOverlay.setAlpha(0f);
-
-        String playerName = getPlayerDisplayName();
-
-        binding.txtVersusX.setText(playerName);
-        binding.txtVersusO.setText(opponentName);
-        String modeLabel = selectedMode == GameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
-        binding.txtVersusCenter.setText(modeLabel);
-
-        binding.txtVersusX.setTranslationX(-220f);
-        binding.txtVersusO.setTranslationX(220f);
-        binding.txtVersusCenter.setScaleX(0.7f);
-        binding.txtVersusCenter.setScaleY(0.7f);
-
-        binding.versusOverlay.animate().alpha(1f).setDuration(160).start();
-
-        binding.txtVersusX.animate()
-                .translationX(0f)
-                .setDuration(480)
-                .setInterpolator(new OvershootInterpolator(1.1f))
-                .start();
-
-        binding.txtVersusO.animate()
-                .translationX(0f)
-                .setDuration(480)
-                .setInterpolator(new OvershootInterpolator(1.1f))
-                .start();
-
-        binding.txtVersusCenter.animate()
-                .scaleX(1.1f).scaleY(1.1f)
-                .setDuration(240)
-                .withEndAction(() -> binding.txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(160).start())
-                .start();
-
-        handler.postDelayed(() -> binding.versusOverlay.animate()
-                .alpha(0f)
-                .setDuration(240)
-                .withEndAction(() -> {
+        binding.versusOverlay.animate().alpha(1f).setDuration(160).withEndAction(() -> {
+            handler.postDelayed(() -> {
+                binding.versusOverlay.animate().alpha(0f).setDuration(240).withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
                     matchStarted = true;
-                    updateHeaderStatus();
-                    updateSkillVisuals();
                     maybeRunBotTurn();
-                })
-                .start(), 1300);
+                }).start();
+            }, 1000);
+        }).start();
+    }
+
+    private void animateVictoryCard() {
+        binding.victoryOverlay.setVisibility(View.VISIBLE);
+        binding.victoryOverlay.setAlpha(0f);
+        binding.victoryCard.setTranslationY(300f);
+        binding.victoryOverlay.animate().alpha(1f).setDuration(280).start();
+        binding.victoryCard.animate().translationY(0f).setDuration(520).setInterpolator(new OvershootInterpolator(1f)).start();
     }
 
     private String getPlayerDisplayName() {
@@ -342,33 +335,6 @@ public class MainActivity extends AppCompatActivity {
             return currentProfile.displayName;
         }
         return getString(R.string.default_player_name);
-    }
-
-    private void playTurn(int row, int col) {
-        int beforeMoves = gameManager.getFinalMoves();
-        String symbol = gameManager.getCurrentPlayerSymbol();
-        boolean won = gameManager.play(row, col);
-
-        if (beforeMoves == gameManager.getFinalMoves()) return;
-
-        updateHeaderStatus();
-        updateSkillVisuals();
-
-        if (won) {
-            matchStarted = false;
-            drawVictoryLine();
-            handler.postDelayed(() -> showVictoryScreen(symbol), 450);
-            return;
-        }
-
-        if (gameManager.isGameOver()) {
-            matchStarted = false;
-            drawDrawLine();
-            handler.postDelayed(this::showDrawScreen, 420);
-            return;
-        }
-
-        maybeRunBotTurn();
     }
 
     private void maybeRunBotTurn() {
@@ -420,46 +386,6 @@ public class MainActivity extends AppCompatActivity {
         return best != null ? best : moves.get(random.nextInt(moves.size()));
     }
 
-    private void drawVictoryLine() {
-        GameManager.WinInfo win = gameManager.getLastWin();
-        if (win == null) return;
-
-        PointF start = board.getCellCenterOnScreen(win.r1(), win.c1());
-        PointF end = board.getCellCenterOnScreen(win.r3(), win.c3());
-
-        int[] lineLoc = new int[2];
-        binding.victoryLineView.getLocationOnScreen(lineLoc);
-
-        binding.victoryLineView.setData(
-                start.x - lineLoc[0],
-                start.y - lineLoc[1],
-                end.x - lineLoc[0],
-                end.y - lineLoc[1]
-        );
-    }
-
-
-    private void drawDrawLine() {
-        PointF topLeft = board.getCellCenterOnScreen(0, 0);
-        PointF topRight = board.getCellCenterOnScreen(0, 2);
-        PointF bottomLeft = board.getCellCenterOnScreen(2, 0);
-        PointF bottomRight = board.getCellCenterOnScreen(2, 2);
-
-        int[] lineLoc = new int[2];
-        binding.victoryLineView.getLocationOnScreen(lineLoc);
-
-        binding.victoryLineView.setDrawData(
-                topLeft.x - lineLoc[0],
-                topLeft.y - lineLoc[1],
-                bottomRight.x - lineLoc[0],
-                bottomRight.y - lineLoc[1],
-                topRight.x - lineLoc[0],
-                topRight.y - lineLoc[1],
-                bottomLeft.x - lineLoc[0],
-                bottomLeft.y - lineLoc[1]
-        );
-    }
-
     private void showDrawScreen() {
         binding.txtWinnerTitle.setText(R.string.game_draw);
         binding.txtStatsMoves.setText(getString(R.string.stats_moves, gameManager.getFinalMoves(), "="));
@@ -475,21 +401,8 @@ public class MainActivity extends AppCompatActivity {
         animateVictoryCard();
     }
 
-    private void animateVictoryCard() {
-        binding.victoryOverlay.setVisibility(View.VISIBLE);
-        binding.victoryOverlay.setAlpha(0f);
-        binding.victoryCard.setTranslationY(300f);
-
-        binding.victoryOverlay.animate().alpha(1f).setDuration(280).start();
-        binding.victoryCard.animate().translationY(0f).setDuration(520).setInterpolator(new OvershootInterpolator(1f)).start();
-    }
-
     private void hideVictoryScreen() {
-        binding.victoryOverlay.animate()
-                .alpha(0f)
-                .setDuration(240)
-                .withEndAction(() -> binding.victoryOverlay.setVisibility(View.GONE))
-                .start();
+        binding.victoryOverlay.animate().alpha(0f).setDuration(240).withEndAction(() -> binding.victoryOverlay.setVisibility(View.GONE)).start();
     }
 
     public void updateHeaderStatus() {
@@ -497,20 +410,21 @@ public class MainActivity extends AppCompatActivity {
             binding.txtStatus.setText(R.string.status_sync);
             return;
         }
-
-        String status = getString(R.string.versus_status, getPlayerDisplayName(), opponentName);
-        binding.txtStatus.setText(status);
+        binding.txtStatus.setText(getString(R.string.versus_status, getPlayerDisplayName(), opponentName));
     }
 
     private void updateSkillVisuals() {
         float triAlpha = state.canUseTriangle() && matchStarted ? 1f : 0.25f;
         float sqAlpha = state.canUseSquare() && matchStarted ? 1f : 0.25f;
-
         binding.containerTriangle.animate().alpha(triAlpha).setDuration(220).start();
         binding.containerSquare.animate().alpha(sqAlpha).setDuration(220).start();
+    }
 
-        binding.containerTriangle.setElevation(triAlpha == 1f ? 20f : 0f);
-        binding.containerSquare.setElevation(sqAlpha == 1f ? 20f : 0f);
+    private void hideSystemBars() {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        controller.hide(WindowInsetsCompat.Type.systemBars());
+        controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 
     public static String randomBotName() {
@@ -579,13 +493,5 @@ public class MainActivity extends AppCompatActivity {
                 updateHeaderStatus();
             }
         });
-    }
-
-    private void hideSystemBars() {
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        View decorView = getWindow().getDecorView();
-        WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), decorView);
-        controller.hide(WindowInsetsCompat.Type.systemBars());
-        controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 }
