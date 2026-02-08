@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Escolha o modo"
+        android:text="@string/mode_dialog_title"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="#E5E7EB" />
@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Se não houver adversário disponível, um bot entra na arena automaticamente."
+        android:text="@string/mode_dialog_subtitle"
         android:textSize="13sp"
         android:textColor="#94A3B8" />
 
@@ -31,7 +31,7 @@
             android:id="@+id/radioCasual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Casual"
+            android:text="@string/btn_mode_casual"
             android:checked="true"
             android:textColor="#E5E7EB"/>
 
@@ -39,7 +39,7 @@
             android:id="@+id/radioRanked"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ranqueada"
+            android:text="@string/mode_dialog_ranked"
             android:textColor="#E5E7EB"/>
     </RadioGroup>
 </LinearLayout>
