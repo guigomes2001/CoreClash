@@ -524,23 +524,23 @@ public class MainActivity extends AppCompatActivity {
                 ? getString(R.string.turn_hud_opponent_default)
                 : opponentName;
 
-        binding.txtTurnNameX.setText(playerName);
-        binding.txtTurnNameO.setText(rivalName);
+        binding.txtTurnHudNameX.setText(playerName);
+        binding.txtTurnHudNameO.setText(rivalName);
 
         if (!matchStarted || gameManager.isGameOver()) {
             lastTurnProgressIsX = null;
             stopTurnAnimator(true);
             stopTurnAnimator(false);
-            binding.progressTurnX.setProgress(0);
-            binding.progressTurnO.setProgress(0);
-            styleTurnName(binding.txtTurnNameX, false);
-            styleTurnName(binding.txtTurnNameO, false);
+            binding.progressTurnHudX.setProgress(0);
+            binding.progressTurnHudO.setProgress(0);
+            styleTurnName(binding.txtTurnHudNameX, false);
+            styleTurnName(binding.txtTurnHudNameO, false);
             return;
         }
 
         boolean isXTurn = state.isXTurn();
-        styleTurnName(binding.txtTurnNameX, isXTurn);
-        styleTurnName(binding.txtTurnNameO, !isXTurn);
+        styleTurnName(binding.txtTurnHudNameX, isXTurn);
+        styleTurnName(binding.txtTurnHudNameO, !isXTurn);
 
         if (lastTurnProgressIsX == null || lastTurnProgressIsX != isXTurn) {
             startTurnAnimator(isXTurn);
@@ -560,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startTurnAnimator(boolean xTurn) {
-        android.widget.ProgressBar active = xTurn ? binding.progressTurnX : binding.progressTurnO;
+        android.widget.ProgressBar active = xTurn ? binding.progressTurnHudX : binding.progressTurnHudO;
         active.setProgress(100);
 
         ObjectAnimator animator = ObjectAnimator.ofInt(active, "progress", 100, 0);
@@ -572,10 +572,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (xTurn) {
             turnAnimatorX = animator;
-            binding.progressTurnO.setProgress(0);
+            binding.progressTurnHudO.setProgress(0);
         } else {
             turnAnimatorO = animator;
-            binding.progressTurnX.setProgress(0);
+            binding.progressTurnHudX.setProgress(0);
         }
     }
 
