@@ -11,7 +11,7 @@
     <string name="btn_close">Fechar</string>
     <string name="home_subtitle">Arena rápida. Menos toque, mais ação.</string>
     <string name="btn_language">Idioma</string>
-    <string name="versus_status">%1$s contra %2$s</string>
+    <string name="versus_status">%1$s vs %2$s</string>
     <string name="game_draw">Empate</string>
     <string name="game_win">%1$s venceu</string>
     <string name="stats_moves">⚡ Movimentos: %1$d | %2$s</string>
