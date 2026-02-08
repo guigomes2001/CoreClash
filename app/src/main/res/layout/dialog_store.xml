@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="LOJA REAL"
+            android:text="@string/store_dialog_title"
             android:textStyle="bold"
             android:textSize="24sp"
             android:textColor="#FFF3C4"
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Core Coins: 0"
+            android:text="@string/store_coins_default"
             android:textColor="#D6E4FF"
             android:textStyle="bold"
             android:gravity="center" />
@@ -41,7 +41,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TEMAS DO TABULEIRO"
+                android:text="@string/store_dialog_board_themes"
                 android:textStyle="bold"
                 android:textColor="#EAF2FF"/>
 
@@ -51,7 +51,7 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_store_item"
-                android:text="👑 ROYAL ARENA   •   180"
+                android:text="@string/store_dialog_theme_royal_price"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:textColor="#F8FAFC" />
@@ -62,7 +62,7 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_store_item"
-                android:text="🌌 VOID TEMPLE   •   220"
+                android:text="@string/store_dialog_theme_void_price"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:textColor="#F8FAFC" />
@@ -79,7 +79,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="ESTILO DE SÍMBOLOS"
+                android:text="@string/store_dialog_symbol_styles"
                 android:textStyle="bold"
                 android:textColor="#EAF2FF"/>
 
@@ -89,7 +89,7 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_store_item"
-                android:text="✦ RUNE GLYPHS   •   140"
+                android:text="@string/store_dialog_style_rune_price"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:textColor="#F8FAFC" />
@@ -100,7 +100,7 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_store_item"
-                android:text="⬡ FUTURE TECH   •   160"
+                android:text="@string/store_dialog_style_future_price"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:textColor="#F8FAFC" />
@@ -112,7 +112,7 @@
             android:layout_height="54dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_store_buy_button"
-            android:text="+500 COINS"
+            android:text="@string/store_buy_coins"
             android:textStyle="bold"
             android:textColor="#1F1300" />
     </LinearLayout>
