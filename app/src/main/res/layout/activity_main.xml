@@ -7,25 +7,97 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_dark">
 
-    <TextView
-        android:id="@+id/txtStatus"
+    <LinearLayout
+        android:id="@+id/turnHudBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textColor="#E0F2FE"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-black"
+        android:orientation="horizontal"
         android:gravity="center"
-        android:shadowColor="#AA22D3EE"
-        android:shadowDx="0"
-        android:shadowDy="0"
-        android:shadowRadius="14"
-        android:letterSpacing="0.12"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
+        android:background="@drawable/bg_cyber_glass"
+        android:elevation="10dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp" />
+        android:layout_marginTop="12dp"
+        android:layout_marginHorizontal="18dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/txtTurnHudNameX"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/turn_hud_player_default"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#F8FAFC"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="start"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <ProgressBar
+                android:id="@+id/progressTurnHudX"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="7dp"
+                android:layout_marginTop="6dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#FB7185"
+                android:progressBackgroundTint="#22333455"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:text="@string/versus_center"
+            android:textAllCaps="true"
+            android:textColor="#CBD5E1"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="8dp">
+
+            <TextView
+                android:id="@+id/txtTurnHudNameO"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/turn_hud_opponent_default"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#F8FAFC"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <ProgressBar
+                android:id="@+id/progressTurnHudO"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="7dp"
+                android:layout_marginTop="6dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#22D3EE"
+                android:progressBackgroundTint="#22333455"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/containerTriangle"
@@ -67,7 +139,7 @@
         android:background="@drawable/bg_cyber_glass"
         android:padding="6dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/txtStatus"
+        app:layout_constraintTop_toBottomOf="@id/turnHudBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.33">
@@ -121,6 +193,12 @@
         app:layout_constraintEnd_toStartOf="@id/containerSquare"
         app:layout_constraintTop_toTopOf="@id/containerSquare"
         app:layout_constraintBottom_toBottomOf="@id/containerSquare" />
+
+
+
+    
+
+    
 
     <FrameLayout
         android:id="@+id/homeOverlay"
@@ -181,7 +259,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:layout_marginTop="10dp"
-                    android:text="Rápida"
+                    android:text="@string/btn_quick_match"
                     android:drawableStart="@drawable/ic_flash_simple"
                     android:drawablePadding="10dp"
                     android:textStyle="bold"
@@ -200,7 +278,7 @@
                         android:layout_width="0dp"
                         android:layout_height="48dp"
                         android:layout_weight="1"
-                        android:text="Loja"
+                        android:text="@string/btn_store"
                         android:drawableStart="@drawable/ic_store_stall"
                         android:drawablePadding="8dp"
                         android:textStyle="bold"
@@ -249,7 +327,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Modo de jogo"
+                android:text="@string/mode_title"
                 android:textStyle="bold"
                 android:textSize="22sp"
                 android:textColor="#F8FAFC"/>
@@ -258,7 +336,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Escolha seu ritmo de batalha"
+                android:text="@string/mode_subtitle"
                 android:textColor="#94A3B8"
                 android:textSize="13sp"/>
 
@@ -273,7 +351,7 @@
                     android:layout_width="0dp"
                     android:layout_height="46dp"
                     android:layout_weight="1"
-                    android:text="Casual"
+                    android:text="@string/btn_mode_casual"
                     android:textStyle="bold"/>
 
                 <Button
@@ -282,7 +360,7 @@
                     android:layout_height="46dp"
                     android:layout_weight="1"
                     android:layout_marginStart="10dp"
-                    android:text="Rank"
+                    android:text="@string/btn_mode_ranked"
                     android:textStyle="bold"/>
             </LinearLayout>
 
@@ -297,7 +375,7 @@
                     android:layout_width="0dp"
                     android:layout_height="46dp"
                     android:layout_weight="1"
-                    android:text="Voltar"
+                    android:text="@string/btn_back"
                     android:textStyle="bold"
                     android:textColor="#E0F2FE"
                     android:backgroundTint="#334155"/>
@@ -308,7 +386,7 @@
                     android:layout_height="46dp"
                     android:layout_weight="1"
                     android:layout_marginStart="10dp"
-                    android:text="Ok"
+                    android:text="@string/btn_ok"
                     android:textStyle="bold"
                     android:textColor="#041019"
                     android:backgroundTint="#F7C948"/>
@@ -344,7 +422,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Loja"
+                    android:text="@string/btn_store"
                     android:textColor="#FFF3C4"
                     android:textStyle="bold"
                     android:textSize="24sp"/>
@@ -364,7 +442,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Core Coins: 0"
+                android:text="@string/store_coins_default"
                 android:textColor="#D6E4FF"
                 android:textStyle="bold" />
 
@@ -390,7 +468,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="👑 Royal"
+                            android:text="@string/store_theme_royal"
                             android:textStyle="bold"
                             android:textColor="#EAF2FF"/>
 
@@ -432,7 +510,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="🌌 Void"
+                            android:text="@string/store_theme_void"
                             android:textStyle="bold"
                             android:textColor="#EAF2FF"/>
 
@@ -473,7 +551,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="⚔ Styles"
+                            android:text="@string/store_styles_title"
                             android:textStyle="bold"
                             android:textColor="#EAF2FF"/>
 
@@ -498,7 +576,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
                             android:layout_marginTop="8dp"
-                            android:text="Rune 140"
+                            android:text="@string/store_style_rune_price"
                             android:textStyle="bold"
                             android:background="@drawable/bg_store_item"
                             android:textColor="#FFFFFF"/>
@@ -511,7 +589,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
                 android:layout_marginTop="12dp"
-                android:text="Future Tech • 160"
+                android:text="@string/store_style_future_price"
                 android:textStyle="bold"
                 android:background="@drawable/bg_store_item"
                 android:textColor="#FFFFFF"/>
@@ -521,7 +599,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="10dp"
-                android:text="+500 Coins"
+                android:text="@string/store_buy_coins"
                 android:textStyle="bold"
                 android:textColor="#1F1300"
                 android:background="@drawable/bg_store_buy_button"/>
@@ -600,7 +678,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Você"
+                android:text="@string/versus_you"
                 android:textColor="#FF4444"
                 android:textStyle="bold"
                 android:textSize="30sp" />
@@ -610,7 +688,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="14dp"
-                android:text="VS"
+                android:text="@string/versus_center"
                 android:textColor="#E5E7EB"
                 android:textStyle="bold"
                 android:textSize="34sp" />
@@ -621,7 +699,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Rival"
+                android:text="@string/versus_rival"
                 android:textColor="#67E8F9"
                 android:textStyle="bold"
                 android:textSize="30sp" />
@@ -653,7 +731,7 @@
                 android:id="@+id/txtWinnerTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="X wins"
+                android:text="@string/winner_default"
                 android:textColor="#E5E7EB"
                 android:textSize="34sp"
                 android:textStyle="bold" />
@@ -663,7 +741,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Moves: 0"
+                android:text="@string/stats_moves_default"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:gravity="center" />
@@ -672,7 +750,7 @@
                 android:id="@+id/txtStatsGhosts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ghosts: 0"
+                android:text="@string/stats_ghosts_default"
                 android:textColor="#94A3B8"
                 android:textSize="15sp"
                 android:layout_marginTop="10dp"
@@ -685,7 +763,7 @@
                 android:drawableStart="@drawable/ic_swords_simple"
                 android:drawablePadding="8dp"
                 android:layout_marginTop="24dp"
-                android:text="Revanche"
+                android:text="@string/btn_rematch"
                 android:textColor="#041019"
                 android:backgroundTint="#F7C948"
                 android:textStyle="bold"/>
@@ -697,7 +775,7 @@
                 android:drawableStart="@drawable/ic_flash_simple"
                 android:drawablePadding="8dp"
                 android:layout_marginTop="10dp"
-                android:text="Nova"
+                android:text="@string/btn_new_match"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#2563EB"
                 android:textStyle="bold"/>
@@ -707,7 +785,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="10dp"
-                android:text="Voltar ao menu"
+                android:text="@string/btn_back_to_menu"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#334155"
                 android:textStyle="bold"/>
@@ -761,7 +839,7 @@
                 android:id="@+id/btnGoogleLoginSettings"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
-                android:text="Vincular Google"
+                android:text="@string/btn_link_google"
                 android:textStyle="bold"
                 android:textColor="#1F1300"
                 android:backgroundTint="#F7C948"

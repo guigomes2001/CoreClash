@@ -25,4 +25,57 @@
     <string name="stats_wins_format">🏆 Vitórias: %1$d</string>
     <string name="toast_offline_loaded">Modo Offline: Dados locais carregados</string>
     <string name="online_rival_prefix">RivalOnline</string>
+
+    <string name="btn_quick_match">Rápida</string>
+    <string name="btn_store">Loja</string>
+    <string name="mode_title">Modo de jogo</string>
+    <string name="mode_subtitle">Escolha seu ritmo de batalha</string>
+    <string name="btn_mode_casual">Casual</string>
+    <string name="btn_mode_ranked">Rank</string>
+    <string name="btn_back">Voltar</string>
+    <string name="btn_ok">OK</string>
+    <string name="store_coins_default">Core Coins: 0</string>
+    <string name="store_coins_format">Core Coins: %1$d</string>
+    <string name="versus_you">Você</string>
+    <string name="versus_rival">Rival</string>
+    <string name="winner_default">X venceu</string>
+    <string name="stats_moves_default">Movimentos: 0</string>
+    <string name="stats_ghosts_default">Fantasmas: 0</string>
+    <string name="btn_rematch">Revanche</string>
+    <string name="btn_new_match">Nova</string>
+    <string name="btn_back_to_menu">Voltar ao menu</string>
+    <string name="btn_link_google">Vincular Google</string>
+    <string name="mode_dialog_title">Escolha o modo</string>
+    <string name="mode_dialog_subtitle">Se não houver adversário disponível, um bot entra na arena automaticamente.</string>
+    <string name="mode_dialog_ranked">Ranqueada</string>
+    <string name="toast_coins_added">Moedas adicionadas!</string>
+    <string name="toast_theme_equipped">Tema equipado</string>
+    <string name="toast_theme_bought">Tema comprado!</string>
+    <string name="toast_style_equipped">Estilo equipado</string>
+    <string name="toast_style_bought">Estilo comprado!</string>
+    <string name="toast_insufficient_coins">Moedas insuficientes</string>
+    <string name="auth_google_connect_error">Erro ao conectar com Google</string>
+    <string name="auth_google_link_in_use">Falha ao vincular: Conta já em uso.</string>
+    <string name="status_waiting">Aguardando</string>
+
+    <string name="store_theme_royal">👑 Royal</string>
+    <string name="store_theme_void">🌌 Void</string>
+    <string name="store_styles_title">⚔ Estilos</string>
+    <string name="store_style_rune_price">Rune 140</string>
+    <string name="store_style_future_price">Future Tech • 160</string>
+    <string name="store_buy_coins">+500 Moedas</string>
+    <string name="versus_center">VS</string>
+
+    <string name="store_dialog_title">LOJA REAL</string>
+    <string name="store_dialog_board_themes">TEMAS DO TABULEIRO</string>
+    <string name="store_dialog_theme_royal_price">👑 ARENA REAL   •   180</string>
+    <string name="store_dialog_theme_void_price">🌌 TEMPLO DO VAZIO   •   220</string>
+    <string name="store_dialog_symbol_styles">ESTILO DE SÍMBOLOS</string>
+    <string name="store_dialog_style_rune_price">✦ GLIFOS RÚNICOS   •   140</string>
+    <string name="store_dialog_style_future_price">⬡ TECNO FUTURA   •   160</string>
+
+
+
+    <string name="turn_hud_player_default">Jogador</string>
+    <string name="turn_hud_opponent_default">Oponente</string>
 </resources>
