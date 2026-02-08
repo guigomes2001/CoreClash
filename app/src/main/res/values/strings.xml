@@ -73,4 +73,16 @@
     <string name="store_dialog_symbol_styles">SYMBOL STYLES</string>
     <string name="store_dialog_style_rune_price">✦ RUNE GLYPHS   •   140</string>
     <string name="store_dialog_style_future_price">⬡ FUTURE TECH   •   160</string>
+
+    <string name="turn_player_default">YOU
+TURN</string>
+    <string name="turn_opponent_default">RIVAL
+WAIT</string>
+    <string name="turn_panel_player">%1$s
+%2$s</string>
+    <string name="turn_panel_opponent">%1$s
+%2$s</string>
+    <string name="turn_now">YOUR TURN</string>
+    <string name="turn_wait">WAIT</string>
+    <string name="turn_bot_thinking">THINKING…</string>
 </resources>

@@ -382,6 +382,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        long thinkDelayMs = 900L + random.nextInt(700);
+
         handler.postDelayed(() -> {
             if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
                 return;
@@ -404,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
             if (move != null) {
                 playTurn(move[0], move[1]);
             }
-        }, 550);
+        }, thinkDelayMs);
     }
 
     private int[] chooseBotMove(Difficulty difficulty) {
@@ -505,11 +507,64 @@ public class MainActivity extends AppCompatActivity {
     public void updateHeaderStatus() {
         if (currentProfile == null) {
             binding.txtStatus.setText(R.string.status_sync);
+            updateTurnIndicator();
             return;
         }
 
         String status = getString(R.string.versus_status, getPlayerDisplayName(), opponentName);
         binding.txtStatus.setText(status);
+        updateTurnIndicator();
+    }
+
+    private void updateTurnIndicator() {
+        if (!matchStarted || gameManager.isGameOver()) {
+            styleTurnChip(binding.txtTurnLeft, false);
+            styleTurnChip(binding.txtTurnRight, false);
+            binding.txtTurnLeft.setText(getString(R.string.turn_player_default));
+            binding.txtTurnRight.setText(getString(R.string.turn_opponent_default));
+            return;
+        }
+
+        String playerName = getPlayerDisplayName();
+        String rivalName = opponentName == null || opponentName.isEmpty()
+                ? getString(R.string.versus_rival)
+                : opponentName;
+
+        boolean isPlayerTurn = state.isXTurn();
+        String playerTurnLabel = isPlayerTurn
+                ? getString(R.string.turn_now)
+                : getString(R.string.turn_wait);
+        String rivalTurnLabel;
+        if (isPlayerTurn) {
+            rivalTurnLabel = getString(R.string.turn_wait);
+        } else if (versusBot) {
+            rivalTurnLabel = getString(R.string.turn_bot_thinking);
+        } else {
+            rivalTurnLabel = getString(R.string.turn_now);
+        }
+
+        binding.txtTurnLeft.setText(getString(R.string.turn_panel_player, playerName, playerTurnLabel));
+        binding.txtTurnRight.setText(getString(R.string.turn_panel_opponent, rivalName, rivalTurnLabel));
+
+        styleTurnChip(binding.txtTurnLeft, isPlayerTurn);
+        styleTurnChip(binding.txtTurnRight, !isPlayerTurn);
+    }
+
+    private void styleTurnChip(android.widget.TextView chip, boolean active) {
+        int activeBg = 0xAA2563EB;
+        int inactiveBg = 0x55334155;
+        int activeText = 0xFFE0F2FE;
+        int inactiveText = 0xFF94A3B8;
+
+        chip.setBackgroundTintList(ColorStateList.valueOf(active ? activeBg : inactiveBg));
+        chip.setTextColor(active ? activeText : inactiveText);
+
+        chip.animate()
+                .alpha(active ? 1f : 0.65f)
+                .scaleX(active ? 1.04f : 0.96f)
+                .scaleY(active ? 1.04f : 0.96f)
+                .setDuration(220)
+                .start();
     }
 
     private void updateSkillVisuals() {

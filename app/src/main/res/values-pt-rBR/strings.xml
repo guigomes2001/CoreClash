@@ -73,4 +73,16 @@
     <string name="store_dialog_symbol_styles">ESTILO DE SÍMBOLOS</string>
     <string name="store_dialog_style_rune_price">✦ GLIFOS RÚNICOS   •   140</string>
     <string name="store_dialog_style_future_price">⬡ TECNO FUTURA   •   160</string>
+
+    <string name="turn_player_default">VOCÊ
+VEZ</string>
+    <string name="turn_opponent_default">RIVAL
+AGUARDE</string>
+    <string name="turn_panel_player">%1$s
+%2$s</string>
+    <string name="turn_panel_opponent">%1$s
+%2$s</string>
+    <string name="turn_now">SUA VEZ</string>
+    <string name="turn_wait">AGUARDE</string>
+    <string name="turn_bot_thinking">PENSANDO…</string>
 </resources>
