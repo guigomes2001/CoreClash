@@ -74,20 +74,8 @@
     <string name="store_dialog_style_rune_price">✦ GLIFOS RÚNICOS   •   140</string>
     <string name="store_dialog_style_future_price">⬡ TECNO FUTURA   •   160</string>
 
-    <string name="turn_player_default">VOCÊ
-VEZ</string>
-    <string name="turn_opponent_default">RIVAL
-AGUARDE</string>
-    <string name="turn_panel_player">%1$s
-%2$s</string>
-    <string name="turn_panel_opponent">%1$s
-%2$s</string>
-    <string name="turn_now">SUA VEZ</string>
-    <string name="turn_wait">AGUARDE</string>
-    <string name="turn_bot_thinking">PENSANDO…</string>
 
-    <string name="turn_cue_player_title">SUA VEZ</string>
-    <string name="turn_cue_player_subtitle">Faça sua jogada</string>
-    <string name="turn_cue_opponent_title">VEZ DO RIVAL</string>
-    <string name="turn_cue_opponent_subtitle">Oponente está jogando</string>
+
+    <string name="turn_hud_player_default">Jogador</string>
+    <string name="turn_hud_opponent_default">Oponente</string>
 </resources>

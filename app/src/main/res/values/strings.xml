@@ -74,20 +74,8 @@
     <string name="store_dialog_style_rune_price">✦ RUNE GLYPHS   •   140</string>
     <string name="store_dialog_style_future_price">⬡ FUTURE TECH   •   160</string>
 
-    <string name="turn_player_default">YOU
-TURN</string>
-    <string name="turn_opponent_default">RIVAL
-WAIT</string>
-    <string name="turn_panel_player">%1$s
-%2$s</string>
-    <string name="turn_panel_opponent">%1$s
-%2$s</string>
-    <string name="turn_now">YOUR TURN</string>
-    <string name="turn_wait">WAIT</string>
-    <string name="turn_bot_thinking">THINKING…</string>
 
-    <string name="turn_cue_player_title">YOUR TURN</string>
-    <string name="turn_cue_player_subtitle">Make your move</string>
-    <string name="turn_cue_opponent_title">RIVAL TURN</string>
-    <string name="turn_cue_opponent_subtitle">Opponent is playing</string>
+
+    <string name="turn_hud_player_default">Player</string>
+    <string name="turn_hud_opponent_default">Opponent</string>
 </resources>

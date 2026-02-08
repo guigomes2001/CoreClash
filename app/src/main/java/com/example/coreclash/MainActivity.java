@@ -1,5 +1,6 @@
 package com.example.coreclash;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PointF;
@@ -9,6 +10,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
 
@@ -62,10 +64,11 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
-    private Boolean lastAnnouncedTurnIsX = null;
-    private long skillAnimationLockUntilMs = 0L;
+    private Boolean lastTurnProgressIsX = null;
 
-    private static final long SKILL_ANIMATION_LOCK_MS = 720L;
+    private static final long TURN_PROGRESS_DURATION_MS = 2400L;
+    private ObjectAnimator turnAnimatorX;
+    private ObjectAnimator turnAnimatorO;
     private String opponentName = "";
     private GameMode selectedMode = GameMode.CASUAL;
     private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
@@ -181,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
             }
             if (gameManager.useTriangle()) {
                 AnimationHelper.spin(v);
-                markSkillAnimationLock();
                 updateHeaderStatus();
                 updateSkillVisuals();
                 maybeRunBotTurn();
@@ -195,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
             }
             if (gameManager.useSquare()) {
                 AnimationHelper.pulse(v);
-                markSkillAnimationLock();
                 updateHeaderStatus();
                 updateSkillVisuals();
                 maybeRunBotTurn();
@@ -281,8 +282,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showHomeScreen() {
         matchStarted = false;
-        lastAnnouncedTurnIsX = null;
-        skillAnimationLockUntilMs = 0L;
+        lastTurnProgressIsX = null;
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
@@ -393,7 +393,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         long thinkDelayMs = 900L + random.nextInt(700);
-        long lockDelayMs = Math.max(0L, skillAnimationLockUntilMs - SystemClock.uptimeMillis());
 
         handler.postDelayed(() -> {
             if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
@@ -402,14 +401,12 @@ public class MainActivity extends AppCompatActivity {
 
             if (currentBotDifficulty == Difficulty.MESTRE) {
                 if (state.canUseTriangle() && random.nextFloat() < 0.35f && gameManager.useTriangle()) {
-                    markSkillAnimationLock();
-                    updateHeaderStatus();
+                        updateHeaderStatus();
                     updateSkillVisuals();
                     return;
                 }
                 if (state.canUseSquare() && random.nextFloat() < 0.25f && gameManager.useSquare()) {
-                    markSkillAnimationLock();
-                    updateHeaderStatus();
+                        updateHeaderStatus();
                     updateSkillVisuals();
                     return;
                 }
@@ -419,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
             if (move != null) {
                 playTurn(move[0], move[1]);
             }
-        }, thinkDelayMs + lockDelayMs);
+        }, thinkDelayMs);
     }
 
     private int[] chooseBotMove(Difficulty difficulty) {
@@ -520,108 +517,86 @@ public class MainActivity extends AppCompatActivity {
     public void updateHeaderStatus() {
         if (currentProfile == null) {
             binding.txtStatus.setText(R.string.status_sync);
-            updateTurnIndicator();
+            updateTurnHud();
             return;
         }
 
         String status = getString(R.string.versus_status, getPlayerDisplayName(), opponentName);
         binding.txtStatus.setText(status);
-        updateTurnIndicator();
+        updateTurnHud();
     }
 
-    private void updateTurnIndicator() {
-        if (!matchStarted || gameManager.isGameOver()) {
-            lastAnnouncedTurnIsX = null;
-            styleTurnChip(binding.txtTurnLeft, false);
-            styleTurnChip(binding.txtTurnRight, false);
-            binding.txtTurnLeft.setText(getString(R.string.turn_player_default));
-            binding.txtTurnRight.setText(getString(R.string.turn_opponent_default));
-            return;
-        }
-
+    private void updateTurnHud() {
         String playerName = getPlayerDisplayName();
-        String rivalName = opponentName == null || opponentName.isEmpty()
-                ? getString(R.string.versus_rival)
+        String rivalName = (opponentName == null || opponentName.isEmpty())
+                ? getString(R.string.turn_hud_opponent_default)
                 : opponentName;
 
-        boolean isPlayerTurn = state.isXTurn();
-        String playerTurnLabel = isPlayerTurn
-                ? getString(R.string.turn_now)
-                : getString(R.string.turn_wait);
-        String rivalTurnLabel;
-        if (isPlayerTurn) {
-            rivalTurnLabel = getString(R.string.turn_wait);
-        } else if (versusBot) {
-            rivalTurnLabel = getString(R.string.turn_bot_thinking);
-        } else {
-            rivalTurnLabel = getString(R.string.turn_now);
-        }
+        binding.txtTurnNameX.setText(playerName);
+        binding.txtTurnNameO.setText(rivalName);
 
-        binding.txtTurnLeft.setText(getString(R.string.turn_panel_player, playerName, playerTurnLabel));
-        binding.txtTurnRight.setText(getString(R.string.turn_panel_opponent, rivalName, rivalTurnLabel));
-
-        styleTurnChip(binding.txtTurnLeft, isPlayerTurn);
-        styleTurnChip(binding.txtTurnRight, !isPlayerTurn);
-        playTurnCueIfNeeded(isPlayerTurn);
-    }
-
-    private void playTurnCueIfNeeded(boolean isPlayerTurn) {
-        if (lastAnnouncedTurnIsX != null && lastAnnouncedTurnIsX == isPlayerTurn) {
+        if (!matchStarted || gameManager.isGameOver()) {
+            lastTurnProgressIsX = null;
+            stopTurnAnimator(true);
+            stopTurnAnimator(false);
+            binding.progressTurnX.setProgress(0);
+            binding.progressTurnO.setProgress(0);
+            styleTurnName(binding.txtTurnNameX, false);
+            styleTurnName(binding.txtTurnNameO, false);
             return;
         }
-        lastAnnouncedTurnIsX = isPlayerTurn;
 
-        binding.txtTurnCueTitle.setText(isPlayerTurn
-                ? getString(R.string.turn_cue_player_title)
-                : getString(R.string.turn_cue_opponent_title));
+        boolean isXTurn = state.isXTurn();
+        styleTurnName(binding.txtTurnNameX, isXTurn);
+        styleTurnName(binding.txtTurnNameO, !isXTurn);
 
-        String subtitle = isPlayerTurn
-                ? getString(R.string.turn_cue_player_subtitle)
-                : (versusBot ? getString(R.string.turn_bot_thinking) : getString(R.string.turn_cue_opponent_subtitle));
-        binding.txtTurnCueSubtitle.setText(subtitle);
-
-        binding.turnCueCard.setVisibility(View.VISIBLE);
-        binding.turnCueCard.setAlpha(0f);
-        binding.turnCueCard.setTranslationY(-18f);
-        binding.turnCueCard.setScaleX(0.95f);
-        binding.turnCueCard.setScaleY(0.95f);
-
-        binding.turnCueCard.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(260)
-                .start();
-
-        handler.postDelayed(() -> binding.turnCueCard.animate()
-                .alpha(0f)
-                .translationY(-10f)
-                .setDuration(230)
-                .withEndAction(() -> binding.turnCueCard.setVisibility(View.GONE))
-                .start(), 950);
+        if (lastTurnProgressIsX == null || lastTurnProgressIsX != isXTurn) {
+            startTurnAnimator(isXTurn);
+            stopTurnAnimator(!isXTurn);
+            lastTurnProgressIsX = isXTurn;
+        }
     }
 
-    private void markSkillAnimationLock() {
-        long lockUntil = SystemClock.uptimeMillis() + SKILL_ANIMATION_LOCK_MS;
-        skillAnimationLockUntilMs = Math.max(skillAnimationLockUntilMs, lockUntil);
+    private void styleTurnName(android.widget.TextView textView, boolean active) {
+        textView.setTextColor(active ? 0xFFF8FAFC : 0xFF94A3B8);
+        textView.setAlpha(active ? 1f : 0.75f);
+        textView.animate()
+                .scaleX(active ? 1.04f : 0.98f)
+                .scaleY(active ? 1.04f : 0.98f)
+                .setDuration(180)
+                .start();
     }
 
-    private void styleTurnChip(android.widget.TextView chip, boolean active) {
-        int activeBg = 0xAA2563EB;
-        int inactiveBg = 0x55334155;
-        int activeText = 0xFFE0F2FE;
-        int inactiveText = 0xFF94A3B8;
+    private void startTurnAnimator(boolean xTurn) {
+        android.widget.ProgressBar active = xTurn ? binding.progressTurnX : binding.progressTurnO;
+        active.setProgress(100);
 
-        chip.setBackgroundTintList(ColorStateList.valueOf(active ? activeBg : inactiveBg));
-        chip.setTextColor(active ? activeText : inactiveText);
+        ObjectAnimator animator = ObjectAnimator.ofInt(active, "progress", 100, 0);
+        animator.setDuration(TURN_PROGRESS_DURATION_MS);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setRepeatCount(ObjectAnimator.INFINITE);
+        animator.setRepeatMode(ObjectAnimator.RESTART);
+        animator.start();
 
-        chip.animate()
-                .alpha(active ? 1f : 0.65f)
-                .scaleX(active ? 1.04f : 0.96f)
-                .scaleY(active ? 1.04f : 0.96f)
-                .setDuration(220)
-                .start();
+        if (xTurn) {
+            turnAnimatorX = animator;
+            binding.progressTurnO.setProgress(0);
+        } else {
+            turnAnimatorO = animator;
+            binding.progressTurnX.setProgress(0);
+        }
+    }
+
+    private void stopTurnAnimator(boolean xTurn) {
+        ObjectAnimator animator = xTurn ? turnAnimatorX : turnAnimatorO;
+        if (animator != null) {
+            animator.cancel();
+        }
+        if (xTurn) {
+            turnAnimatorX = null;
+        } else {
+            turnAnimatorO = null;
+        }
     }
 
     private void updateSkillVisuals() {
@@ -701,6 +676,13 @@ public class MainActivity extends AppCompatActivity {
                 updateHeaderStatus();
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopTurnAnimator(true);
+        stopTurnAnimator(false);
+        super.onDestroy();
     }
 
     private void hideSystemBars() {
