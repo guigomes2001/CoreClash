@@ -8,7 +8,7 @@ import game.GameState;
 
 public class GameManager {
 
-    public record WinInfo(int r1, int c1, int r2, int c2, int r3, int c3) { }
+    public record WinInfo(int r1, int c1, int r3, int c3) { }
 
     private final BoardManager board;
     private final GameState state;
@@ -20,23 +20,20 @@ public class GameManager {
         this.state = state;
     }
 
-    public boolean canPlayAt(int row, int col) {
+    public boolean play(int row, int col) {
         if (isGameOver) {
             return false;
         }
-        Cell cell = board.getCellLogic(row, col);
-        return cell.isEmpty() || cell.isGhost();
-    }
-
-    public boolean play(int row, int col) {
-        if (!canPlayAt(row, col)) return false;
 
         Cell cellLogic = board.getCellLogic(row, col);
+        if (!cellLogic.isEmpty() && !cellLogic.isGhost()) {
+            return false;
+        }
 
         state.addMove();
         String symbol = state.isXTurn() ? "X" : "O";
-
         cellLogic.setSymbol(symbol);
+        board.updateCellVisual(row, col, state.isXTurn());
 
         if (checkWinner()) {
             isGameOver = true;
@@ -66,34 +63,33 @@ public class GameManager {
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
                 Cell cell = board.getCellLogic(r, c);
-                if (cell.isEmpty() || cell.isGhost()) return false;
+                if (cell.isEmpty() || cell.isGhost()) {
+                    return false;
+                }
             }
         }
         return true;
     }
 
     private boolean checkWinner() {
-        // Verificação de Linhas
         for (int i = 0; i < 3; i++) {
             if (checkLine(i, 0, i, 1, i, 2)) {
-                lastWin = new WinInfo(i, 0, i, 1, i, 2);
+                lastWin = new WinInfo(i, 0, i, 2);
                 return true;
             }
         }
-        // Verificação de Colunas
         for (int i = 0; i < 3; i++) {
             if (checkLine(0, i, 1, i, 2, i)) {
-                lastWin = new WinInfo(0, i, 1, i, 2, i);
+                lastWin = new WinInfo(0, i, 2, i);
                 return true;
             }
         }
-        // Diagonais
         if (checkLine(0, 0, 1, 1, 2, 2)) {
-            lastWin = new WinInfo(0, 0, 1, 1, 2, 2);
+            lastWin = new WinInfo(0, 0, 2, 2);
             return true;
         }
         if (checkLine(0, 2, 1, 1, 2, 0)) {
-            lastWin = new WinInfo(0, 2, 1, 1, 2, 0);
+            lastWin = new WinInfo(0, 2, 2, 0);
             return true;
         }
         return false;
@@ -104,9 +100,7 @@ public class GameManager {
         Cell cell2 = board.getCellLogic(r2, c2);
         Cell cell3 = board.getCellLogic(r3, c3);
 
-        if (cell1.isEmpty() || cell1.isGhost() ||
-                cell2.isEmpty() || cell2.isGhost() ||
-                cell3.isEmpty() || cell3.isGhost()) {
+        if (cell1.isGhost() || cell1.isEmpty() || cell2.isGhost() || cell2.isEmpty() || cell3.isGhost() || cell3.isEmpty()) {
             return false;
         }
 
@@ -115,19 +109,21 @@ public class GameManager {
     }
 
     public void useTriangle() {
-        if (isGameOver || !state.canUseTriangle()) return;
+        if (isGameOver || !state.canUseTriangle()) {
+            return;
+        }
         int affected = board.applyTriangleEffect();
         state.addGhosts(affected);
         state.triggerTriangleUsed();
-        state.nextTurn();
     }
 
     public void useSquare() {
-        if (isGameOver || !state.canUseSquare()) return;
+        if (isGameOver || !state.canUseSquare()) {
+            return;
+        }
         int affected = board.applySquareEffect();
         state.addGhosts(affected);
         state.triggerSquareUsed();
-        state.nextTurn();
     }
 
     public void resetGame() {
@@ -144,12 +140,15 @@ public class GameManager {
     public int getFinalMoves() {
         return state.getMoveCount();
     }
+
     public int getFinalGhosts() {
         return state.getGhostCount();
     }
+
     public int getTotalWins() {
         return state.getTotalWins();
     }
+
     public int getWinStreak() {
         return state.getWinStreak();
     }
@@ -158,14 +157,18 @@ public class GameManager {
         List<int[]> moves = new ArrayList<>();
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
-                if (canPlayAt(r, c)) moves.add(new int[]{r, c});
+                Cell cell = board.getCellLogic(r, c);
+                if (cell.isEmpty() || cell.isGhost()) {
+                    moves.add(new int[]{r, c});
+                }
             }
         }
         return moves;
     }
 
     public int[] getCenterIfAvailable() {
-        if (canPlayAt(1, 1)) {
+        Cell center = board.getCellLogic(1, 1);
+        if (center.isEmpty() || center.isGhost()) {
             return new int[]{1, 1};
         }
         return null;
