@@ -45,6 +45,7 @@ import manager.GameManager;
 import manager.ProfileManager;
 import manager.SettingManager;
 import manager.StoreManager;
+import manager.TurnHudManager;
 import util.AnimationHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private StoreManager storeManager;
     private AuthenticationManager authenticationManager;
     private SettingManager settingManager;
+    private TurnHudManager turnHud;
 
     private PlayerProfile currentProfile;
 
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         board = new BoardManager();
         gameManager = new GameManager(board, state);
         settingManager = new SettingManager(this, binding);
+        turnHud = initTurnHudManager();
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
             if (!matchStarted || gameManager.isGameOver()) {
@@ -115,6 +118,31 @@ public class MainActivity extends AppCompatActivity {
         updateModeButtonStyles();
         updateHeaderStatus();
         updateSkillVisuals();
+    }
+
+    @NonNull
+    private TurnHudManager initTurnHudManager() {
+        return new TurnHudManager(
+                binding.turnHudBar,
+                binding.txtTurnHudNameX,
+                binding.txtTurnHudNameO,
+                binding.progressTurnHudX,
+                binding.progressTurnHudO,
+                TURN_PROGRESS_DURATION_MS,
+                (xTurnStarted) -> {
+                    if (!matchStarted || gameManager.isGameOver()) {
+                        return;
+                    }
+                    if (state.isXTurn() != xTurnStarted) {
+                        return;
+                    }
+
+                    state.nextTurn();
+                    updateHeaderStatus();
+                    updateSkillVisuals();
+                    maybeRunBotTurn();
+                }
+        );
     }
 
     private void setupGoogleSignInLauncher() {
@@ -283,11 +311,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void showHomeScreen() {
         matchStarted = false;
-        lastTurnProgressIsX = null;
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
+        if (turnHud != null) {
+            turnHud.stopAll();
+        }
     }
+
 
     private void startMatchIntro() {
         binding.homeOverlay.animate()
@@ -512,29 +543,10 @@ public class MainActivity extends AppCompatActivity {
                 ? getString(R.string.turn_hud_opponent_default)
                 : opponentName;
 
-        binding.txtTurnHudNameX.setText(playerName);
-        binding.txtTurnHudNameO.setText(rivalName);
+        boolean running = matchStarted && !gameManager.isGameOver();
+        boolean xTurn = state.isXTurn();
 
-        if (!matchStarted || gameManager.isGameOver()) {
-            lastTurnProgressIsX = null;
-            stopTurnAnimator(true);
-            stopTurnAnimator(false);
-            binding.progressTurnHudX.setProgress(0);
-            binding.progressTurnHudO.setProgress(0);
-            styleTurnName(binding.txtTurnHudNameX, false);
-            styleTurnName(binding.txtTurnHudNameO, false);
-            return;
-        }
-
-        boolean isXTurn = state.isXTurn();
-        styleTurnName(binding.txtTurnHudNameX, isXTurn);
-        styleTurnName(binding.txtTurnHudNameO, !isXTurn);
-
-        if (lastTurnProgressIsX == null || lastTurnProgressIsX != isXTurn) {
-            startTurnAnimator(isXTurn);
-            stopTurnAnimator(!isXTurn);
-            lastTurnProgressIsX = isXTurn;
-        }
+        turnHud.render(playerName, rivalName, running, xTurn);
     }
 
     private void styleTurnName(android.widget.TextView textView, boolean active) {
@@ -687,8 +699,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopTurnAnimator(true);
-        stopTurnAnimator(false);
+        if (turnHud != null) {
+            turnHud.release();
+        }
         super.onDestroy();
     }
 
