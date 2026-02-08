@@ -1,5 +1,7 @@
 package com.example.coreclash.data;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.coreclash.model.PlayerProfile;
@@ -12,6 +14,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
     private final FirebaseAuth auth;
     private final FirebaseFirestore firestore;
 
+    private static final String COLLECTION_NAME = "profiles";
     public FirebaseProfileRepository() {
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -31,7 +34,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
     }
 
     private void fetchProfile(@NonNull FirebaseUser user, @NonNull Callback callback) {
-        firestore.collection("players")
+        firestore.collection(COLLECTION_NAME)
                 .document(user.getUid())
                 .get()
                 .addOnSuccessListener(snapshot -> {
@@ -46,9 +49,16 @@ public class FirebaseProfileRepository implements ProfileRepository {
     }
 
     @Override
-    public void saveProfile(@NonNull PlayerProfile profile) {
-        firestore.collection("players")
+    public void saveProfile(PlayerProfile profile) {
+        if (profile == null || profile.uid == null) {
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(COLLECTION_NAME)
                 .document(profile.uid)
-                .set(profile);
+                .set(profile)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Synchronized data!"))
+                .addOnFailureListener(e -> Log.e("Firestore", "Error synchronizing", e));
     }
 }
