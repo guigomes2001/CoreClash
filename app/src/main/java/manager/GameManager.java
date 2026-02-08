@@ -108,22 +108,26 @@ public class GameManager {
         return s1.equals(cell2.getVisualSymbol()) && s1.equals(cell3.getVisualSymbol());
     }
 
-    public void useTriangle() {
+    public boolean useTriangle() {
         if (isGameOver || !state.canUseTriangle()) {
-            return;
+            return false;
         }
         int affected = board.applyTriangleEffect();
         state.addGhosts(affected);
         state.triggerTriangleUsed();
+        state.nextTurn();
+        return true;
     }
 
-    public void useSquare() {
+    public boolean useSquare() {
         if (isGameOver || !state.canUseSquare()) {
-            return;
+            return false;
         }
         int affected = board.applySquareEffect();
         state.addGhosts(affected);
         state.triggerSquareUsed();
+        state.nextTurn();
+        return true;
     }
 
     public void resetGame() {
