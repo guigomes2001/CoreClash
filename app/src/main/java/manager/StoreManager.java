@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.coreclash.MainActivity;
+import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
 
@@ -39,7 +40,7 @@ public class StoreManager {
             profile.coins += 500;
             profileManager.persistProfile();
             refreshStoreUI();
-            Toast.makeText(activity, "Moedas adicionadas!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -65,21 +66,21 @@ public class StoreManager {
 
     private void refreshStoreUI() {
         if (profile != null) {
-            binding.txtStoreCoinsFull.setText("Core Coins: " + profile.coins);
+            binding.txtStoreCoinsFull.setText(activity.getString(R.string.store_coins_format, profile.coins));
         }
     }
 
     private void buyOrEquipTheme(String themeId, int price) {
         if (profile.ownsTheme(themeId)) {
             profile.equippedTheme = themeId;
-            Toast.makeText(activity, "Tema equipado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.toast_theme_equipped), Toast.LENGTH_SHORT).show();
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedThemes.add(themeId);
             profile.equippedTheme = themeId;
-            Toast.makeText(activity, "Tema comprado!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.toast_theme_bought), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(activity, "Moedas insuficientes", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -89,14 +90,14 @@ public class StoreManager {
     private void buyOrEquipStyle(String styleId, int price) {
         if (profile.ownsSymbolStyle(styleId)) {
             profile.equippedSymbolStyle = styleId;
-            Toast.makeText(activity, "Estilo equipado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedSymbolStyles.add(styleId);
             profile.equippedSymbolStyle = styleId;
-            Toast.makeText(activity, "Estilo comprado!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.toast_style_bought), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(activity, "Moedas insuficientes", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
             return;
         }
 
