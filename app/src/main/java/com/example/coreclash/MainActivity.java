@@ -9,7 +9,6 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -68,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
-    private Boolean lastTurnProgressIsX = null;
-
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
     private ObjectAnimator turnAnimatorX;
     private ObjectAnimator turnAnimatorO;
