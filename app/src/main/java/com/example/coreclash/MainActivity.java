@@ -64,6 +64,42 @@ public class MainActivity extends AppCompatActivity {
     private String opponentName = "Aguardando";
     private GameMode selectedMode = GameMode.CASUAL;
     private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
+    private static final int MATCH_DURATION_SECONDS = 120;
+    private static final int TURN_DURATION_SECONDS = 12;
+    private int remainingMatchSeconds = MATCH_DURATION_SECONDS;
+    private int remainingTurnSeconds = TURN_DURATION_SECONDS;
+    private boolean timeExpired = false;
+    private boolean appPaused = false;
+
+    private enum MatchPhase { WAITING_MATCH, PLAYER_TURN, ANIMATING_ABILITY, GAME_OVER }
+    private MatchPhase matchPhase = MatchPhase.WAITING_MATCH;
+
+    private final Runnable matchTimerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!matchStarted || gameManager.isGameOver() || appPaused) return;
+
+            remainingMatchSeconds--;
+            remainingTurnSeconds--;
+            updateTurnTimerStatus();
+
+            if (remainingMatchSeconds <= 0) {
+                timeExpired = true;
+                matchStarted = false;
+                matchPhase = MatchPhase.GAME_OVER;
+                stopTimers();
+                showDrawScreen();
+                return;
+            }
+
+            if (remainingTurnSeconds <= 0) {
+                onTurnTimeout();
+                return;
+            }
+
+            handler.postDelayed(this, 1000);
+        }
+    };
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -131,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (won) {
             matchStarted = false;
+            matchPhase = MatchPhase.GAME_OVER;
+            stopMatchTimer();
             drawVictoryLine();
             handler.postDelayed(() -> showVictoryScreen(symbol), 700);
             return;
@@ -138,10 +176,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (gameManager.isGameOver()) {
             matchStarted = false;
+            matchPhase = MatchPhase.GAME_OVER;
+            stopMatchTimer();
             handler.postDelayed(this::showDrawScreen, 420);
             return;
         }
 
+        resetTurnTimer();
         maybeRunBotTurn();
     }
 
@@ -159,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
         gameManager.resetGame();
         binding.victoryLineView.clear();
         binding.gameBoardView.updateBoard(board.getMatrix());
+        resetMatchTimer();
         updateSkillVisuals();
     }
 
@@ -168,11 +210,16 @@ public class MainActivity extends AppCompatActivity {
                 AnimationHelper.shakeView(v);
                 return;
             }
+            matchPhase = MatchPhase.ANIMATING_ABILITY;
             gameManager.useTriangle();
             binding.gameBoardView.updateBoard(board.getMatrix());
+            binding.gameBoardView.playAbilityEffect(new int[][]{{0, 1}, {2, 0}, {2, 2}});
             AnimationHelper.spin(v);
+            resetTurnTimer();
+            matchPhase = MatchPhase.PLAYER_TURN;
             updateHeaderStatus();
             updateSkillVisuals();
+            maybeRunBotTurn();
         });
 
         binding.containerSquare.setOnClickListener(v -> {
@@ -180,11 +227,16 @@ public class MainActivity extends AppCompatActivity {
                 AnimationHelper.shakeView(v);
                 return;
             }
+            matchPhase = MatchPhase.ANIMATING_ABILITY;
             gameManager.useSquare();
             binding.gameBoardView.updateBoard(board.getMatrix());
+            binding.gameBoardView.playAbilityEffect(new int[][]{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 2}, {2, 0}, {2, 1}, {2, 2}});
             AnimationHelper.pulse(v);
+            resetTurnTimer();
+            matchPhase = MatchPhase.PLAYER_TURN;
             updateHeaderStatus();
             updateSkillVisuals();
+            maybeRunBotTurn();
         });
     }
 
@@ -291,9 +343,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void showHomeScreen() {
         matchStarted = false;
+        matchPhase = MatchPhase.WAITING_MATCH;
+        stopMatchTimer();
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
+        updateTurnTimerStatus();
     }
 
     private void startMatchIntro() {
@@ -311,7 +366,10 @@ public class MainActivity extends AppCompatActivity {
                 binding.versusOverlay.animate().alpha(0f).setDuration(240).withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
                     matchStarted = true;
-                    maybeRunBotTurn();
+                    matchPhase = MatchPhase.PLAYER_TURN;
+                    startMatchTimer();
+                    resetTurnTimer();
+        maybeRunBotTurn();
                 }).start();
             }, 1000);
         }).start();
@@ -387,7 +445,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDrawScreen() {
-        binding.txtWinnerTitle.setText(R.string.game_draw);
+        binding.txtWinnerTitle.setText(timeExpired ? R.string.game_time_up : R.string.game_draw);
         binding.txtStatsMoves.setText(getString(R.string.stats_moves, gameManager.getFinalMoves(), "="));
         binding.txtStatsGhosts.setText(getString(R.string.stats_ghosts, gameManager.getFinalGhosts(), gameManager.getWinStreak()));
         animateVictoryCard();
@@ -408,16 +466,82 @@ public class MainActivity extends AppCompatActivity {
     public void updateHeaderStatus() {
         if (currentProfile == null) {
             binding.txtStatus.setText(R.string.status_sync);
+            updateTurnTimerStatus();
             return;
         }
         binding.txtStatus.setText(getString(R.string.versus_status, getPlayerDisplayName(), opponentName));
+        updateTurnTimerStatus();
+    }
+
+    private void updateTurnTimerStatus() {
+        if (!matchStarted) {
+            binding.txtTurnTimer.setText(R.string.match_turn_waiting);
+            return;
+        }
+
+        int turnLabelRes = state.isXTurn() ? R.string.match_turn_you : R.string.match_turn_opponent;
+        binding.txtTurnTimer.setText(getString(turnLabelRes, formatRemainingTime(), formatTurnTime()));
+    }
+
+    private String formatRemainingTime() {
+        int safeSeconds = Math.max(remainingMatchSeconds, 0);
+        int minutes = safeSeconds / 60;
+        int seconds = safeSeconds % 60;
+        return String.format(java.util.Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    }
+
+    private String formatTurnTime() {
+        return String.valueOf(Math.max(remainingTurnSeconds, 0));
+    }
+
+    private void resetMatchTimer() {
+        stopTimers();
+        timeExpired = false;
+        remainingMatchSeconds = MATCH_DURATION_SECONDS;
+        resetTurnTimer();
+        updateTurnTimerStatus();
+    }
+
+    private void startMatchTimer() {
+        stopTimers();
+        resetTurnTimer();
+        handler.postDelayed(matchTimerRunnable, 1000);
+        updateTurnTimerStatus();
+    }
+
+    private void stopMatchTimer() {
+        stopTimers();
+    }
+
+    private void onTurnTimeout() {
+        if (!matchStarted || gameManager.isGameOver()) return;
+        Toast.makeText(this, getString(R.string.toast_turn_timeout), Toast.LENGTH_SHORT).show();
+        state.nextTurn();
+        resetTurnTimer();
+        updateHeaderStatus();
+        maybeRunBotTurn();
+        handler.postDelayed(matchTimerRunnable, 1000);
+    }
+
+    private void resetTurnTimer() {
+        remainingTurnSeconds = TURN_DURATION_SECONDS;
+    }
+
+    private void stopTimers() {
+        handler.removeCallbacks(matchTimerRunnable);
     }
 
     private void updateSkillVisuals() {
-        float triAlpha = state.canUseTriangle() && matchStarted ? 1f : 0.25f;
-        float sqAlpha = state.canUseSquare() && matchStarted ? 1f : 0.25f;
-        binding.containerTriangle.animate().alpha(triAlpha).setDuration(220).start();
-        binding.containerSquare.animate().alpha(sqAlpha).setDuration(220).start();
+        float triAlpha = state.canUseTriangle() && matchStarted ? 1f : 0.35f;
+        float sqAlpha = state.canUseSquare() && matchStarted ? 1f : 0.35f;
+        binding.containerTriangle.animate().alpha(triAlpha).setDuration(160).start();
+        binding.containerSquare.animate().alpha(sqAlpha).setDuration(160).start();
+
+        int triangleIn = Math.max(0, state.getTriangleUnlockMove() - state.getMoveCount());
+        int squareIn = Math.max(0, state.getSquareUnlockMove() - state.getMoveCount());
+
+        binding.txtTriangleState.setText(state.canUseTriangle() ? getString(R.string.skill_state_ready) : getString(R.string.skill_state_available_in, triangleIn));
+        binding.txtSquareState.setText(state.canUseSquare() ? getString(R.string.skill_state_ready) : getString(R.string.skill_state_available_in, squareIn));
     }
 
     private void hideSystemBars() {
@@ -493,5 +617,27 @@ public class MainActivity extends AppCompatActivity {
                 updateHeaderStatus();
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        appPaused = true;
+        stopTimers();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appPaused = false;
+        if (matchStarted && !gameManager.isGameOver()) {
+            handler.postDelayed(matchTimerRunnable, 1000);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopMatchTimer();
+        super.onDestroy();
     }
 }
