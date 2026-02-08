@@ -64,9 +64,9 @@ public class BoardManager {
 
     public int applyTriangleEffect() {
         int affected = 0;
-        affected += affectCellNow(0, 2);
-        affected += affectCellNow(2, 2);
+        affected += affectCellNow(0, 1);
         affected += affectCellNow(2, 0);
+        affected += affectCellNow(2, 2);
         return affected;
     }
 

@@ -19,8 +19,8 @@
     <string name="status_sync">Sincronizando…</string>
     <string name="match_turn_waiting">Aguardando início da partida</string>
     <string name="match_turn_timer">Turno: %1$s • %2$s restantes</string>
-    <string name="match_turn_you">Seu turno • %1$s restantes</string>
-    <string name="match_turn_opponent">Turno do adversário • %1$s restantes</string>
+    <string name="match_turn_you">Seu turno • Partida %1$s • Turno %2$ss</string>
+    <string name="match_turn_opponent">Turno do adversário • Partida %1$s • Turno %2$ss</string>
     <string name="toast_progress_linked">Progresso vinculado! ✅</string>
     <string name="toast_match_found">Partida encontrada contra %1$s</string>
     <string name="mode_ranked_label">Ranking</string>
@@ -30,4 +30,7 @@
     <string name="toast_offline_loaded">Modo Offline: Dados locais carregados</string>
     <string name="online_rival_prefix">RivalOnline</string>
     <string name="game_time_up">Tempo esgotado</string>
+    <string name="toast_turn_timeout">Tempo esgotado — perdeu a vez</string>
+    <string name="skill_state_ready">Pronta</string>
+    <string name="skill_state_available_in">Em %1$d turno(s)</string>
 </resources>
