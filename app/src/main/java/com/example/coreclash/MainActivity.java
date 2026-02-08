@@ -64,6 +64,28 @@ public class MainActivity extends AppCompatActivity {
     private String opponentName = "Aguardando";
     private GameMode selectedMode = GameMode.CASUAL;
     private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
+    private static final int MATCH_DURATION_SECONDS = 120;
+    private int remainingMatchSeconds = MATCH_DURATION_SECONDS;
+    private boolean timeExpired = false;
+
+    private final Runnable matchTimerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!matchStarted || gameManager.isGameOver()) return;
+
+            remainingMatchSeconds--;
+            updateTurnTimerStatus();
+
+            if (remainingMatchSeconds <= 0) {
+                timeExpired = true;
+                matchStarted = false;
+                showDrawScreen();
+                return;
+            }
+
+            handler.postDelayed(this, 1000);
+        }
+    };
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -131,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (won) {
             matchStarted = false;
+            stopMatchTimer();
             drawVictoryLine();
             handler.postDelayed(() -> showVictoryScreen(symbol), 700);
             return;
@@ -138,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (gameManager.isGameOver()) {
             matchStarted = false;
+            stopMatchTimer();
             handler.postDelayed(this::showDrawScreen, 420);
             return;
         }
@@ -159,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
         gameManager.resetGame();
         binding.victoryLineView.clear();
         binding.gameBoardView.updateBoard(board.getMatrix());
+        resetMatchTimer();
         updateSkillVisuals();
     }
 
@@ -291,9 +316,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void showHomeScreen() {
         matchStarted = false;
+        stopMatchTimer();
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
+        updateTurnTimerStatus();
     }
 
     private void startMatchIntro() {
@@ -311,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.versusOverlay.animate().alpha(0f).setDuration(240).withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
                     matchStarted = true;
+                    startMatchTimer();
                     maybeRunBotTurn();
                 }).start();
             }, 1000);
@@ -387,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDrawScreen() {
-        binding.txtWinnerTitle.setText(R.string.game_draw);
+        binding.txtWinnerTitle.setText(timeExpired ? R.string.game_time_up : R.string.game_draw);
         binding.txtStatsMoves.setText(getString(R.string.stats_moves, gameManager.getFinalMoves(), "="));
         binding.txtStatsGhosts.setText(getString(R.string.stats_ghosts, gameManager.getFinalGhosts(), gameManager.getWinStreak()));
         animateVictoryCard();
@@ -408,9 +436,45 @@ public class MainActivity extends AppCompatActivity {
     public void updateHeaderStatus() {
         if (currentProfile == null) {
             binding.txtStatus.setText(R.string.status_sync);
+            updateTurnTimerStatus();
             return;
         }
         binding.txtStatus.setText(getString(R.string.versus_status, getPlayerDisplayName(), opponentName));
+        updateTurnTimerStatus();
+    }
+
+    private void updateTurnTimerStatus() {
+        if (!matchStarted) {
+            binding.txtTurnTimer.setText(R.string.match_turn_waiting);
+            return;
+        }
+
+        int turnLabelRes = state.isXTurn() ? R.string.match_turn_you : R.string.match_turn_opponent;
+        binding.txtTurnTimer.setText(getString(turnLabelRes, formatRemainingTime()));
+    }
+
+    private String formatRemainingTime() {
+        int safeSeconds = Math.max(remainingMatchSeconds, 0);
+        int minutes = safeSeconds / 60;
+        int seconds = safeSeconds % 60;
+        return String.format(java.util.Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    }
+
+    private void resetMatchTimer() {
+        stopMatchTimer();
+        timeExpired = false;
+        remainingMatchSeconds = MATCH_DURATION_SECONDS;
+        updateTurnTimerStatus();
+    }
+
+    private void startMatchTimer() {
+        stopMatchTimer();
+        handler.postDelayed(matchTimerRunnable, 1000);
+        updateTurnTimerStatus();
+    }
+
+    private void stopMatchTimer() {
+        handler.removeCallbacks(matchTimerRunnable);
     }
 
     private void updateSkillVisuals() {
@@ -493,5 +557,11 @@ public class MainActivity extends AppCompatActivity {
                 updateHeaderStatus();
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopMatchTimer();
+        super.onDestroy();
     }
 }
