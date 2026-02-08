@@ -1,5 +1,7 @@
 package com.example.coreclash;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean versusBot = false;
     private Boolean lastTurnProgressIsX = null;
 
-    private static final long TURN_PROGRESS_DURATION_MS = 6000L;
+    private static final long TURN_PROGRESS_DURATION_MS = 10000L;
     private ObjectAnimator turnAnimatorX;
     private ObjectAnimator turnAnimatorO;
     private String opponentName = "";
@@ -552,8 +554,21 @@ public class MainActivity extends AppCompatActivity {
         ObjectAnimator animator = ObjectAnimator.ofInt(active, "progress", 100, 0);
         animator.setDuration(TURN_PROGRESS_DURATION_MS);
         animator.setInterpolator(new LinearInterpolator());
-        animator.setRepeatCount(ObjectAnimator.INFINITE);
-        animator.setRepeatMode(ObjectAnimator.RESTART);
+        animator.addListener(new AnimatorListenerAdapter() {
+            private boolean cancelled;
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                cancelled = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!cancelled) {
+                    onTurnTimerElapsed(xTurn);
+                }
+            }
+        });
         animator.start();
 
         if (xTurn) {
@@ -575,6 +590,20 @@ public class MainActivity extends AppCompatActivity {
         } else {
             turnAnimatorO = null;
         }
+    }
+
+    private void onTurnTimerElapsed(boolean xTurnTurnStarted) {
+        if (!matchStarted || gameManager.isGameOver()) {
+            return;
+        }
+        if (state.isXTurn() != xTurnTurnStarted) {
+            return;
+        }
+
+        state.nextTurn();
+        updateHeaderStatus();
+        updateSkillVisuals();
+        maybeRunBotTurn();
     }
 
     private void updateSkillVisuals() {
