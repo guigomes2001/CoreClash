@@ -65,6 +65,8 @@
     <string name="store_style_future_price">Future Tech • 160</string>
     <string name="store_buy_coins">+500 Coins</string>
     <string name="versus_center">VS</string>
+    <string name="versus_title">%1$s VS %2$s</string>
+    <string name="versus_match_title_default">Player 1 VS Player 2</string>
 
     <string name="store_dialog_title">ROYAL STORE</string>
     <string name="store_dialog_board_themes">BOARD THEMES</string>

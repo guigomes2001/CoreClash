@@ -68,12 +68,14 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
+    private Boolean lastTurnProgressIsX = null;
+
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
     private ObjectAnimator turnAnimatorX;
     private ObjectAnimator turnAnimatorO;
     private String opponentName = "";
-    private DomainGameMode selectedMode = DomainGameMode.CASUAL;
-    private DomainDifficulty currentBotDifficulty = DomainDifficulty.INICIANTE;
+    private GameMode selectedMode = GameMode.CASUAL;
+    private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -302,6 +304,7 @@ public class MainActivity extends AppCompatActivity {
         state.setGameMode(selectedMode == DomainGameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
         gameManager.resetGame();
         binding.victoryLineView.clear();
+        setArenaUiVisible(false);
         updateHeaderStatus();
         updateSkillVisuals();
         startMatchIntro();
@@ -309,6 +312,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showHomeScreen() {
         matchStarted = false;
+        lastTurnProgressIsX = null;
+        setArenaUiVisible(true);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
@@ -337,13 +342,18 @@ public class MainActivity extends AppCompatActivity {
 
         binding.txtVersusX.setText(playerName);
         binding.txtVersusO.setText(opponentName);
-        String modeLabel = selectedMode == DomainGameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
-        binding.txtVersusCenter.setText(modeLabel);
+        String modeLabel = selectedMode == GameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
+        binding.txtVersusMode.setText(modeLabel);
+        binding.txtVersusCenter.setText(getString(R.string.versus_title, playerName, opponentName));
 
         binding.txtVersusX.setTranslationX(-220f);
         binding.txtVersusO.setTranslationX(220f);
-        binding.txtVersusCenter.setScaleX(0.7f);
-        binding.txtVersusCenter.setScaleY(0.7f);
+        binding.txtVersusCenter.setScaleX(0.8f);
+        binding.txtVersusCenter.setScaleY(0.8f);
+        binding.txtVersusMode.setAlpha(0f);
+        binding.txtVersusMode.setTranslationY(-30f);
+        binding.viewVersusStripeTop.setAlpha(0f);
+        binding.viewVersusStripeBottom.setAlpha(0f);
 
         binding.versusOverlay.animate().alpha(1f).setDuration(160).start();
 
@@ -365,11 +375,16 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(() -> binding.txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(160).start())
                 .start();
 
+        binding.txtVersusMode.animate().alpha(1f).translationY(0f).setDuration(360).start();
+        binding.viewVersusStripeTop.animate().alpha(1f).setDuration(260).start();
+        binding.viewVersusStripeBottom.animate().alpha(1f).setDuration(260).start();
+
         handler.postDelayed(() -> binding.versusOverlay.animate()
                 .alpha(0f)
                 .setDuration(240)
                 .withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
+                    setArenaUiVisible(true);
                     matchStarted = true;
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -422,10 +437,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        long thinkDelayMs = 900L + random.nextInt(800);
+        long thinkDelayMs = 900L + random.nextInt(700);
 
         handler.postDelayed(() -> {
             if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
+                return;
+            }
+
+            if (shouldBotUseSkill() && tryUseRandomBotSkill()) {
+                updateHeaderStatus();
+                updateSkillVisuals();
                 return;
             }
 
@@ -434,6 +455,38 @@ public class MainActivity extends AppCompatActivity {
                 playTurn(move[0], move[1]);
             }
         }, thinkDelayMs);
+    }
+
+    private boolean shouldBotUseSkill() {
+        double chance = switch (currentBotDifficulty) {
+            case INICIANTE -> 0.20;
+            case MODERADA -> 0.55;
+            case MESTRE -> 0.80;
+        };
+        return random.nextDouble() < chance;
+    }
+
+    private boolean tryUseRandomBotSkill() {
+        boolean canTriangle = gameManager.canUseTriangleNow();
+        boolean canSquare = gameManager.canUseSquareNow();
+        if (!canTriangle && !canSquare) {
+            return false;
+        }
+
+        if (canTriangle && canSquare) {
+            return random.nextBoolean() ? gameManager.useTriangle() : gameManager.useSquare();
+        }
+        return canTriangle ? gameManager.useTriangle() : gameManager.useSquare();
+    }
+
+    private void setArenaUiVisible(boolean visible) {
+        int visibility = visible ? View.VISIBLE : View.INVISIBLE;
+        binding.turnHudBar.setVisibility(visibility);
+        binding.containerTriangle.setVisibility(visibility);
+        binding.lineLeftConnector.setVisibility(visibility);
+        binding.boardContainer.setVisibility(visibility);
+        binding.containerSquare.setVisibility(visibility);
+        binding.lineRightConnector.setVisibility(visibility);
     }
 
     private int[] chooseBotMove(DomainDifficulty difficulty) {
@@ -547,10 +600,29 @@ public class MainActivity extends AppCompatActivity {
                 ? getString(R.string.turn_hud_opponent_default)
                 : opponentName;
 
-        boolean running = matchStarted && !gameManager.isGameOver();
-        boolean xTurn = state.isXTurn();
+        binding.txtTurnHudNameX.setText(playerName);
+        binding.txtTurnHudNameO.setText(rivalName);
 
-        turnHud.render(playerName, rivalName, running, xTurn);
+        if (!matchStarted || gameManager.isGameOver()) {
+            lastTurnProgressIsX = null;
+            stopTurnAnimator(true);
+            stopTurnAnimator(false);
+            binding.progressTurnHudX.setProgress(0);
+            binding.progressTurnHudO.setProgress(0);
+            styleTurnName(binding.txtTurnHudNameX, false);
+            styleTurnName(binding.txtTurnHudNameO, false);
+            return;
+        }
+
+        boolean isXTurn = state.isXTurn();
+        styleTurnName(binding.txtTurnHudNameX, isXTurn);
+        styleTurnName(binding.txtTurnHudNameO, !isXTurn);
+
+        if (lastTurnProgressIsX == null || lastTurnProgressIsX != isXTurn) {
+            startTurnAnimator(isXTurn);
+            stopTurnAnimator(!isXTurn);
+            lastTurnProgressIsX = isXTurn;
+        }
     }
 
     private void styleTurnName(android.widget.TextView textView, boolean active) {
@@ -703,9 +775,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (turnHud != null) {
-            turnHud.release();
-        }
+        stopTurnAnimator(true);
+        stopTurnAnimator(false);
         super.onDestroy();
     }
 
