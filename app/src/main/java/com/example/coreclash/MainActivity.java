@@ -34,9 +34,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import enums.BotNames;
-import enums.Difficulty;
-import enums.GameMode;
+import enums.DomainBotNames;
+import enums.DomainDifficulty;
+import enums.DomainGameMode;
+import enums.DomainSymbols;
 import game.GameState;
 import manager.AuthenticationManager;
 import manager.BoardManager;
@@ -71,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
     private ObjectAnimator turnAnimatorX;
     private ObjectAnimator turnAnimatorO;
     private String opponentName = "";
-    private GameMode selectedMode = GameMode.CASUAL;
-    private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
+    private DomainGameMode selectedMode = DomainGameMode.CASUAL;
+    private DomainDifficulty currentBotDifficulty = DomainDifficulty.INICIANTE;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -176,12 +177,12 @@ public class MainActivity extends AppCompatActivity {
         binding.btnSettings.setOnClickListener(v -> settingManager.openSettings());
 
         binding.btnModeCasual.setOnClickListener(v -> {
-            selectedMode = GameMode.CASUAL;
+            selectedMode = DomainGameMode.CASUAL;
             updateModeButtonStyles();
         });
 
         binding.btnModeRanked.setOnClickListener(v -> {
-            selectedMode = GameMode.RANKED;
+            selectedMode = DomainGameMode.RANKED;
             updateModeButtonStyles();
         });
 
@@ -270,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateModeButtonStyles() {
-        boolean casual = selectedMode == GameMode.CASUAL;
+        boolean casual = selectedMode == DomainGameMode.CASUAL;
         int selectedBg = 0xFF22D3EE;
         int selectedText = 0xFF082F49;
         int defaultBg = 0xFF312E81;
@@ -292,13 +293,13 @@ public class MainActivity extends AppCompatActivity {
             currentBotDifficulty = randomDifficulty();
         } else {
             opponentName = getString(R.string.online_rival_prefix) + (100 + random.nextInt(900));
-            currentBotDifficulty = Difficulty.MODERADA;
+            currentBotDifficulty = DomainDifficulty.MODERADA;
 
             String matchMsg = getString(R.string.toast_match_found, opponentName);
             Toast.makeText(this, matchMsg, Toast.LENGTH_SHORT).show();
         }
 
-        state.setGameMode(selectedMode == GameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
+        state.setGameMode(selectedMode == DomainGameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
         gameManager.resetGame();
         binding.victoryLineView.clear();
         updateHeaderStatus();
@@ -336,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.txtVersusX.setText(playerName);
         binding.txtVersusO.setText(opponentName);
-        String modeLabel = selectedMode == GameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
+        String modeLabel = selectedMode == DomainGameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
         binding.txtVersusCenter.setText(modeLabel);
 
         binding.txtVersusX.setTranslationX(-220f);
@@ -421,7 +422,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        long thinkDelayMs = 900L + random.nextInt(700);
+        long thinkDelayMs = 900L + random.nextInt(800);
 
         handler.postDelayed(() -> {
             if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
@@ -435,21 +436,27 @@ public class MainActivity extends AppCompatActivity {
         }, thinkDelayMs);
     }
 
-    private int[] chooseBotMove(Difficulty difficulty) {
+    private int[] chooseBotMove(DomainDifficulty difficulty) {
         List<int[]> moves = gameManager.getAvailableMoves();
-        if (moves.isEmpty()) return null;
+        if (moves.isEmpty()) {
+            return null;
+        }
 
-        if (difficulty == Difficulty.INICIANTE) {
+        if (difficulty == DomainDifficulty.INICIANTE) {
             return moves.get(random.nextInt(moves.size()));
         }
 
-        int[] win = gameManager.findWinningMoveFor("O");
-        if (win != null) return win;
+        int[] win = gameManager.findWinningMoveFor(DomainSymbols.O.getValue());
+        if (win != null) {
+            return win;
+        }
 
-        int[] block = gameManager.findWinningMoveFor("X");
-        if (block != null) return block;
+        int[] block = gameManager.findWinningMoveFor(DomainSymbols.X.getValue());
+        if (block != null) {
+            return block;
+        }
 
-        if (difficulty == Difficulty.MODERADA) {
+        if (difficulty == DomainDifficulty.MODERADA) {
             int[] center = gameManager.getCenterIfAvailable();
             return center != null ? center : moves.get(random.nextInt(moves.size()));
         }
@@ -627,12 +634,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String randomBotName() {
-        BotNames[] values = BotNames.values();
+        DomainBotNames[] values = DomainBotNames.values();
         return values[random.nextInt(values.length)].getDisplayName();
     }
 
-    private Difficulty randomDifficulty() {
-        Difficulty[] levels = Difficulty.values();
+    private DomainDifficulty randomDifficulty() {
+        DomainDifficulty[] levels = DomainDifficulty.values();
         return levels[random.nextInt(levels.length)];
     }
 

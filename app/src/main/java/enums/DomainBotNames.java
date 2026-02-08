@@ -1,6 +1,6 @@
 package enums;
 
-public enum BotNames {
+public enum DomainBotNames {
 
     GUAXINIM_DA_NOITE("GuaxinimDaNoite"),
     NINJA_DO_VAZIO("NinjaDoVazio"),
@@ -13,7 +13,7 @@ public enum BotNames {
 
     private final String displayName;
 
-    BotNames(String displayName) {
+    DomainBotNames(String displayName) {
         this.displayName = displayName;
     }
 

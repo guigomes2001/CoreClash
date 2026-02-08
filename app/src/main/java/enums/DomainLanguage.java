@@ -1,13 +1,13 @@
 package enums;
 
-public enum Language {
+public enum DomainLanguage {
     ENGLISH("en", "English 🇺🇸"),
     PORTUGUESE("pt", "Português 🇧🇷");
 
     private final String tag;
     private final String displayName;
 
-    Language(String tag, String displayName) {
+    DomainLanguage(String tag, String displayName) {
         this.tag = tag;
         this.displayName = displayName;
     }
@@ -21,7 +21,7 @@ public enum Language {
     }
 
     public static String[] getDisplayNames() {
-        Language[] allLanguages = values();
+        DomainLanguage[] allLanguages = values();
         String[] names = new String[allLanguages.length];
 
         for (int i = 0; i < allLanguages.length; i++) {
