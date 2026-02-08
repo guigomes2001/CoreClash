@@ -398,19 +398,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (currentBotDifficulty == Difficulty.MESTRE) {
-                if (state.canUseTriangle() && random.nextFloat() < 0.35f && gameManager.useTriangle()) {
-                        updateHeaderStatus();
-                    updateSkillVisuals();
-                    return;
-                }
-                if (state.canUseSquare() && random.nextFloat() < 0.25f && gameManager.useSquare()) {
-                        updateHeaderStatus();
-                    updateSkillVisuals();
-                    return;
-                }
-            }
-
             int[] move = chooseBotMove(currentBotDifficulty);
             if (move != null) {
                 playTurn(move[0], move[1]);
@@ -549,12 +536,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void styleTurnName(android.widget.TextView textView, boolean active) {
-        textView.setTextColor(active ? 0xFFF8FAFC : 0xFF94A3B8);
-        textView.setAlpha(active ? 1f : 0.75f);
+        textView.setTextColor(active ? 0xFFFFFFFF : 0xFFB6C2D1);
+        textView.setAlpha(active ? 1f : 0.8f);
         textView.animate()
-                .scaleX(active ? 1.04f : 0.98f)
-                .scaleY(active ? 1.04f : 0.98f)
-                .setDuration(180)
+                .scaleX(active ? 1.03f : 1f)
+                .scaleY(active ? 1.03f : 1f)
+                .setDuration(160)
                 .start();
     }
 
