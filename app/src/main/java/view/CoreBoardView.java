@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 import com.example.coreclash.R;
 
 public class CoreBoardView extends View {
-    private Bitmap bitmapX, bitmapO, bitmapBoard;
+    private Bitmap bitmapX, bitmapO, bitmapTriangle, bitmapSquare, bitmapBoard;
     private Paint paint;
     private Rect destRect = new Rect();
     private String[][] boardMatrix = new String[3][3];
@@ -51,6 +51,8 @@ public class CoreBoardView extends View {
     private void loadResources() {
         bitmapX = BitmapFactory.decodeResource(getResources(), R.drawable.icon_x);
         bitmapO = BitmapFactory.decodeResource(getResources(), R.drawable.icon_o);
+        bitmapTriangle = BitmapFactory.decodeResource(getResources(), R.drawable.icon_triangle);
+        bitmapSquare = BitmapFactory.decodeResource(getResources(), R.drawable.icon_square);
         bitmapBoard = BitmapFactory.decodeResource(getResources(), R.drawable.icon_board);
     }
 
@@ -103,10 +105,35 @@ public class CoreBoardView extends View {
                 String symbol = boardMatrix[r][c];
                 if (symbol.isEmpty()) continue;
 
-                Bitmap icon = symbol.equals("X") ? bitmapX : bitmapO;
+                boolean ghost = symbol.startsWith("GHOST_");
+                String cleanSymbol = ghost ? symbol.substring(6) : symbol;
+
+                Bitmap icon = resolveIcon(cleanSymbol);
+                if (icon == null) continue;
+
+                int oldAlpha = paint.getAlpha();
+                paint.setAlpha(ghost ? 120 : 255);
                 drawAnimatedIcon(canvas, icon, r, c, cellSize);
+                paint.setAlpha(oldAlpha);
             }
         }
+    }
+
+
+    private Bitmap resolveIcon(String symbol) {
+        if ("X".equals(symbol) || "✦".equals(symbol) || "✕".equals(symbol)) {
+            return bitmapX;
+        }
+        if ("O".equals(symbol) || "◉".equals(symbol) || "⬡".equals(symbol)) {
+            return bitmapO;
+        }
+        if ("△".equals(symbol) || "▲".equals(symbol) || "TRIANGLE".equals(symbol)) {
+            return bitmapTriangle;
+        }
+        if ("▢".equals(symbol) || "□".equals(symbol) || "SQUARE".equals(symbol)) {
+            return bitmapSquare;
+        }
+        return null;
     }
 
     private void drawAnimatedIcon(Canvas canvas, Bitmap icon, int r, int c, int cellSize) {
