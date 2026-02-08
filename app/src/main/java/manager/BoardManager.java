@@ -167,10 +167,10 @@ public class BoardManager {
 
     public int applyTriangleEffect() {
         List<PointF> points = new ArrayList<>();
-        points.add(getCellCenter(0, 2));
+        points.add(getCellCenter(0, 1));
         points.add(getCellCenter(2, 2));
         points.add(getCellCenter(2, 0));
-        points.add(getCellCenter(0, 2));
+        points.add(getCellCenter(0, 1));
 
         overlayView.drawShape(points, COLOR_TRIANGLE);
 
@@ -178,14 +178,18 @@ public class BoardManager {
         long step = duration / 3;
 
         int affected = 0;
-        affected += affectCellNow(0, 2);
+        affected += affectCellNow(0, 1);
         affected += affectCellNow(2, 2);
         affected += affectCellNow(2, 0);
 
-        scheduleAffectCellAnimation(0, 2, step);
+        scheduleAffectCellAnimation(0, 1, step);
         scheduleAffectCellAnimation(2, 2, step * 2);
         scheduleAffectCellAnimation(2, 0, step * 3);
         return affected;
+    }
+
+    public boolean canApplyTriangleEffect() {
+        return canAffectCell(0, 1) || canAffectCell(2, 2) || canAffectCell(2, 0);
     }
 
     public int applySquareEffect() {
@@ -217,16 +221,34 @@ public class BoardManager {
         return affected;
     }
 
+    public boolean canApplySquareEffect() {
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (r == 1 && c == 1) {
+                    continue;
+                }
+                if (canAffectCell(r, c)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void scheduleAffectCellAnimation(int r, int c, long delay) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> updateCellVisualAfterSkill(r, c), delay);
     }
 
     private int affectCellNow(int r, int c) {
-        if (cells[r][c].isEmpty() || cells[r][c].isGhost()) {
+        if (!canAffectCell(r, c)) {
             return 0;
         }
         cells[r][c].turnIntoGhost();
         return 1;
+    }
+
+    private boolean canAffectCell(int r, int c) {
+        return !cells[r][c].isEmpty() && !cells[r][c].isGhost();
     }
 
     private void updateCellGhostState(int r, int c) {
