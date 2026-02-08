@@ -272,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         state.setGameMode(selectedMode == GameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
-        skillAnimationLockUntilMs = 0L;
         gameManager.resetGame();
         binding.victoryLineView.clear();
         updateHeaderStatus();
