@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean versusBot = false;
     private Boolean lastTurnProgressIsX = null;
 
-    private static final long TURN_PROGRESS_DURATION_MS = 2400L;
+    private static final long TURN_PROGRESS_DURATION_MS = 6000L;
     private ObjectAnimator turnAnimatorX;
     private ObjectAnimator turnAnimatorO;
     private String opponentName = "";
@@ -515,14 +515,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateHeaderStatus() {
-        if (currentProfile == null) {
-            binding.txtStatus.setText(R.string.status_sync);
-            updateTurnHud();
-            return;
-        }
-
-        String status = getString(R.string.versus_status, getPlayerDisplayName(), opponentName);
-        binding.txtStatus.setText(status);
         updateTurnHud();
     }
 
