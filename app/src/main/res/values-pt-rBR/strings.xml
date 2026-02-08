@@ -85,4 +85,9 @@ AGUARDE</string>
     <string name="turn_now">SUA VEZ</string>
     <string name="turn_wait">AGUARDE</string>
     <string name="turn_bot_thinking">PENSANDO…</string>
+
+    <string name="turn_cue_player_title">SUA VEZ</string>
+    <string name="turn_cue_player_subtitle">Faça sua jogada</string>
+    <string name="turn_cue_opponent_title">VEZ DO RIVAL</string>
+    <string name="turn_cue_opponent_subtitle">Oponente está jogando</string>
 </resources>
