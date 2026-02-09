@@ -591,8 +591,6 @@ public class MainActivity extends AppCompatActivity {
                 trackWidth = track.getWidth() > 0 ? track.getWidth() : track.getMeasuredWidth();
             }
 
-           Log.d("HUD", "trackW=" + trackWidth + " labelW=" + labelWidth + " measured=" + label.getMeasuredWidth());
-
             if (trackWidth <= 0 || labelWidth <= 0) {
                 label.setAlpha(1f);
                 label.setTranslationX(0f);
@@ -605,36 +603,37 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            float startX  = -labelWidth - 20f;
+            float startX  = -labelWidth - 30f;
             float centerX = (trackWidth - labelWidth) / 2f;
-            float endX    = trackWidth + 24f;
+            float endX    = trackWidth + 28f;
 
-            playTimeoutArrow(arrow1, startX - 26f, centerX - 48f, centerX - 26f, 40, 260, 100);
-            playTimeoutArrow(arrow2, startX - 8f,  centerX - 24f, centerX,       110, 220, 92);
-            playTimeoutArrow(arrow3, startX + 10f, centerX,       centerX + 26f,  180, 190, 84);
+            // setas rápidas em cascata para dar sensação de avanço de turno
+            playTimeoutArrow(arrow1, startX - 36f, centerX - 54f, centerX - 20f, 0,   210, 90);
+            playTimeoutArrow(arrow2, startX - 18f, centerX - 28f, centerX + 6f,  70,  220, 95);
+            playTimeoutArrow(arrow3, startX + 2f,  centerX - 4f,  centerX + 30f, 140, 230, 100);
 
             label.setTranslationX(startX);
             label.setAlpha(0f);
 
             ObjectAnimator alphaIn = ObjectAnimator.ofFloat(label, View.ALPHA, 0f, 1f);
-            alphaIn.setStartDelay(210);
-            alphaIn.setDuration(220);
+            alphaIn.setStartDelay(90);
+            alphaIn.setDuration(170);
 
-            ObjectAnimator fastIn = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, startX, centerX - 14f);
-            fastIn.setDuration(620);
-            fastIn.setInterpolator(new DecelerateInterpolator(1.4f));
+            ObjectAnimator fastIn = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, startX, centerX - 10f);
+            fastIn.setDuration(540);
+            fastIn.setInterpolator(new DecelerateInterpolator(1.35f));
 
-            ObjectAnimator slowCenter = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX - 14f, centerX + 14f);
-            slowCenter.setDuration(2050);
+            ObjectAnimator slowCenter = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX - 10f, centerX + 12f);
+            slowCenter.setDuration(1450);
             slowCenter.setInterpolator(new LinearInterpolator());
 
-            ObjectAnimator fastOut = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX + 14f, endX);
-            fastOut.setDuration(500);
-            fastOut.setInterpolator(new AccelerateInterpolator(1.6f));
+            ObjectAnimator fastOut = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX + 12f, endX);
+            fastOut.setDuration(460);
+            fastOut.setInterpolator(new AccelerateInterpolator(1.65f));
 
             ObjectAnimator alphaOut = ObjectAnimator.ofFloat(label, View.ALPHA, 1f, 0f);
-            alphaOut.setStartDelay(2400);
-            alphaOut.setDuration(540);
+            alphaOut.setStartDelay(1760);
+            alphaOut.setDuration(420);
 
             AnimatorSet labelMotion = new AnimatorSet();
             labelMotion.playSequentially(fastIn, slowCenter, fastOut);

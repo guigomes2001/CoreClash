@@ -77,7 +77,7 @@
     <string name="store_dialog_style_rune_price">✦ GLIFOS RÚNICOS   •   140</string>
     <string name="store_dialog_style_future_price">⬡ TECNO FUTURA   •   160</string>
 
-    <string name="turn_overlay_default">Passou a vez   »»»</string>
+    <string name="turn_overlay_default">Passou a vez</string>
     <string name="toast_turn_passed">Passou a vez</string>
     <string name="versus_battle_title">BATALHA</string>
     <string name="toast_looking_match">Procurando uma partida online…</string>
