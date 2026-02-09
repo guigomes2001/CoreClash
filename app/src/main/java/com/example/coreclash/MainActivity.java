@@ -557,8 +557,6 @@ public class MainActivity extends AppCompatActivity {
         lastTimeoutBannerTurnKey = currentTurnKey;
         boolean timedOutX = "X".equals(turnOnline);
         playTimeoutBanner(timedOutX);
-        Toast.makeText(MainActivity.this, getString(R.string.toast_turn_passed), Toast.LENGTH_SHORT).show();
-
         if (onlineSession != null) {
             String expiredTurn = turnOnline;
             onlineSession.advanceTurnIfExpired(expiredTurn, advanced -> {
@@ -610,43 +608,52 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            float startX  = -labelWidth - 30f;
+            float startX  = -labelWidth - 34f;
             float centerX = (trackWidth - labelWidth) / 2f;
-            float endX    = trackWidth + 28f;
+            float endX    = trackWidth + 34f;
 
-            // setas rápidas em cascata para dar sensação de avanço de turno
-            playTimeoutArrow(arrow1, startX - 36f, centerX - 54f, centerX - 20f, 0,   210, 90);
-            playTimeoutArrow(arrow2, startX - 18f, centerX - 28f, centerX + 6f,  70,  220, 95);
-            playTimeoutArrow(arrow3, startX + 2f,  centerX - 4f,  centerX + 30f, 140, 230, 100);
+            float arrowStart = startX + labelWidth + 8f;
+            float arrowCenter = centerX + labelWidth + 10f;
+            float arrowEnd = endX + 22f;
+
+            playTimeoutArrow(arrow1, arrowStart,      arrowCenter,      arrowEnd,      300, 560, 140);
+            playTimeoutArrow(arrow2, arrowStart + 14f, arrowCenter + 14f, arrowEnd + 14f, 410, 550, 132);
+            playTimeoutArrow(arrow3, arrowStart + 28f, arrowCenter + 28f, arrowEnd + 28f, 520, 540, 126);
 
             label.setTranslationX(startX);
             label.setAlpha(0f);
+            label.setScaleX(0.96f);
 
             ObjectAnimator alphaIn = ObjectAnimator.ofFloat(label, View.ALPHA, 0f, 1f);
-            alphaIn.setStartDelay(90);
-            alphaIn.setDuration(170);
+            alphaIn.setStartDelay(60);
+            alphaIn.setDuration(180);
 
-            ObjectAnimator fastIn = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, startX, centerX - 10f);
-            fastIn.setDuration(540);
-            fastIn.setInterpolator(new DecelerateInterpolator(1.35f));
+            ObjectAnimator scaleIn = ObjectAnimator.ofFloat(label, View.SCALE_X, 0.96f, 1f);
+            scaleIn.setStartDelay(60);
+            scaleIn.setDuration(260);
+            scaleIn.setInterpolator(new DecelerateInterpolator(1.3f));
 
-            ObjectAnimator slowCenter = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX - 10f, centerX + 12f);
-            slowCenter.setDuration(1450);
-            slowCenter.setInterpolator(new LinearInterpolator());
+            ObjectAnimator fastIn = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, startX, centerX - 6f);
+            fastIn.setDuration(520);
+            fastIn.setInterpolator(new DecelerateInterpolator(1.42f));
 
-            ObjectAnimator fastOut = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX + 12f, endX);
-            fastOut.setDuration(460);
-            fastOut.setInterpolator(new AccelerateInterpolator(1.65f));
+            ObjectAnimator glide = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX - 6f, centerX + 18f);
+            glide.setDuration(900);
+            glide.setInterpolator(new LinearInterpolator());
+
+            ObjectAnimator fastOut = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX + 18f, endX);
+            fastOut.setDuration(470);
+            fastOut.setInterpolator(new AccelerateInterpolator(1.72f));
 
             ObjectAnimator alphaOut = ObjectAnimator.ofFloat(label, View.ALPHA, 1f, 0f);
-            alphaOut.setStartDelay(1760);
+            alphaOut.setStartDelay(1420);
             alphaOut.setDuration(420);
 
             AnimatorSet labelMotion = new AnimatorSet();
-            labelMotion.playSequentially(fastIn, slowCenter, fastOut);
+            labelMotion.playSequentially(fastIn, glide, fastOut);
 
             AnimatorSet set = new AnimatorSet();
-            set.playTogether(labelMotion, alphaIn, alphaOut);
+            set.playTogether(labelMotion, alphaIn, scaleIn, alphaOut);
             set.addListener(new AnimatorListenerAdapter() {
                 @Override public void onAnimationEnd(Animator animation) { resetTimeoutElement(label, startX); }
                 @Override public void onAnimationCancel(Animator animation) { resetTimeoutElement(label, startX); }

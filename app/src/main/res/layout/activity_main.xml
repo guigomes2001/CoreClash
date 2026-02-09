@@ -110,7 +110,11 @@
                     android:textStyle="bold"
                     android:textSize="12sp"
                     android:textColor="#FFF8F8"
-                    android:background="@drawable/bg_vs_band"
+                    android:letterSpacing="0.04"
+                    android:shadowColor="#AA000000"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="6"
                     android:alpha="0"
                     android:visibility="invisible"/>
             </FrameLayout>
@@ -213,7 +217,11 @@
                     android:textStyle="bold"
                     android:textSize="12sp"
                     android:textColor="#ECFEFF"
-                    android:background="@drawable/bg_vs_band"
+                    android:letterSpacing="0.04"
+                    android:shadowColor="#AA000000"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="6"
                     android:alpha="0"
                     android:visibility="invisible"/>
             </FrameLayout>
