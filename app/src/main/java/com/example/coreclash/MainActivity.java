@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     private AnimatorSet timeoutBannerAnimO;
     private String scheduledTimeoutTurnKey = "";
     private String lastTimeoutBannerTurnKey = "";
+    private boolean onlineIntroCompleted = false;
 
     private final Runnable onlineTimeoutBannerRunnable = this::maybeShowOnlineTimeoutBanner;
 
@@ -357,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
                 opponentName = opponentUid.isEmpty() ? "Aguardando jogador..." : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
 
                 onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
+                onlineIntroCompleted = false;
                 hookOnlineListeners();
 
                 if (iAmXOnline && (opponentUid.trim().isEmpty())) {
@@ -455,8 +457,12 @@ public class MainActivity extends AppCompatActivity {
 
                     runOnUiThread(() -> {
                         updateHeaderStatus();
-                        startOrUpdateOnlineBar();
-                        scheduleOnlineTimeoutBanner();
+                        if (onlineIntroCompleted) {
+                            startOrUpdateOnlineBar();
+                            scheduleOnlineTimeoutBanner();
+                        } else {
+                            stopOnlineBarAnim();
+                        }
                     });
                 }
         );
@@ -536,6 +542,15 @@ public class MainActivity extends AppCompatActivity {
 
         lastTimeoutBannerTurnKey = currentTurnKey;
         playTimeoutBanner("X".equals(turnOnline));
+
+        if (onlineSession != null) {
+            String expiredTurn = turnOnline;
+            onlineSession.advanceTurnIfExpired(expiredTurn, advanced -> {
+                if (!advanced) {
+                    Log.d("RTDB", "Timeout turn advance skipped or already advanced.");
+                }
+            });
+        }
     }
 
     private void playTimeoutBanner(boolean xSide) {
@@ -558,9 +573,9 @@ public class MainActivity extends AppCompatActivity {
             float centerX = (trackWidth - labelWidth) / 2f;
             float endX = trackWidth + 24f;
 
-            playTimeoutArrow(arrow1, startX - 26f, centerX - 48f, centerX - 26f, 100, 280, 110);
-            playTimeoutArrow(arrow2, startX - 8f, centerX - 24f, centerX, 70, 250, 100);
-            playTimeoutArrow(arrow3, startX + 10f, centerX, centerX + 26f, 40, 220, 95);
+            playTimeoutArrow(arrow1, startX - 26f, centerX - 48f, centerX - 26f, 40, 260, 100);
+            playTimeoutArrow(arrow2, startX - 8f, centerX - 24f, centerX, 110, 220, 92);
+            playTimeoutArrow(arrow3, startX + 10f, centerX, centerX + 26f, 180, 190, 84);
 
             label.setTranslationX(startX);
             label.setAlpha(0f);
@@ -685,6 +700,7 @@ public class MainActivity extends AppCompatActivity {
         onlineSession = null;
         isOnlineMatch = false;
         versusBot = false;
+        onlineIntroCompleted = false;
         lastTimeoutBannerTurnKey = "";
 
         showHomeScreen();
@@ -879,10 +895,16 @@ public class MainActivity extends AppCompatActivity {
                     binding.versusOverlay.setVisibility(View.GONE);
 
                     matchStarted = true;
+                    onlineIntroCompleted = true;
                     updateHeaderStatus();
                     updateSkillVisuals();
 
-                    if (!isOnlineMatch) maybeRunBotTurn();
+                    if (isOnlineMatch) {
+                        startOrUpdateOnlineBar();
+                        scheduleOnlineTimeoutBanner();
+                    } else {
+                        maybeRunBotTurn();
+                    }
                 })
                 .start();
     }
