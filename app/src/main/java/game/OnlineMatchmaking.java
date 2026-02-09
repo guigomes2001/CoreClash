@@ -1,0 +1,211 @@
+package game;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.Transaction;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class OnlineMatchmaking {
+
+    public interface MatchmakingCallback {
+        void onMatched(@NonNull String roomId, boolean isPlayerX, @NonNull String opponentUid);
+        void onError(@NonNull String message);
+    }
+
+    private static final String STATUS_WAITING = "WAITING";
+    private static final String STATUS_PLAYING = "PLAYING";
+    private static final String STATUS_ENDED   = "ENDED";
+
+    private static final String TURN_X = "X";
+    private static final String TURN_O = "O";
+
+    private static final long TURN_DURATION_MS = 10_000L;
+
+    private final DatabaseReference roomsRef = FirebaseDatabase.getInstance().getReference("rooms");
+
+    private static final long ROOM_TTL_MS = 3 * 60 * 1000;
+    private static final int MAX_RETRIES = 3;
+    private static final long RETRY_DELAY_MS = 200;
+
+    public void findOrCreateMatch(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
+        findOrCreateMatchInternal(myUid, callback, 0);
+    }
+
+    private void findOrCreateMatchInternal(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt) {
+        roomsRef.orderByChild("status")
+                .equalTo(STATUS_WAITING)
+                .limitToFirst(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        for (DataSnapshot roomSnap : snapshot.getChildren()) {
+                            String roomId = roomSnap.getKey();
+                            if (roomId == null) continue;
+
+                            attemptJoinRoomTransaction(roomId, myUid, attempt, callback);
+                            return;
+                        }
+                    }
+                    createNewRoomTransaction(myUid, callback);
+                })
+                .addOnFailureListener(e ->
+                        retryOrFail(myUid, callback, attempt, "Matchmaking search failed: " + safeMsg(e))
+                );
+    }
+
+    private void retryOrFail(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, @NonNull String reason) {
+        if (attempt >= MAX_RETRIES) {
+            callback.onError("Unable to find a match. Please try again.");
+            return;
+        }
+
+        Log.d("MM", "Retrying matchmaking (" + attempt + "): " + reason);
+
+        new android.os.Handler(android.os.Looper.getMainLooper())
+                .postDelayed(
+                        () -> findOrCreateMatchInternal(myUid, callback, attempt + 1),
+                        RETRY_DELAY_MS
+                );
+    }
+
+    private void createNewRoomTransaction(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
+        String roomId = roomsRef.push().getKey();
+        if (roomId == null) {
+            callback.onError("Could not generate a room ID.");
+            return;
+        }
+
+        DatabaseReference roomRef = roomsRef.child(roomId);
+
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (currentData.getValue() != null) {
+                    return Transaction.abort();
+                }
+
+                Map<String, Object> room = new HashMap<>();
+
+                room.put("status", STATUS_WAITING);
+                room.put("createdAt", ServerValue.TIMESTAMP);
+
+                room.put("turn", TURN_X);
+                room.put("turnStartedAt", ServerValue.TIMESTAMP);
+                room.put("turnDurationMs", TURN_DURATION_MS);
+
+                Map<String, Object> players = new HashMap<>();
+                players.put("X", myUid);
+                players.put("O", "");
+                room.put("players", players);
+
+                currentData.setValue(room);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(
+                    com.google.firebase.database.DatabaseError error,
+                    boolean committed,
+                    DataSnapshot currentData
+            ) {
+                if (error != null) {
+                    callback.onError("Failed to create room: " + safeMsg(error.toException()));
+                    return;
+                }
+                if (!committed) {
+                    callback.onError("Failed to create room due to a concurrency conflict. Please try again.");
+                    return;
+                }
+                callback.onMatched(roomId, true, "");
+            }
+        });
+    }
+
+    private void attemptJoinRoomTransaction(@NonNull String roomId, @NonNull String myUid, int attempt, @NonNull MatchmakingCallback callback) {
+        DatabaseReference roomRef = roomsRef.child(roomId);
+
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (currentData.getValue() == null) return Transaction.abort();
+
+                String status = currentData.child("status").getValue(String.class);
+                String xUid = currentData.child("players").child("X").getValue(String.class);
+                String oUid = currentData.child("players").child("O").getValue(String.class);
+
+                if (!STATUS_WAITING.equals(status)) return Transaction.abort();
+                if (xUid == null || xUid.isEmpty()) return Transaction.abort();
+                if (oUid != null && !oUid.isEmpty()) return Transaction.abort();
+                if (myUid.equals(xUid)) return Transaction.abort();
+
+                currentData.child("players").child("O").setValue(myUid);
+
+                currentData.child("status").setValue(STATUS_PLAYING);
+                currentData.child("startedAt").setValue(ServerValue.TIMESTAMP);
+
+                currentData.child("turn").setValue(TURN_X);
+                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+                currentData.child("turnDurationMs").setValue(TURN_DURATION_MS);
+
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (error != null) {
+                    callback.onError("Failed to join room: " + safeMsg(error.toException()));
+                    return;
+                }
+
+                if (!committed) {
+                    retryOrFail(myUid, callback, attempt, "Join transaction was not committed.");
+                    return;
+                }
+
+                String xUid = currentData.child("players").child("X").getValue(String.class);
+                callback.onMatched(roomId, false, xUid == null ? "" : xUid);
+            }
+        });
+    }
+
+    public void cleanupOldWaitingRooms() {
+        roomsRef.orderByChild("status")
+                .equalTo(STATUS_WAITING)
+                .limitToFirst(50)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.exists()) return;
+
+                    for (DataSnapshot s : snapshot.getChildren()) {
+                        String roomId = s.getKey();
+                        Long createdAt = s.child("createdAt").getValue(Long.class);
+                        if (roomId == null || createdAt == null) continue;
+
+                        long now = System.currentTimeMillis();
+                        if (now - createdAt > ROOM_TTL_MS) {
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("status", STATUS_ENDED);
+                            updates.put("endedAt", ServerValue.TIMESTAMP);
+                            roomsRef.child(roomId).updateChildren(updates);
+                        }
+                    }
+                });
+    }
+
+    private String safeMsg(Throwable e) {
+        if (e == null) return "Unknown error.";
+        String m = e.getMessage();
+        return (m == null || m.trim().isEmpty()) ? "Unknown error." : m.trim();
+    }
+}

@@ -11,7 +11,7 @@
     <string name="btn_close">Fechar</string>
     <string name="home_subtitle">Arena rápida. Menos toque, mais ação.</string>
     <string name="btn_language">Idioma</string>
-    <string name="versus_status">%1$s contra %2$s</string>
+    <string name="versus_status">%1$s vs %2$s</string>
     <string name="game_draw">Empate</string>
     <string name="game_win">%1$s venceu</string>
     <string name="stats_moves">⚡ Movimentos: %1$d | %2$s</string>
@@ -29,8 +29,10 @@
     <string name="btn_quick_match">Rápida</string>
     <string name="btn_store">Loja</string>
     <string name="mode_title">Modo de jogo</string>
+    <string name="mode_subtitle_online_offline">Offline: Jogador vs Máquina. Online: Jogador vs Jogador.</string>
     <string name="mode_subtitle">Escolha seu ritmo de batalha</string>
-    <string name="btn_mode_casual">Casual</string>
+    <string name="btn_mode_offline">Offline</string>
+    <string name="btn_mode_online">Online</string>
     <string name="btn_mode_ranked">Rank</string>
     <string name="btn_back">Voltar</string>
     <string name="btn_ok">OK</string>
@@ -66,7 +68,6 @@
     <string name="store_buy_coins">+500 Moedas</string>
     <string name="versus_center">VS</string>
     <string name="versus_title">%1$s VS %2$s</string>
-    <string name="versus_match_title_default">Jogador 1 VS Jogador 2</string>
 
     <string name="store_dialog_title">LOJA REAL</string>
     <string name="store_dialog_board_themes">TEMAS DO TABULEIRO</string>
@@ -76,7 +77,8 @@
     <string name="store_dialog_style_rune_price">✦ GLIFOS RÚNICOS   •   140</string>
     <string name="store_dialog_style_future_price">⬡ TECNO FUTURA   •   160</string>
 
-
+    <string name="turn_overlay_default">PASSOU A VEZ  >>></string>
+    <string name="versus_battle_title">BATALHA</string>
 
     <string name="turn_hud_player_default">Jogador</string>
     <string name="turn_hud_opponent_default">Oponente</string>

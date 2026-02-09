@@ -1,6 +1,6 @@
 package enums;
 
-public enum Symmetries {
+public enum DomainSymmetries {
 
     TRIANGLE,
     SQUARE

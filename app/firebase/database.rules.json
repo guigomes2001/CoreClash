@@ -1,0 +1,69 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)",
+        ".write": "auth != null && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)",
+
+        "status": {
+          ".validate": "newData.isString() && (newData.val() === 'WAITING' || newData.val() === 'PLAYING' || newData.val() === 'ENDED' || newData.val() === 'ABANDONED')"
+        },
+
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+
+        "turn": {
+          ".validate": "newData.isString() && (newData.val() === 'X' || newData.val() === 'O')"
+        },
+
+        "players": {
+          ".read": "auth != null && (data.child('X').val() === auth.uid || data.child('O').val() === auth.uid)",
+          ".write": "auth != null && (data.child('X').val() === auth.uid || data.child('O').val() === auth.uid)",
+
+          "X": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+
+          "O": {
+            ".validate":
+            "newData.isString() && (
+            (data.val() === '' && newData.val() === auth.uid) ||     /* entrar como O quando vazio */
+            (data.val() === auth.uid && newData.val() === auth.uid) || /* manter */
+            (newData.val() === '')                                    /* permitir limpar em caso de abandono */
+            )"
+          }
+        },
+
+        "endedAt": {
+          ".validate": "newData.isNumber()"
+        },
+
+        "endedBy": {
+          ".validate": "newData.isString() || newData.val() === null"
+        },
+
+        "winner": {
+          ".validate": "newData.isString() && (newData.val() === 'X' || newData.val() === 'O' || newData.val() === 'DRAW')"
+        },
+
+        "actions": {
+          "$actionId": {
+            ".read": "auth != null && (root.child('rooms/'+$roomId+'/players/X').val() === auth.uid || root.child('rooms/'+$roomId+'/players/O').val() === auth.uid)",
+            ".write": "auth != null && (root.child('rooms/'+$roomId+'/players/X').val() === auth.uid || root.child('rooms/'+$roomId+'/players/O').val() === auth.uid)",
+
+            "id": { ".validate": "newData.isString()" },
+            "by": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+            "type": { ".validate": "newData.isString() && (newData.val() === 'MOVE' || newData.val() === 'TRIANGLE' || newData.val() === 'SQUARE' || newData.val() === 'END')" },
+            "r": { ".validate": "newData.val() === null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 2)" },
+            "c": { ".validate": "newData.val() === null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 2)" },
+            "t": { ".validate": "newData.isNumber()" }
+          }
+        }
+      }
+    }
+  }
+}

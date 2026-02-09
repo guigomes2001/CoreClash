@@ -1,17 +1,10 @@
 package game;
 
+import enums.DomainGameMode;
+import enums.DomainRankLevel;
+import enums.DomainSymbolSkin;
+
 public class GameState {
-
-    public enum GameMode {
-        CASUAL,
-        RANKED
-    }
-
-    public enum SymbolSkin {
-        CLASSIC,
-        NEON,
-        GLITCH
-    }
 
     private static final int TRIANGLE_UNLOCK_MOVE = 3;
     private static final int SQUARE_UNLOCK_MOVE = 4;
@@ -24,8 +17,8 @@ public class GameState {
     private Boolean triangleOwnerIsX = null;
     private Boolean squareOwnerIsX = null;
 
-    private GameMode gameMode = GameMode.CASUAL;
-    private SymbolSkin symbolSkin = SymbolSkin.CLASSIC;
+    private String gameMode = String.valueOf(DomainGameMode.CASUAL);
+    private DomainSymbolSkin symbolSkin = DomainSymbolSkin.CLASSIC;
     private int rankedPoints = 0;
     private int totalWins = 0;
     private int winStreak = 0;
@@ -89,19 +82,19 @@ public class GameState {
         return ghostCount;
     }
 
-    public GameMode getGameMode() {
+    public String getGameMode() {
         return gameMode;
     }
 
-    public void setGameMode(GameMode gameMode) {
+    public void setGameMode(String gameMode) {
         this.gameMode = gameMode;
     }
 
-    public SymbolSkin getSymbolSkin() {
+    public DomainSymbolSkin getSymbolSkin() {
         return symbolSkin;
     }
 
-    public void setSymbolSkin(SymbolSkin symbolSkin) {
+    public void setSymbolSkin(DomainSymbolSkin symbolSkin) {
         this.symbolSkin = symbolSkin;
     }
 
@@ -121,12 +114,24 @@ public class GameState {
         return bestWinStreak;
     }
 
+    public void setXTurn(boolean xTurn) {
+        this.xTurn = xTurn;
+    }
+
     public String getRankLabel() {
-        if (rankedPoints >= 120) return "CORE MASTER";
-        if (rankedPoints >= 80) return "CORE ELITE";
-        if (rankedPoints >= 40) return "CORE VETERAN";
-        if (rankedPoints >= 10) return "CORE RECRUIT";
-        return "CORE ROOKIE";
+        if (rankedPoints >= 120) {
+            return DomainRankLevel.MASTER.getLabel();
+        }
+        if (rankedPoints >= 80) {
+            return DomainRankLevel.ELITE.getLabel();
+        }
+        if (rankedPoints >= 40) {
+            return DomainRankLevel.VETERAN.getLabel();
+        }
+        if (rankedPoints >= 10) {
+            return DomainRankLevel.RECRUIT.getLabel();
+        }
+        return DomainRankLevel.ROOKIE.getLabel();
     }
 
     public void registerWin() {
@@ -134,7 +139,7 @@ public class GameState {
         winStreak++;
         bestWinStreak = Math.max(bestWinStreak, winStreak);
 
-        if (gameMode == GameMode.RANKED) {
+        if (gameMode.equals(DomainGameMode.RANKED.getValue())) {
             int base = 10;
             int moveBonus = Math.max(0, 9 - moveCount);
             int ghostPenalty = Math.max(0, ghostCount / 2);

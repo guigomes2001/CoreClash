@@ -31,7 +31,7 @@
             android:id="@+id/radioCasual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_mode_casual"
+            android:text="@string/btn_mode_offline"
             android:checked="true"
             android:textColor="#E5E7EB"/>
 

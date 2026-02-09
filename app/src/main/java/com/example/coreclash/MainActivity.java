@@ -2,7 +2,7 @@ package com.example.coreclash;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PointF;
@@ -34,16 +34,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import enums.BotNames;
-import enums.Difficulty;
-import enums.GameMode;
+import enums.DomainBotNames;
+import enums.DomainDifficulty;
+import enums.DomainGameMode;
+import enums.DomainSymbols;
 import game.GameState;
+import game.OnlineMatchSession;
+import game.OnlineMatchmaking;
 import manager.AuthenticationManager;
 import manager.BoardManager;
 import manager.GameManager;
 import manager.ProfileManager;
 import manager.SettingManager;
 import manager.StoreManager;
+import manager.TurnHudManager;
 import util.AnimationHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,21 +64,36 @@ public class MainActivity extends AppCompatActivity {
     private StoreManager storeManager;
     private AuthenticationManager authenticationManager;
     private SettingManager settingManager;
+    private TurnHudManager turnHud;
 
     private PlayerProfile currentProfile;
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
-    private Boolean lastTurnProgressIsX = null;
 
+    private boolean isOnlineMatch = false;
+    private boolean iAmXOnline = true;
+
+    private Boolean lastTurnProgressIsX = null;
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
-    private ObjectAnimator turnAnimatorX;
-    private ObjectAnimator turnAnimatorO;
+
+    private ValueAnimator turnAnimX;
+    private ValueAnimator turnAnimO;
+
     private String opponentName = "";
-    private GameMode selectedMode = GameMode.CASUAL;
-    private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
+    private String selectedMode = DomainGameMode.CASUAL.getValue();
+    private enums.DomainMatchKind selectedMatchKind = enums.DomainMatchKind.OFFLINE_BOT;
+    private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
+
+    private OnlineMatchmaking matchmaking;
+    private OnlineMatchSession onlineSession;
+    private String mySymbolOnline = "X";
+    private String turnOnline = "X";
+    private long turnStartedAtOnlineMs = 0L;
+    private long turnDurationOnlineMs = TURN_PROGRESS_DURATION_MS;
+    private ValueAnimator onlineBarAnim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +110,23 @@ public class MainActivity extends AppCompatActivity {
         state = new GameState();
         board = new BoardManager();
         gameManager = new GameManager(board, state);
+
         settingManager = new SettingManager(this, binding);
+        turnHud = initTurnHudManager();
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
             if (!matchStarted || gameManager.isGameOver()) {
                 return;
             }
+            if (isOnlineMatch) {
+                if (!isMyTurnOnline()) {
+                    AnimationHelper.shakeButton(binding.turnHudBar);
+                    return;
+                }
+                playTurnLocalAndSend(row, col);
+                return;
+            }
+
             if (versusBot && !state.isXTurn()) {
                 return;
             }
@@ -108,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         initPlayerServices();
         setupMetaControls();
 
+        matchmaking = new OnlineMatchmaking();
         opponentName = getString(R.string.status_waiting);
 
         showHomeScreen();
@@ -116,14 +147,40 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
     }
 
+    @NonNull
+    private TurnHudManager initTurnHudManager() {
+        return new TurnHudManager(
+                binding.turnHudBar,
+                binding.txtTurnHudNameX,
+                binding.txtTurnHudNameO,
+                binding.progressTurnHudX,
+                binding.progressTurnHudO,
+                TURN_PROGRESS_DURATION_MS,
+                (xTurnStarted) -> {
+                    if (isOnlineMatch) {
+                        return;
+                    }
+                    if (!matchStarted || gameManager.isGameOver()) {
+                        return;
+                    }
+                    if (state.isXTurn() != xTurnStarted) {
+                        return;
+                    }
+                    state.nextTurn();
+                    updateHeaderStatus();
+                    updateSkillVisuals();
+                    maybeRunBotTurn();
+                }
+        );
+    }
+
     private void setupGoogleSignInLauncher() {
         googleSignInLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         authenticationManager.handleSignInResult(result.getData(), new AuthenticationManager.AuthCallback() {
-                            @Override
-                            public void onGoogleLinked(String displayName) {
+                            @Override public void onGoogleLinked(String displayName) {
                                 if (currentProfile != null) {
                                     currentProfile.displayName = displayName;
                                     profileManager.persistProfile();
@@ -131,9 +188,7 @@ public class MainActivity extends AppCompatActivity {
                                 updateHeaderStatus();
                                 Toast.makeText(MainActivity.this, getString(R.string.toast_progress_linked), Toast.LENGTH_SHORT).show();
                             }
-
-                            @Override
-                            public void onFailure(String message) {
+                            @Override public void onFailure(String message) {
                                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -144,25 +199,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupHomeFlow() {
         binding.btnPlay.setOnClickListener(v -> openModeModal());
-        binding.btnOnline.setOnClickListener(v -> startMatchmaking(true));
-        binding.btnStore.setOnClickListener(v -> storeManager.openStore());
 
+        binding.btnOnline.setOnClickListener(v -> startOnlineMatchmaking());
+
+        binding.btnStore.setOnClickListener(v -> storeManager.openStore());
         binding.btnSettings.setOnClickListener(v -> settingManager.openSettings());
 
-        binding.btnModeCasual.setOnClickListener(v -> {
-            selectedMode = GameMode.CASUAL;
+        binding.btnModeOffline.setOnClickListener(v -> {
+            selectedMatchKind = enums.DomainMatchKind.OFFLINE_BOT;
             updateModeButtonStyles();
         });
 
-        binding.btnModeRanked.setOnClickListener(v -> {
-            selectedMode = GameMode.RANKED;
+        binding.btnModeOnline.setOnClickListener(v -> {
+            selectedMatchKind = enums.DomainMatchKind.ONLINE_PVP;
             updateModeButtonStyles();
         });
 
         binding.btnModeCancel.setOnClickListener(v -> closeModeModal());
         binding.btnModeConfirm.setOnClickListener(v -> {
             closeModeModal();
-            startMatchmaking(false);
+
+            if (selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP) {
+                startOnlineMatchmaking();
+            } else if (selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT) {
+                startOfflineVsBot();
+            } else {
+                Toast.makeText(this, "Local multiplayer is not available yet.", Toast.LENGTH_SHORT).show();
+            }
         });
 
         binding.modeOverlay.setOnClickListener(v -> closeModeModal());
@@ -183,11 +246,25 @@ public class MainActivity extends AppCompatActivity {
                 AnimationHelper.shakeButton(v);
                 return;
             }
+
+            if (isOnlineMatch && !isMyTurnOnline()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             if (gameManager.useTriangle()) {
                 AnimationHelper.spin(v);
+
+                if (isOnlineMatch && onlineSession != null) {
+                    onlineSession.sendTriangle();
+                }
+
                 updateHeaderStatus();
                 updateSkillVisuals();
-                maybeRunBotTurn();
+
+                if (!isOnlineMatch) {
+                    maybeRunBotTurn();
+                }
             }
         });
 
@@ -196,11 +273,23 @@ public class MainActivity extends AppCompatActivity {
                 AnimationHelper.shakeButton(v);
                 return;
             }
+
+            if (isOnlineMatch && !isMyTurnOnline()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             if (gameManager.useSquare()) {
                 AnimationHelper.pulse(v);
+
+                if (isOnlineMatch && onlineSession != null) {
+                    onlineSession.sendSquare();
+                }
+
                 updateHeaderStatus();
                 updateSkillVisuals();
-                maybeRunBotTurn();
+
+                if (!isOnlineMatch) maybeRunBotTurn();
             }
         });
     }
@@ -211,68 +300,279 @@ public class MainActivity extends AppCompatActivity {
             gameManager.resetGame();
             binding.victoryLineView.clear();
             updateSkillVisuals();
-            startMatchIntro();
+
+            // ONLINE: você pode decidir se “rematch” recria sala ou reseta só local.
+            // Por simplicidade, aqui volta pro menu no online.
+            if (isOnlineMatch) {
+                endOnlineSessionToMenu();
+                return;
+            }
+
+            startRematchIntro();
         });
 
         binding.btnExit.setOnClickListener(v -> {
             hideVictoryScreen();
             gameManager.resetGame();
             binding.victoryLineView.clear();
+
+            if (isOnlineMatch) {
+                endOnlineSessionToMenu();
+                return;
+            }
+
             showHomeScreen();
             updateHeaderStatus();
             updateSkillVisuals();
         });
     }
 
-    private void openModeModal() {
-        updateModeButtonStyles();
-        binding.modeOverlay.setVisibility(View.VISIBLE);
-        binding.modeOverlay.setAlpha(0f);
-        binding.modeCard.setScaleX(0.9f);
-        binding.modeCard.setScaleY(0.9f);
+    private void startOnlineMatchmaking() {
+        String myUid = getMyUidOrNull();
+        if (myUid == null) {
+            Toast.makeText(this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        binding.modeOverlay.animate().alpha(1f).setDuration(180).start();
-        binding.modeCard.animate().scaleX(1f).scaleY(1f).setDuration(220).start();
+        Toast.makeText(this, "Looking for an online match...", Toast.LENGTH_SHORT).show();
+        matchmaking.cleanupOldWaitingRooms();
+
+        matchmaking.findOrCreateMatch(myUid, new OnlineMatchmaking.MatchmakingCallback() {
+            @Override
+            public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
+                isOnlineMatch = true;
+                versusBot = false;
+                iAmXOnline = iAmX;
+                mySymbolOnline = iAmXOnline ? "X" : "O";
+                opponentName = opponentUid.isEmpty() ? "Aguardando jogador..." : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
+
+                onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
+                hookOnlineListeners();
+
+                if (iAmXOnline && (opponentUid.trim().isEmpty())) {
+                    onlineSession.listenOpponentJoin(oUid -> runOnUiThread(() -> {
+                        opponentName = "Player " + oUid.substring(0, Math.min(6, oUid.length()));
+                        updateHeaderStatus();
+                        Toast.makeText(MainActivity.this, "Opponent joined!", Toast.LENGTH_SHORT).show();
+                    }));
+                }
+
+                setGameMode();
+                gameManager.resetGame();
+                binding.victoryLineView.clear();
+                setArenaUiVisible(false);
+
+                updateHeaderStatus();
+                updateSkillVisuals();
+                startMatchIntro();
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void closeModeModal() {
-        binding.modeOverlay.animate()
-                .alpha(0f)
-                .setDuration(150)
-                .withEndAction(() -> binding.modeOverlay.setVisibility(View.GONE))
-                .start();
+    private void maybeListenOpponentJoin(boolean iAmXOnline, @NonNull String opponentUid) {
+        if (!iAmXOnline) {
+            return;
+        }
+        if (!opponentUid.trim().isEmpty()) {
+            return;
+        }
+        if (onlineSession == null) {
+            return;
+        }
+        onlineSession.listenOpponentJoin(oUid ->
+                runOnUiThread(() -> onOpponentJoined(oUid))
+        );
     }
 
-    private void updateModeButtonStyles() {
-        boolean casual = selectedMode == GameMode.CASUAL;
-        int selectedBg = 0xFF22D3EE;
-        int selectedText = 0xFF082F49;
-        int defaultBg = 0xFF312E81;
-        int defaultText = 0xFFE0E7FF;
-
-        binding.btnModeCasual.setBackgroundTintList(ColorStateList.valueOf(casual ? selectedBg : defaultBg));
-        binding.btnModeCasual.setTextColor(casual ? selectedText : defaultText);
-
-        binding.btnModeRanked.setBackgroundTintList(ColorStateList.valueOf(casual ? defaultBg : selectedBg));
-        binding.btnModeRanked.setTextColor(casual ? defaultText : selectedText);
+    private void onOpponentJoined(@NonNull String opponentUid) {
+        opponentName = "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
+        updateHeaderStatus();
+        showShortToast("Opponent joined!");
     }
 
-    private void startMatchmaking(boolean fromOnlineButton) {
+    private void showShortToast(@NonNull String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void hookOnlineListeners() {
+        if (onlineSession == null) {
+            return;
+        }
+
+        onlineSession.startListening(
+                new OnlineMatchSession.ActionListener() {
+                    @Override
+                    public void onRemoteMove(int r, int c, @NonNull String byUid) {
+                        runOnUiThread(() -> playTurnRemote(r, c));
+                    }
+
+                    @Override
+                    public void onRemoteTriangle(@NonNull String byUid) {
+                        runOnUiThread(() -> {
+                            gameManager.useTriangle();
+                            updateHeaderStatus();
+                            updateSkillVisuals();
+                        });
+                    }
+
+                    @Override
+                    public void onRemoteSquare(@NonNull String byUid) {
+                        runOnUiThread(() -> {
+                            gameManager.useSquare();
+                            updateHeaderStatus();
+                            updateSkillVisuals();
+                        });
+                    }
+
+                    @Override
+                    public void onOpponentLeft() {
+                        runOnUiThread(() -> {
+                            Toast.makeText(MainActivity.this, "Opponent left the match.", Toast.LENGTH_SHORT).show();
+                            endOnlineSessionToMenu();
+                        });
+                    }
+                },
+                (turn, turnStartedAtMs, turnDurationMs, serverNowApproxMs) -> {
+                    turnOnline = turn;
+                    turnStartedAtOnlineMs = turnStartedAtMs;
+                    turnDurationOnlineMs = turnDurationMs;
+
+                    runOnUiThread(() -> {
+                        updateHeaderStatus();
+                        startOrUpdateOnlineBar();
+                    });
+                }
+        );
+    }
+
+    private void startOrUpdateOnlineBar() {
+        stopOnlineBarAnim();
+
+        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long elapsed = Math.max(0L, nowServer - turnStartedAtOnlineMs);
+        long remaining = Math.max(0L, turnDurationOnlineMs - elapsed);
+
+        int startProgress = (int) (100f * (remaining / (float) turnDurationOnlineMs));
+
+        final boolean xTurn = "X".equals(turnOnline);
+        final android.widget.ProgressBar active = xTurn ? binding.progressTurnHudX : binding.progressTurnHudO;
+        final android.widget.ProgressBar inactive = xTurn ? binding.progressTurnHudO : binding.progressTurnHudX;
+
+        inactive.setProgress(0);
+        active.setProgress(startProgress);
+
+        onlineBarAnim = ValueAnimator.ofInt(startProgress, 0);
+        onlineBarAnim.setDuration(remaining);
+        onlineBarAnim.setInterpolator(new LinearInterpolator());
+        onlineBarAnim.addUpdateListener(a -> active.setProgress((int) a.getAnimatedValue()));
+        onlineBarAnim.start();
+    }
+
+    private void stopOnlineBarAnim() {
+        if (onlineBarAnim != null) {
+            onlineBarAnim.cancel();
+            onlineBarAnim = null;
+        }
+    }
+
+    private void endOnlineSessionToMenu() {
+        stopOnlineBarAnim();
+        try {
+            if (onlineSession != null) {
+                onlineSession.stopListening();
+                onlineSession.endRoom();
+            }
+        } catch (Exception ignored) {}
+
+        onlineSession = null;
+        isOnlineMatch = false;
+        versusBot = false;
+
+        showHomeScreen();
+        updateHeaderStatus();
+        updateSkillVisuals();
+    }
+
+    private boolean isMyTurnOnline() {
+        return mySymbolOnline.equals(turnOnline);
+    }
+
+    private void playTurnLocalAndSend(int r, int c) {
+        int beforeMoves = gameManager.getFinalMoves();
+        String symbol = gameManager.getCurrentPlayerSymbol();
+        boolean won = gameManager.play(r, c);
+
+        if (beforeMoves == gameManager.getFinalMoves()) return;
+
+        if (onlineSession != null) {
+            onlineSession.sendMove(r, c);
+        }
+
+        updateHeaderStatus();
+        updateSkillVisuals();
+
+        if (won) {
+            matchStarted = false;
+            drawVictoryLine();
+            handler.postDelayed(() -> showVictoryScreen(symbol), 450);
+            return;
+        }
+
+        if (gameManager.isGameOver()) {
+            matchStarted = false;
+            drawDrawLine();
+            handler.postDelayed(this::showDrawScreen, 420);
+        }
+    }
+
+    private void playTurnRemote(int r, int c) {
+        int beforeMoves = gameManager.getFinalMoves();
+        String symbol = gameManager.getCurrentPlayerSymbol();
+        boolean won = gameManager.play(r, c);
+
+        if (beforeMoves == gameManager.getFinalMoves()) return;
+
+        updateHeaderStatus();
+        updateSkillVisuals();
+
+        if (won) {
+            matchStarted = false;
+            drawVictoryLine();
+            handler.postDelayed(() -> showVictoryScreen(symbol), 450);
+            return;
+        }
+
+        if (gameManager.isGameOver()) {
+            matchStarted = false;
+            drawDrawLine();
+            handler.postDelayed(this::showDrawScreen, 420);
+        }
+    }
+
+    private void startOfflineMatchmakingBotOrFakeOnline(boolean fromOnlineButton) {
         boolean foundPlayer = fromOnlineButton && random.nextFloat() < 0.45f;
         versusBot = !foundPlayer;
+        isOnlineMatch = false;
+        onlineSession = null;
 
         if (versusBot) {
             opponentName = randomBotName();
             currentBotDifficulty = randomDifficulty();
         } else {
             opponentName = getString(R.string.online_rival_prefix) + (100 + random.nextInt(900));
-            currentBotDifficulty = Difficulty.MODERADA;
+            currentBotDifficulty = DomainDifficulty.MODERATE;
 
             String matchMsg = getString(R.string.toast_match_found, opponentName);
             Toast.makeText(this, matchMsg, Toast.LENGTH_SHORT).show();
         }
 
-        state.setGameMode(selectedMode == GameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
+        setGameMode();
         gameManager.resetGame();
         binding.victoryLineView.clear();
         setArenaUiVisible(false);
@@ -281,13 +581,26 @@ public class MainActivity extends AppCompatActivity {
         startMatchIntro();
     }
 
+    private void setGameMode() {
+        String gameMode = selectedMode.equalsIgnoreCase(DomainGameMode.RANKED.getValue())
+                ? DomainGameMode.RANKED.getValue()
+                : DomainGameMode.CASUAL.getValue();
+        state.setGameMode(gameMode);
+    }
+
     private void showHomeScreen() {
         matchStarted = false;
+        handler.removeCallbacksAndMessages(null);
         lastTurnProgressIsX = null;
+
         setArenaUiVisible(true);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
+
         binding.versusOverlay.setVisibility(View.GONE);
+
+        stopTurnAnimator(true);
+        stopTurnAnimator(false);
     }
 
     private void startMatchIntro() {
@@ -302,62 +615,83 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showVersusOverlay() {
+        resetVersusUiState();
+
         binding.versusOverlay.setVisibility(View.VISIBLE);
-        binding.versusOverlay.setAlpha(0f);
+        binding.versusOverlay.setAlpha(1f);
+
+        setArenaUiVisible(true);
 
         String playerName = getPlayerDisplayName();
 
         binding.txtVersusX.setText(playerName);
         binding.txtVersusO.setText(opponentName);
-        String modeLabel = selectedMode == GameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
-        binding.txtVersusMode.setText(modeLabel);
-        binding.txtVersusCenter.setText(getString(R.string.versus_title, playerName, opponentName));
 
-        binding.txtVersusX.setTranslationX(-220f);
-        binding.txtVersusO.setTranslationX(220f);
-        binding.txtVersusCenter.setScaleX(0.8f);
-        binding.txtVersusCenter.setScaleY(0.8f);
+        String modeLabel = selectedMode.equalsIgnoreCase(DomainGameMode.RANKED.getValue())
+                ? getString(R.string.mode_ranked_label)
+                : getString(R.string.mode_casual_label);
+        binding.txtVersusMode.setText(modeLabel);
+
+        binding.txtVersusCenter.setText(getString(R.string.versus_battle_title));
+
         binding.txtVersusMode.setAlpha(0f);
-        binding.txtVersusMode.setTranslationY(-30f);
         binding.viewVersusStripeTop.setAlpha(0f);
         binding.viewVersusStripeBottom.setAlpha(0f);
 
-        binding.versusOverlay.animate().alpha(1f).setDuration(160).start();
+        binding.txtBreakX.setAlpha(0f);
+        binding.txtBreakO.setAlpha(0f);
+        binding.txtBreakX.setTranslationX(0f);
+        binding.txtBreakO.setTranslationX(0f);
 
-        binding.txtVersusX.animate()
-                .translationX(0f)
-                .setDuration(480)
-                .setInterpolator(new OvershootInterpolator(1.1f))
-                .start();
+        binding.txtVersusMode.animate().alpha(1f).setDuration(220).start();
+        binding.viewVersusStripeTop.animate().alpha(1f).setDuration(220).start();
+        binding.viewVersusStripeBottom.animate().alpha(1f).setDuration(220).start();
 
-        binding.txtVersusO.animate()
-                .translationX(0f)
-                .setDuration(480)
-                .setInterpolator(new OvershootInterpolator(1.1f))
-                .start();
+        handler.postDelayed(this::playVersusBreakAnimation, 2500);
+    }
 
-        binding.txtVersusCenter.animate()
-                .scaleX(1.1f).scaleY(1.1f)
-                .setDuration(240)
-                .withEndAction(() -> binding.txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(160).start())
-                .start();
+    private void playVersusBreakAnimation() {
+        if (binding.versusOverlay.getVisibility() != View.VISIBLE) {
+            return;
+        }
 
-        binding.txtVersusMode.animate().alpha(1f).translationY(0f).setDuration(360).start();
-        binding.viewVersusStripeTop.animate().alpha(1f).setDuration(260).start();
-        binding.viewVersusStripeBottom.animate().alpha(1f).setDuration(260).start();
+        binding.txtBreakX.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(120).start();
+        binding.txtBreakO.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(120).start();
 
-        handler.postDelayed(() -> binding.versusOverlay.animate()
+        float dist = binding.getRoot().getWidth() * 0.65f;
+
+        binding.txtBreakX.animate()
+                .translationX(-dist)
                 .alpha(0f)
-                .setDuration(240)
+                .setDuration(380)
+                .setInterpolator(new OvershootInterpolator(0.8f))
+                .start();
+
+        binding.txtBreakO.animate()
+                .translationX(dist)
+                .alpha(0f)
+                .setDuration(380)
+                .setInterpolator(new OvershootInterpolator(0.8f))
+                .start();
+
+        binding.versusBandRoot.animate()
+                .alpha(0f)
+                .setDuration(260)
+                .start();
+
+        binding.versusDim.animate()
+                .alpha(0f)
+                .setDuration(260)
                 .withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
-                    setArenaUiVisible(true);
+
                     matchStarted = true;
                     updateHeaderStatus();
                     updateSkillVisuals();
-                    maybeRunBotTurn();
+
+                    if (!isOnlineMatch) maybeRunBotTurn();
                 })
-                .start(), 1300);
+                .start();
     }
 
     private String getPlayerDisplayName() {
@@ -365,11 +699,15 @@ public class MainActivity extends AppCompatActivity {
         if (user != null && user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
             return user.getDisplayName();
         }
-
         if (currentProfile != null && currentProfile.displayName != null && !currentProfile.displayName.isEmpty()) {
             return currentProfile.displayName;
         }
         return getString(R.string.default_player_name);
+    }
+
+    private String getMyUidOrNull() {
+        var u = FirebaseAuth.getInstance().getCurrentUser();
+        return u == null ? null : u.getUid();
     }
 
     private void playTurn(int row, int col) {
@@ -400,16 +738,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void maybeRunBotTurn() {
-        if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
-            return;
-        }
+        if (isOnlineMatch) return;
+        if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) return;
 
         long thinkDelayMs = 900L + random.nextInt(700);
-
         handler.postDelayed(() -> {
-            if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) {
-                return;
-            }
+            if (isOnlineMatch) return;
+            if (!versusBot || !matchStarted || state.isXTurn() || gameManager.isGameOver()) return;
 
             if (shouldBotUseSkill() && tryUseRandomBotSkill()) {
                 updateHeaderStatus();
@@ -418,17 +753,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
             int[] move = chooseBotMove(currentBotDifficulty);
-            if (move != null) {
-                playTurn(move[0], move[1]);
-            }
+            if (move != null) playTurn(move[0], move[1]);
         }, thinkDelayMs);
     }
 
     private boolean shouldBotUseSkill() {
         double chance = switch (currentBotDifficulty) {
-            case INICIANTE -> 0.20;
-            case MODERADA -> 0.55;
-            case MESTRE -> 0.80;
+            case BEGINNER -> 0.20;
+            case MODERATE -> 0.55;
+            case GAME_MASTER -> 0.80;
         };
         return random.nextDouble() < chance;
     }
@@ -436,9 +769,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean tryUseRandomBotSkill() {
         boolean canTriangle = gameManager.canUseTriangleNow();
         boolean canSquare = gameManager.canUseSquareNow();
-        if (!canTriangle && !canSquare) {
-            return false;
-        }
+        if (!canTriangle && !canSquare) return false;
 
         if (canTriangle && canSquare) {
             return random.nextBoolean() ? gameManager.useTriangle() : gameManager.useSquare();
@@ -456,21 +787,21 @@ public class MainActivity extends AppCompatActivity {
         binding.lineRightConnector.setVisibility(visibility);
     }
 
-    private int[] chooseBotMove(Difficulty difficulty) {
+    private int[] chooseBotMove(DomainDifficulty difficulty) {
         List<int[]> moves = gameManager.getAvailableMoves();
         if (moves.isEmpty()) return null;
 
-        if (difficulty == Difficulty.INICIANTE) {
+        if (difficulty == DomainDifficulty.BEGINNER) {
             return moves.get(random.nextInt(moves.size()));
         }
 
-        int[] win = gameManager.findWinningMoveFor("O");
+        int[] win = gameManager.findWinningMoveFor(DomainSymbols.O.getValue());
         if (win != null) return win;
 
-        int[] block = gameManager.findWinningMoveFor("X");
+        int[] block = gameManager.findWinningMoveFor(DomainSymbols.X.getValue());
         if (block != null) return block;
 
-        if (difficulty == Difficulty.MODERADA) {
+        if (difficulty == DomainDifficulty.MODERATE) {
             int[] center = gameManager.getCenterIfAvailable();
             return center != null ? center : moves.get(random.nextInt(moves.size()));
         }
@@ -497,26 +828,28 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-
     private void drawDrawLine() {
-        PointF topLeft = board.getCellCenterOnScreen(0, 0);
-        PointF topRight = board.getCellCenterOnScreen(0, 2);
-        PointF bottomLeft = board.getCellCenterOnScreen(2, 0);
+        PointF topLeft     = board.getCellCenterOnScreen(0, 0);
+        PointF topRight    = board.getCellCenterOnScreen(0, 2);
+        PointF bottomLeft  = board.getCellCenterOnScreen(2, 0);
         PointF bottomRight = board.getCellCenterOnScreen(2, 2);
 
         int[] lineLoc = new int[2];
         binding.victoryLineView.getLocationOnScreen(lineLoc);
 
-        binding.victoryLineView.setDrawData(
-                topLeft.x - lineLoc[0],
-                topLeft.y - lineLoc[1],
-                bottomRight.x - lineLoc[0],
-                bottomRight.y - lineLoc[1],
-                topRight.x - lineLoc[0],
-                topRight.y - lineLoc[1],
-                bottomLeft.x - lineLoc[0],
-                bottomLeft.y - lineLoc[1]
-        );
+        float x1 = topLeft.x - lineLoc[0];
+        float y1 = topLeft.y - lineLoc[1];
+
+        float x2 = bottomRight.x - lineLoc[0];
+        float y2 = bottomRight.y - lineLoc[1];
+
+        float x3 = topRight.x - lineLoc[0];
+        float y3 = topRight.y - lineLoc[1];
+
+        float x4 = bottomLeft.x - lineLoc[0];
+        float y4 = bottomLeft.y - lineLoc[1];
+
+        binding.victoryLineView.setDrawData(x1, y1, x2, y2, x3, y3, x4, y4);
     }
 
     private void showDrawScreen() {
@@ -575,9 +908,20 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        boolean isXTurn = state.isXTurn();
+        boolean isXTurn = isOnlineMatch ? "X".equals(turnOnline) : state.isXTurn();
         styleTurnName(binding.txtTurnHudNameX, isXTurn);
         styleTurnName(binding.txtTurnHudNameO, !isXTurn);
+
+        if (isOnlineMatch) {
+            stopTurnAnimator(true);
+            stopTurnAnimator(false);
+            if ("X".equals(turnOnline)) {
+                binding.progressTurnHudO.setProgress(0);
+            } else {
+                binding.progressTurnHudX.setProgress(0);
+            }
+            return;
+        }
 
         if (lastTurnProgressIsX == null || lastTurnProgressIsX != isXTurn) {
             startTurnAnimator(isXTurn);
@@ -588,66 +932,52 @@ public class MainActivity extends AppCompatActivity {
 
     private void styleTurnName(android.widget.TextView textView, boolean active) {
         textView.setTextColor(active ? 0xFFFFFFFF : 0xFFB6C2D1);
-        textView.setAlpha(active ? 1f : 0.8f);
+        textView.setAlpha(active ? 1f : 0.82f);
         textView.animate()
                 .scaleX(active ? 1.03f : 1f)
                 .scaleY(active ? 1.03f : 1f)
-                .setDuration(160)
+                .setDuration(140)
                 .start();
     }
 
     private void startTurnAnimator(boolean xTurn) {
         android.widget.ProgressBar active = xTurn ? binding.progressTurnHudX : binding.progressTurnHudO;
+        android.widget.ProgressBar other  = xTurn ? binding.progressTurnHudO : binding.progressTurnHudX;
+
+        other.setProgress(0);
         active.setProgress(100);
 
-        ObjectAnimator animator = ObjectAnimator.ofInt(active, "progress", 100, 0);
-        animator.setDuration(TURN_PROGRESS_DURATION_MS);
-        animator.setInterpolator(new LinearInterpolator());
-        animator.addListener(new AnimatorListenerAdapter() {
-            private boolean cancelled;
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                cancelled = true;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (!cancelled) {
-                    onTurnTimerElapsed(xTurn);
-                }
+        ValueAnimator anim = ValueAnimator.ofInt(100, 0);
+        anim.setDuration(TURN_PROGRESS_DURATION_MS);
+        anim.setInterpolator(new LinearInterpolator());
+        anim.addUpdateListener(a -> {
+            int v = (int) a.getAnimatedValue();
+            active.setProgress(v);
+        });
+        anim.addListener(new AnimatorListenerAdapter() {
+            private boolean cancelled = false;
+            @Override public void onAnimationCancel(Animator animation) { cancelled = true; }
+            @Override public void onAnimationEnd(Animator animation) {
+                if (!cancelled) onTurnTimerElapsed(xTurn);
             }
         });
-        animator.start();
+        anim.start();
 
-        if (xTurn) {
-            turnAnimatorX = animator;
-            binding.progressTurnHudO.setProgress(0);
-        } else {
-            turnAnimatorO = animator;
-            binding.progressTurnHudX.setProgress(0);
-        }
+        if (xTurn) turnAnimX = anim;
+        else turnAnimO = anim;
     }
 
     private void stopTurnAnimator(boolean xTurn) {
-        ObjectAnimator animator = xTurn ? turnAnimatorX : turnAnimatorO;
-        if (animator != null) {
-            animator.cancel();
-        }
-        if (xTurn) {
-            turnAnimatorX = null;
-        } else {
-            turnAnimatorO = null;
-        }
+        ValueAnimator anim = xTurn ? turnAnimX : turnAnimO;
+        if (anim != null) anim.cancel();
+        if (xTurn) turnAnimX = null;
+        else turnAnimO = null;
     }
 
     private void onTurnTimerElapsed(boolean xTurnTurnStarted) {
-        if (!matchStarted || gameManager.isGameOver()) {
-            return;
-        }
-        if (state.isXTurn() != xTurnTurnStarted) {
-            return;
-        }
+        if (isOnlineMatch) return;
+        if (!matchStarted || gameManager.isGameOver()) return;
+        if (state.isXTurn() != xTurnTurnStarted) return;
 
         state.nextTurn();
         updateHeaderStatus();
@@ -667,12 +997,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String randomBotName() {
-        BotNames[] values = BotNames.values();
+        DomainBotNames[] values = DomainBotNames.values();
         return values[random.nextInt(values.length)].getDisplayName();
     }
 
-    private Difficulty randomDifficulty() {
-        Difficulty[] levels = Difficulty.values();
+    private DomainDifficulty randomDifficulty() {
+        DomainDifficulty[] levels = DomainDifficulty.values();
         return levels[random.nextInt(levels.length)];
     }
 
@@ -686,13 +1016,11 @@ public class MainActivity extends AppCompatActivity {
             String firebaseUid = Objects.requireNonNull(authResult.getUser()).getUid();
             profileManager.profileRepository = new FirebaseProfileRepository();
             profileManager.profileRepository.loadOrCreateProfile(new ProfileRepository.Callback() {
-                @Override
-                public void onSuccess(@NonNull PlayerProfile profile) {
+                @Override public void onSuccess(@NonNull PlayerProfile profile) {
                     profile.uid = firebaseUid;
                     onProfileReady(profile);
                 }
-                @Override
-                public void onError(@NonNull String error) { loadLocalFallback(); }
+                @Override public void onError(@NonNull String error) { loadLocalFallback(); }
             });
         }).addOnFailureListener(e -> loadLocalFallback());
     }
@@ -715,8 +1043,7 @@ public class MainActivity extends AppCompatActivity {
         var localRepo = new LocalProfileRepository(this);
 
         localRepo.loadOrCreateProfile(new ProfileRepository.Callback() {
-            @Override
-            public void onSuccess(@NonNull PlayerProfile profile) {
+            @Override public void onSuccess(@NonNull PlayerProfile profile) {
                 currentProfile = profile;
                 runOnUiThread(() -> {
                     updateHeaderStatus();
@@ -725,8 +1052,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
 
-            @Override
-            public void onError(@NonNull String error) {
+            @Override public void onError(@NonNull String error) {
                 Log.e("Fallback", "Critical error");
                 currentProfile = PlayerProfile.createDefault("temp_" + System.currentTimeMillis());
                 updateHeaderStatus();
@@ -736,6 +1062,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        stopOnlineBarAnim();
+        try {
+            if (onlineSession != null) {
+                onlineSession.stopListening();
+                onlineSession.endRoom();
+            }
+        } catch (Exception ignored) {}
+
         stopTurnAnimator(true);
         stopTurnAnimator(false);
         super.onDestroy();
@@ -747,5 +1081,110 @@ public class MainActivity extends AppCompatActivity {
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), decorView);
         controller.hide(WindowInsetsCompat.Type.systemBars());
         controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    }
+
+    private void startRematchIntro() {
+        matchStarted = false;
+
+        handler.removeCallbacksAndMessages(null);
+
+        stopTurnAnimator(true);
+        stopTurnAnimator(false);
+        lastTurnProgressIsX = null;
+
+        binding.progressTurnHudX.setProgress(0);
+        binding.progressTurnHudO.setProgress(0);
+
+        setArenaUiVisible(true);
+
+        binding.homeOverlay.setVisibility(View.GONE);
+        binding.modeOverlay.setVisibility(View.GONE);
+
+        binding.victoryOverlay.animate().cancel();
+        binding.victoryOverlay.setAlpha(0f);
+        binding.victoryOverlay.setVisibility(View.GONE);
+
+        resetVersusUiState();
+        showVersusOverlay();
+    }
+
+    private void resetVersusUiState() {
+        binding.versusOverlay.setVisibility(View.VISIBLE);
+        binding.versusOverlay.setAlpha(1f);
+
+        binding.versusBandRoot.setAlpha(1f);
+        binding.versusDim.setAlpha(1f);
+
+        binding.txtVersusMode.setAlpha(1f);
+        binding.viewVersusStripeTop.setAlpha(1f);
+        binding.viewVersusStripeBottom.setAlpha(1f);
+
+        binding.txtBreakX.animate().cancel();
+        binding.txtBreakO.animate().cancel();
+        binding.txtBreakX.setAlpha(0f);
+        binding.txtBreakO.setAlpha(0f);
+        binding.txtBreakX.setScaleX(0.6f);
+        binding.txtBreakX.setScaleY(0.6f);
+        binding.txtBreakO.setScaleX(0.6f);
+        binding.txtBreakO.setScaleY(0.6f);
+        binding.txtBreakX.setTranslationX(0f);
+        binding.txtBreakO.setTranslationX(0f);
+
+        binding.versusBandRoot.animate().cancel();
+        binding.versusDim.animate().cancel();
+        binding.txtVersusMode.animate().cancel();
+        binding.viewVersusStripeTop.animate().cancel();
+        binding.viewVersusStripeBottom.animate().cancel();
+    }
+
+    private void openModeModal() {
+        updateModeButtonStyles();
+        binding.modeOverlay.setVisibility(View.VISIBLE);
+        binding.modeOverlay.setAlpha(0f);
+        binding.modeCard.setScaleX(0.9f);
+        binding.modeCard.setScaleY(0.9f);
+
+        binding.modeOverlay.animate().alpha(1f).setDuration(180).start();
+        binding.modeCard.animate().scaleX(1f).scaleY(1f).setDuration(220).start();
+    }
+
+    private void closeModeModal() {
+        binding.modeOverlay.animate()
+                .alpha(0f)
+                .setDuration(150)
+                .withEndAction(() -> binding.modeOverlay.setVisibility(View.GONE))
+                .start();
+    }
+
+    private void updateModeButtonStyles() {
+        boolean offlineSelected = (selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT);
+        int selectedBg = 0xFF22D3EE;
+        int selectedText = 0xFF082F49;
+        int defaultBg = 0xFF312E81;
+        int defaultText = 0xFFE0E7FF;
+
+        binding.btnModeOffline.setBackgroundTintList(ColorStateList.valueOf(offlineSelected ? selectedBg : defaultBg));
+        binding.btnModeOffline.setTextColor(offlineSelected ? selectedText : defaultText);
+
+        binding.btnModeOnline.setBackgroundTintList(ColorStateList.valueOf(offlineSelected ? defaultBg : selectedBg));
+        binding.btnModeOnline.setTextColor(offlineSelected ? defaultText : selectedText);
+    }
+
+    private void startOfflineVsBot() {
+        isOnlineMatch = false;
+        onlineSession = null;
+
+        versusBot = true;
+        opponentName = randomBotName();
+        currentBotDifficulty = randomDifficulty();
+
+        setGameMode();
+        gameManager.resetGame();
+        binding.victoryLineView.clear();
+        setArenaUiVisible(false);
+
+        updateHeaderStatus();
+        updateSkillVisuals();
+        startMatchIntro();
     }
 }

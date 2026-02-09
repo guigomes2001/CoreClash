@@ -9,19 +9,29 @@ material = "1.13.0"
 activity = "1.12.2"
 firebaseBom = "34.2.0"
 billing = "7.1.1"
+googlePlayAuth = "21.0.0"
+playServicesAuth = "21.5.0"
 
 [libraries]
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+google-firebase-database = { module = "com.google.firebase:firebase-database" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+
+# Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database" } # <-- ADICIONADO AQUI
+
+# Google Play Services & Billing
 billingclient = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
+google-play-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googlePlayAuth" } # <-- ADICIONADO AQUI
+play-services-auth-v2150 = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

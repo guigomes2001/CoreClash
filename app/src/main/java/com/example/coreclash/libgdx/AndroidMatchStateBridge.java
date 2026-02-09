@@ -5,13 +5,10 @@ import com.example.coreclash.core.domain.MatchStatePort;
 import java.util.ArrayList;
 import java.util.List;
 
+import enums.DomainGameMode;
 import game.GameState;
 import manager.GameManager;
 
-/**
- * Ponte Android -> game-core (LibGDX).
- * Mantém a leitura de estado desacoplada para renderização futura no módulo core.
- */
 public class AndroidMatchStateBridge implements MatchStatePort {
 
     private final GameManager gameManager;
@@ -40,8 +37,8 @@ public class AndroidMatchStateBridge implements MatchStatePort {
 
     @Override
     public String statusLabel() {
-        String mode = gameState.getGameMode() == GameState.GameMode.RANKED ? "RANK" : "CASUAL";
+        String mode = gameState.getGameMode().equalsIgnoreCase(DomainGameMode.RANKED.getValue()) ? "RANK" : "CASUAL";
         String turn = gameState.isXTurn() ? "X" : "O";
-        return "CC • " + mode + " • TURN " + turn;
+        return "Core Clash • " + mode + " • TURN " + turn;
     }
 }
