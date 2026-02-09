@@ -484,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startOrUpdateOnlineBar() {
-        stopOnlineBarAnim();
+        stopOnlineBarAnim(false);
 
         long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long elapsed = Math.max(0L, nowServer - turnStartedAtOnlineMs);
@@ -507,14 +507,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopOnlineBarAnim() {
+        stopOnlineBarAnim(true);
+    }
+
+    private void stopOnlineBarAnim(boolean clearTimeoutBanner) {
         if (onlineBarAnim != null) {
             onlineBarAnim.cancel();
             onlineBarAnim = null;
         }
         handler.removeCallbacks(onlineTimeoutBannerRunnable);
         scheduledTimeoutTurnKey = "";
-        hideTimeoutBanner(true);
-        hideTimeoutBanner(false);
+
+        if (clearTimeoutBanner) {
+            hideTimeoutBanner(true);
+            hideTimeoutBanner(false);
+        }
     }
 
     private void scheduleOnlineTimeoutBanner() {
