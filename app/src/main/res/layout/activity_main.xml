@@ -44,16 +44,76 @@
                 android:maxLines="1"
                 android:ellipsize="end"/>
 
-            <ProgressBar
-                android:id="@+id/progressTurnHudX"
-                style="?android:attr/progressBarStyleHorizontal"
+            <FrameLayout
+                android:id="@+id/turnHudTrackX"
                 android:layout_width="match_parent"
-                android:layout_height="7dp"
+                android:layout_height="22dp"
                 android:layout_marginTop="6dp"
-                android:max="100"
-                android:progress="0"
-                android:progressTint="#FB7185"
-                android:progressBackgroundTint="#22333455"/>
+                android:clipChildren="true"
+                android:clipToPadding="true">
+
+                <ProgressBar
+                    android:id="@+id/progressTurnHudX"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="7dp"
+                    android:layout_gravity="center_vertical"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressTint="#FB7185"
+                    android:progressBackgroundTint="#22333455"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutArrow1X"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=">"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="#FFD1D8"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutArrow2X"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=">"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="#FFE3E7"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutArrow3X"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=">"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="#FFF8FA"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutX"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="Passou a vez"
+                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:textColor="#FFF8F8"
+                    android:background="@drawable/bg_vs_band"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+            </FrameLayout>
         </LinearLayout>
 
         <TextView
@@ -87,16 +147,76 @@
                 android:maxLines="1"
                 android:ellipsize="end"/>
 
-            <ProgressBar
-                android:id="@+id/progressTurnHudO"
-                style="?android:attr/progressBarStyleHorizontal"
+            <FrameLayout
+                android:id="@+id/turnHudTrackO"
                 android:layout_width="match_parent"
-                android:layout_height="7dp"
+                android:layout_height="22dp"
                 android:layout_marginTop="6dp"
-                android:max="100"
-                android:progress="0"
-                android:progressTint="#22D3EE"
-                android:progressBackgroundTint="#22333455"/>
+                android:clipChildren="true"
+                android:clipToPadding="true">
+
+                <ProgressBar
+                    android:id="@+id/progressTurnHudO"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="7dp"
+                    android:layout_gravity="center_vertical"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressTint="#22D3EE"
+                    android:progressBackgroundTint="#22333455"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutArrow1O"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=">"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="#B2F6FF"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutArrow2O"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=">"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="#D8FCFF"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutArrow3O"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=">"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="#ECFEFF"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/txtTimeoutO"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="Passou a vez"
+                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:textColor="#ECFEFF"
+                    android:background="@drawable/bg_vs_band"
+                    android:alpha="0"
+                    android:visibility="invisible"/>
+            </FrameLayout>
         </LinearLayout>
 
     </LinearLayout>
@@ -963,4 +1083,3 @@
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

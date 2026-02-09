@@ -2,6 +2,8 @@ package com.example.coreclash;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -11,6 +13,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
@@ -94,6 +98,12 @@ public class MainActivity extends AppCompatActivity {
     private long turnStartedAtOnlineMs = 0L;
     private long turnDurationOnlineMs = TURN_PROGRESS_DURATION_MS;
     private ValueAnimator onlineBarAnim;
+    private AnimatorSet timeoutBannerAnimX;
+    private AnimatorSet timeoutBannerAnimO;
+    private String scheduledTimeoutTurnKey = "";
+    private String lastTimeoutBannerTurnKey = "";
+
+    private final Runnable onlineTimeoutBannerRunnable = this::maybeShowOnlineTimeoutBanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -446,6 +456,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         updateHeaderStatus();
                         startOrUpdateOnlineBar();
+                        scheduleOnlineTimeoutBanner();
                     });
                 }
         );
@@ -479,6 +490,187 @@ public class MainActivity extends AppCompatActivity {
             onlineBarAnim.cancel();
             onlineBarAnim = null;
         }
+        handler.removeCallbacks(onlineTimeoutBannerRunnable);
+        scheduledTimeoutTurnKey = "";
+        hideTimeoutBanner(true);
+        hideTimeoutBanner(false);
+    }
+
+    private void scheduleOnlineTimeoutBanner() {
+        if (!isOnlineMatch) {
+            return;
+        }
+
+        handler.removeCallbacks(onlineTimeoutBannerRunnable);
+
+        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
+        long delay = Math.max(0L, endAt - nowServer) + 24L;
+
+        scheduledTimeoutTurnKey = turnOnline + ":" + turnStartedAtOnlineMs;
+        handler.postDelayed(onlineTimeoutBannerRunnable, delay);
+    }
+
+    private void maybeShowOnlineTimeoutBanner() {
+        if (!isOnlineMatch) {
+            return;
+        }
+
+        String currentTurnKey = turnOnline + ":" + turnStartedAtOnlineMs;
+        if (!currentTurnKey.equals(scheduledTimeoutTurnKey)) {
+            return;
+        }
+
+        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
+
+        if (nowServer < endAt) {
+            long extra = Math.max(8L, endAt - nowServer);
+            handler.postDelayed(onlineTimeoutBannerRunnable, extra);
+            return;
+        }
+
+        if (currentTurnKey.equals(lastTimeoutBannerTurnKey)) {
+            return;
+        }
+
+        lastTimeoutBannerTurnKey = currentTurnKey;
+        playTimeoutBanner("X".equals(turnOnline));
+    }
+
+    private void playTimeoutBanner(boolean xSide) {
+        final android.widget.FrameLayout track = xSide ? binding.turnHudTrackX : binding.turnHudTrackO;
+        final android.widget.TextView arrow1 = xSide ? binding.txtTimeoutArrow1X : binding.txtTimeoutArrow1O;
+        final android.widget.TextView arrow2 = xSide ? binding.txtTimeoutArrow2X : binding.txtTimeoutArrow2O;
+        final android.widget.TextView arrow3 = xSide ? binding.txtTimeoutArrow3X : binding.txtTimeoutArrow3O;
+        final android.widget.TextView label = xSide ? binding.txtTimeoutX : binding.txtTimeoutO;
+
+        stopTimeoutBannerAnimation(xSide);
+
+        track.post(() -> {
+            int trackWidth = track.getWidth();
+            int labelWidth = label.getWidth();
+            if (trackWidth <= 0 || labelWidth <= 0) {
+                return;
+            }
+
+            float startX = -labelWidth - 20f;
+            float centerX = (trackWidth - labelWidth) / 2f;
+            float endX = trackWidth + 24f;
+
+            playTimeoutArrow(arrow1, startX - 26f, centerX - 48f, centerX - 26f, 100, 280, 110);
+            playTimeoutArrow(arrow2, startX - 8f, centerX - 24f, centerX, 70, 250, 100);
+            playTimeoutArrow(arrow3, startX + 10f, centerX, centerX + 26f, 40, 220, 95);
+
+            label.setTranslationX(startX);
+            label.setAlpha(0f);
+            label.setVisibility(View.VISIBLE);
+
+            ObjectAnimator alphaIn = ObjectAnimator.ofFloat(label, View.ALPHA, 0f, 1f);
+            alphaIn.setStartDelay(210);
+            alphaIn.setDuration(220);
+
+            ObjectAnimator fastIn = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, startX, centerX - 14f);
+            fastIn.setDuration(620);
+            fastIn.setInterpolator(new DecelerateInterpolator(1.4f));
+
+            ObjectAnimator slowCenter = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX - 14f, centerX + 14f);
+            slowCenter.setDuration(2050);
+            slowCenter.setInterpolator(new LinearInterpolator());
+
+            ObjectAnimator fastOut = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX + 14f, endX);
+            fastOut.setDuration(500);
+            fastOut.setInterpolator(new AccelerateInterpolator(1.6f));
+
+            ObjectAnimator alphaOut = ObjectAnimator.ofFloat(label, View.ALPHA, 1f, 0f);
+            alphaOut.setStartDelay(2400);
+            alphaOut.setDuration(540);
+
+            AnimatorSet set = new AnimatorSet();
+            set.playSequentially(fastIn, slowCenter, fastOut);
+            set.playTogether(alphaIn, alphaOut);
+            set.addListener(new AnimatorListenerAdapter() {
+                @Override public void onAnimationEnd(Animator animation) {
+                    resetTimeoutElement(label, startX);
+                }
+
+                @Override public void onAnimationCancel(Animator animation) {
+                    resetTimeoutElement(label, startX);
+                }
+            });
+            set.start();
+
+            if (xSide) {
+                timeoutBannerAnimX = set;
+            } else {
+                timeoutBannerAnimO = set;
+            }
+        });
+    }
+
+    private void playTimeoutArrow(@NonNull android.widget.TextView arrow, float startX, float centerX, float endX,
+                                  long startDelay, long moveDuration, long fadeOutDuration) {
+        resetTimeoutElement(arrow, startX);
+        arrow.setVisibility(View.VISIBLE);
+
+        ObjectAnimator alphaIn = ObjectAnimator.ofFloat(arrow, View.ALPHA, 0f, 1f);
+        alphaIn.setStartDelay(startDelay);
+        alphaIn.setDuration(60);
+
+        ObjectAnimator move = ObjectAnimator.ofFloat(arrow, View.TRANSLATION_X, startX, centerX, endX);
+        move.setStartDelay(startDelay);
+        move.setDuration(moveDuration);
+        move.setInterpolator(new AccelerateInterpolator(1.8f));
+
+        ObjectAnimator alphaOut = ObjectAnimator.ofFloat(arrow, View.ALPHA, 1f, 0f);
+        alphaOut.setStartDelay(startDelay + Math.max(120L, moveDuration - 40L));
+        alphaOut.setDuration(fadeOutDuration);
+
+        alphaIn.start();
+        move.start();
+        alphaOut.start();
+    }
+
+    private void resetTimeoutElement(@NonNull android.widget.TextView view, float startX) {
+        view.setTranslationX(startX);
+        view.setAlpha(0f);
+        view.setVisibility(View.INVISIBLE);
+    }
+
+    private void hideTimeoutBanner(boolean xSide) {
+        stopTimeoutBannerAnimation(xSide);
+
+        final android.widget.TextView arrow1 = xSide ? binding.txtTimeoutArrow1X : binding.txtTimeoutArrow1O;
+        final android.widget.TextView arrow2 = xSide ? binding.txtTimeoutArrow2X : binding.txtTimeoutArrow2O;
+        final android.widget.TextView arrow3 = xSide ? binding.txtTimeoutArrow3X : binding.txtTimeoutArrow3O;
+        final android.widget.TextView label = xSide ? binding.txtTimeoutX : binding.txtTimeoutO;
+
+        arrow1.animate().cancel();
+        arrow2.animate().cancel();
+        arrow3.animate().cancel();
+        label.animate().cancel();
+
+        arrow1.setVisibility(View.INVISIBLE);
+        arrow2.setVisibility(View.INVISIBLE);
+        arrow3.setVisibility(View.INVISIBLE);
+        label.setVisibility(View.INVISIBLE);
+
+        arrow1.setAlpha(0f);
+        arrow2.setAlpha(0f);
+        arrow3.setAlpha(0f);
+        label.setAlpha(0f);
+    }
+
+    private void stopTimeoutBannerAnimation(boolean xSide) {
+        AnimatorSet set = xSide ? timeoutBannerAnimX : timeoutBannerAnimO;
+        if (set != null) {
+            set.cancel();
+        }
+        if (xSide) {
+            timeoutBannerAnimX = null;
+        } else {
+            timeoutBannerAnimO = null;
+        }
     }
 
     private void endOnlineSessionToMenu() {
@@ -493,6 +685,7 @@ public class MainActivity extends AppCompatActivity {
         onlineSession = null;
         isOnlineMatch = false;
         versusBot = false;
+        lastTimeoutBannerTurnKey = "";
 
         showHomeScreen();
         updateHeaderStatus();
