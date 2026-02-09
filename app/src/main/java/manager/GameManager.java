@@ -109,7 +109,7 @@ public class GameManager {
     }
 
     public boolean useTriangle() {
-        if (isGameOver || !state.canUseTriangle()) {
+        if (isGameOver || !state.canUseTriangle() || !board.canApplyTriangleEffect()) {
             return false;
         }
         int affected = board.applyTriangleEffect();
@@ -120,7 +120,7 @@ public class GameManager {
     }
 
     public boolean useSquare() {
-        if (isGameOver || !state.canUseSquare()) {
+        if (isGameOver || !state.canUseSquare() || !board.canApplySquareEffect()) {
             return false;
         }
         int affected = board.applySquareEffect();
@@ -226,6 +226,14 @@ public class GameManager {
         }
 
         return bestMove;
+    }
+
+    public boolean canUseTriangleNow() {
+        return !isGameOver && state.canUseTriangle() && board.canApplyTriangleEffect();
+    }
+
+    public boolean canUseSquareNow() {
+        return !isGameOver && state.canUseSquare() && board.canApplySquareEffect();
     }
 
     private int minimax(boolean maximizing, int depth) {

@@ -1,6 +1,6 @@
 package manager;
 
-import enums.Symmetries;
+import enums.DomainSymmetries;
 import game.GameState;
 
 public class SymmetryManager {
@@ -13,8 +13,8 @@ public class SymmetryManager {
         this.boardManager = boardManager;
     }
 
-    public boolean activate(Symmetries symmetry) {
-        if (symmetry == Symmetries.SQUARE) {
+    public boolean activate(DomainSymmetries symmetry) {
+        if (symmetry == DomainSymmetries.SQUARE) {
             if (!gameState.canUseSquare()) {
                 return false;
             }
@@ -23,7 +23,7 @@ public class SymmetryManager {
             return true;
         }
 
-        if (symmetry == Symmetries.TRIANGLE) {
+        if (symmetry == DomainSymmetries.TRIANGLE) {
             if (!gameState.canUseTriangle()) {
                 return false;
             }

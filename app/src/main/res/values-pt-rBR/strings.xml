@@ -65,6 +65,8 @@
     <string name="store_style_future_price">Future Tech • 160</string>
     <string name="store_buy_coins">+500 Moedas</string>
     <string name="versus_center">VS</string>
+    <string name="versus_title">%1$s VS %2$s</string>
+    <string name="versus_match_title_default">Jogador 1 VS Jogador 2</string>
 
     <string name="store_dialog_title">LOJA REAL</string>
     <string name="store_dialog_board_themes">TEMAS DO TABULEIRO</string>

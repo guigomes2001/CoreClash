@@ -10,7 +10,7 @@ import com.example.coreclash.MainActivity;
 import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
 
-import enums.Language;
+import enums.DomainLanguage;
 
 public class SettingManager {
 
@@ -52,13 +52,13 @@ public class SettingManager {
     }
 
     private void showLanguageDialog() {
-        String[] options = Language.getDisplayNames();
+        String[] options = DomainLanguage.getDisplayNames();
 
         new AlertDialog.Builder(activity)
                 .setTitle(activity.getString(R.string.btn_language))
                 .setItems(options, (dialog, which) -> {
 
-                    Language selected = Language.values()[which];
+                    DomainLanguage selected = DomainLanguage.values()[which];
                     setAppLocale(selected.getTag());
 
                 })

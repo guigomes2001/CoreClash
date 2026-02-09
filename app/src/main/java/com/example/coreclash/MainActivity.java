@@ -1,5 +1,7 @@
 package com.example.coreclash;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -7,7 +9,6 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -33,9 +34,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import enums.BotNames;
-import enums.Difficulty;
-import enums.GameMode;
+import enums.DomainBotNames;
+import enums.DomainDifficulty;
+import enums.DomainGameMode;
+import enums.DomainSymbols;
 import game.GameState;
 import manager.AuthenticationManager;
 import manager.BoardManager;
@@ -43,6 +45,7 @@ import manager.GameManager;
 import manager.ProfileManager;
 import manager.SettingManager;
 import manager.StoreManager;
+import manager.TurnHudManager;
 import util.AnimationHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private StoreManager storeManager;
     private AuthenticationManager authenticationManager;
     private SettingManager settingManager;
+    private TurnHudManager turnHud;
 
     private PlayerProfile currentProfile;
 
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean versusBot = false;
     private Boolean lastTurnProgressIsX = null;
 
-    private static final long TURN_PROGRESS_DURATION_MS = 2400L;
+    private static final long TURN_PROGRESS_DURATION_MS = 10000L;
     private ObjectAnimator turnAnimatorX;
     private ObjectAnimator turnAnimatorO;
     private String opponentName = "";
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         board = new BoardManager();
         gameManager = new GameManager(board, state);
         settingManager = new SettingManager(this, binding);
+        turnHud = initTurnHudManager();
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
             if (!matchStarted || gameManager.isGameOver()) {
@@ -113,6 +118,31 @@ public class MainActivity extends AppCompatActivity {
         updateModeButtonStyles();
         updateHeaderStatus();
         updateSkillVisuals();
+    }
+
+    @NonNull
+    private TurnHudManager initTurnHudManager() {
+        return new TurnHudManager(
+                binding.turnHudBar,
+                binding.txtTurnHudNameX,
+                binding.txtTurnHudNameO,
+                binding.progressTurnHudX,
+                binding.progressTurnHudO,
+                TURN_PROGRESS_DURATION_MS,
+                (xTurnStarted) -> {
+                    if (!matchStarted || gameManager.isGameOver()) {
+                        return;
+                    }
+                    if (state.isXTurn() != xTurnStarted) {
+                        return;
+                    }
+
+                    state.nextTurn();
+                    updateHeaderStatus();
+                    updateSkillVisuals();
+                    maybeRunBotTurn();
+                }
+        );
     }
 
     private void setupGoogleSignInLauncher() {
@@ -149,12 +179,12 @@ public class MainActivity extends AppCompatActivity {
         binding.btnSettings.setOnClickListener(v -> settingManager.openSettings());
 
         binding.btnModeCasual.setOnClickListener(v -> {
-            selectedMode = GameMode.CASUAL;
+            selectedMode = DomainGameMode.CASUAL;
             updateModeButtonStyles();
         });
 
         binding.btnModeRanked.setOnClickListener(v -> {
-            selectedMode = GameMode.RANKED;
+            selectedMode = DomainGameMode.RANKED;
             updateModeButtonStyles();
         });
 
@@ -243,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateModeButtonStyles() {
-        boolean casual = selectedMode == GameMode.CASUAL;
+        boolean casual = selectedMode == DomainGameMode.CASUAL;
         int selectedBg = 0xFF22D3EE;
         int selectedText = 0xFF082F49;
         int defaultBg = 0xFF312E81;
@@ -265,16 +295,16 @@ public class MainActivity extends AppCompatActivity {
             currentBotDifficulty = randomDifficulty();
         } else {
             opponentName = getString(R.string.online_rival_prefix) + (100 + random.nextInt(900));
-            currentBotDifficulty = Difficulty.MODERADA;
+            currentBotDifficulty = DomainDifficulty.MODERADA;
 
             String matchMsg = getString(R.string.toast_match_found, opponentName);
             Toast.makeText(this, matchMsg, Toast.LENGTH_SHORT).show();
         }
 
-        state.setGameMode(selectedMode == GameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
-        skillAnimationLockUntilMs = 0L;
+        state.setGameMode(selectedMode == DomainGameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
         gameManager.resetGame();
         binding.victoryLineView.clear();
+        setArenaUiVisible(false);
         updateHeaderStatus();
         updateSkillVisuals();
         startMatchIntro();
@@ -283,10 +313,15 @@ public class MainActivity extends AppCompatActivity {
     private void showHomeScreen() {
         matchStarted = false;
         lastTurnProgressIsX = null;
+        setArenaUiVisible(true);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
+        if (turnHud != null) {
+            turnHud.stopAll();
+        }
     }
+
 
     private void startMatchIntro() {
         binding.homeOverlay.animate()
@@ -308,12 +343,17 @@ public class MainActivity extends AppCompatActivity {
         binding.txtVersusX.setText(playerName);
         binding.txtVersusO.setText(opponentName);
         String modeLabel = selectedMode == GameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
-        binding.txtVersusCenter.setText(modeLabel);
+        binding.txtVersusMode.setText(modeLabel);
+        binding.txtVersusCenter.setText(getString(R.string.versus_title, playerName, opponentName));
 
         binding.txtVersusX.setTranslationX(-220f);
         binding.txtVersusO.setTranslationX(220f);
-        binding.txtVersusCenter.setScaleX(0.7f);
-        binding.txtVersusCenter.setScaleY(0.7f);
+        binding.txtVersusCenter.setScaleX(0.8f);
+        binding.txtVersusCenter.setScaleY(0.8f);
+        binding.txtVersusMode.setAlpha(0f);
+        binding.txtVersusMode.setTranslationY(-30f);
+        binding.viewVersusStripeTop.setAlpha(0f);
+        binding.viewVersusStripeBottom.setAlpha(0f);
 
         binding.versusOverlay.animate().alpha(1f).setDuration(160).start();
 
@@ -335,11 +375,16 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(() -> binding.txtVersusCenter.animate().scaleX(1f).scaleY(1f).setDuration(160).start())
                 .start();
 
+        binding.txtVersusMode.animate().alpha(1f).translationY(0f).setDuration(360).start();
+        binding.viewVersusStripeTop.animate().alpha(1f).setDuration(260).start();
+        binding.viewVersusStripeBottom.animate().alpha(1f).setDuration(260).start();
+
         handler.postDelayed(() -> binding.versusOverlay.animate()
                 .alpha(0f)
                 .setDuration(240)
                 .withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
+                    setArenaUiVisible(true);
                     matchStarted = true;
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -399,17 +444,10 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (currentBotDifficulty == Difficulty.MESTRE) {
-                if (state.canUseTriangle() && random.nextFloat() < 0.35f && gameManager.useTriangle()) {
-                        updateHeaderStatus();
-                    updateSkillVisuals();
-                    return;
-                }
-                if (state.canUseSquare() && random.nextFloat() < 0.25f && gameManager.useSquare()) {
-                        updateHeaderStatus();
-                    updateSkillVisuals();
-                    return;
-                }
+            if (shouldBotUseSkill() && tryUseRandomBotSkill()) {
+                updateHeaderStatus();
+                updateSkillVisuals();
+                return;
             }
 
             int[] move = chooseBotMove(currentBotDifficulty);
@@ -419,21 +457,59 @@ public class MainActivity extends AppCompatActivity {
         }, thinkDelayMs);
     }
 
-    private int[] chooseBotMove(Difficulty difficulty) {
-        List<int[]> moves = gameManager.getAvailableMoves();
-        if (moves.isEmpty()) return null;
+    private boolean shouldBotUseSkill() {
+        double chance = switch (currentBotDifficulty) {
+            case INICIANTE -> 0.20;
+            case MODERADA -> 0.55;
+            case MESTRE -> 0.80;
+        };
+        return random.nextDouble() < chance;
+    }
 
-        if (difficulty == Difficulty.INICIANTE) {
+    private boolean tryUseRandomBotSkill() {
+        boolean canTriangle = gameManager.canUseTriangleNow();
+        boolean canSquare = gameManager.canUseSquareNow();
+        if (!canTriangle && !canSquare) {
+            return false;
+        }
+
+        if (canTriangle && canSquare) {
+            return random.nextBoolean() ? gameManager.useTriangle() : gameManager.useSquare();
+        }
+        return canTriangle ? gameManager.useTriangle() : gameManager.useSquare();
+    }
+
+    private void setArenaUiVisible(boolean visible) {
+        int visibility = visible ? View.VISIBLE : View.INVISIBLE;
+        binding.turnHudBar.setVisibility(visibility);
+        binding.containerTriangle.setVisibility(visibility);
+        binding.lineLeftConnector.setVisibility(visibility);
+        binding.boardContainer.setVisibility(visibility);
+        binding.containerSquare.setVisibility(visibility);
+        binding.lineRightConnector.setVisibility(visibility);
+    }
+
+    private int[] chooseBotMove(DomainDifficulty difficulty) {
+        List<int[]> moves = gameManager.getAvailableMoves();
+        if (moves.isEmpty()) {
+            return null;
+        }
+
+        if (difficulty == DomainDifficulty.INICIANTE) {
             return moves.get(random.nextInt(moves.size()));
         }
 
-        int[] win = gameManager.findWinningMoveFor("O");
-        if (win != null) return win;
+        int[] win = gameManager.findWinningMoveFor(DomainSymbols.O.getValue());
+        if (win != null) {
+            return win;
+        }
 
-        int[] block = gameManager.findWinningMoveFor("X");
-        if (block != null) return block;
+        int[] block = gameManager.findWinningMoveFor(DomainSymbols.X.getValue());
+        if (block != null) {
+            return block;
+        }
 
-        if (difficulty == Difficulty.MODERADA) {
+        if (difficulty == DomainDifficulty.MODERADA) {
             int[] center = gameManager.getCenterIfAvailable();
             return center != null ? center : moves.get(random.nextInt(moves.size()));
         }
@@ -515,14 +591,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateHeaderStatus() {
-        if (currentProfile == null) {
-            binding.txtStatus.setText(R.string.status_sync);
-            updateTurnHud();
-            return;
-        }
-
-        String status = getString(R.string.versus_status, getPlayerDisplayName(), opponentName);
-        binding.txtStatus.setText(status);
         updateTurnHud();
     }
 
@@ -532,23 +600,23 @@ public class MainActivity extends AppCompatActivity {
                 ? getString(R.string.turn_hud_opponent_default)
                 : opponentName;
 
-        binding.txtTurnNameX.setText(playerName);
-        binding.txtTurnNameO.setText(rivalName);
+        binding.txtTurnHudNameX.setText(playerName);
+        binding.txtTurnHudNameO.setText(rivalName);
 
         if (!matchStarted || gameManager.isGameOver()) {
             lastTurnProgressIsX = null;
             stopTurnAnimator(true);
             stopTurnAnimator(false);
-            binding.progressTurnX.setProgress(0);
-            binding.progressTurnO.setProgress(0);
-            styleTurnName(binding.txtTurnNameX, false);
-            styleTurnName(binding.txtTurnNameO, false);
+            binding.progressTurnHudX.setProgress(0);
+            binding.progressTurnHudO.setProgress(0);
+            styleTurnName(binding.txtTurnHudNameX, false);
+            styleTurnName(binding.txtTurnHudNameO, false);
             return;
         }
 
         boolean isXTurn = state.isXTurn();
-        styleTurnName(binding.txtTurnNameX, isXTurn);
-        styleTurnName(binding.txtTurnNameO, !isXTurn);
+        styleTurnName(binding.txtTurnHudNameX, isXTurn);
+        styleTurnName(binding.txtTurnHudNameO, !isXTurn);
 
         if (lastTurnProgressIsX == null || lastTurnProgressIsX != isXTurn) {
             startTurnAnimator(isXTurn);
@@ -558,32 +626,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void styleTurnName(android.widget.TextView textView, boolean active) {
-        textView.setTextColor(active ? 0xFFF8FAFC : 0xFF94A3B8);
-        textView.setAlpha(active ? 1f : 0.75f);
+        textView.setTextColor(active ? 0xFFFFFFFF : 0xFFB6C2D1);
+        textView.setAlpha(active ? 1f : 0.8f);
         textView.animate()
-                .scaleX(active ? 1.04f : 0.98f)
-                .scaleY(active ? 1.04f : 0.98f)
-                .setDuration(180)
+                .scaleX(active ? 1.03f : 1f)
+                .scaleY(active ? 1.03f : 1f)
+                .setDuration(160)
                 .start();
     }
 
     private void startTurnAnimator(boolean xTurn) {
-        android.widget.ProgressBar active = xTurn ? binding.progressTurnX : binding.progressTurnO;
+        android.widget.ProgressBar active = xTurn ? binding.progressTurnHudX : binding.progressTurnHudO;
         active.setProgress(100);
 
         ObjectAnimator animator = ObjectAnimator.ofInt(active, "progress", 100, 0);
         animator.setDuration(TURN_PROGRESS_DURATION_MS);
         animator.setInterpolator(new LinearInterpolator());
-        animator.setRepeatCount(ObjectAnimator.INFINITE);
-        animator.setRepeatMode(ObjectAnimator.RESTART);
+        animator.addListener(new AnimatorListenerAdapter() {
+            private boolean cancelled;
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                cancelled = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!cancelled) {
+                    onTurnTimerElapsed(xTurn);
+                }
+            }
+        });
         animator.start();
 
         if (xTurn) {
             turnAnimatorX = animator;
-            binding.progressTurnO.setProgress(0);
+            binding.progressTurnHudO.setProgress(0);
         } else {
             turnAnimatorO = animator;
-            binding.progressTurnX.setProgress(0);
+            binding.progressTurnHudX.setProgress(0);
         }
     }
 
@@ -599,6 +680,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void onTurnTimerElapsed(boolean xTurnTurnStarted) {
+        if (!matchStarted || gameManager.isGameOver()) {
+            return;
+        }
+        if (state.isXTurn() != xTurnTurnStarted) {
+            return;
+        }
+
+        state.nextTurn();
+        updateHeaderStatus();
+        updateSkillVisuals();
+        maybeRunBotTurn();
+    }
+
     private void updateSkillVisuals() {
         float triAlpha = state.canUseTriangle() && matchStarted ? 1f : 0.25f;
         float sqAlpha = state.canUseSquare() && matchStarted ? 1f : 0.25f;
@@ -611,12 +706,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String randomBotName() {
-        BotNames[] values = BotNames.values();
+        DomainBotNames[] values = DomainBotNames.values();
         return values[random.nextInt(values.length)].getDisplayName();
     }
 
-    private Difficulty randomDifficulty() {
-        Difficulty[] levels = Difficulty.values();
+    private DomainDifficulty randomDifficulty() {
+        DomainDifficulty[] levels = DomainDifficulty.values();
         return levels[random.nextInt(levels.length)];
     }
 
