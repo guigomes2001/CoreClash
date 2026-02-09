@@ -108,6 +108,11 @@ public class OnlineMatchmaking {
                 players.put("O", "");
                 room.put("players", players);
 
+                Map<String, Object> introReady = new HashMap<>();
+                introReady.put("X", false);
+                introReady.put("O", false);
+                room.put("introReady", introReady);
+
                 currentData.setValue(room);
                 return Transaction.success(currentData);
             }
@@ -157,6 +162,9 @@ public class OnlineMatchmaking {
                 currentData.child("turn").setValue(TURN_X);
                 currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
                 currentData.child("turnDurationMs").setValue(TURN_DURATION_MS);
+
+                currentData.child("introReady").child(TURN_X).setValue(false);
+                currentData.child("introReady").child(TURN_O).setValue(false);
 
                 return Transaction.success(currentData);
             }

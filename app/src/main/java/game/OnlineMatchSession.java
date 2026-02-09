@@ -40,6 +40,10 @@ public class OnlineMatchSession {
         void onResult(boolean advanced);
     }
 
+    public interface IntroReadyListener {
+        void onBothReady();
+    }
+
     public static class Action {
         public String actionId;
         public String playerUid;
@@ -73,6 +77,7 @@ public class OnlineMatchSession {
     private ValueEventListener opponentListener;
     private ValueEventListener turnClockListener;
     private ValueEventListener offsetListener;
+    private ValueEventListener introReadyListener;
 
     private volatile long serverOffsetMs = 0L;
 
@@ -189,6 +194,10 @@ public class OnlineMatchSession {
             roomRef.removeEventListener(turnClockListener);
             turnClockListener = null;
         }
+        if (introReadyListener != null) {
+            roomRef.child("introReady").removeEventListener(introReadyListener);
+            introReadyListener = null;
+        }
     }
 
     public void listenTurnClock(@NonNull TurnClockListener listener) {
@@ -210,6 +219,31 @@ public class OnlineMatchSession {
         };
 
         roomRef.addValueEventListener(turnClockListener);
+    }
+
+    public void markIntroReady(@NonNull IntroReadyListener listener) {
+        roomRef.child("introReady").child(mySymbol).setValue(true);
+
+        if (introReadyListener != null) return;
+
+        introReadyListener = new ValueEventListener() {
+            private boolean fired = false;
+
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean xReady = snapshot.child(TURN_X).getValue(Boolean.class);
+                Boolean oReady = snapshot.child(TURN_O).getValue(Boolean.class);
+                boolean both = Boolean.TRUE.equals(xReady) && Boolean.TRUE.equals(oReady);
+
+                if (both && !fired) {
+                    fired = true;
+                    listener.onBothReady();
+                }
+            }
+
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+
+        roomRef.child("introReady").addValueEventListener(introReadyListener);
     }
 
     public void sendMove(int row, int col) {

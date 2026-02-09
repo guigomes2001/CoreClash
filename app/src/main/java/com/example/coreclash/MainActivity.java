@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
     private AnimatorSet timeoutBannerAnimO;
     private String scheduledTimeoutTurnKey = "";
     private String lastTimeoutBannerTurnKey = "";
-    private boolean onlineIntroCompleted = false;
+    private boolean localIntroCompleted = false;
+    private boolean bothIntroReady = false;
 
     private final Runnable onlineTimeoutBannerRunnable = this::maybeShowOnlineTimeoutBanner;
 
@@ -358,7 +359,8 @@ public class MainActivity extends AppCompatActivity {
                 opponentName = opponentUid.isEmpty() ? "Aguardando jogador..." : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
 
                 onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
-                onlineIntroCompleted = false;
+                localIntroCompleted = false;
+                bothIntroReady = false;
                 hookOnlineListeners();
 
                 if (iAmXOnline && (opponentUid.trim().isEmpty())) {
@@ -457,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
 
                     runOnUiThread(() -> {
                         updateHeaderStatus();
-                        if (onlineIntroCompleted) {
+                        if (bothIntroReady) {
                             startOrUpdateOnlineBar();
                             scheduleOnlineTimeoutBanner();
                         } else {
@@ -601,9 +603,11 @@ public class MainActivity extends AppCompatActivity {
             alphaOut.setStartDelay(2400);
             alphaOut.setDuration(540);
 
+            AnimatorSet labelMotion = new AnimatorSet();
+            labelMotion.playSequentially(fastIn, slowCenter, fastOut);
+
             AnimatorSet set = new AnimatorSet();
-            set.playSequentially(fastIn, slowCenter, fastOut);
-            set.playTogether(alphaIn, alphaOut);
+            set.playTogether(labelMotion, alphaIn, alphaOut);
             set.addListener(new AnimatorListenerAdapter() {
                 @Override public void onAnimationEnd(Animator animation) {
                     resetTimeoutElement(label, startX);
@@ -700,7 +704,8 @@ public class MainActivity extends AppCompatActivity {
         onlineSession = null;
         isOnlineMatch = false;
         versusBot = false;
-        onlineIntroCompleted = false;
+        localIntroCompleted = false;
+        bothIntroReady = false;
         lastTimeoutBannerTurnKey = "";
 
         showHomeScreen();
@@ -895,13 +900,20 @@ public class MainActivity extends AppCompatActivity {
                     binding.versusOverlay.setVisibility(View.GONE);
 
                     matchStarted = true;
-                    onlineIntroCompleted = true;
+                    localIntroCompleted = true;
                     updateHeaderStatus();
                     updateSkillVisuals();
 
                     if (isOnlineMatch) {
-                        startOrUpdateOnlineBar();
-                        scheduleOnlineTimeoutBanner();
+                        if (onlineSession != null) {
+                            onlineSession.markIntroReady(() -> runOnUiThread(() -> {
+                                bothIntroReady = true;
+                                if (matchStarted && localIntroCompleted) {
+                                    startOrUpdateOnlineBar();
+                                    scheduleOnlineTimeoutBanner();
+                                }
+                            }));
+                        }
                     } else {
                         maybeRunBotTurn();
                     }
