@@ -36,6 +36,14 @@ public class OnlineMatchSession {
         void onTurnClock(@NonNull String turn, long turnStartedAtMs, long turnDurationMs, long serverNowApproxMs);
     }
 
+    public interface TurnAdvanceCallback {
+        void onResult(boolean advanced);
+    }
+
+    public interface IntroReadyListener {
+        void onBothReady();
+    }
+
     public static class Action {
         public String actionId;
         public String playerUid;
@@ -69,6 +77,7 @@ public class OnlineMatchSession {
     private ValueEventListener opponentListener;
     private ValueEventListener turnClockListener;
     private ValueEventListener offsetListener;
+    private ValueEventListener introReadyListener;
 
     private volatile long serverOffsetMs = 0L;
 
@@ -185,6 +194,10 @@ public class OnlineMatchSession {
             roomRef.removeEventListener(turnClockListener);
             turnClockListener = null;
         }
+        if (introReadyListener != null) {
+            roomRef.child("introReady").removeEventListener(introReadyListener);
+            introReadyListener = null;
+        }
     }
 
     public void listenTurnClock(@NonNull TurnClockListener listener) {
@@ -208,6 +221,31 @@ public class OnlineMatchSession {
         roomRef.addValueEventListener(turnClockListener);
     }
 
+    public void markIntroReady(@NonNull IntroReadyListener listener) {
+        roomRef.child("introReady").child(mySymbol).setValue(true);
+
+        if (introReadyListener != null) return;
+
+        introReadyListener = new ValueEventListener() {
+            private boolean fired = false;
+
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean xReady = snapshot.child(TURN_X).getValue(Boolean.class);
+                Boolean oReady = snapshot.child(TURN_O).getValue(Boolean.class);
+                boolean both = Boolean.TRUE.equals(xReady) && Boolean.TRUE.equals(oReady);
+
+                if (both && !fired) {
+                    fired = true;
+                    listener.onBothReady();
+                }
+            }
+
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+
+        roomRef.child("introReady").addValueEventListener(introReadyListener);
+    }
+
     public void sendMove(int row, int col) {
         if (!isValidCell(row, col)) return;
         pushActionAuthoritative("MOVE", row, col, true);
@@ -219,6 +257,39 @@ public class OnlineMatchSession {
 
     public void sendSquare() {
         pushActionAuthoritative("SQUARE", null, null, true);
+    }
+
+    public void advanceTurnIfExpired(@NonNull String expectedTurn, @NonNull TurnAdvanceCallback callback) {
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (currentData.getValue() == null) return Transaction.abort();
+
+                String status = currentData.child("status").getValue(String.class);
+                String turn = currentData.child("turn").getValue(String.class);
+                Long startedAt = currentData.child("turnStartedAt").getValue(Long.class);
+                Long duration = currentData.child("turnDurationMs").getValue(Long.class);
+
+                if (!STATUS_PLAYING.equals(status)) return Transaction.abort();
+                if (turn == null || !turn.equals(expectedTurn)) return Transaction.abort();
+                if (startedAt == null || duration == null) return Transaction.abort();
+
+                long now = nowServerApprox();
+                long endAt = startedAt + duration;
+                if (now < endAt) return Transaction.abort();
+
+                String next = TURN_X.equals(turn) ? TURN_O : TURN_X;
+                currentData.child("turn").setValue(next);
+                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+                callback.onResult(error == null && committed);
+            }
+        });
     }
 
     private void pushActionAuthoritative(@NonNull String type, @Nullable Integer row, @Nullable Integer col, boolean consumesTurn) {
