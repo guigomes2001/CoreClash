@@ -483,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startOrUpdateOnlineBar() {
-        stopOnlineBarAnim();
+        stopOnlineBarAnim(false);
 
         long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long elapsed = Math.max(0L, nowServer - turnStartedAtOnlineMs);
@@ -506,14 +506,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopOnlineBarAnim() {
+        stopOnlineBarAnim(true);
+    }
+
+    private void stopOnlineBarAnim(boolean clearTimeoutBanner) {
         if (onlineBarAnim != null) {
             onlineBarAnim.cancel();
             onlineBarAnim = null;
         }
         handler.removeCallbacks(onlineTimeoutBannerRunnable);
         scheduledTimeoutTurnKey = "";
-        hideTimeoutBanner(true);
-        hideTimeoutBanner(false);
+
+        if (clearTimeoutBanner) {
+            hideTimeoutBanner(true);
+            hideTimeoutBanner(false);
+        }
     }
 
     private void scheduleOnlineTimeoutBanner() {
@@ -547,8 +554,8 @@ public class MainActivity extends AppCompatActivity {
         if (currentTurnKey.equals(lastTimeoutBannerTurnKey)) return;
 
         lastTimeoutBannerTurnKey = currentTurnKey;
-        playTimeoutBanner("X".equals(turnOnline));
-
+        boolean timedOutX = "X".equals(turnOnline);
+        playTimeoutBanner(timedOutX);
         if (onlineSession != null) {
             String expiredTurn = turnOnline;
             onlineSession.advanceTurnIfExpired(expiredTurn, advanced -> {
@@ -588,8 +595,6 @@ public class MainActivity extends AppCompatActivity {
                 trackWidth = track.getWidth() > 0 ? track.getWidth() : track.getMeasuredWidth();
             }
 
-           Log.d("HUD", "trackW=" + trackWidth + " labelW=" + labelWidth + " measured=" + label.getMeasuredWidth());
-
             if (trackWidth <= 0 || labelWidth <= 0) {
                 label.setAlpha(1f);
                 label.setTranslationX(0f);
@@ -602,42 +607,53 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            float startX  = -labelWidth - 20f;
+            float startX  = -labelWidth - 34f;
             float centerX = (trackWidth - labelWidth) / 2f;
-            float endX    = trackWidth + 24f;
+            float endX    = trackWidth + 34f;
 
-            playTimeoutArrow(arrow1, startX - 26f, centerX - 48f, centerX - 26f, 40, 260, 100);
-            playTimeoutArrow(arrow2, startX - 8f,  centerX - 24f, centerX,       110, 220, 92);
-            playTimeoutArrow(arrow3, startX + 10f, centerX,       centerX + 26f,  180, 190, 84);
+            // texto lidera o fluxo e as setas vêm em sequência rápida atrás dele
+            float arrowStart = startX + labelWidth + 8f;
+            float arrowCenter = centerX + labelWidth + 10f;
+            float arrowEnd = endX + 22f;
+
+            playTimeoutArrow(arrow1, arrowStart,      arrowCenter,      arrowEnd,      300, 560, 140);
+            playTimeoutArrow(arrow2, arrowStart + 14f, arrowCenter + 14f, arrowEnd + 14f, 410, 550, 132);
+            playTimeoutArrow(arrow3, arrowStart + 28f, arrowCenter + 28f, arrowEnd + 28f, 520, 540, 126);
 
             label.setTranslationX(startX);
             label.setAlpha(0f);
+            label.setScaleX(0.96f);
 
             ObjectAnimator alphaIn = ObjectAnimator.ofFloat(label, View.ALPHA, 0f, 1f);
-            alphaIn.setStartDelay(210);
-            alphaIn.setDuration(220);
+            alphaIn.setStartDelay(60);
+            alphaIn.setDuration(180);
 
-            ObjectAnimator fastIn = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, startX, centerX - 14f);
-            fastIn.setDuration(620);
-            fastIn.setInterpolator(new DecelerateInterpolator(1.4f));
+            ObjectAnimator scaleIn = ObjectAnimator.ofFloat(label, View.SCALE_X, 0.96f, 1f);
+            scaleIn.setStartDelay(60);
+            scaleIn.setDuration(260);
+            scaleIn.setInterpolator(new DecelerateInterpolator(1.3f));
 
-            ObjectAnimator slowCenter = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX - 14f, centerX + 14f);
-            slowCenter.setDuration(2050);
-            slowCenter.setInterpolator(new LinearInterpolator());
+            ObjectAnimator fastIn = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, startX, centerX - 6f);
+            fastIn.setDuration(520);
+            fastIn.setInterpolator(new DecelerateInterpolator(1.42f));
 
-            ObjectAnimator fastOut = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX + 14f, endX);
-            fastOut.setDuration(500);
-            fastOut.setInterpolator(new AccelerateInterpolator(1.6f));
+            ObjectAnimator glide = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX - 6f, centerX + 18f);
+            glide.setDuration(900);
+            glide.setInterpolator(new LinearInterpolator());
+
+            ObjectAnimator fastOut = ObjectAnimator.ofFloat(label, View.TRANSLATION_X, centerX + 18f, endX);
+            fastOut.setDuration(470);
+            fastOut.setInterpolator(new AccelerateInterpolator(1.72f));
 
             ObjectAnimator alphaOut = ObjectAnimator.ofFloat(label, View.ALPHA, 1f, 0f);
-            alphaOut.setStartDelay(2400);
-            alphaOut.setDuration(540);
+            alphaOut.setStartDelay(1420);
+            alphaOut.setDuration(420);
 
             AnimatorSet labelMotion = new AnimatorSet();
-            labelMotion.playSequentially(fastIn, slowCenter, fastOut);
+            labelMotion.playSequentially(fastIn, glide, fastOut);
 
             AnimatorSet set = new AnimatorSet();
-            set.playTogether(labelMotion, alphaIn, alphaOut);
+            set.playTogether(labelMotion, alphaIn, scaleIn, alphaOut);
             set.addListener(new AnimatorListenerAdapter() {
                 @Override public void onAnimationEnd(Animator animation) { resetTimeoutElement(label, startX); }
                 @Override public void onAnimationCancel(Animator animation) { resetTimeoutElement(label, startX); }
