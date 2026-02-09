@@ -548,7 +548,9 @@ public class MainActivity extends AppCompatActivity {
         if (currentTurnKey.equals(lastTimeoutBannerTurnKey)) return;
 
         lastTimeoutBannerTurnKey = currentTurnKey;
-        playTimeoutBanner("X".equals(turnOnline));
+        boolean timedOutX = "X".equals(turnOnline);
+        playTimeoutBanner(timedOutX);
+        Toast.makeText(MainActivity.this, getString(R.string.toast_turn_passed), Toast.LENGTH_SHORT).show();
 
         if (onlineSession != null) {
             String expiredTurn = turnOnline;
