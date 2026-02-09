@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                     if (state.isXTurn() != xTurnStarted) return;
 
                     playTimeoutBanner(xTurnStarted);
+                    Toast.makeText(MainActivity.this, getString(R.string.toast_turn_passed), Toast.LENGTH_SHORT).show();
                     state.nextTurn();
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -611,7 +612,6 @@ public class MainActivity extends AppCompatActivity {
             float centerX = (trackWidth - labelWidth) / 2f;
             float endX    = trackWidth + 34f;
 
-            // texto lidera o fluxo e as setas vêm em sequência rápida atrás dele
             float arrowStart = startX + labelWidth + 8f;
             float arrowCenter = centerX + labelWidth + 10f;
             float arrowEnd = endX + 22f;
