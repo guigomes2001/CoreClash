@@ -175,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
                     if (state.isXTurn() != xTurnStarted) return;
 
                     playTimeoutBanner(xTurnStarted);
-                    Toast.makeText(MainActivity.this, getString(R.string.toast_turn_passed), Toast.LENGTH_SHORT).show();
                     state.nextTurn();
                     updateHeaderStatus();
                     updateSkillVisuals();
