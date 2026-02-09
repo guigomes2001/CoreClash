@@ -78,6 +78,7 @@
     <string name="store_dialog_style_future_price">⬡ FUTURE TECH   •   160</string>
 
     <string name="turn_overlay_default">YOUR TURN HAS PASSED >>></string>
+    <string name="toast_turn_passed">Turn passed</string>
     <string name="versus_battle_title">BATTLE</string>
     <string name="toast_looking_match">Looking for an online match…</string>
     <string name="toast_opponent_left">Opponent left the match.</string>

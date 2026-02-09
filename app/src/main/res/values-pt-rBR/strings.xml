@@ -78,6 +78,7 @@
     <string name="store_dialog_style_future_price">⬡ TECNO FUTURA   •   160</string>
 
     <string name="turn_overlay_default">PASSOU A VEZ  >>></string>
+    <string name="toast_turn_passed">Passou a vez</string>
     <string name="versus_battle_title">BATALHA</string>
     <string name="toast_looking_match">Procurando uma partida online…</string>
     <string name="toast_opponent_left">O adversário saiu da partida.</string>
