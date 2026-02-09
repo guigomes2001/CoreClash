@@ -14,6 +14,8 @@ import com.google.firebase.database.Transaction;
 import java.util.HashMap;
 import java.util.Map;
 
+import enums.DomainMatchStatus;
+
 public class OnlineMatchmaking {
 
     public interface MatchmakingCallback {
@@ -21,9 +23,10 @@ public class OnlineMatchmaking {
         void onError(@NonNull String message);
     }
 
-    private static final String STATUS_WAITING = "WAITING";
-    private static final String STATUS_PLAYING = "PLAYING";
-    private static final String STATUS_ENDED   = "ENDED";
+    private static final String STATUS_WAITING = DomainMatchStatus.WAITING.getValue();
+    private static final String STATUS_PLAYING = DomainMatchStatus.PLAYING.getValue();
+    private static final String STATUS_ENDED   = DomainMatchStatus.ENDED.getValue();
+    private static final String STATUS_MATCHED = DomainMatchStatus.MATCHED.getValue();
 
     private static final String TURN_X = "X";
     private static final String TURN_O = "O";
@@ -156,12 +159,8 @@ public class OnlineMatchmaking {
 
                 currentData.child("players").child("O").setValue(myUid);
 
-                currentData.child("status").setValue(STATUS_PLAYING);
+                currentData.child("status").setValue(STATUS_MATCHED);
                 currentData.child("startedAt").setValue(ServerValue.TIMESTAMP);
-
-                currentData.child("turn").setValue(TURN_X);
-                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
-                currentData.child("turnDurationMs").setValue(TURN_DURATION_MS);
 
                 currentData.child("introReady").child(TURN_X).setValue(false);
                 currentData.child("introReady").child(TURN_O).setValue(false);

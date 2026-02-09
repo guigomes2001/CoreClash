@@ -41,6 +41,7 @@ import java.util.Random;
 import enums.DomainBotNames;
 import enums.DomainDifficulty;
 import enums.DomainGameMode;
+import enums.DomainMatchStatus; // ok se você tiver esse enum; se não usar pode remover
 import enums.DomainSymbols;
 import game.GameState;
 import game.OnlineMatchSession;
@@ -80,9 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Boolean lastTurnProgressIsX = null;
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
-
-    private ValueAnimator turnAnimX;
-    private ValueAnimator turnAnimO;
 
     private String opponentName = "";
     private String selectedMode = DomainGameMode.CASUAL.getValue();
@@ -127,10 +125,14 @@ public class MainActivity extends AppCompatActivity {
         turnHud = initTurnHudManager();
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
-            if (!matchStarted || gameManager.isGameOver()) {
-                return;
-            }
+            if (!matchStarted || gameManager.isGameOver()) return;
+
             if (isOnlineMatch) {
+                // 🔒 trava clique até os dois concluírem a intro
+                if (!bothIntroReady) {
+                    AnimationHelper.shakeButton(binding.turnHudBar);
+                    return;
+                }
                 if (!isMyTurnOnline()) {
                     AnimationHelper.shakeButton(binding.turnHudBar);
                     return;
@@ -139,9 +141,8 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (versusBot && !state.isXTurn()) {
-                return;
-            }
+            if (versusBot && !state.isXTurn()) return;
+
             playTurn(row, col);
         });
 
@@ -169,15 +170,11 @@ public class MainActivity extends AppCompatActivity {
                 binding.progressTurnHudO,
                 TURN_PROGRESS_DURATION_MS,
                 (xTurnStarted) -> {
-                    if (isOnlineMatch) {
-                        return;
-                    }
-                    if (!matchStarted || gameManager.isGameOver()) {
-                        return;
-                    }
-                    if (state.isXTurn() != xTurnStarted) {
-                        return;
-                    }
+                    if (isOnlineMatch) return;
+                    if (!matchStarted || gameManager.isGameOver()) return;
+                    if (state.isXTurn() != xTurnStarted) return;
+
+                    playTimeoutBanner(xTurnStarted);
                     state.nextTurn();
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -211,7 +208,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupHomeFlow() {
         binding.btnPlay.setOnClickListener(v -> openModeModal());
-
         binding.btnOnline.setOnClickListener(v -> startOnlineMatchmaking());
 
         binding.btnStore.setOnClickListener(v -> storeManager.openStore());
@@ -259,9 +255,15 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (isOnlineMatch && !isMyTurnOnline()) {
-                AnimationHelper.shakeButton(binding.turnHudBar);
-                return;
+            if (isOnlineMatch) {
+                if (!bothIntroReady) {
+                    AnimationHelper.shakeButton(binding.turnHudBar);
+                    return;
+                }
+                if (!isMyTurnOnline()) {
+                    AnimationHelper.shakeButton(binding.turnHudBar);
+                    return;
+                }
             }
 
             if (gameManager.useTriangle()) {
@@ -274,9 +276,7 @@ public class MainActivity extends AppCompatActivity {
                 updateHeaderStatus();
                 updateSkillVisuals();
 
-                if (!isOnlineMatch) {
-                    maybeRunBotTurn();
-                }
+                if (!isOnlineMatch) maybeRunBotTurn();
             }
         });
 
@@ -286,9 +286,15 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (isOnlineMatch && !isMyTurnOnline()) {
-                AnimationHelper.shakeButton(binding.turnHudBar);
-                return;
+            if (isOnlineMatch) {
+                if (!bothIntroReady) {
+                    AnimationHelper.shakeButton(binding.turnHudBar);
+                    return;
+                }
+                if (!isMyTurnOnline()) {
+                    AnimationHelper.shakeButton(binding.turnHudBar);
+                    return;
+                }
             }
 
             if (gameManager.useSquare()) {
@@ -313,8 +319,6 @@ public class MainActivity extends AppCompatActivity {
             binding.victoryLineView.clear();
             updateSkillVisuals();
 
-            // ONLINE: você pode decidir se “rematch” recria sala ou reseta só local.
-            // Por simplicidade, aqui volta pro menu no online.
             if (isOnlineMatch) {
                 endOnlineSessionToMenu();
                 return;
@@ -346,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Toast.makeText(this, "Looking for an online match...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.toast_looking_match), Toast.LENGTH_SHORT).show();
         matchmaking.cleanupOldWaitingRooms();
 
         matchmaking.findOrCreateMatch(myUid, new OnlineMatchmaking.MatchmakingCallback() {
@@ -356,20 +360,16 @@ public class MainActivity extends AppCompatActivity {
                 versusBot = false;
                 iAmXOnline = iAmX;
                 mySymbolOnline = iAmXOnline ? "X" : "O";
-                opponentName = opponentUid.isEmpty() ? "Aguardando jogador..." : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
+
+                opponentName = opponentUid.trim().isEmpty()
+                        ? getString(R.string.status_waiting_opponent)
+                        : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
 
                 onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
                 localIntroCompleted = false;
                 bothIntroReady = false;
-                hookOnlineListeners();
 
-                if (iAmXOnline && (opponentUid.trim().isEmpty())) {
-                    onlineSession.listenOpponentJoin(oUid -> runOnUiThread(() -> {
-                        opponentName = "Player " + oUid.substring(0, Math.min(6, oUid.length()));
-                        updateHeaderStatus();
-                        Toast.makeText(MainActivity.this, "Opponent joined!", Toast.LENGTH_SHORT).show();
-                    }));
-                }
+                hookOnlineListeners();
 
                 setGameMode();
                 gameManager.resetGame();
@@ -378,7 +378,27 @@ public class MainActivity extends AppCompatActivity {
 
                 updateHeaderStatus();
                 updateSkillVisuals();
-                startMatchIntro();
+
+                if (iAmXOnline && opponentUid.trim().isEmpty()) {
+                    showWaitingOpponentUi();
+                }
+
+                onlineSession.listenOpponentJoin(oUid -> runOnUiThread(() -> {
+                    opponentName = "Player " + oUid.substring(0, Math.min(6, oUid.length()));
+                    updateHeaderStatus();
+
+                    if (iAmXOnline) {
+                        onlineSession.scheduleIntroIfHost(true, 500L, 3000L);
+                    }
+                }));
+
+                onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
+                    long delay = Math.max(0L, startAt - serverNow);
+                    runOnUiThread(() -> handler.postDelayed(() -> {
+                        if (!isOnlineMatch || onlineSession == null) return;
+                        startMatchIntro();
+                    }, delay));
+                });
             }
 
             @Override
@@ -388,36 +408,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void maybeListenOpponentJoin(boolean iAmXOnline, @NonNull String opponentUid) {
-        if (!iAmXOnline) {
-            return;
-        }
-        if (!opponentUid.trim().isEmpty()) {
-            return;
-        }
-        if (onlineSession == null) {
-            return;
-        }
-        onlineSession.listenOpponentJoin(oUid ->
-                runOnUiThread(() -> onOpponentJoined(oUid))
-        );
-    }
+    private void showWaitingOpponentUi() {
+        matchStarted = false;
+        bothIntroReady = false;
+        localIntroCompleted = false;
 
-    private void onOpponentJoined(@NonNull String opponentUid) {
-        opponentName = "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
+        opponentName = getString(R.string.status_waiting_opponent);
         updateHeaderStatus();
-        showShortToast("Opponent joined!");
+
+        binding.homeOverlay.setVisibility(View.VISIBLE);
+        binding.homeOverlay.setAlpha(1f);
+
+        binding.btnPlay.setEnabled(false);
+        binding.btnOnline.setEnabled(false);
     }
 
-    private void showShortToast(@NonNull String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    private void restoreMenuButtons() {
+        binding.btnPlay.setEnabled(true);
+        binding.btnOnline.setEnabled(true);
     }
-
 
     private void hookOnlineListeners() {
-        if (onlineSession == null) {
-            return;
-        }
+        if (onlineSession == null) return;
 
         onlineSession.startListening(
                 new OnlineMatchSession.ActionListener() {
@@ -447,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onOpponentLeft() {
                         runOnUiThread(() -> {
-                            Toast.makeText(MainActivity.this, "Opponent left the match.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.toast_opponent_left), Toast.LENGTH_SHORT).show();
                             endOnlineSessionToMenu();
                         });
                     }
@@ -505,9 +517,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void scheduleOnlineTimeoutBanner() {
-        if (!isOnlineMatch) {
-            return;
-        }
+        if (!isOnlineMatch) return;
 
         handler.removeCallbacks(onlineTimeoutBannerRunnable);
 
@@ -520,14 +530,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void maybeShowOnlineTimeoutBanner() {
-        if (!isOnlineMatch) {
-            return;
-        }
+        if (!isOnlineMatch) return;
 
         String currentTurnKey = turnOnline + ":" + turnStartedAtOnlineMs;
-        if (!currentTurnKey.equals(scheduledTimeoutTurnKey)) {
-            return;
-        }
+        if (!currentTurnKey.equals(scheduledTimeoutTurnKey)) return;
 
         long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
@@ -538,9 +544,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (currentTurnKey.equals(lastTimeoutBannerTurnKey)) {
-            return;
-        }
+        if (currentTurnKey.equals(lastTimeoutBannerTurnKey)) return;
 
         lastTimeoutBannerTurnKey = currentTurnKey;
         playTimeoutBanner("X".equals(turnOnline));
@@ -548,40 +552,66 @@ public class MainActivity extends AppCompatActivity {
         if (onlineSession != null) {
             String expiredTurn = turnOnline;
             onlineSession.advanceTurnIfExpired(expiredTurn, advanced -> {
-                if (!advanced) {
-                    Log.d("RTDB", "Timeout turn advance skipped or already advanced.");
-                }
+                if (!advanced) Log.d("RTDB", "Timeout turn advance skipped or already advanced.");
             });
         }
     }
 
     private void playTimeoutBanner(boolean xSide) {
         final android.widget.FrameLayout track = xSide ? binding.turnHudTrackX : binding.turnHudTrackO;
-        final android.widget.TextView arrow1 = xSide ? binding.txtTimeoutArrow1X : binding.txtTimeoutArrow1O;
-        final android.widget.TextView arrow2 = xSide ? binding.txtTimeoutArrow2X : binding.txtTimeoutArrow2O;
-        final android.widget.TextView arrow3 = xSide ? binding.txtTimeoutArrow3X : binding.txtTimeoutArrow3O;
-        final android.widget.TextView label = xSide ? binding.txtTimeoutX : binding.txtTimeoutO;
+        final android.widget.TextView arrow1   = xSide ? binding.txtTimeoutArrow1X : binding.txtTimeoutArrow1O;
+        final android.widget.TextView arrow2   = xSide ? binding.txtTimeoutArrow2X : binding.txtTimeoutArrow2O;
+        final android.widget.TextView arrow3   = xSide ? binding.txtTimeoutArrow3X : binding.txtTimeoutArrow3O;
+        final android.widget.TextView label    = xSide ? binding.txtTimeoutX : binding.txtTimeoutO;
 
         stopTimeoutBannerAnimation(xSide);
 
         track.post(() -> {
             int trackWidth = track.getWidth();
-            int labelWidth = label.getWidth();
+
+            label.setVisibility(View.VISIBLE);
+
+            if (label.getWidth() <= 0) {
+                label.measure(
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                );
+            }
+
+            int labelWidth = label.getWidth() > 0 ? label.getWidth() : label.getMeasuredWidth();
+
+            if (trackWidth <= 0) {
+                track.measure(
+                        View.MeasureSpec.makeMeasureSpec(track.getMeasuredWidth(), View.MeasureSpec.AT_MOST),
+                        View.MeasureSpec.makeMeasureSpec(track.getMeasuredHeight(), View.MeasureSpec.AT_MOST)
+                );
+                trackWidth = track.getWidth() > 0 ? track.getWidth() : track.getMeasuredWidth();
+            }
+
+           Log.d("HUD", "trackW=" + trackWidth + " labelW=" + labelWidth + " measured=" + label.getMeasuredWidth());
+
             if (trackWidth <= 0 || labelWidth <= 0) {
+                label.setAlpha(1f);
+                label.setTranslationX(0f);
+                label.animate()
+                        .alpha(0f)
+                        .setStartDelay(650)
+                        .setDuration(350)
+                        .withEndAction(() -> resetTimeoutElement(label, 0f))
+                        .start();
                 return;
             }
 
-            float startX = -labelWidth - 20f;
+            float startX  = -labelWidth - 20f;
             float centerX = (trackWidth - labelWidth) / 2f;
-            float endX = trackWidth + 24f;
+            float endX    = trackWidth + 24f;
 
             playTimeoutArrow(arrow1, startX - 26f, centerX - 48f, centerX - 26f, 40, 260, 100);
-            playTimeoutArrow(arrow2, startX - 8f, centerX - 24f, centerX, 110, 220, 92);
-            playTimeoutArrow(arrow3, startX + 10f, centerX, centerX + 26f, 180, 190, 84);
+            playTimeoutArrow(arrow2, startX - 8f,  centerX - 24f, centerX,       110, 220, 92);
+            playTimeoutArrow(arrow3, startX + 10f, centerX,       centerX + 26f,  180, 190, 84);
 
             label.setTranslationX(startX);
             label.setAlpha(0f);
-            label.setVisibility(View.VISIBLE);
 
             ObjectAnimator alphaIn = ObjectAnimator.ofFloat(label, View.ALPHA, 0f, 1f);
             alphaIn.setStartDelay(210);
@@ -609,21 +639,13 @@ public class MainActivity extends AppCompatActivity {
             AnimatorSet set = new AnimatorSet();
             set.playTogether(labelMotion, alphaIn, alphaOut);
             set.addListener(new AnimatorListenerAdapter() {
-                @Override public void onAnimationEnd(Animator animation) {
-                    resetTimeoutElement(label, startX);
-                }
-
-                @Override public void onAnimationCancel(Animator animation) {
-                    resetTimeoutElement(label, startX);
-                }
+                @Override public void onAnimationEnd(Animator animation) { resetTimeoutElement(label, startX); }
+                @Override public void onAnimationCancel(Animator animation) { resetTimeoutElement(label, startX); }
             });
             set.start();
 
-            if (xSide) {
-                timeoutBannerAnimX = set;
-            } else {
-                timeoutBannerAnimO = set;
-            }
+            if (xSide) timeoutBannerAnimX = set;
+            else timeoutBannerAnimO = set;
         });
     }
 
@@ -682,14 +704,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void stopTimeoutBannerAnimation(boolean xSide) {
         AnimatorSet set = xSide ? timeoutBannerAnimX : timeoutBannerAnimO;
-        if (set != null) {
-            set.cancel();
-        }
-        if (xSide) {
-            timeoutBannerAnimX = null;
-        } else {
-            timeoutBannerAnimO = null;
-        }
+        if (set != null) set.cancel();
+        if (xSide) timeoutBannerAnimX = null;
+        else timeoutBannerAnimO = null;
     }
 
     private void endOnlineSessionToMenu() {
@@ -769,32 +786,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startOfflineMatchmakingBotOrFakeOnline(boolean fromOnlineButton) {
-        boolean foundPlayer = fromOnlineButton && random.nextFloat() < 0.45f;
-        versusBot = !foundPlayer;
-        isOnlineMatch = false;
-        onlineSession = null;
-
-        if (versusBot) {
-            opponentName = randomBotName();
-            currentBotDifficulty = randomDifficulty();
-        } else {
-            opponentName = getString(R.string.online_rival_prefix) + (100 + random.nextInt(900));
-            currentBotDifficulty = DomainDifficulty.MODERATE;
-
-            String matchMsg = getString(R.string.toast_match_found, opponentName);
-            Toast.makeText(this, matchMsg, Toast.LENGTH_SHORT).show();
-        }
-
-        setGameMode();
-        gameManager.resetGame();
-        binding.victoryLineView.clear();
-        setArenaUiVisible(false);
-        updateHeaderStatus();
-        updateSkillVisuals();
-        startMatchIntro();
-    }
-
     private void setGameMode() {
         String gameMode = selectedMode.equalsIgnoreCase(DomainGameMode.RANKED.getValue())
                 ? DomainGameMode.RANKED.getValue()
@@ -804,20 +795,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void showHomeScreen() {
         matchStarted = false;
-        handler.removeCallbacksAndMessages(null);
+
+        handler.removeCallbacks(onlineTimeoutBannerRunnable);
+        stopOnlineBarAnim();
+
         lastTurnProgressIsX = null;
 
         setArenaUiVisible(true);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
-
         binding.versusOverlay.setVisibility(View.GONE);
 
-        stopTurnAnimator(true);
-        stopTurnAnimator(false);
+        binding.progressTurnHudX.setProgress(0);
+        binding.progressTurnHudO.setProgress(0);
     }
 
+
     private void startMatchIntro() {
+        restoreMenuButtons();
         binding.homeOverlay.animate()
                 .alpha(0f)
                 .setDuration(460)
@@ -865,9 +860,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void playVersusBreakAnimation() {
-        if (binding.versusOverlay.getVisibility() != View.VISIBLE) {
-            return;
-        }
+        if (binding.versusOverlay.getVisibility() != View.VISIBLE) return;
 
         binding.txtBreakX.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(120).start();
         binding.txtBreakO.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(120).start();
@@ -899,24 +892,34 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
 
-                    matchStarted = true;
                     localIntroCompleted = true;
-                    updateHeaderStatus();
-                    updateSkillVisuals();
 
                     if (isOnlineMatch) {
+                        matchStarted = false;
+                        bothIntroReady = false;
+                        updateHeaderStatus();
+                        updateSkillVisuals();
+
                         if (onlineSession != null) {
                             onlineSession.markIntroReady(() -> runOnUiThread(() -> {
                                 bothIntroReady = true;
-                                if (matchStarted && localIntroCompleted) {
-                                    startOrUpdateOnlineBar();
-                                    scheduleOnlineTimeoutBanner();
-                                }
+
+                                onlineSession.startPlayingWhenIntroFinished();
+
+                                matchStarted = true;
+                                updateHeaderStatus();
+                                updateSkillVisuals();
+                                startOrUpdateOnlineBar();
+                                scheduleOnlineTimeoutBanner();
                             }));
                         }
-                    } else {
-                        maybeRunBotTurn();
+                        return;
                     }
+
+                    matchStarted = true;
+                    updateHeaderStatus();
+                    updateSkillVisuals();
+                    maybeRunBotTurn();
                 })
                 .start();
     }
@@ -1126,10 +1129,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (!matchStarted || gameManager.isGameOver()) {
             lastTurnProgressIsX = null;
-            stopTurnAnimator(true);
-            stopTurnAnimator(false);
+
             binding.progressTurnHudX.setProgress(0);
             binding.progressTurnHudO.setProgress(0);
+
             styleTurnName(binding.txtTurnHudNameX, false);
             styleTurnName(binding.txtTurnHudNameO, false);
             return;
@@ -1140,21 +1143,12 @@ public class MainActivity extends AppCompatActivity {
         styleTurnName(binding.txtTurnHudNameO, !isXTurn);
 
         if (isOnlineMatch) {
-            stopTurnAnimator(true);
-            stopTurnAnimator(false);
-            if ("X".equals(turnOnline)) {
-                binding.progressTurnHudO.setProgress(0);
-            } else {
-                binding.progressTurnHudX.setProgress(0);
-            }
+            if ("X".equals(turnOnline)) binding.progressTurnHudO.setProgress(0);
+            else binding.progressTurnHudX.setProgress(0);
             return;
         }
 
-        if (lastTurnProgressIsX == null || lastTurnProgressIsX != isXTurn) {
-            startTurnAnimator(isXTurn);
-            stopTurnAnimator(!isXTurn);
-            lastTurnProgressIsX = isXTurn;
-        }
+        lastTurnProgressIsX = isXTurn;
     }
 
     private void styleTurnName(android.widget.TextView textView, boolean active) {
@@ -1167,54 +1161,9 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
-    private void startTurnAnimator(boolean xTurn) {
-        android.widget.ProgressBar active = xTurn ? binding.progressTurnHudX : binding.progressTurnHudO;
-        android.widget.ProgressBar other  = xTurn ? binding.progressTurnHudO : binding.progressTurnHudX;
-
-        other.setProgress(0);
-        active.setProgress(100);
-
-        ValueAnimator anim = ValueAnimator.ofInt(100, 0);
-        anim.setDuration(TURN_PROGRESS_DURATION_MS);
-        anim.setInterpolator(new LinearInterpolator());
-        anim.addUpdateListener(a -> {
-            int v = (int) a.getAnimatedValue();
-            active.setProgress(v);
-        });
-        anim.addListener(new AnimatorListenerAdapter() {
-            private boolean cancelled = false;
-            @Override public void onAnimationCancel(Animator animation) { cancelled = true; }
-            @Override public void onAnimationEnd(Animator animation) {
-                if (!cancelled) onTurnTimerElapsed(xTurn);
-            }
-        });
-        anim.start();
-
-        if (xTurn) turnAnimX = anim;
-        else turnAnimO = anim;
-    }
-
-    private void stopTurnAnimator(boolean xTurn) {
-        ValueAnimator anim = xTurn ? turnAnimX : turnAnimO;
-        if (anim != null) anim.cancel();
-        if (xTurn) turnAnimX = null;
-        else turnAnimO = null;
-    }
-
-    private void onTurnTimerElapsed(boolean xTurnTurnStarted) {
-        if (isOnlineMatch) return;
-        if (!matchStarted || gameManager.isGameOver()) return;
-        if (state.isXTurn() != xTurnTurnStarted) return;
-
-        state.nextTurn();
-        updateHeaderStatus();
-        updateSkillVisuals();
-        maybeRunBotTurn();
-    }
-
     private void updateSkillVisuals() {
         float triAlpha = state.canUseTriangle() && matchStarted ? 1f : 0.25f;
-        float sqAlpha = state.canUseSquare() && matchStarted ? 1f : 0.25f;
+        float sqAlpha  = state.canUseSquare() && matchStarted ? 1f : 0.25f;
 
         binding.containerTriangle.animate().alpha(triAlpha).setDuration(220).start();
         binding.containerSquare.animate().alpha(sqAlpha).setDuration(220).start();
@@ -1296,9 +1245,6 @@ public class MainActivity extends AppCompatActivity {
                 onlineSession.endRoom();
             }
         } catch (Exception ignored) {}
-
-        stopTurnAnimator(true);
-        stopTurnAnimator(false);
         super.onDestroy();
     }
 
@@ -1313,12 +1259,9 @@ public class MainActivity extends AppCompatActivity {
     private void startRematchIntro() {
         matchStarted = false;
 
-        handler.removeCallbacksAndMessages(null);
-
-        stopTurnAnimator(true);
-        stopTurnAnimator(false);
+        handler.removeCallbacks(onlineTimeoutBannerRunnable);
+        stopOnlineBarAnim();
         lastTurnProgressIsX = null;
-
         binding.progressTurnHudX.setProgress(0);
         binding.progressTurnHudO.setProgress(0);
 

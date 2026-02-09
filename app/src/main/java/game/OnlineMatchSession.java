@@ -8,14 +8,16 @@ import androidx.annotation.Nullable;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.function.Consumer;
+
+import enums.DomainMatchStatus;
 
 public class OnlineMatchSession {
 
@@ -27,12 +29,6 @@ public class OnlineMatchSession {
     }
 
     public interface TurnClockListener {
-        /**
-         * @param turn "X" or "O"
-         * @param turnStartedAtMs Server timestamp (ms)
-         * @param turnDurationMs Total turn duration
-         * @param serverNowApproxMs Approximate server time (now)
-         */
         void onTurnClock(@NonNull String turn, long turnStartedAtMs, long turnDurationMs, long serverNowApproxMs);
     }
 
@@ -44,22 +40,16 @@ public class OnlineMatchSession {
         void onBothReady();
     }
 
-    public static class Action {
-        public String actionId;
-        public String playerUid;
-        public String actionType;
-        public Long timestamp;
-        public Integer row;
-        public Integer col;
-
-        public Action() {}
+    public interface IntroClockListener {
+        void onIntroClock(long startAtMs, long durationMs, long serverNowApproxMs);
     }
 
     private static final String TAG = "RTDB";
 
-    private static final String STATUS_ENDED = "ENDED";
-    private static final String STATUS_ABANDONED = "ABANDONED";
-    private static final String STATUS_PLAYING = "PLAYING";
+    private static final String STATUS_WAITING = DomainMatchStatus.WAITING.getValue();
+    private static final String STATUS_PLAYING = DomainMatchStatus.PLAYING.getValue();
+    private static final String STATUS_ENDED = DomainMatchStatus.ENDED.getValue();
+    private static final String STATUS_ABANDONED = DomainMatchStatus.ABANDONED.getValue();
 
     private static final String TURN_X = "X";
     private static final String TURN_O = "O";
@@ -78,6 +68,7 @@ public class OnlineMatchSession {
     private ValueEventListener turnClockListener;
     private ValueEventListener offsetListener;
     private ValueEventListener introReadyListener;
+    private ValueEventListener introClockListener;
 
     private volatile long serverOffsetMs = 0L;
 
@@ -91,6 +82,7 @@ public class OnlineMatchSession {
         this.offsetRef = FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset");
 
         startServerOffsetListener();
+        enableOnDisconnectAbandon();
     }
 
     public long nowServerApprox() {
@@ -123,8 +115,7 @@ public class OnlineMatchSession {
         stopListening();
 
         statusListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String status = snapshot.getValue(String.class);
                 if (STATUS_ENDED.equals(status) || STATUS_ABANDONED.equals(status)) {
                     listener.onOpponentLeft();
@@ -141,12 +132,6 @@ public class OnlineMatchSession {
                 if (action == null) return;
                 if (action.playerUid == null || action.playerUid.isEmpty()) return;
                 if (action.actionType == null || action.actionType.isEmpty()) return;
-
-                Long ts = action.timestamp;
-                if (ts != null) {
-                    long latency = nowServerApprox() - ts;
-                    Log.d(TAG, "Latency ms = " + latency);
-                }
 
                 if (action.playerUid.equals(myUid)) return;
 
@@ -198,6 +183,10 @@ public class OnlineMatchSession {
             roomRef.child("introReady").removeEventListener(introReadyListener);
             introReadyListener = null;
         }
+        if (introClockListener != null) {
+            roomRef.child("intro").removeEventListener(introClockListener);
+            introClockListener = null;
+        }
     }
 
     public void listenTurnClock(@NonNull TurnClockListener listener) {
@@ -206,7 +195,7 @@ public class OnlineMatchSession {
         turnClockListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String status = snapshot.child("status").getValue(String.class);
-                if (status == null || !STATUS_PLAYING.equals(status)) return;
+                if (status == null || status.isEmpty() || !STATUS_PLAYING.equals(status)) return;
 
                 String turn = snapshot.child("turn").getValue(String.class);
                 Long startedAt = snapshot.child("turnStartedAt").getValue(Long.class);
@@ -221,6 +210,76 @@ public class OnlineMatchSession {
         roomRef.addValueEventListener(turnClockListener);
     }
 
+    public void listenOpponentJoin(@NonNull Consumer<String> onJoined) {
+        if (opponentListener != null) return;
+
+        opponentListener = new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String oUid = snapshot.getValue(String.class);
+                if (oUid != null && !oUid.trim().isEmpty()) {
+                    onJoined.accept(oUid);
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+
+        roomRef.child("players").child("O").addValueEventListener(opponentListener);
+    }
+
+    public void scheduleIntroIfHost(boolean iAmHost, long delayMs, long durationMs) {
+        if (!iAmHost) return;
+
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (currentData.getValue() == null) return Transaction.abort();
+
+                String status = currentData.child("status").getValue(String.class);
+                if (status == null) return Transaction.abort();
+
+                String oUid = currentData.child("players").child("O").getValue(String.class);
+                if (oUid == null || oUid.trim().isEmpty()) return Transaction.abort();
+
+                MutableData intro = currentData.child("intro");
+                if (intro.child("scheduledAt").getValue() != null) return Transaction.abort();
+
+                intro.child("scheduledAt").setValue(ServerValue.TIMESTAMP);
+                intro.child("delayMs").setValue(delayMs);
+                intro.child("durationMs").setValue(durationMs);
+
+                currentData.child("introReady").child(TURN_X).setValue(false);
+                currentData.child("introReady").child(TURN_O).setValue(false);
+
+                return Transaction.success(currentData);
+            }
+
+            @Override public void onComplete(DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (error != null) Log.w(TAG, "scheduleIntroIfHost error: " + error.getMessage());
+            }
+        });
+    }
+
+    public void listenIntroClock(@NonNull IntroClockListener listener) {
+        if (introClockListener != null) return;
+
+        introClockListener = new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Long scheduledAt = snapshot.child("scheduledAt").getValue(Long.class);
+                Long delayMs = snapshot.child("delayMs").getValue(Long.class);
+                Long durationMs = snapshot.child("durationMs").getValue(Long.class);
+
+                if (scheduledAt == null || delayMs == null || durationMs == null) return;
+
+                long startAt = scheduledAt + delayMs;
+                listener.onIntroClock(startAt, durationMs, nowServerApprox());
+            }
+
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+
+        roomRef.child("intro").addValueEventListener(introClockListener);
+    }
+
     public void markIntroReady(@NonNull IntroReadyListener listener) {
         roomRef.child("introReady").child(mySymbol).setValue(true);
 
@@ -232,8 +291,8 @@ public class OnlineMatchSession {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Boolean xReady = snapshot.child(TURN_X).getValue(Boolean.class);
                 Boolean oReady = snapshot.child(TURN_O).getValue(Boolean.class);
-                boolean both = Boolean.TRUE.equals(xReady) && Boolean.TRUE.equals(oReady);
 
+                boolean both = Boolean.TRUE.equals(xReady) && Boolean.TRUE.equals(oReady);
                 if (both && !fired) {
                     fired = true;
                     listener.onBothReady();
@@ -244,6 +303,60 @@ public class OnlineMatchSession {
         };
 
         roomRef.child("introReady").addValueEventListener(introReadyListener);
+    }
+
+    public void startPlayingWhenIntroFinished() {
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (currentData.getValue() == null) return Transaction.abort();
+
+                String status = currentData.child("status").getValue(String.class);
+                if (status == null) return Transaction.abort();
+
+                if (STATUS_PLAYING.equals(status)) return Transaction.abort();
+                if (STATUS_ENDED.equals(status) || STATUS_ABANDONED.equals(status)) return Transaction.abort();
+
+                Long scheduledAt = currentData.child("intro").child("scheduledAt").getValue(Long.class);
+                Long delayMs     = currentData.child("intro").child("delayMs").getValue(Long.class);
+                Long durationMs  = currentData.child("intro").child("durationMs").getValue(Long.class);
+                if (scheduledAt == null || delayMs == null || durationMs == null) return Transaction.abort();
+
+                long startAt = scheduledAt + delayMs;
+                long endAt   = startAt + durationMs;
+
+                Boolean xReady = currentData.child("introReady").child("X").getValue(Boolean.class);
+                Boolean oReady = currentData.child("introReady").child("O").getValue(Boolean.class);
+                if (!Boolean.TRUE.equals(xReady) || !Boolean.TRUE.equals(oReady)) return Transaction.abort();
+
+                long now = nowServerApprox();
+                if (now < endAt) return Transaction.abort();
+
+                currentData.child("status").setValue(STATUS_PLAYING);
+                currentData.child("turn").setValue(TURN_X);
+                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+
+                if (currentData.child("turnDurationMs").getValue() == null) {
+                    currentData.child("turnDurationMs").setValue(10_000L);
+                }
+
+                return Transaction.success(currentData);
+            }
+
+            @Override public void onComplete(DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (error != null) Log.w(TAG, "startPlayingWhenIntroFinished error: " + error.getMessage());
+            }
+        });
+    }
+
+    public static class Action {
+        public String actionId;
+        public String playerUid;
+        public String actionType;
+        public Long timestamp;
+        public Integer row;
+        public Integer col;
+        public Action() {}
     }
 
     public void sendMove(int row, int col) {
@@ -348,21 +461,5 @@ public class OnlineMatchSession {
 
     private boolean isValidCell(int r, int c) {
         return r >= 0 && r <= 2 && c >= 0 && c <= 2;
-    }
-
-    public void listenOpponentJoin(@NonNull java.util.function.Consumer<String> onJoined) {
-        if (opponentListener != null) return;
-
-        opponentListener = new ValueEventListener() {
-            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String oUid = snapshot.getValue(String.class);
-                if (oUid != null && !oUid.isEmpty()) {
-                    onJoined.accept(oUid);
-                }
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        };
-
-        roomRef.child("players").child("O").addValueEventListener(opponentListener);
     }
 }
