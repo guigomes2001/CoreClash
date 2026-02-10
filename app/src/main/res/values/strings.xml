@@ -90,4 +90,8 @@
     <string name="hud_abandon_label">FORFEIT</string>
     <string name="hud_abandon_format">⚠ %1$s: %2$d/%3$d</string>
 
+
+    <string name="hud_player_with_symbol_tag">%1$s • %2$s%3$s</string>
+    <string name="hud_you_suffix"> (%1$s)</string>
+    <string name="hud_you_label">You</string>
 </resources>

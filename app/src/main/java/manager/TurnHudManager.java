@@ -62,19 +62,19 @@ public class TurnHudManager {
         stopPulse();
     }
 
-    public void render(@NonNull String playerX, @NonNull String playerO, boolean running, boolean xTurn) {
+    public void render(@NonNull String playerX, @NonNull String playerO, boolean running, boolean xTurn, boolean iAmX) {
         nameX.setText(playerX);
         nameO.setText(playerO);
 
         if (!running) {
             stopAll();
-            styleName(nameX, false);
-            styleName(nameO, false);
+            styleName(nameX, false, iAmX);
+            styleName(nameO, false, !iAmX);
             return;
         }
 
-        styleName(nameX, xTurn);
-        styleName(nameO, !xTurn);
+        styleName(nameX, xTurn, iAmX);
+        styleName(nameO, !xTurn, !iAmX);
 
         if (lastTurnX == null || lastTurnX != xTurn) {
             startTurn(xTurn);
@@ -163,11 +163,11 @@ public class TurnHudManager {
         barO.setProgress(0);
     }
 
-    private void styleName(TextView tv, boolean active) {
-        tv.setAlpha(active ? 1f : 0.75f);
+    private void styleName(TextView tv, boolean active, boolean isMe) {
+        tv.setAlpha(active ? 1f : (isMe ? 0.92f : 0.75f));
         tv.animate()
-                .scaleX(active ? 1.04f : 1f)
-                .scaleY(active ? 1.04f : 1f)
+                .scaleX(active ? 1.04f : (isMe ? 1.02f : 1f))
+                .scaleY(active ? 1.04f : (isMe ? 1.02f : 1f))
                 .setDuration(160)
                 .setInterpolator(new DecelerateInterpolator())
                 .start();
