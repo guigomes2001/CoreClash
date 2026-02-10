@@ -96,7 +96,7 @@ public class TurnHudManager {
     @NonNull
     private CharSequence buildNameLabel(@NonNull String playerName, @NonNull String symbol, boolean isMe) {
         String prefix = isMe ? identityStyle.localPipePrefix : "";
-        String label = prefix + playerName + "  " + symbol;
+        String label = prefix + playerName + identityStyle.nameSymbolSeparator + symbol;
 
         SpannableString span = new SpannableString(label);
 
@@ -110,7 +110,7 @@ public class TurnHudManager {
         span.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         if (isMe && !prefix.isEmpty()) {
-            span.setSpan(new ForegroundColorSpan(color), 0, prefix.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            span.setSpan(new ForegroundColorSpan(identityStyle.localMarkerColor), 0, prefix.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         return span;
