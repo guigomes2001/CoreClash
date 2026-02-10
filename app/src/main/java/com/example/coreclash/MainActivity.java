@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     private HomeFlowManager initHomeFlow() {
         return new HomeFlowManager(binding, new HomeFlowManager.Callbacks() {
             @Override public void onPlayOnlineClicked() {
-                matchManager.startOnlineMatchmaking(MainActivity.this::getMyUidOrNull);
+                startOfflineVsBot();
             }
 
             @Override public void onStoreClicked() {
@@ -348,6 +348,18 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override public void onOnlineMatchShouldStartPlaying() {
                         matchIntroAnimator.startFromHome();
+                    }
+
+                    @Override
+                    public void onOnlineRemoteWin(@NonNull String winnerSymbol) {
+                        matchStarted = false;
+                        victoryOverlayAnimator.showWin(winnerSymbol, 450);
+                    }
+
+                    @Override
+                    public void onOnlineRemoteDraw() {
+                        matchStarted = false;
+                        victoryOverlayAnimator.showDraw(420);
                     }
 
                     @Override public void onEndOnlineSessionToMenu() { onlineSessionEndedCleanup(); }
@@ -630,14 +642,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateTurnHud() {
-        String playerName = getPlayerDisplayName();
-
+        String myName = getPlayerDisplayName();
         String rivalName = getOpponentDisplayName();
 
-        boolean running = matchStarted && !gameManager.isGameOver();
+        boolean iAmX = !matchManager.isOnlineMatch() || DomainSymmetries.X.getValue().equals(matchManager.getMySymbolOnline());
 
-        boolean xTurn = matchManager.isOnlineMatch() ? "X".equals(matchManager.getTurnOnline()) : state.isXTurn();
-        turnHud.render(playerName, rivalName, running, xTurn);
+        String xName = iAmX ? myName : rivalName;
+        String oName = iAmX ? rivalName : myName;
+
+        boolean running = matchStarted && !gameManager.isGameOver();
+        boolean xTurn = matchManager.isOnlineMatch() ? DomainSymmetries.X.getValue().equals(matchManager.getTurnOnline()) : state.isXTurn();
+
+        turnHud.render(xName, oName, running, xTurn, iAmX);
     }
 
     private void updateSkillVisuals() {

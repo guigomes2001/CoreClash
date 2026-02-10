@@ -89,4 +89,5 @@
 
     <string name="hud_abandon_label">ABANDONO</string>
     <string name="hud_abandon_format">⚠ %1$s: %2$d/%3$d</string>
+
 </resources>

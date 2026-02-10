@@ -3,6 +3,11 @@ package manager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -41,6 +46,8 @@ public class TurnHudManager {
     private TextView abandonX;
     private TextView abandonO;
 
+    private HudIdentityStyle identityStyle = HudIdentityStyle.defaults();
+
     public TurnHudManager(
             @NonNull View hudRoot,
             @NonNull TextView nameX,
@@ -62,24 +69,51 @@ public class TurnHudManager {
         stopPulse();
     }
 
-    public void render(@NonNull String playerX, @NonNull String playerO, boolean running, boolean xTurn) {
-        nameX.setText(playerX);
-        nameO.setText(playerO);
+    public void render(@NonNull String playerX, @NonNull String playerO, boolean running, boolean xTurn, boolean iAmX) {
+        nameX.setText(buildNameLabel(playerX, "X", iAmX));
+        nameO.setText(buildNameLabel(playerO, "O", !iAmX));
 
         if (!running) {
             stopAll();
-            styleName(nameX, false);
-            styleName(nameO, false);
+            styleName(nameX, false, iAmX);
+            styleName(nameO, false, !iAmX);
             return;
         }
 
-        styleName(nameX, xTurn);
-        styleName(nameO, !xTurn);
+        styleName(nameX, xTurn, iAmX);
+        styleName(nameO, !xTurn, !iAmX);
 
         if (lastTurnX == null || lastTurnX != xTurn) {
             startTurn(xTurn);
             lastTurnX = xTurn;
         }
+    }
+
+    public void setIdentityStyle(@NonNull HudIdentityStyle style) {
+        this.identityStyle = style;
+    }
+
+    @NonNull
+    private CharSequence buildNameLabel(@NonNull String playerName, @NonNull String symbol, boolean isMe) {
+        String prefix = isMe ? identityStyle.localPipePrefix : "";
+        String label = prefix + playerName + identityStyle.nameSymbolSeparator + symbol;
+
+        SpannableString span = new SpannableString(label);
+
+        int symbolStart = label.length() - symbol.length();
+        int symbolEnd = label.length();
+
+        int color = "X".equals(symbol) ? identityStyle.xSymbolColor : identityStyle.oSymbolColor;
+
+        span.setSpan(new ForegroundColorSpan(color), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new RelativeSizeSpan(identityStyle.symbolRelativeSize), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if (isMe && !prefix.isEmpty()) {
+            span.setSpan(new ForegroundColorSpan(identityStyle.localMarkerColor), 0, prefix.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        return span;
     }
 
     public void stopAll() {
@@ -163,11 +197,11 @@ public class TurnHudManager {
         barO.setProgress(0);
     }
 
-    private void styleName(TextView tv, boolean active) {
-        tv.setAlpha(active ? 1f : 0.75f);
+    private void styleName(TextView tv, boolean active, boolean isMe) {
+        tv.setAlpha(active ? 1f : (isMe ? 0.92f : 0.75f));
         tv.animate()
-                .scaleX(active ? 1.04f : 1f)
-                .scaleY(active ? 1.04f : 1f)
+                .scaleX(active ? 1.04f : (isMe ? 1.02f : 1f))
+                .scaleY(active ? 1.04f : (isMe ? 1.02f : 1f))
                 .setDuration(160)
                 .setInterpolator(new DecelerateInterpolator())
                 .start();

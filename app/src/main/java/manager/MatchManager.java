@@ -41,6 +41,9 @@ public class MatchManager {
 
         void onOnlineMatchShouldStartPlaying();
 
+        void onOnlineRemoteWin(@NonNull String winnerSymbol);
+        void onOnlineRemoteDraw();
+
         void onEndOnlineSessionToMenu();
     }
 
@@ -192,7 +195,24 @@ public class MatchManager {
                 new OnlineMatchSession.ActionListener() {
                     @Override
                     public void onRemoteMove(int r, int c, @NonNull String byUid) {
-                        cb.runOnUi(() -> playTurnRemote(r, c));
+                        cb.runOnUi(() -> {
+                            String symbol = gameManager.getCurrentPlayerSymbol();
+                            boolean won = playTurnRemote(r, c);
+
+                            cb.onUpdateHeaderStatus();
+                            cb.onUpdateSkillVisuals();
+
+                            if (won) {
+                                stopOnlineBarAnim(true);
+                                cb.onOnlineRemoteWin(symbol);
+                                return;
+                            }
+
+                            if (gameManager.isGameOver()) {
+                                stopOnlineBarAnim(true);
+                                cb.onOnlineRemoteDraw();
+                            }
+                        });
                     }
 
                     @Override
