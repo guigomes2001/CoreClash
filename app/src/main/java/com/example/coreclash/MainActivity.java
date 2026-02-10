@@ -650,13 +650,6 @@ public class MainActivity extends AppCompatActivity {
         String xName = iAmX ? myName : rivalName;
         String oName = iAmX ? rivalName : myName;
 
-        String youLabel = getString(R.string.hud_you_suffix, getString(R.string.hud_you_label));
-        String xYouSuffix = iAmX ? youLabel : "";
-        String oYouSuffix = iAmX ? "" : youLabel;
-
-        xName = getString(R.string.hud_player_with_symbol_tag, xName, DomainSymmetries.X.getValue(), xYouSuffix);
-        oName = getString(R.string.hud_player_with_symbol_tag, oName, DomainSymmetries.O.getValue(), oYouSuffix);
-
         boolean running = matchStarted && !gameManager.isGameOver();
         boolean xTurn = matchManager.isOnlineMatch() ? DomainSymmetries.X.getValue().equals(matchManager.getTurnOnline()) : state.isXTurn();
 
