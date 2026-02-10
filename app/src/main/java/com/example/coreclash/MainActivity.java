@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     private HomeFlowManager initHomeFlow() {
         return new HomeFlowManager(binding, new HomeFlowManager.Callbacks() {
             @Override public void onPlayOnlineClicked() {
-                matchManager.startOnlineMatchmaking(MainActivity.this::getMyUidOrNull);
+                startOfflineVsBot();
             }
 
             @Override public void onStoreClicked() {
@@ -348,6 +348,18 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override public void onOnlineMatchShouldStartPlaying() {
                         matchIntroAnimator.startFromHome();
+                    }
+
+                    @Override
+                    public void onOnlineRemoteWin(@NonNull String winnerSymbol) {
+                        matchStarted = false;
+                        victoryOverlayAnimator.showWin(winnerSymbol, 450);
+                    }
+
+                    @Override
+                    public void onOnlineRemoteDraw() {
+                        matchStarted = false;
+                        victoryOverlayAnimator.showDraw(420);
                     }
 
                     @Override public void onEndOnlineSessionToMenu() { onlineSessionEndedCleanup(); }
