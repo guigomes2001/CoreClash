@@ -6,7 +6,8 @@ public enum DomainMatchStatus {
     WAITING("WAITING"),
     PLAYING("PLAYING"),
     ENDED("ENDED"),
-    ABANDONED("ABANDONED");
+    ABANDONED("ABANDONED"),
+    END_ABANDONMENT("END_ABANDONMENT");
 
     DomainMatchStatus(String value) {
         this.value = value;

@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.coreclash.R;
+
 import util.AnimationHelper;
 
 public class TurnHudManager {
@@ -36,6 +38,8 @@ public class TurnHudManager {
 
     private float pulseBaseScale = 1f;
     private float pulseAmp = 0f;
+    private TextView abandonX;
+    private TextView abandonO;
 
     public TurnHudManager(
             @NonNull View hudRoot,
@@ -88,6 +92,9 @@ public class TurnHudManager {
         barO.setScaleY(1f);
         barX.setAlpha(1f);
         barO.setAlpha(1f);
+
+        if (abandonX != null) abandonX.setAlpha(0.35f);
+        if (abandonO != null) abandonO.setAlpha(0.35f);
     }
 
     public void release() {
@@ -229,5 +236,22 @@ public class TurnHudManager {
                 .start();
 
         AnimationHelper.shakeButton(hudRoot);
+    }
+
+    public void bindAbandonViews(@NonNull TextView x, @NonNull TextView o) {
+        this.abandonX = x;
+        this.abandonO = o;
+    }
+
+    public void renderAbandon(@NonNull android.content.Context context, int xCount, int oCount, int max) {
+        if (abandonX == null || abandonO == null) return;
+
+        String label = context.getString(R.string.hud_abandon_label);
+
+        abandonX.setText(context.getString(R.string.hud_abandon_format, label, xCount, max));
+        abandonO.setText(context.getString(R.string.hud_abandon_format, label, oCount, max));
+
+        abandonX.setAlpha(xCount > 0 ? 1f : 0.35f);
+        abandonO.setAlpha(oCount > 0 ? 1f : 0.35f);
     }
 }

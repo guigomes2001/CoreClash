@@ -1,29 +1,45 @@
 package manager;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.coreclash.MainActivity;
+import androidx.annotation.NonNull;
+
 import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
 
 public class StoreManager {
 
-    private final MainActivity activity;
+    public interface Callbacks {
+        void onHeaderShouldRefresh();
+    }
+
+    private final Context context;
+    private final android.os.Handler handler;
     private final ActivityMainBinding binding;
     private final PlayerProfile profile;
     private final ProfileManager profileManager;
     private final BoardManager board;
+    private final Callbacks cb;
 
-    public StoreManager(MainActivity activity, ActivityMainBinding binding,
-                        PlayerProfile profile, ProfileManager profileManager,
-                        BoardManager board) {
-        this.activity = activity;
+    public StoreManager(
+            @NonNull Context context,
+            @NonNull android.os.Handler handler,
+            @NonNull ActivityMainBinding binding,
+            @NonNull PlayerProfile profile,
+            @NonNull ProfileManager profileManager,
+            @NonNull BoardManager board,
+            @NonNull Callbacks callbacks
+    ) {
+        this.context = context;
+        this.handler = handler;
         this.binding = binding;
         this.profile = profile;
         this.profileManager = profileManager;
         this.board = board;
+        this.cb = callbacks;
         setupActions();
     }
 
@@ -40,7 +56,7 @@ public class StoreManager {
             profile.coins += 500;
             profileManager.persistProfile();
             refreshStoreUI();
-            Toast.makeText(activity, activity.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -65,22 +81,20 @@ public class StoreManager {
     }
 
     private void refreshStoreUI() {
-        if (profile != null) {
-            binding.txtStoreCoinsFull.setText(activity.getString(R.string.store_coins_format, profile.coins));
-        }
+        binding.txtStoreCoinsFull.setText(context.getString(R.string.store_coins_format, profile.coins));
     }
 
     private void buyOrEquipTheme(String themeId, int price) {
         if (profile.ownsTheme(themeId)) {
             profile.equippedTheme = themeId;
-            Toast.makeText(activity, activity.getString(R.string.toast_theme_equipped), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.toast_theme_equipped), Toast.LENGTH_SHORT).show();
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedThemes.add(themeId);
             profile.equippedTheme = themeId;
-            Toast.makeText(activity, activity.getString(R.string.toast_theme_bought), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.toast_theme_bought), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(activity, activity.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -90,14 +104,14 @@ public class StoreManager {
     private void buyOrEquipStyle(String styleId, int price) {
         if (profile.ownsSymbolStyle(styleId)) {
             profile.equippedSymbolStyle = styleId;
-            Toast.makeText(activity, activity.getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedSymbolStyles.add(styleId);
             profile.equippedSymbolStyle = styleId;
-            Toast.makeText(activity, activity.getString(R.string.toast_style_bought), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.toast_style_bought), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(activity, activity.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -108,11 +122,10 @@ public class StoreManager {
         profileManager.persistProfile();
         refreshStoreUI();
         applyEquippedCosmetics();
-        activity.updateHeaderStatus();
+        if (cb != null) cb.onHeaderShouldRefresh();
     }
 
     public void applyEquippedCosmetics() {
-        if (profile == null || board == null) return;
         board.setBoardTheme(profile.equippedTheme);
         board.setSymbolStyle(profile.equippedSymbolStyle);
         board.resetBoard();
@@ -131,7 +144,7 @@ public class StoreManager {
         binding.txtCurtainMiddle.animate().translationX(0f).setDuration(280).start();
         binding.txtCurtainBottom.animate().translationX(0f).setDuration(320).start();
 
-        activity.handler.postDelayed(() -> {
+        handler.postDelayed(() -> {
             if (onEnd != null) onEnd.run();
             binding.storeTransitionOverlay.animate()
                     .alpha(0f)

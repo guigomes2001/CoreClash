@@ -23,6 +23,8 @@ public class GameState {
     private int totalWins = 0;
     private int winStreak = 0;
     private int bestWinStreak = 0;
+    int timeoutStreakX;
+    int timeoutStreakO;
 
     public boolean isXTurn() {
         return xTurn;
@@ -159,5 +161,31 @@ public class GameState {
         squareExists = true;
         triangleOwnerIsX = null;
         squareOwnerIsX = null;
+        timeoutStreakX = 0;
+        timeoutStreakO = 0;
+    }
+
+    public boolean registerTimeout(boolean xTimedOut) {
+        if (xTimedOut) {
+            timeoutStreakX++;
+        } else {
+            timeoutStreakO++;
+        }
+        return (xTimedOut ? timeoutStreakX : timeoutStreakO) >= 3;
+    }
+
+    public void resetTimeoutStreak(boolean xSide) {
+        if (xSide) {
+            timeoutStreakX = 0;
+        } else {
+            timeoutStreakO = 0;
+        }
+    }
+
+    public int getTimeoutStreakX() {
+        return timeoutStreakX;
+    }
+    public int getTimeoutStreakO() {
+        return timeoutStreakO;
     }
 }

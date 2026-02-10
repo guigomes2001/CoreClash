@@ -106,6 +106,13 @@ public class OnlineMatchmaking {
                 room.put("turnStartedAt", ServerValue.TIMESTAMP);
                 room.put("turnDurationMs", TURN_DURATION_MS);
 
+                room.put("turnSeq", 0L);
+                room.put("lastTimeoutProcessedSeq", -1L);
+                room.put("timeoutStreakX", 0L);
+                room.put("timeoutStreakO", 0L);
+                room.put("winner", "");
+                room.put("endReason", "");
+
                 Map<String, Object> players = new HashMap<>();
                 players.put("X", myUid);
                 players.put("O", "");
@@ -164,6 +171,13 @@ public class OnlineMatchmaking {
 
                 currentData.child("introReady").child(TURN_X).setValue(false);
                 currentData.child("introReady").child(TURN_O).setValue(false);
+
+                if (currentData.child("turnSeq").getValue() == null) currentData.child("turnSeq").setValue(0L);
+                if (currentData.child("lastTimeoutProcessedSeq").getValue() == null) currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
+                if (currentData.child("timeoutStreakX").getValue() == null) currentData.child("timeoutStreakX").setValue(0L);
+                if (currentData.child("timeoutStreakO").getValue() == null) currentData.child("timeoutStreakO").setValue(0L);
+                if (currentData.child("winner").getValue() == null) currentData.child("winner").setValue("");
+                if (currentData.child("endReason").getValue() == null) currentData.child("endReason").setValue("");
 
                 return Transaction.success(currentData);
             }
