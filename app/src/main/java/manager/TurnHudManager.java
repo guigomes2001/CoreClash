@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 
 import com.example.coreclash.R;
 
+import ui.style.HudIdentityStyle;
+
 import util.AnimationHelper;
 
 public class TurnHudManager {
