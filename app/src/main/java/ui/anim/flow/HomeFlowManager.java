@@ -1,7 +1,11 @@
 package ui.anim.flow;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.res.ColorStateList;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import androidx.annotation.NonNull;
 
@@ -152,6 +156,56 @@ public class HomeFlowManager {
                                  int defaultText) {
         button.setBackgroundTintList(ColorStateList.valueOf(selected ? selectedBg : defaultBg));
         button.setTextColor(selected ? selectedText : defaultText);
+    }
+
+
+    public void playHomeEntrance() {
+        View[] revealViews = new View[]{
+                binding.homeCard,
+                binding.homeQuickActions,
+                binding.btnPlay,
+                binding.btnOnline,
+                binding.btnStore,
+                binding.btnArena
+        };
+
+        for (View view : revealViews) {
+            view.animate().cancel();
+            view.setAlpha(0f);
+            view.setTranslationY(24f);
+            view.setScaleX(0.96f);
+            view.setScaleY(0.96f);
+        }
+
+        AnimatorSet timeline = new AnimatorSet();
+
+        AnimatorSet cardAnim = buildReveal(binding.homeCard, 220L, 0L);
+        AnimatorSet quickActionsAnim = buildReveal(binding.homeQuickActions, 200L, 70L);
+
+        AnimatorSet tile1 = buildReveal(binding.btnPlay, 190L, 120L);
+        AnimatorSet tile2 = buildReveal(binding.btnOnline, 190L, 170L);
+        AnimatorSet tile3 = buildReveal(binding.btnStore, 190L, 220L);
+        AnimatorSet tile4 = buildReveal(binding.btnArena, 190L, 270L);
+
+        timeline.playTogether(cardAnim, quickActionsAnim, tile1, tile2, tile3, tile4);
+        timeline.start();
+    }
+
+    @NonNull
+    private AnimatorSet buildReveal(@NonNull View view, long durationMs, long startDelayMs) {
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
+        ObjectAnimator translateY = ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, 24f, 0f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, View.SCALE_X, 0.96f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, View.SCALE_Y, 0.96f, 1f);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(alpha, translateY, scaleX, scaleY);
+        set.setDuration(durationMs);
+        set.setStartDelay(startDelayMs);
+        set.setInterpolator(new OvershootInterpolator(0.85f));
+
+        alpha.setInterpolator(new DecelerateInterpolator());
+        return set;
     }
 
     public void showWaitingOpponentUi() {

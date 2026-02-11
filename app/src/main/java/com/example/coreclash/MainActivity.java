@@ -841,6 +841,8 @@ public class MainActivity extends AppCompatActivity {
 
         binding.progressTurnHudX.setProgress(0);
         binding.progressTurnHudO.setProgress(0);
+
+        binding.homeOverlay.post(homeFlow::playHomeEntrance);
     }
 
     private String getPlayerDisplayName() {
