@@ -28,6 +28,7 @@
 
     <string name="btn_quick_match">Quick Match</string>
     <string name="btn_store">Store</string>
+    <string name="btn_modes">Modes</string>
     <string name="mode_title">Match type</string>
     <string name="mode_subtitle_online_offline">Offline: play vs bot. Online: real-time PvP.</string>
     <string name="mode_subtitle">Choose your battle pace</string>
