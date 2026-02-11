@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -18,6 +21,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
 
+import enums.DomainMatchPhase;
 import enums.DomainSymmetries;
 import ui.anim.MatchIntroAnimator;
 import ui.anim.TimeoutBannerAnimator;
@@ -36,6 +40,7 @@ import manager.AuthenticationManager;
 import manager.BoardManager;
 import manager.BotManager;
 import manager.GameManager;
+import manager.HomeAwayManager;
 import manager.MatchManager;
 import manager.PlayerServicesManager;
 import manager.SettingManager;
@@ -66,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
+    private boolean passAndPlayMode = false;
+    private DomainMatchPhase matchPhase = DomainMatchPhase.LOADING;
 
     private boolean localIntroCompleted = false;
     private boolean bothIntroReady = false;
@@ -80,11 +87,13 @@ public class MainActivity extends AppCompatActivity {
 
     private MatchManager matchManager;
     private BotManager botManager;
+    private HomeAwayManager homeAwayManager;
 
     private TimeoutBannerAnimator timeoutBannerAnimator;
     private MatchIntroAnimator matchIntroAnimator;
     private VictoryOverlayAnimator victoryOverlayAnimator;
     private static final int MAX_TIMEOUTS = 3;
+    private boolean passPlayPlayerOneIsX = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         timeoutBannerAnimator = new TimeoutBannerAnimator(binding);
         victoryOverlayAnimator = new VictoryOverlayAnimator(binding, board, gameManager, handler);
         settingManager = new SettingManager(this, binding);
+        homeAwayManager = new HomeAwayManager(this);
 
         turnHud = initTurnHudManager();
 
@@ -181,7 +191,13 @@ public class MainActivity extends AppCompatActivity {
     private HomeFlowManager initHomeFlow() {
         return new HomeFlowManager(binding, new HomeFlowManager.Callbacks() {
             @Override public void onPlayOnlineClicked() {
-                startOfflineVsBot();
+                String uid = getMyUidOrNull();
+                if (uid == null) {
+                    Toast.makeText(MainActivity.this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                showMatchmakingLoading(getString(R.string.toast_looking_match));
+                matchManager.startOnlineMatchmaking(() -> uid);
             }
 
             @Override public void onStoreClicked() {
@@ -206,11 +222,21 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmOnlinePvp() {
-                matchManager.startOnlineMatchmaking(MainActivity.this::getMyUidOrNull);
+                String uid = getMyUidOrNull();
+                if (uid == null) {
+                    Toast.makeText(MainActivity.this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                showMatchmakingLoading(getString(R.string.toast_looking_match));
+                matchManager.startOnlineMatchmaking(() -> uid);
             }
 
-            @Override public void onConfirmLocalMultiplayer() {
-                Toast.makeText(MainActivity.this, "Local multiplayer is not available yet.", Toast.LENGTH_SHORT).show();
+            @Override public void onConfirmLocalPassPlay() {
+                startLocalPassAndPlay();
+            }
+
+            @Override public void onConfirmLocalLobby() {
+                openLocalLobbyDialog();
             }
 
             @Override public void onModeChanged(@NonNull enums.DomainMatchKind selected) {
@@ -239,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private String getOpponentDisplayName() {
+        if (passAndPlayMode) return "Jogador 2";
+
         if (matchManager != null && matchManager.isOnlineMatch()) {
             String n = matchManager.getOpponentName();
             if (n != null && !n.trim().isEmpty()) return n.trim();
@@ -273,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if (matchManager.isOnlineMatch()) {
                             matchStarted = false;
+        matchPhase = DomainMatchPhase.LOADING;
                             bothIntroReady = false;
                             updateHeaderStatus();
                             updateSkillVisuals();
@@ -283,20 +312,25 @@ public class MainActivity extends AppCompatActivity {
 
                                     matchManager.getOnlineSession().startPlayingWhenIntroFinished();
 
-                                    matchStarted = true;
-                                    updateHeaderStatus();
-                                    updateSkillVisuals();
-                                    matchManager.startOrUpdateOnlineBar();
-                                    matchManager.scheduleOnlineTimeoutBanner();
+                                    runCountdown(getOnlineStartsLabel(), () -> {
+                                        matchStarted = true;
+                                        matchPhase = DomainMatchPhase.PLAYING;
+                                        updateHeaderStatus();
+                                        updateSkillVisuals();
+                                        matchManager.onBothIntroReady();
+                                    });
                                 }));
                             }
                             return;
                         }
 
-                        matchStarted = true;
-                        updateHeaderStatus();
-                        updateSkillVisuals();
-                        botManager.maybeRunBotTurn();
+                        runCountdown(getLocalStartsLabel(), () -> {
+                            matchStarted = true;
+                            matchPhase = DomainMatchPhase.PLAYING;
+                            updateHeaderStatus();
+                            updateSkillVisuals();
+                            botManager.maybeRunBotTurn();
+                        });
                     }
                 }
         );
@@ -322,19 +356,26 @@ public class MainActivity extends AppCompatActivity {
                         opponentName = getString(R.string.status_waiting_opponent);
                         updateHeaderStatus();
 
+                        showMatchmakingLoading(getString(R.string.status_waiting_opponent));
                         homeFlow.showWaitingOpponentUi();
                     }
-                    @Override public void onRestoreMenuButtons() { homeFlow.restoreMenuButtons(); }
+                    @Override public void onRestoreMenuButtons() {
+                        hideMatchmakingLoading();
+                        homeFlow.restoreMenuButtons();
+                    }
                     @Override public void onSetArenaUiVisible(boolean visible) {
                         MainActivity.this.setArenaUiVisible(visible);
                     }
 
                     @Override public void onBeforeOnlineMatchStart() {
                         versusBot = false;
+                        passAndPlayMode = false;
+                        matchPhase = DomainMatchPhase.LOADING;
                         localIntroCompleted = false;
                         bothIntroReady = false;
 
                         setGameMode();
+                        state.setGameMode(DomainGameMode.ONLINE.getValue());
                         gameManager.resetGame();
                         victoryOverlayAnimator.clearLines();
 
@@ -347,18 +388,22 @@ public class MainActivity extends AppCompatActivity {
                     @Override public boolean isBothIntroReady() { return bothIntroReady; }
 
                     @Override public void onOnlineMatchShouldStartPlaying() {
+                        hideMatchmakingLoading();
+                        matchPhase = DomainMatchPhase.COUNTDOWN;
                         matchIntroAnimator.startFromHome();
                     }
 
                     @Override
                     public void onOnlineRemoteWin(@NonNull String winnerSymbol) {
                         matchStarted = false;
+                        matchPhase = DomainMatchPhase.FINISHED;
                         victoryOverlayAnimator.showWin(winnerSymbol, 450);
                     }
 
                     @Override
                     public void onOnlineRemoteDraw() {
                         matchStarted = false;
+                        matchPhase = DomainMatchPhase.FINISHED;
                         victoryOverlayAnimator.showDraw(420);
                     }
 
@@ -498,6 +543,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupMetaControls() {
         binding.btnRestart.setOnClickListener(v -> {
             victoryOverlayAnimator.hide();
+            matchPhase = DomainMatchPhase.LOADING;
             gameManager.resetGame();
             victoryOverlayAnimator.clearLines();
             updateSkillVisuals();
@@ -514,6 +560,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btnExit.setOnClickListener(v -> {
             victoryOverlayAnimator.hide();
+            matchPhase = DomainMatchPhase.LOADING;
             gameManager.resetGame();
             victoryOverlayAnimator.clearLines();
 
@@ -533,6 +580,8 @@ public class MainActivity extends AppCompatActivity {
     private void onlineSessionEndedCleanup() {
         matchStarted = false;
         versusBot = false;
+        passAndPlayMode = false;
+        matchPhase = DomainMatchPhase.LOADING;
         localIntroCompleted = false;
         bothIntroReady = false;
 
@@ -560,12 +609,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (won) {
             matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
             victoryOverlayAnimator.showWin(symbol, 450);
             return;
         }
 
         if (gameManager.isGameOver()) {
             matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
             victoryOverlayAnimator.showDraw(420);
         }
     }
@@ -577,6 +628,139 @@ public class MainActivity extends AppCompatActivity {
         state.setGameMode(gameMode);
     }
 
+
+    private void runCountdown(@NonNull String startsLabel, @NonNull Runnable onFinish) {
+        matchPhase = DomainMatchPhase.COUNTDOWN;
+        binding.countdownOverlay.setVisibility(View.VISIBLE);
+        binding.countdownOverlay.setAlpha(0f);
+        binding.countdownOverlay.animate().alpha(1f).setDuration(120).start();
+        binding.txtCountdownWhoStarts.setText(startsLabel);
+
+        int[] ticks = {3, 2, 1};
+        for (int i = 0; i < ticks.length; i++) {
+            int value = ticks[i];
+            long delay = i * 700L;
+            handler.postDelayed(() -> binding.txtCountdownValue.setText(String.valueOf(value)), delay);
+        }
+
+        handler.postDelayed(() -> binding.txtCountdownValue.setText(getString(R.string.countdown_go)), 3 * 700L);
+        handler.postDelayed(() -> {
+            binding.countdownOverlay.animate().alpha(0f).setDuration(140).withEndAction(() -> {
+                binding.countdownOverlay.setVisibility(View.GONE);
+                binding.countdownOverlay.setAlpha(1f);
+                onFinish.run();
+            }).start();
+        }, 3 * 700L + 450L);
+    }
+
+    @NonNull
+    private String getOnlineStartsLabel() {
+        return matchManager.isMyTurnOnline()
+                ? getString(R.string.countdown_you_start)
+                : getString(R.string.countdown_opponent_starts);
+    }
+
+    @NonNull
+    private String getLocalStartsLabel() {
+        if (passAndPlayMode) {
+            boolean playerOneTurn = (passPlayPlayerOneIsX && state.isXTurn()) || (!passPlayPlayerOneIsX && !state.isXTurn());
+            String who = playerOneTurn ? "Jogador 1" : "Jogador 2";
+            return getString(R.string.countdown_player_starts, who);
+        }
+        return state.isXTurn() ? getString(R.string.countdown_you_start) : getString(R.string.countdown_opponent_starts);
+    }
+
+    private void startLocalPassAndPlay() {
+        hideMatchmakingLoading();
+        passAndPlayMode = true;
+        versusBot = false;
+        matchPhase = DomainMatchPhase.LOADING;
+        passPlayPlayerOneIsX = homeAwayManager.chooseHome("Jogador1", "Jogador2");
+        opponentName = "Jogador 2";
+
+        setGameMode();
+        state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
+        gameManager.resetGame();
+        state.setXTurn(true);
+        victoryOverlayAnimator.clearLines();
+        setArenaUiVisible(false);
+
+        updateHeaderStatus();
+        updateSkillVisuals();
+        matchIntroAnimator.startFromHome();
+    }
+
+    private void openLocalLobbyDialog() {
+        String uid = getMyUidOrNull();
+        if (uid == null) {
+            Toast.makeText(this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.mode_local_lobby))
+                .setMessage(getString(R.string.local_lobby_enter_code))
+                .setPositiveButton(getString(R.string.local_lobby_create), (d, w) -> {
+                    String code = generateRoomCode();
+                    showMatchmakingLoading(getString(R.string.local_lobby_waiting));
+                    Toast.makeText(this, getString(R.string.local_lobby_host_code, code), Toast.LENGTH_LONG).show();
+                    matchManager.createLocalLobby(uid, code);
+                })
+                .setNegativeButton(getString(R.string.local_lobby_join), (d, w) -> {
+                    EditText input = new EditText(this);
+                    input.setInputType(InputType.TYPE_CLASS_TEXT);
+                    input.setHint("ABC123");
+                    new AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.local_lobby_enter_code))
+                            .setView(input)
+                            .setPositiveButton(getString(R.string.local_lobby_join), (d2, w2) -> {
+                                String code = input.getText() == null ? "" : input.getText().toString().trim().toUpperCase();
+                                if (code.length() < 4) {
+                                    Toast.makeText(this, "Código inválido.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                showMatchmakingLoading(getString(R.string.local_lobby_waiting));
+                                matchManager.joinLocalLobby(uid, code);
+                            })
+                            .setNegativeButton(getString(R.string.btn_back), null)
+                            .show();
+                })
+                .show();
+    }
+
+    @NonNull
+    private String generateRoomCode() {
+        final String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        StringBuilder sb = new StringBuilder(6);
+        for (int i = 0; i < 6; i++) {
+            sb.append(alphabet.charAt(random.nextInt(alphabet.length())));
+        }
+        return sb.toString();
+    }
+
+    private void showMatchmakingLoading(@NonNull String statusText) {
+        binding.txtMatchmakingStatus.setText(statusText);
+        binding.matchmakingOverlay.setVisibility(View.VISIBLE);
+        binding.matchmakingOverlay.setAlpha(0f);
+        binding.matchmakingOverlay.animate().alpha(1f).setDuration(180).start();
+
+        binding.homeOverlay.setVisibility(View.VISIBLE);
+        binding.homeOverlay.setAlpha(1f);
+        setArenaUiVisible(false);
+    }
+
+    private void hideMatchmakingLoading() {
+        if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) return;
+        binding.matchmakingOverlay.animate()
+                .alpha(0f)
+                .setDuration(140)
+                .withEndAction(() -> {
+                    binding.matchmakingOverlay.setVisibility(View.GONE);
+                    binding.matchmakingOverlay.setAlpha(1f);
+                })
+                .start();
+    }
+
     private void showHomeScreen() {
         matchStarted = false;
 
@@ -585,7 +769,8 @@ public class MainActivity extends AppCompatActivity {
         victoryOverlayAnimator.hideInstant();
         victoryOverlayAnimator.clearLines();
 
-        setArenaUiVisible(true);
+        hideMatchmakingLoading();
+        setArenaUiVisible(false);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
@@ -595,6 +780,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getPlayerDisplayName() {
+        if (passAndPlayMode) return "Jogador 1";
+
         var user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
             return user.getDisplayName();
@@ -624,12 +811,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (won) {
             matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
             victoryOverlayAnimator.showWin(symbol, 450);
             return;
         }
 
         if (gameManager.isGameOver()) {
             matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
             victoryOverlayAnimator.showDraw(420);
             return;
         }
@@ -645,13 +834,21 @@ public class MainActivity extends AppCompatActivity {
         String myName = getPlayerDisplayName();
         String rivalName = getOpponentDisplayName();
 
-        boolean iAmX = !matchManager.isOnlineMatch() || DomainSymmetries.X.getValue().equals(matchManager.getMySymbolOnline());
+        boolean iAmX;
+        if (passAndPlayMode) {
+            iAmX = passPlayPlayerOneIsX;
+        } else {
+            iAmX = !matchManager.isOnlineMatch() || DomainSymmetries.X.getValue().equals(matchManager.getMySymbolOnline());
+        }
 
         String xName = iAmX ? myName : rivalName;
         String oName = iAmX ? rivalName : myName;
 
-        boolean running = matchStarted && !gameManager.isGameOver();
-        boolean xTurn = matchManager.isOnlineMatch() ? DomainSymmetries.X.getValue().equals(matchManager.getTurnOnline()) : state.isXTurn();
+        boolean online = matchManager.isOnlineMatch();
+        boolean running = matchStarted && matchPhase == DomainMatchPhase.PLAYING && !gameManager.isGameOver() && !online;
+        boolean xTurn = online
+                ? DomainSymmetries.X.getValue().equals(matchManager.getTurnOnline())
+                : state.isXTurn();
 
         turnHud.render(xName, oName, running, xTurn, iAmX);
     }
@@ -680,6 +877,7 @@ public class MainActivity extends AppCompatActivity {
     private void startRematchIntro() {
         matchStarted = false;
 
+        hideMatchmakingLoading();
         botManager.cancelPending();
         matchManager.stopOnlineBarAnim(true);
 
@@ -698,12 +896,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startOfflineVsBot() {
+        hideMatchmakingLoading();
         versusBot = true;
         opponentName = randomBotName();
         currentBotDifficulty = randomDifficulty();
 
         setGameMode();
+        state.setGameMode(DomainGameMode.BOT.getValue());
         gameManager.resetGame();
+        boolean playerHomeVsBot = homeAwayManager.chooseHome(getPlayerDisplayName(), "BOT");
+        state.setXTurn(playerHomeVsBot);
         victoryOverlayAnimator.clearLines();
         setArenaUiVisible(false);
 

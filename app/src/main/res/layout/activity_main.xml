@@ -324,26 +324,48 @@
         android:id="@+id/homeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0A1024"
+        android:background="#DF060B1A"
         android:elevation="92dp"
         android:clickable="true"
         android:focusable="true">
 
+        <ImageView
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="top|start"
+            android:layout_marginStart="-56dp"
+            android:layout_marginTop="-48dp"
+            android:alpha="0.62"
+            android:src="@drawable/deco_orb_cyan"
+            android:contentDescription="@null" />
+
+        <ImageView
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="-70dp"
+            android:layout_marginBottom="-62dp"
+            android:alpha="0.5"
+            android:src="@drawable/deco_orb_gold"
+            android:contentDescription="@null" />
+
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="360dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="18dp">
+            android:padding="18dp"
+            android:background="@drawable/bg_modal_panel">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textSize="40sp"
+                android:textSize="42sp"
                 android:textStyle="bold"
-                android:textColor="#F1F5F9"
+                android:textColor="#F8FAFC"
+                android:letterSpacing="0.03"
                 android:fontFamily="sans-serif-black"/>
 
             <TextView
@@ -351,16 +373,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="@string/home_subtitle"
-                android:textColor="#B8C6D8"
+                android:textColor="#9FB3C8"
                 android:textSize="14sp" />
 
             <LinearLayout
-                android:layout_width="340dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:orientation="vertical"
-                android:padding="18dp"
-                android:background="@drawable/bg_cyber_glass">
+                android:padding="16dp"
+                android:background="@drawable/bg_cyber_glass"
+                android:divider="@android:color/transparent"
+                android:showDividers="middle">
 
                 <Button
                     android:id="@+id/btnPlay"
@@ -370,8 +394,8 @@
                     android:drawableStart="@drawable/ic_swords_simple"
                     android:drawablePadding="10dp"
                     android:textStyle="bold"
-                    android:textColor="#1F1300"
-                    android:backgroundTint="#F7C948"
+                    android:textColor="#04131F"
+                    android:background="@drawable/bg_button_primary"
                     android:gravity="center_vertical|center_horizontal"/>
 
                 <Button
@@ -384,7 +408,7 @@
                     android:drawablePadding="10dp"
                     android:textStyle="bold"
                     android:textColor="#F8FAFC"
-                    android:backgroundTint="#2563EB"
+                    android:background="@drawable/bg_button_secondary"
                     android:gravity="center_vertical|center_horizontal"/>
 
                 <LinearLayout
@@ -402,8 +426,8 @@
                         android:drawableStart="@drawable/ic_store_stall"
                         android:drawablePadding="8dp"
                         android:textStyle="bold"
-                        android:textColor="#FFFFFF"
-                        android:backgroundTint="#1E3A5F"
+                        android:textColor="#DDEBFF"
+                        android:background="@drawable/bg_button_tertiary"
                         android:gravity="center_vertical|center_horizontal"/>
 
                     <Button
@@ -416,8 +440,8 @@
                         android:drawableStart="@drawable/ic_settings_gear"
                         android:drawablePadding="8dp"
                         android:textStyle="bold"
-                        android:textColor="#FFFFFF"
-                        android:backgroundTint="#1E3A5F"
+                        android:textColor="#DDEBFF"
+                        android:background="@drawable/bg_button_tertiary"
                         android:gravity="center_vertical|center_horizontal"/>
                 </LinearLayout>
             </LinearLayout>
@@ -425,95 +449,153 @@
     </FrameLayout>
 
     <FrameLayout
-    android:id="@+id/modeOverlay"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#C4000000"
-    android:visibility="gone"
-    android:elevation="94dp"
-    android:clickable="true"
-    android:focusable="true">
-
-    <LinearLayout
-        android:id="@+id/modeCard"
+        android:id="@+id/matchmakingOverlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_marginHorizontal="24dp"
-        android:background="@drawable/bg_cyber_glass">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/mode_title"
-            android:textStyle="bold"
-            android:textSize="22sp"
-            android:textColor="#F8FAFC"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/mode_subtitle_online_offline"
-            android:textColor="#94A3B8"
-            android:textSize="13sp"/>
+        android:layout_height="match_parent"
+        android:background="#E80A1024"
+        android:visibility="gone"
+        android:elevation="95dp"
+        android:clickable="true"
+        android:focusable="true">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp">
 
-            <Button
-                android:id="@+id/btnModeOffline"
-                android:layout_width="0dp"
-                android:layout_height="46dp"
-                android:layout_weight="1"
-                android:text="@string/btn_mode_offline"
-                android:textStyle="bold"/>
+            <ProgressBar
+                android:id="@+id/progressMatchmaking"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"/>
 
-            <Button
-                android:id="@+id/btnModeOnline"
-                android:layout_width="0dp"
-                android:layout_height="46dp"
-                android:layout_weight="1"
-                android:layout_marginStart="10dp"
-                android:text="@string/btn_mode_online"
-                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/txtMatchmakingStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/status_waiting_opponent"
+                android:textColor="#E2E8F0"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/toast_looking_match"
+                android:textColor="#94A3B8"
+                android:textSize="14sp"/>
         </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/modeOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CF030712"
+        android:visibility="gone"
+        android:elevation="94dp"
+        android:clickable="true"
+        android:focusable="true">
 
         <LinearLayout
+            android:id="@+id/modeCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:orientation="horizontal">
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_marginHorizontal="24dp"
+            android:background="@drawable/bg_modal_panel">
 
-            <Button
-                android:id="@+id/btnModeCancel"
-                android:layout_width="0dp"
-                android:layout_height="46dp"
-                android:layout_weight="1"
-                android:text="@string/btn_back"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_title"
                 android:textStyle="bold"
-                android:textColor="#E0F2FE"
-                android:backgroundTint="#334155"/>
+                android:textSize="22sp"
+                android:textColor="#F8FAFC"/>
 
-            <Button
-                android:id="@+id/btnModeConfirm"
-                android:layout_width="0dp"
-                android:layout_height="46dp"
-                android:layout_weight="1"
-                android:layout_marginStart="10dp"
-                android:text="@string/btn_ok"
-                android:textStyle="bold"
-                android:textColor="#041019"
-                android:backgroundTint="#F7C948"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/mode_subtitle_online_offline"
+                android:textColor="#98AEC4"
+                android:textSize="13sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btnModeOnline"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:text="@string/mode_online_world"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/btnModeOffline"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/mode_vs_bot"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/btnModeLocalPassPlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/mode_local_pass_play"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/btnModeLocalLobby"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/mode_local_lobby"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnModeCancel"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_back"
+                    android:textStyle="bold"
+                    android:textColor="#DDEBFF"
+                    android:background="@drawable/bg_button_tertiary"/>
+
+                <Button
+                    android:id="@+id/btnModeConfirm"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/btn_ok"
+                    android:textStyle="bold"
+                    android:textColor="#04131F"
+                    android:background="@drawable/bg_button_primary"/>
+            </LinearLayout>
+
         </LinearLayout>
-
-    </LinearLayout>
-</FrameLayout>
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/storeOverlay"
@@ -939,34 +1021,100 @@
 
     </FrameLayout>
 
+
+    <FrameLayout
+        android:id="@+id/countdownOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#D90A1024"
+        android:visibility="gone"
+        android:elevation="99dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/txtCountdownWhoStarts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CBD5E1"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:text="@string/status_waiting"/>
+
+            <TextView
+                android:id="@+id/txtCountdownValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="3"
+                android:textStyle="bold"
+                android:textColor="#F8FAFC"
+                android:textSize="72sp"/>
+        </LinearLayout>
+    </FrameLayout>
+
     <FrameLayout
         android:id="@+id/victoryOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0B1220"
+        android:background="#ED050A17"
         android:visibility="gone"
         android:elevation="100dp"
         android:clickable="true"
         android:focusable="true">
 
+        <ImageView
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-44dp"
+            android:layout_marginEnd="-40dp"
+            android:alpha="0.58"
+            android:src="@drawable/deco_orb_cyan"
+            android:contentDescription="@null" />
+
+        <ImageView
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="-50dp"
+            android:layout_marginStart="-46dp"
+            android:alpha="0.5"
+            android:src="@drawable/deco_orb_gold"
+            android:contentDescription="@null" />
+
         <LinearLayout
-            android:id="@+id/victoryCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_cyber_glass"
-            android:orientation="vertical"
-            android:layout_marginHorizontal="24dp"
-            android:padding="24dp"
-            android:gravity="center">
+                    android:id="@+id/victoryCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_modal_panel"
+                    android:orientation="vertical"
+                    android:layout_marginHorizontal="24dp"
+                    android:minHeight="260dp"
+                    android:padding="24dp"
+                    android:gravity="center">
+
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/ic_swords_simple"
+                android:tint="#F8D464"
+                android:contentDescription="@null" />
 
             <TextView
                 android:id="@+id/txtWinnerTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:text="@string/winner_default"
-                android:textColor="#E5E7EB"
-                android:textSize="34sp"
+                android:textColor="#F8FAFC"
+                android:textSize="32sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -975,7 +1123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="@string/stats_moves_default"
-                android:textColor="#FFFFFF"
+                android:textColor="#E6EEF7"
                 android:textSize="16sp"
                 android:gravity="center" />
 
@@ -984,7 +1132,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/stats_ghosts_default"
-                android:textColor="#94A3B8"
+                android:textColor="#98AEC4"
                 android:textSize="15sp"
                 android:layout_marginTop="10dp"
                 android:gravity="center" />
@@ -997,8 +1145,8 @@
                 android:drawablePadding="8dp"
                 android:layout_marginTop="24dp"
                 android:text="@string/btn_rematch"
-                android:textColor="#041019"
-                android:backgroundTint="#F7C948"
+                android:textColor="#04131F"
+                android:background="@drawable/bg_button_primary"
                 android:textStyle="bold"/>
 
             <Button
@@ -1010,18 +1158,18 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/btn_new_match"
                 android:textColor="#FFFFFF"
-                android:backgroundTint="#2563EB"
+                android:background="@drawable/bg_button_secondary"
                 android:textStyle="bold"/>
 
-            <Button
-                android:id="@+id/btnExit"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/btn_back_to_menu"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="#334155"
-                android:textStyle="bold"/>
+                <Button
+                    android:id="@+id/btnExit"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/btn_back_to_menu"
+                    android:textColor="#DDEBFF"
+                    android:background="@drawable/bg_button_tertiary"
+                    android:textStyle="bold"/>
         </LinearLayout>
     </FrameLayout>
 
