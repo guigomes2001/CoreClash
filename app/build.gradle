@@ -56,4 +56,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.google.firebase.database)
     implementation(libs.play.services.auth.v2150)
+    implementation 'com.airbnb.android:lottie:6.4.0'
 }
