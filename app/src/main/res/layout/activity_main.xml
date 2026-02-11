@@ -449,6 +449,50 @@
     </FrameLayout>
 
     <FrameLayout
+        android:id="@+id/matchmakingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E80A1024"
+        android:visibility="gone"
+        android:elevation="95dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp">
+
+            <ProgressBar
+                android:id="@+id/progressMatchmaking"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"/>
+
+            <TextView
+                android:id="@+id/txtMatchmakingStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/status_waiting_opponent"
+                android:textColor="#E2E8F0"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/toast_looking_match"
+                android:textColor="#94A3B8"
+                android:textSize="14sp"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/modeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -993,16 +1037,35 @@
             android:src="@drawable/deco_orb_gold"
             android:contentDescription="@null" />
 
-        <LinearLayout
-            android:id="@+id/victoryCard"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_modal_panel"
-            android:orientation="vertical"
-            android:layout_marginHorizontal="24dp"
-            android:padding="24dp"
-            android:gravity="center">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingVertical="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:id="@+id/victoryCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_modal_panel"
+                    android:orientation="vertical"
+                    android:layout_marginHorizontal="24dp"
+                    android:minHeight="260dp"
+                    android:padding="24dp"
+                    android:gravity="center">
+
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/ic_swords_simple"
+                android:tint="#F8D464"
+                android:contentDescription="@null" />
 
             <ImageView
                 android:layout_width="72dp"
@@ -1065,16 +1128,18 @@
                 android:background="@drawable/bg_button_secondary"
                 android:textStyle="bold"/>
 
-            <Button
-                android:id="@+id/btnExit"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/btn_back_to_menu"
-                android:textColor="#DDEBFF"
-                android:background="@drawable/bg_button_tertiary"
-                android:textStyle="bold"/>
-        </LinearLayout>
+                <Button
+                    android:id="@+id/btnExit"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/btn_back_to_menu"
+                    android:textColor="#DDEBFF"
+                    android:background="@drawable/bg_button_tertiary"
+                    android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
     </FrameLayout>
 
     <FrameLayout

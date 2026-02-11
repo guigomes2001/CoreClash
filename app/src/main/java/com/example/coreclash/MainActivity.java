@@ -181,7 +181,13 @@ public class MainActivity extends AppCompatActivity {
     private HomeFlowManager initHomeFlow() {
         return new HomeFlowManager(binding, new HomeFlowManager.Callbacks() {
             @Override public void onPlayOnlineClicked() {
-                startOfflineVsBot();
+                String uid = getMyUidOrNull();
+                if (uid == null) {
+                    Toast.makeText(MainActivity.this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                showMatchmakingLoading(getString(R.string.toast_looking_match));
+                matchManager.startOnlineMatchmaking(() -> uid);
             }
 
             @Override public void onStoreClicked() {
@@ -206,7 +212,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmOnlinePvp() {
-                matchManager.startOnlineMatchmaking(MainActivity.this::getMyUidOrNull);
+                String uid = getMyUidOrNull();
+                if (uid == null) {
+                    Toast.makeText(MainActivity.this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                showMatchmakingLoading(getString(R.string.toast_looking_match));
+                matchManager.startOnlineMatchmaking(() -> uid);
             }
 
             @Override public void onConfirmLocalMultiplayer() {
@@ -286,8 +298,7 @@ public class MainActivity extends AppCompatActivity {
                                     matchStarted = true;
                                     updateHeaderStatus();
                                     updateSkillVisuals();
-                                    matchManager.startOrUpdateOnlineBar();
-                                    matchManager.scheduleOnlineTimeoutBanner();
+                                    matchManager.onBothIntroReady();
                                 }));
                             }
                             return;
@@ -322,9 +333,13 @@ public class MainActivity extends AppCompatActivity {
                         opponentName = getString(R.string.status_waiting_opponent);
                         updateHeaderStatus();
 
+                        showMatchmakingLoading(getString(R.string.status_waiting_opponent));
                         homeFlow.showWaitingOpponentUi();
                     }
-                    @Override public void onRestoreMenuButtons() { homeFlow.restoreMenuButtons(); }
+                    @Override public void onRestoreMenuButtons() {
+                        hideMatchmakingLoading();
+                        homeFlow.restoreMenuButtons();
+                    }
                     @Override public void onSetArenaUiVisible(boolean visible) {
                         MainActivity.this.setArenaUiVisible(visible);
                     }
@@ -347,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public boolean isBothIntroReady() { return bothIntroReady; }
 
                     @Override public void onOnlineMatchShouldStartPlaying() {
+                        hideMatchmakingLoading();
                         matchIntroAnimator.startFromHome();
                     }
 
@@ -577,6 +593,29 @@ public class MainActivity extends AppCompatActivity {
         state.setGameMode(gameMode);
     }
 
+    private void showMatchmakingLoading(@NonNull String statusText) {
+        binding.txtMatchmakingStatus.setText(statusText);
+        binding.matchmakingOverlay.setVisibility(View.VISIBLE);
+        binding.matchmakingOverlay.setAlpha(0f);
+        binding.matchmakingOverlay.animate().alpha(1f).setDuration(180).start();
+
+        binding.homeOverlay.setVisibility(View.VISIBLE);
+        binding.homeOverlay.setAlpha(1f);
+        setArenaUiVisible(false);
+    }
+
+    private void hideMatchmakingLoading() {
+        if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) return;
+        binding.matchmakingOverlay.animate()
+                .alpha(0f)
+                .setDuration(140)
+                .withEndAction(() -> {
+                    binding.matchmakingOverlay.setVisibility(View.GONE);
+                    binding.matchmakingOverlay.setAlpha(1f);
+                })
+                .start();
+    }
+
     private void showHomeScreen() {
         matchStarted = false;
 
@@ -585,7 +624,8 @@ public class MainActivity extends AppCompatActivity {
         victoryOverlayAnimator.hideInstant();
         victoryOverlayAnimator.clearLines();
 
-        setArenaUiVisible(true);
+        hideMatchmakingLoading();
+        setArenaUiVisible(false);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
@@ -650,8 +690,11 @@ public class MainActivity extends AppCompatActivity {
         String xName = iAmX ? myName : rivalName;
         String oName = iAmX ? rivalName : myName;
 
-        boolean running = matchStarted && !gameManager.isGameOver();
-        boolean xTurn = matchManager.isOnlineMatch() ? DomainSymmetries.X.getValue().equals(matchManager.getTurnOnline()) : state.isXTurn();
+        boolean online = matchManager.isOnlineMatch();
+        boolean running = !online && matchStarted && !gameManager.isGameOver();
+        boolean xTurn = online
+                ? DomainSymmetries.X.getValue().equals(matchManager.getTurnOnline())
+                : state.isXTurn();
 
         turnHud.render(xName, oName, running, xTurn, iAmX);
     }
@@ -680,6 +723,7 @@ public class MainActivity extends AppCompatActivity {
     private void startRematchIntro() {
         matchStarted = false;
 
+        hideMatchmakingLoading();
         botManager.cancelPending();
         matchManager.stopOnlineBarAnim(true);
 
@@ -698,6 +742,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startOfflineVsBot() {
+        hideMatchmakingLoading();
         versusBot = true;
         opponentName = randomBotName();
         currentBotDifficulty = randomDifficulty();
