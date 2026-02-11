@@ -1067,6 +1067,13 @@
                 android:tint="#F8D464"
                 android:contentDescription="@null" />
 
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/ic_swords_simple"
+                android:tint="#F8D464"
+                android:contentDescription="@null" />
+
             <TextView
                 android:id="@+id/txtWinnerTitle"
                 android:layout_width="wrap_content"
