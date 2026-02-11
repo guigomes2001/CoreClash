@@ -454,22 +454,26 @@
                     <Button
                         android:id="@+id/btnProfile"
                         android:layout_width="0dp"
-                        android:layout_height="46dp"
+                        android:layout_height="48dp"
                         android:layout_weight="1"
                         android:text="@string/btn_profile"
                         android:textStyle="bold"
                         android:textColor="#DDEBFF"
+                        android:drawableStart="@drawable/ic_fa_user"
+                        android:drawablePadding="8dp"
                         android:background="@drawable/bg_button_tertiary"/>
 
                     <Button
                         android:id="@+id/btnFriends"
                         android:layout_width="0dp"
-                        android:layout_height="46dp"
+                        android:layout_height="48dp"
                         android:layout_weight="1"
                         android:layout_marginStart="10dp"
                         android:text="@string/btn_friends"
                         android:textStyle="bold"
                         android:textColor="#DDEBFF"
+                        android:drawableStart="@drawable/ic_fa_users"
+                        android:drawablePadding="8dp"
                         android:background="@drawable/bg_button_tertiary"/>
                 </LinearLayout>
             </LinearLayout>
