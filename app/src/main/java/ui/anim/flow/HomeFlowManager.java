@@ -97,10 +97,10 @@ public class HomeFlowManager {
         binding.btnArena.setText(R.string.btn_modes);
 
         int iconColor = 0xFFDDEBFF;
-        FontAwesomeIconFactory.applyTopIcon(binding.btnPlay, binding.getRoot().getContext().getString(R.string.fa_gamepad), 20, iconColor, 8);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 20, iconColor, 8);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnStore, binding.getRoot().getContext().getString(R.string.fa_store), 20, iconColor, 8);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnArena, binding.getRoot().getContext().getString(R.string.fa_users), 20, iconColor, 8);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnPlay, binding.getRoot().getContext().getString(R.string.fa_gamepad), 16, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 16, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnStore, binding.getRoot().getContext().getString(R.string.fa_store), 16, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnArena, binding.getRoot().getContext().getString(R.string.fa_users), 16, iconColor, 6);
     }
 
     public void setSelectedMatchKind(@NonNull enums.DomainMatchKind kind) {
