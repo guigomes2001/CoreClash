@@ -8,6 +8,7 @@
 
     <string name="btn_play">Play</string>
     <string name="btn_settings">Settings</string>
+    <string name="btn_cancel_matchmaking">Cancel search</string>
     <string name="btn_close">Close</string>
     <string name="home_subtitle">Fast arena. Less touch, more action.</string>
     <string name="btn_language">Language</string>
@@ -138,5 +139,6 @@
     <string name="fa_users" translatable="false">&#xf0c0;</string>
     <string name="fa_cog" translatable="false">&#xf013;</string>
     <string name="fa_store" translatable="false">&#xf54e;</string>
+    <string name="fa_xmark" translatable="false">&#xf00d;</string>
 
 </resources>

@@ -8,6 +8,7 @@
 
     <string name="btn_play">Jogar</string>
     <string name="btn_settings">Ajustes</string>
+    <string name="btn_cancel_matchmaking">Cancelar busca</string>
     <string name="btn_close">Fechar</string>
     <string name="home_subtitle">Arena rápida. Menos toque, mais ação.</string>
     <string name="btn_language">Idioma</string>
@@ -137,5 +138,6 @@
     <string name="fa_users" translatable="false">&#xf0c0;</string>
     <string name="fa_cog" translatable="false">&#xf013;</string>
     <string name="fa_store" translatable="false">&#xf54e;</string>
+    <string name="fa_xmark" translatable="false">&#xf00d;</string>
 
 </resources>
