@@ -8,6 +8,7 @@
 
     <string name="btn_play">Play</string>
     <string name="btn_settings">Settings</string>
+    <string name="btn_cancel_matchmaking">Cancel search</string>
     <string name="btn_close">Close</string>
     <string name="home_subtitle">Fast arena. Less touch, more action.</string>
     <string name="btn_language">Language</string>
@@ -28,6 +29,7 @@
 
     <string name="btn_quick_match">Quick Match</string>
     <string name="btn_store">Store</string>
+    <string name="btn_modes">Modes</string>
     <string name="mode_title">Match type</string>
     <string name="mode_subtitle_online_offline">Offline: play vs bot. Online: real-time PvP.</string>
     <string name="mode_subtitle">Choose your battle pace</string>
@@ -137,5 +139,6 @@
     <string name="fa_users" translatable="false">&#xf0c0;</string>
     <string name="fa_cog" translatable="false">&#xf013;</string>
     <string name="fa_store" translatable="false">&#xf54e;</string>
+    <string name="fa_xmark" translatable="false">&#xf00d;</string>
 
 </resources>

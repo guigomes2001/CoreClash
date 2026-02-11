@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation 'androidx.dynamicanimation:dynamicanimation:1.0.0'
 
     implementation project(':game-core')
 
@@ -56,4 +57,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.google.firebase.database)
     implementation(libs.play.services.auth.v2150)
+    implementation 'com.airbnb.android:lottie:6.4.0'
 }
