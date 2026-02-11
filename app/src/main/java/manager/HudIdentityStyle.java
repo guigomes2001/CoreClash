@@ -4,12 +4,6 @@ import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 
-/**
- * Configura o estilo visual da identidade dos jogadores no HUD de turno.
- *
- * Mantido em classe própria para facilitar futura customização por skins/temas
- * (símbolos, cores, prefixos e outros ajustes visuais).
- */
 public class HudIdentityStyle {
 
     public final int xSymbolColor;
