@@ -532,23 +532,37 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btnModeOffline"
-                    android:layout_width="0dp"
-                    android:layout_height="46dp"
-                    android:layout_weight="1"
-                    android:text="@string/btn_mode_offline"
-                    android:textStyle="bold"/>
+                android:orientation="vertical">
 
                 <Button
                     android:id="@+id/btnModeOnline"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="46dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="10dp"
-                    android:text="@string/btn_mode_online"
+                    android:text="@string/mode_online_world"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/btnModeOffline"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/mode_vs_bot"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/btnModeLocalPassPlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/mode_local_pass_play"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/btnModeLocalLobby"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/mode_local_lobby"
                     android:textStyle="bold"/>
             </LinearLayout>
 
@@ -1007,6 +1021,44 @@
 
     </FrameLayout>
 
+
+    <FrameLayout
+        android:id="@+id/countdownOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#D90A1024"
+        android:visibility="gone"
+        android:elevation="99dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/txtCountdownWhoStarts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CBD5E1"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:text="@string/status_waiting"/>
+
+            <TextView
+                android:id="@+id/txtCountdownValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="3"
+                android:textStyle="bold"
+                android:textColor="#F8FAFC"
+                android:textSize="72sp"/>
+        </LinearLayout>
+    </FrameLayout>
+
     <FrameLayout
         android:id="@+id/victoryOverlay"
         android:layout_width="match_parent"
@@ -1037,19 +1089,7 @@
             android:src="@drawable/deco_orb_gold"
             android:contentDescription="@null" />
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:clipToPadding="false"
-            android:paddingVertical="24dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center">
-
-                <LinearLayout
+        <LinearLayout
                     android:id="@+id/victoryCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -1059,13 +1099,6 @@
                     android:minHeight="260dp"
                     android:padding="24dp"
                     android:gravity="center">
-
-            <ImageView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/ic_swords_simple"
-                android:tint="#F8D464"
-                android:contentDescription="@null" />
 
             <ImageView
                 android:layout_width="72dp"
@@ -1137,9 +1170,7 @@
                     android:textColor="#DDEBFF"
                     android:background="@drawable/bg_button_tertiary"
                     android:textStyle="bold"/>
-                </LinearLayout>
-            </LinearLayout>
-        </ScrollView>
+        </LinearLayout>
     </FrameLayout>
 
     <FrameLayout

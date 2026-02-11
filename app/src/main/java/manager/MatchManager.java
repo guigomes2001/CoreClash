@@ -131,54 +131,7 @@ public class MatchManager {
         matchmaking.findOrCreateMatch(myUid, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
-                isOnlineMatch = true;
-                iAmXOnline = iAmX;
-
-                mySymbolOnline = iAmXOnline ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
-
-                opponentName = opponentUid.trim().isEmpty()
-                        ? context.getString(R.string.status_waiting_opponent)
-                        : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
-
-                onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
-
-                hookOnlineListenersInternal();
-
-                turnOnline = DomainSymmetries.X.getValue();
-                turnStartedAtOnlineMs = 0L;
-                turnDurationOnlineMs = 10_000L;
-                turnSeqOnline = 0L;
-
-                lastTimeoutBannerTurnKey = "";
-                scheduledTimeoutTurnKey = "";
-
-                cb.onBeforeOnlineMatchStart();
-                cb.onSetArenaUiVisible(false);
-
-                cb.onUpdateHeaderStatus();
-                cb.onUpdateSkillVisuals();
-
-                if (iAmXOnline && opponentUid.trim().isEmpty()) {
-                    cb.onShowWaitingOpponentUi();
-                }
-
-                onlineSession.listenOpponentJoin(oUid -> cb.runOnUi(() -> {
-                    opponentName = "Player " + oUid.substring(0, Math.min(6, oUid.length()));
-                    cb.onUpdateHeaderStatus();
-
-                    if (iAmXOnline) {
-                        onlineSession.scheduleIntroIfHost(true, 500L, 3000L);
-                    }
-                }));
-
-                onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
-                    long delay = Math.max(0L, startAt - serverNow);
-                    cb.runOnUi(() -> handler.postDelayed(() -> {
-                        if (!isOnlineMatch || onlineSession == null) return;
-                        cb.onRestoreMenuButtons();
-                        cb.onOnlineMatchShouldStartPlaying();
-                    }, delay));
-                });
+                bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
             }
 
             @Override
@@ -189,6 +142,92 @@ public class MatchManager {
             }
         });
     }
+
+
+    public void createLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
+        matchmaking.createLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
+            @Override
+            public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
+                bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
+                cb.onShowWaitingOpponentUi();
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                cb.onRestoreMenuButtons();
+                cb.onSetArenaUiVisible(false);
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void joinLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
+        matchmaking.joinLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
+            @Override
+            public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
+                bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                cb.onRestoreMenuButtons();
+                cb.onSetArenaUiVisible(false);
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void bindMatchedRoom(@NonNull String myUid, @NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
+        isOnlineMatch = true;
+        iAmXOnline = iAmX;
+
+        mySymbolOnline = iAmXOnline ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
+
+        opponentName = opponentUid.trim().isEmpty()
+                ? context.getString(R.string.status_waiting_opponent)
+                : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
+
+        onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
+
+        hookOnlineListenersInternal();
+
+        turnOnline = DomainSymmetries.X.getValue();
+        turnStartedAtOnlineMs = 0L;
+        turnDurationOnlineMs = 10_000L;
+        turnSeqOnline = 0L;
+
+        lastTimeoutBannerTurnKey = "";
+        scheduledTimeoutTurnKey = "";
+
+        cb.onBeforeOnlineMatchStart();
+        cb.onSetArenaUiVisible(false);
+
+        cb.onUpdateHeaderStatus();
+        cb.onUpdateSkillVisuals();
+
+        if (iAmXOnline && opponentUid.trim().isEmpty()) {
+            cb.onShowWaitingOpponentUi();
+        }
+
+        onlineSession.listenOpponentJoin(oUid -> cb.runOnUi(() -> {
+            opponentName = "Player " + oUid.substring(0, Math.min(6, oUid.length()));
+            cb.onUpdateHeaderStatus();
+
+            if (iAmXOnline) {
+                onlineSession.scheduleIntroIfHost(true, 500L, 3000L);
+            }
+        }));
+
+        onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
+            long delay = Math.max(0L, startAt - serverNow);
+            cb.runOnUi(() -> handler.postDelayed(() -> {
+                if (!isOnlineMatch || onlineSession == null) return;
+                cb.onRestoreMenuButtons();
+                cb.onOnlineMatchShouldStartPlaying();
+            }, delay));
+        });
+    }
+
 
     private void hookOnlineListenersInternal() {
         if (onlineSession == null) return;

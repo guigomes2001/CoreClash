@@ -91,4 +91,20 @@
     <string name="hud_abandon_format">⚠ %1$s: %2$d/%3$d</string>
 
 
+
+    <string name="mode_online_world">Online (Mundo)</string>
+    <string name="mode_vs_bot">Vs Bot</string>
+    <string name="mode_local_pass_play">Local (2 no mesmo celular)</string>
+    <string name="mode_local_lobby">Sala Local (Convite)</string>
+    <string name="countdown_you_start">Você começa</string>
+    <string name="countdown_opponent_starts">Adversário começa</string>
+    <string name="countdown_player_starts">%1$s começa</string>
+    <string name="countdown_starting_in">Partida começando em</string>
+    <string name="countdown_go">VAI!</string>
+    <string name="local_lobby_host_code">Código da sala: %1$s</string>
+    <string name="local_lobby_enter_code">Digite o código da sala</string>
+    <string name="local_lobby_create">Criar sala</string>
+    <string name="local_lobby_join">Entrar em sala</string>
+    <string name="local_lobby_waiting">Aguardando convidado...</string>
+
 </resources>
