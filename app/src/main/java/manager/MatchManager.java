@@ -78,6 +78,9 @@ public class MatchManager {
 
     private String opponentName = "";
 
+    private int matchmakingRequestToken = 0;
+    private boolean matchmakingPending = false;
+
     public MatchManager(
             @NonNull Context context,
             @NonNull android.os.Handler handler,
@@ -125,17 +128,28 @@ public class MatchManager {
             return;
         }
 
+        final int requestToken = ++matchmakingRequestToken;
+        matchmakingPending = true;
+
         Toast.makeText(context, context.getString(R.string.toast_looking_match), Toast.LENGTH_SHORT).show();
         matchmaking.cleanupOldWaitingRooms();
 
         matchmaking.findOrCreateMatch(myUid, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
+                if (requestToken != matchmakingRequestToken) {
+                    return;
+                }
+                matchmakingPending = false;
                 bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
             }
 
             @Override
             public void onError(@NonNull String message) {
+                if (requestToken != matchmakingRequestToken) {
+                    return;
+                }
+                matchmakingPending = false;
                 cb.onRestoreMenuButtons();
                 cb.onSetArenaUiVisible(false);
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
@@ -444,12 +458,32 @@ public class MatchManager {
 
         onlineSession = null;
         isOnlineMatch = false;
+        matchmakingPending = false;
 
         lastTimeoutBannerTurnKey = "";
         scheduledTimeoutTurnKey = "";
         turnSeqOnline = 0L;
 
         cb.onEndOnlineSessionToMenu();
+    }
+
+
+    public void cancelMatchmakingSearch() {
+        matchmakingRequestToken++;
+        matchmakingPending = false;
+
+        if (onlineSession != null && isOnlineMatch) {
+            endOnlineSessionToMenu();
+            return;
+        }
+
+        cb.onRestoreMenuButtons();
+        cb.onSetArenaUiVisible(false);
+        stopOnlineBarAnim(true);
+    }
+
+    public boolean isMatchmakingPending() {
+        return matchmakingPending;
     }
 
     public void onDestroy() {

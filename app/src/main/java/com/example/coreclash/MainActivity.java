@@ -1,6 +1,7 @@
 package com.example.coreclash;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -48,6 +49,7 @@ import manager.StoreManager;
 import manager.SocialManager;
 import manager.TurnHudManager;
 import util.AnimationHelper;
+import util.FontAwesomeIconFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -159,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupSkills();
         setupMetaControls();
+        configureMatchmakingOverlay();
+        binding.btnMatchmakingCancel.setOnClickListener(v -> cancelMatchmakingSearch());
 
         playerServices.start();
         String myUid = getMyUidOrNull();
@@ -566,6 +570,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    private void configureMatchmakingOverlay() {
+        Drawable icon = FontAwesomeIconFactory.createDrawable(this, getString(R.string.fa_xmark), 15, 0xFFEAF2FF);
+        binding.btnMatchmakingCancel.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
+        binding.btnMatchmakingCancel.setCompoundDrawablePadding((int) (8 * getResources().getDisplayMetrics().density));
+        binding.btnMatchmakingCancel.setEnabled(false);
+        binding.lottieMatchmaking.setSpeed(1.0f);
+    }
+
     private void setupMetaControls() {
         binding.btnRestart.setOnClickListener(v -> {
             victoryOverlayAnimator.hide();
@@ -766,10 +779,29 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
+
+    private void cancelMatchmakingSearch() {
+        boolean hadOnlineSession = matchManager.isOnlineMatch();
+        matchManager.cancelMatchmakingSearch();
+
+        if (!hadOnlineSession) {
+            hideMatchmakingLoading();
+            setArenaUiVisible(false);
+            binding.homeOverlay.setVisibility(View.VISIBLE);
+            binding.homeOverlay.setAlpha(1f);
+            updateHeaderStatus();
+            updateSkillVisuals();
+        }
+
+        Toast.makeText(this, getString(R.string.btn_cancel_matchmaking), Toast.LENGTH_SHORT).show();
+    }
+
     private void showMatchmakingLoading(@NonNull String statusText) {
         binding.txtMatchmakingStatus.setText(statusText);
+        binding.btnMatchmakingCancel.setEnabled(true);
         binding.matchmakingOverlay.setVisibility(View.VISIBLE);
         binding.matchmakingOverlay.setAlpha(0f);
+        binding.lottieMatchmaking.playAnimation();
         binding.matchmakingOverlay.animate().alpha(1f).setDuration(180).start();
 
         binding.homeOverlay.setVisibility(View.VISIBLE);
@@ -786,6 +818,8 @@ public class MainActivity extends AppCompatActivity {
                 .setDuration(140)
                 .withEndAction(() -> {
                     binding.matchmakingOverlay.setVisibility(View.GONE);
+                    binding.btnMatchmakingCancel.setEnabled(false);
+                    binding.lottieMatchmaking.cancelAnimation();
                     binding.matchmakingOverlay.setAlpha(1f);
                 })
                 .start();

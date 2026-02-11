@@ -5,7 +5,10 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
+
+import util.FontAwesomeIconFactory;
 
 public class HomeFlowManager {
 
@@ -32,10 +35,13 @@ public class HomeFlowManager {
     }
 
     public void bind() {
+        configureHomeMenuTiles();
+
         binding.btnPlay.setOnClickListener(v -> openModeModal());
         binding.btnOnline.setOnClickListener(v -> cb.onPlayOnlineClicked());
 
         binding.btnStore.setOnClickListener(v -> cb.onStoreClicked());
+        binding.btnArena.setOnClickListener(v -> openModeModal());
         binding.btnSettings.setOnClickListener(v -> cb.onSettingsClicked());
 
         binding.btnModeOffline.setOnClickListener(v -> {
@@ -82,6 +88,19 @@ public class HomeFlowManager {
         binding.btnGoogleLoginSettings.setOnClickListener(v -> cb.onGoogleLoginFromSettingsClicked());
 
         updateModeButtonStyles();
+    }
+
+    private void configureHomeMenuTiles() {
+        binding.btnPlay.setText(R.string.btn_play);
+        binding.btnOnline.setText(R.string.mode_online_world);
+        binding.btnStore.setText(R.string.btn_store);
+        binding.btnArena.setText(R.string.btn_modes);
+
+        int iconColor = 0xFFDDEBFF;
+        FontAwesomeIconFactory.applyTopIcon(binding.btnPlay, binding.getRoot().getContext().getString(R.string.fa_gamepad), 16, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 16, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnStore, binding.getRoot().getContext().getString(R.string.fa_store), 16, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnArena, binding.getRoot().getContext().getString(R.string.fa_users), 16, iconColor, 6);
     }
 
     public void setSelectedMatchKind(@NonNull enums.DomainMatchKind kind) {
@@ -141,10 +160,12 @@ public class HomeFlowManager {
 
         binding.btnPlay.setEnabled(false);
         binding.btnOnline.setEnabled(false);
+        binding.btnArena.setEnabled(false);
     }
 
     public void restoreMenuButtons() {
         binding.btnPlay.setEnabled(true);
         binding.btnOnline.setEnabled(true);
+        binding.btnArena.setEnabled(true);
     }
 }
