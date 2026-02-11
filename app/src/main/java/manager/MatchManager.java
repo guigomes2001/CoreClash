@@ -183,6 +183,8 @@ public class MatchManager {
 
             @Override
             public void onError(@NonNull String message) {
+                cb.onRestoreMenuButtons();
+                cb.onSetArenaUiVisible(false);
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
             }
         });
@@ -250,14 +252,29 @@ public class MatchManager {
                     cb.runOnUi(() -> {
                         cb.onUpdateHeaderStatus();
                         if (cb.isBothIntroReady()) {
-                            startOrUpdateOnlineBar();
-                            scheduleOnlineTimeoutBanner();
+                            if (gameManager.getFinalMoves() > 0) {
+                                startOrUpdateOnlineBar();
+                                scheduleOnlineTimeoutBanner();
+                            } else {
+                                stopOnlineBarAnim(true);
+                            }
                         } else {
                             stopOnlineBarAnim(true);
                         }
                     });
                 }
         );
+    }
+
+
+    public void onBothIntroReady() {
+        if (!isOnlineMatch) return;
+        if (gameManager.getFinalMoves() <= 0) {
+            stopOnlineBarAnim(true);
+            return;
+        }
+        startOrUpdateOnlineBar();
+        scheduleOnlineTimeoutBanner();
     }
 
     public void sendMove(int r, int c) {
