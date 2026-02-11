@@ -83,6 +83,7 @@ public class MatchIntroAnimator {
         binding.txtVersusMode.animate().alpha(1f).setDuration(220).start();
         binding.viewVersusStripeTop.animate().alpha(1f).setDuration(220).start();
         binding.viewVersusStripeBottom.animate().alpha(1f).setDuration(220).start();
+        binding.lottieVersusTransition.playAnimation();
 
         handler.postDelayed(breakRunnable, 2500);
     }
@@ -119,6 +120,7 @@ public class MatchIntroAnimator {
                 .setDuration(260)
                 .withEndAction(() -> {
                     binding.versusOverlay.setVisibility(View.GONE);
+                    binding.lottieVersusTransition.cancelAnimation();
                     cb.onIntroFinished();
                 })
                 .start();
@@ -130,6 +132,8 @@ public class MatchIntroAnimator {
 
         binding.versusBandRoot.setAlpha(1f);
         binding.versusDim.setAlpha(1f);
+        binding.lottieVersusTransition.cancelAnimation();
+        binding.lottieVersusTransition.setProgress(0f);
 
         binding.txtVersusMode.setAlpha(1f);
         binding.viewVersusStripeTop.setAlpha(1f);
@@ -151,6 +155,7 @@ public class MatchIntroAnimator {
         binding.txtVersusMode.animate().cancel();
         binding.viewVersusStripeTop.animate().cancel();
         binding.viewVersusStripeBottom.animate().cancel();
+        binding.lottieVersusTransition.cancelAnimation();
     }
 
     private void cancelPending() {
@@ -167,6 +172,7 @@ public class MatchIntroAnimator {
         binding.txtVersusMode.animate().cancel();
         binding.viewVersusStripeTop.animate().cancel();
         binding.viewVersusStripeBottom.animate().cancel();
+        binding.lottieVersusTransition.cancelAnimation();
     }
 }
 

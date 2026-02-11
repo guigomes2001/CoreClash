@@ -3,11 +3,14 @@ package ui.anim.flow;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.res.ColorStateList;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 
 import androidx.annotation.NonNull;
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
 
 import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
@@ -40,6 +43,7 @@ public class HomeFlowManager {
 
     public void bind() {
         configureHomeMenuTiles();
+        setupSpringInteractions();
 
         binding.btnPlay.setOnClickListener(v -> openModeModal());
         binding.btnOnline.setOnClickListener(v -> cb.onPlayOnlineClicked());
@@ -107,6 +111,46 @@ public class HomeFlowManager {
         FontAwesomeIconFactory.applyTopIcon(binding.btnArena, binding.getRoot().getContext().getString(R.string.fa_users), 16, iconColor, 6);
     }
 
+    private void setupSpringInteractions() {
+        attachTileSpringInteraction(binding.btnPlay);
+        attachTileSpringInteraction(binding.btnOnline);
+        attachTileSpringInteraction(binding.btnStore);
+        attachTileSpringInteraction(binding.btnArena);
+
+        attachTileSpringInteraction(binding.btnSettings);
+        attachTileSpringInteraction(binding.btnProfile);
+        attachTileSpringInteraction(binding.btnFriends);
+    }
+
+    private void attachTileSpringInteraction(@NonNull View view) {
+        view.setOnTouchListener((v, event) -> {
+            if (!v.isEnabled()) {
+                return false;
+            }
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                springTo(v, DynamicAnimation.SCALE_X, 0.94f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY, SpringForce.STIFFNESS_MEDIUM);
+                springTo(v, DynamicAnimation.SCALE_Y, 0.94f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY, SpringForce.STIFFNESS_MEDIUM);
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                springTo(v, DynamicAnimation.SCALE_X, 1f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY, SpringForce.STIFFNESS_LOW);
+                springTo(v, DynamicAnimation.SCALE_Y, 1f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY, SpringForce.STIFFNESS_LOW);
+            }
+            return false;
+        });
+    }
+
+    private void springTo(@NonNull View view,
+                          @NonNull DynamicAnimation.ViewProperty property,
+                          float finalValue,
+                          float dampingRatio,
+                          float stiffness) {
+        SpringAnimation spring = new SpringAnimation(view, property);
+        SpringForce force = new SpringForce(finalValue);
+        force.setDampingRatio(dampingRatio);
+        force.setStiffness(stiffness);
+        spring.setSpring(force);
+        spring.start();
+    }
+
     public void setSelectedMatchKind(@NonNull enums.DomainMatchKind kind) {
         this.selectedMatchKind = kind;
         updateModeButtonStyles();
@@ -123,6 +167,7 @@ public class HomeFlowManager {
         binding.modeOverlay.setAlpha(0f);
         binding.modeCard.setScaleX(0.9f);
         binding.modeCard.setScaleY(0.9f);
+        binding.lottieModeOverlay.playAnimation();
 
         binding.modeOverlay.animate().alpha(1f).setDuration(180).start();
         binding.modeCard.animate().scaleX(1f).scaleY(1f).setDuration(220).start();
@@ -132,7 +177,10 @@ public class HomeFlowManager {
         binding.modeOverlay.animate()
                 .alpha(0f)
                 .setDuration(150)
-                .withEndAction(() -> binding.modeOverlay.setVisibility(View.GONE))
+                .withEndAction(() -> {
+                    binding.modeOverlay.setVisibility(View.GONE);
+                    binding.lottieModeOverlay.pauseAnimation();
+                })
                 .start();
     }
 
@@ -172,40 +220,45 @@ public class HomeFlowManager {
         for (View view : revealViews) {
             view.animate().cancel();
             view.setAlpha(0f);
-            view.setTranslationY(24f);
-            view.setScaleX(0.96f);
-            view.setScaleY(0.96f);
+            view.setTranslationY(38f);
+            view.setScaleX(0.9f);
+            view.setScaleY(0.9f);
         }
 
-        AnimatorSet timeline = new AnimatorSet();
+        AnimatorSet alphaTimeline = new AnimatorSet();
+        alphaTimeline.playTogether(
+                buildAlpha(binding.homeCard, 200L, 0L),
+                buildAlpha(binding.homeQuickActions, 180L, 80L),
+                buildAlpha(binding.btnPlay, 170L, 130L),
+                buildAlpha(binding.btnOnline, 170L, 180L),
+                buildAlpha(binding.btnStore, 170L, 230L),
+                buildAlpha(binding.btnArena, 170L, 280L)
+        );
+        alphaTimeline.start();
 
-        AnimatorSet cardAnim = buildReveal(binding.homeCard, 220L, 0L);
-        AnimatorSet quickActionsAnim = buildReveal(binding.homeQuickActions, 200L, 70L);
+        startEntranceSpring(binding.homeCard, 0L, 0.78f);
+        startEntranceSpring(binding.homeQuickActions, 70L, 0.82f);
+        startEntranceSpring(binding.btnPlay, 120L, 0.86f);
+        startEntranceSpring(binding.btnOnline, 170L, 0.86f);
+        startEntranceSpring(binding.btnStore, 220L, 0.86f);
+        startEntranceSpring(binding.btnArena, 270L, 0.86f);
+    }
 
-        AnimatorSet tile1 = buildReveal(binding.btnPlay, 190L, 120L);
-        AnimatorSet tile2 = buildReveal(binding.btnOnline, 190L, 170L);
-        AnimatorSet tile3 = buildReveal(binding.btnStore, 190L, 220L);
-        AnimatorSet tile4 = buildReveal(binding.btnArena, 190L, 270L);
-
-        timeline.playTogether(cardAnim, quickActionsAnim, tile1, tile2, tile3, tile4);
-        timeline.start();
+    private void startEntranceSpring(@NonNull View view, long delayMs, float damping) {
+        view.postDelayed(() -> {
+            springTo(view, DynamicAnimation.TRANSLATION_Y, 0f, damping, SpringForce.STIFFNESS_LOW);
+            springTo(view, DynamicAnimation.SCALE_X, 1f, damping, SpringForce.STIFFNESS_MEDIUM);
+            springTo(view, DynamicAnimation.SCALE_Y, 1f, damping, SpringForce.STIFFNESS_MEDIUM);
+        }, delayMs);
     }
 
     @NonNull
-    private AnimatorSet buildReveal(@NonNull View view, long durationMs, long startDelayMs) {
+    private ObjectAnimator buildAlpha(@NonNull View view, long durationMs, long startDelayMs) {
         ObjectAnimator alpha = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
-        ObjectAnimator translateY = ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, 24f, 0f);
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, View.SCALE_X, 0.96f, 1f);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, View.SCALE_Y, 0.96f, 1f);
-
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(alpha, translateY, scaleX, scaleY);
-        set.setDuration(durationMs);
-        set.setStartDelay(startDelayMs);
-        set.setInterpolator(new OvershootInterpolator(0.85f));
-
+        alpha.setDuration(durationMs);
+        alpha.setStartDelay(startDelayMs);
         alpha.setInterpolator(new DecelerateInterpolator());
-        return set;
+        return alpha;
     }
 
     public void showWaitingOpponentUi() {
