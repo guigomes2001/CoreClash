@@ -459,8 +459,8 @@
                         android:id="@+id/btnPlay"
                         android:layout_width="0dp"
                         android:layout_height="66dp"
-                        android:layout_marginEnd="6dp"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginStart="8dp"
                         android:background="@drawable/selector_menu_tile_left"
                         app:backgroundTint="@null"
                         android:textColor="#EAF2FF"
@@ -472,14 +472,14 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/btnOnline"
-                        app:layout_constraintWidth_percent="0.485" />
+                        app:layout_constraintWidth_percent="0.47" />
 
                     <Button
                         android:id="@+id/btnOnline"
                         android:layout_width="0dp"
                         android:layout_height="66dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:background="@drawable/selector_menu_tile_right"
                         app:backgroundTint="@null"
                         android:textColor="#EAF2FF"
@@ -491,15 +491,15 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toEndOf="@id/btnPlay"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintWidth_percent="0.485" />
+                        app:layout_constraintWidth_percent="0.47" />
 
                     <Button
                         android:id="@+id/btnStore"
                         android:layout_width="0dp"
                         android:layout_height="66dp"
                         android:layout_marginTop="8dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:background="@drawable/selector_menu_tile_left"
                         app:backgroundTint="@null"
                         android:textColor="#EAF2FF"
@@ -512,14 +512,14 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/btnArena"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintWidth_percent="0.485" />
+                        app:layout_constraintWidth_percent="0.47" />
 
                     <Button
                         android:id="@+id/btnArena"
                         android:layout_width="0dp"
                         android:layout_height="66dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/selector_menu_tile_right"
                         app:backgroundTint="@null"
@@ -533,7 +533,7 @@
                         app:layout_constraintStart_toEndOf="@id/btnStore"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintWidth_percent="0.485" />
+                        app:layout_constraintWidth_percent="0.47" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -558,12 +558,13 @@
             android:gravity="center"
             android:padding="24dp">
 
-            <ProgressBar
-                android:id="@+id/progressMatchmaking"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"/>
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieMatchmaking"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                app:lottie_rawRes="@raw/matchmaking_loading"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true" />
 
             <TextView
                 android:id="@+id/txtMatchmakingStatus"

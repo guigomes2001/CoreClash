@@ -576,6 +576,7 @@ public class MainActivity extends AppCompatActivity {
         binding.btnMatchmakingCancel.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
         binding.btnMatchmakingCancel.setCompoundDrawablePadding((int) (8 * getResources().getDisplayMetrics().density));
         binding.btnMatchmakingCancel.setEnabled(false);
+        binding.lottieMatchmaking.setSpeed(1.0f);
     }
 
     private void setupMetaControls() {
@@ -800,6 +801,7 @@ public class MainActivity extends AppCompatActivity {
         binding.btnMatchmakingCancel.setEnabled(true);
         binding.matchmakingOverlay.setVisibility(View.VISIBLE);
         binding.matchmakingOverlay.setAlpha(0f);
+        binding.lottieMatchmaking.playAnimation();
         binding.matchmakingOverlay.animate().alpha(1f).setDuration(180).start();
 
         binding.homeOverlay.setVisibility(View.VISIBLE);
@@ -817,6 +819,7 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(() -> {
                     binding.matchmakingOverlay.setVisibility(View.GONE);
                     binding.btnMatchmakingCancel.setEnabled(false);
+                    binding.lottieMatchmaking.cancelAnimation();
                     binding.matchmakingOverlay.setAlpha(1f);
                 })
                 .start();
