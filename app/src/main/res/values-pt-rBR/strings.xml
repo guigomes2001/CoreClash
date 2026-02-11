@@ -129,4 +129,12 @@
 
     <string name="player_short_format">Player %1$s</string>
 
+    <!-- FontAwesome Solid Icons -->
+    <string name="fa_gamepad" translatable="false">&#xf11b;</string>
+    <string name="fa_bolt" translatable="false">&#xf0e7;</string>
+    <string name="fa_user" translatable="false">&#xf007;</string>
+    <string name="fa_users" translatable="false">&#xf0c0;</string>
+    <string name="fa_cog" translatable="false">&#xf013;</string>
+    <string name="fa_store" translatable="false">&#xf54e;</string>
+
 </resources>
