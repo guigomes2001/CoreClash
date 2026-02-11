@@ -106,4 +106,27 @@
     <string name="local_lobby_join">Entrar em sala</string>
     <string name="local_lobby_waiting">Aguardando convidado...</string>
 
+
+    <string name="auth_not_ready">Authentication is not ready yet. Please try again.</string>
+    <string name="label_player_one">Jogador 1</string>
+    <string name="label_player_two">Jogador 2</string>
+    <string name="label_bot">BOT</string>
+    <string name="hint_room_code_example">ABC123</string>
+    <string name="error_invalid_room_code">Código inválido.</string>
+    <string name="btn_profile">Perfil</string>
+    <string name="btn_friends">Amigos</string>
+    <string name="profile_title">Perfil</string>
+    <string name="profile_name">Nome</string>
+    <string name="profile_tag">Tag</string>
+    <string name="profile_save">Salvar</string>
+    <string name="friends_title">Amigos</string>
+    <string name="friends_add_by_tag">Adicionar por TAG</string>
+    <string name="friends_tag_hint">GUI#1234</string>
+    <string name="friends_request_sent">Pedido enviado.</string>
+    <string name="friends_request_error">Falha ao enviar pedido.</string>
+
+    <string name="room_code_alphabet">ABCDEFGHJKLMNPQRSTUVWXYZ23456789</string>
+
+    <string name="player_short_format">Player %1$s</string>
+
 </resources>

@@ -153,16 +153,26 @@ public class OnlineMatchmaking {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() == null) return Transaction.abort();
+                if (currentData.getValue() == null) {
+                    return Transaction.abort();
+                }
 
                 String status = currentData.child("status").getValue(String.class);
                 String xUid = currentData.child("players").child("X").getValue(String.class);
                 String oUid = currentData.child("players").child("O").getValue(String.class);
 
-                if (!STATUS_WAITING.equals(status)) return Transaction.abort();
-                if (xUid == null || xUid.isEmpty()) return Transaction.abort();
-                if (oUid != null && !oUid.isEmpty()) return Transaction.abort();
-                if (myUid.equals(xUid)) return Transaction.abort();
+                if (!STATUS_WAITING.equals(status)) {
+                    return Transaction.abort();
+                }
+                if (xUid == null || xUid.isEmpty()) {
+                    return Transaction.abort();
+                }
+                if (oUid != null && !oUid.isEmpty()) {
+                    return Transaction.abort();
+                }
+                if (myUid.equals(xUid)) {
+                    return Transaction.abort();
+                }
 
                 currentData.child("players").child("O").setValue(myUid);
 
@@ -213,7 +223,9 @@ public class OnlineMatchmaking {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() != null) return Transaction.abort();
+                if (currentData.getValue() != null) {
+                    return Transaction.abort();
+                }
 
                 Map<String, Object> room = new HashMap<>();
                 room.put("status", STATUS_WAITING);
@@ -287,7 +299,9 @@ public class OnlineMatchmaking {
                 .limitToFirst(50)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    if (!snapshot.exists()) return;
+                    if (!snapshot.exists()) {
+                        return;
+                    }
 
                     for (DataSnapshot s : snapshot.getChildren()) {
                         String roomId = s.getKey();
@@ -306,7 +320,9 @@ public class OnlineMatchmaking {
     }
 
     private String safeMsg(Throwable e) {
-        if (e == null) return "Unknown error.";
+        if (e == null) {
+            return "Unknown error.";
+        }
         String m = e.getMessage();
         return (m == null || m.trim().isEmpty()) ? "Unknown error." : m.trim();
     }

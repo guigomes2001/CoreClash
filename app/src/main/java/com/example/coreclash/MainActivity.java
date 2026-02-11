@@ -45,6 +45,7 @@ import manager.MatchManager;
 import manager.PlayerServicesManager;
 import manager.SettingManager;
 import manager.StoreManager;
+import manager.SocialManager;
 import manager.TurnHudManager;
 import util.AnimationHelper;
 
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private MatchManager matchManager;
     private BotManager botManager;
     private HomeAwayManager homeAwayManager;
+    private SocialManager socialManager;
 
     private TimeoutBannerAnimator timeoutBannerAnimator;
     private MatchIntroAnimator matchIntroAnimator;
@@ -115,12 +117,15 @@ public class MainActivity extends AppCompatActivity {
         victoryOverlayAnimator = new VictoryOverlayAnimator(binding, board, gameManager, handler);
         settingManager = new SettingManager(this, binding);
         homeAwayManager = new HomeAwayManager(this);
+        socialManager = new SocialManager();
 
         turnHud = initTurnHudManager();
 
         homeFlow = initHomeFlow();
         homeFlow.setSelectedMatchKind(enums.DomainMatchKind.OFFLINE_BOT);
         homeFlow.bind();
+        binding.btnProfile.setOnClickListener(v -> openProfileDialog());
+        binding.btnFriends.setOnClickListener(v -> openFriendsDialog());
 
         playerServices = initPlayerServices();
         botManager = initBotManager();
@@ -128,7 +133,9 @@ public class MainActivity extends AppCompatActivity {
         matchManager = initMatchManager();
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
-            if (!matchStarted || gameManager.isGameOver()) return;
+            if (!matchStarted || gameManager.isGameOver()) {
+                return;
+            }
 
             if (matchManager.isOnlineMatch()) {
                 if (!bothIntroReady) {
@@ -143,7 +150,9 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (versusBot && !state.isXTurn()) return;
+            if (versusBot && !state.isXTurn()) {
+                return;
+            }
 
             playTurn(row, col);
         });
@@ -152,6 +161,11 @@ public class MainActivity extends AppCompatActivity {
         setupMetaControls();
 
         playerServices.start();
+        String myUid = getMyUidOrNull();
+        if (myUid != null) {
+            socialManager.setPresence(myUid, "online");
+            socialManager.upsertUserProfile(myUid, getPlayerDisplayName(), buildTagFromUid(myUid));
+        }
 
         opponentName = getString(R.string.status_waiting);
 
@@ -193,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onPlayOnlineClicked() {
                 String uid = getMyUidOrNull();
                 if (uid == null) {
-                    Toast.makeText(MainActivity.this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
@@ -224,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onConfirmOnlinePvp() {
                 String uid = getMyUidOrNull();
                 if (uid == null) {
-                    Toast.makeText(MainActivity.this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
@@ -265,15 +279,21 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private String getOpponentDisplayName() {
-        if (passAndPlayMode) return "Jogador 2";
+        if (passAndPlayMode) {
+            return getString(R.string.label_player_two);
+        }
 
         if (matchManager != null && matchManager.isOnlineMatch()) {
             String n = matchManager.getOpponentName();
-            if (n != null && !n.trim().isEmpty()) return n.trim();
+            if (n != null && !n.trim().isEmpty()) {
+                return n.trim();
+            }
             return getString(R.string.status_waiting_opponent);
         }
 
-        if (opponentName != null && !opponentName.trim().isEmpty()) return opponentName.trim();
+        if (opponentName != null && !opponentName.trim().isEmpty()) {
+            return opponentName.trim();
+        }
         return getString(R.string.turn_hud_opponent_default);
     }
 
@@ -301,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if (matchManager.isOnlineMatch()) {
                             matchStarted = false;
-        matchPhase = DomainMatchPhase.LOADING;
+                            matchPhase = DomainMatchPhase.LOADING;
                             bothIntroReady = false;
                             updateHeaderStatus();
                             updateSkillVisuals();
@@ -421,9 +441,15 @@ public class MainActivity extends AppCompatActivity {
                 binding.progressTurnHudO,
                 TURN_PROGRESS_DURATION_MS,
                 (xTurnStarted) -> {
-                    if (matchManager.isOnlineMatch()) return;
-                    if (!matchStarted || gameManager.isGameOver()) return;
-                    if (state.isXTurn() != xTurnStarted) return;
+                    if (matchManager.isOnlineMatch()) {
+                        return;
+                    }
+                    if (!matchStarted || gameManager.isGameOver()) {
+                return;
+            }
+                    if (state.isXTurn() != xTurnStarted) {
+                        return;
+                    }
 
                     boolean forfeit = state.registerTimeout(xTurnStarted);
 
@@ -600,7 +626,9 @@ public class MainActivity extends AppCompatActivity {
         String symbol = gameManager.getCurrentPlayerSymbol();
         boolean won = gameManager.play(r, c);
 
-        if (beforeMoves == gameManager.getFinalMoves()) return;
+        if (beforeMoves == gameManager.getFinalMoves()) {
+            return;
+        }
 
         matchManager.sendMove(r, c);
 
@@ -664,7 +692,7 @@ public class MainActivity extends AppCompatActivity {
     private String getLocalStartsLabel() {
         if (passAndPlayMode) {
             boolean playerOneTurn = (passPlayPlayerOneIsX && state.isXTurn()) || (!passPlayPlayerOneIsX && !state.isXTurn());
-            String who = playerOneTurn ? "Jogador 1" : "Jogador 2";
+            String who = playerOneTurn ? getString(R.string.label_player_one) : getString(R.string.label_player_two);
             return getString(R.string.countdown_player_starts, who);
         }
         return state.isXTurn() ? getString(R.string.countdown_you_start) : getString(R.string.countdown_opponent_starts);
@@ -675,8 +703,8 @@ public class MainActivity extends AppCompatActivity {
         passAndPlayMode = true;
         versusBot = false;
         matchPhase = DomainMatchPhase.LOADING;
-        passPlayPlayerOneIsX = homeAwayManager.chooseHome("Jogador1", "Jogador2");
-        opponentName = "Jogador 2";
+        passPlayPlayerOneIsX = homeAwayManager.chooseHome(getString(R.string.label_player_one), getString(R.string.label_player_two));
+        opponentName = getString(R.string.label_player_two);
 
         setGameMode();
         state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
@@ -693,7 +721,7 @@ public class MainActivity extends AppCompatActivity {
     private void openLocalLobbyDialog() {
         String uid = getMyUidOrNull();
         if (uid == null) {
-            Toast.makeText(this, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -709,14 +737,14 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton(getString(R.string.local_lobby_join), (d, w) -> {
                     EditText input = new EditText(this);
                     input.setInputType(InputType.TYPE_CLASS_TEXT);
-                    input.setHint("ABC123");
+                    input.setHint(getString(R.string.hint_room_code_example));
                     new AlertDialog.Builder(this)
                             .setTitle(getString(R.string.local_lobby_enter_code))
                             .setView(input)
                             .setPositiveButton(getString(R.string.local_lobby_join), (d2, w2) -> {
                                 String code = input.getText() == null ? "" : input.getText().toString().trim().toUpperCase();
                                 if (code.length() < 4) {
-                                    Toast.makeText(this, "Código inválido.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                                 showMatchmakingLoading(getString(R.string.local_lobby_waiting));
@@ -730,7 +758,7 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private String generateRoomCode() {
-        final String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        final String alphabet = getString(R.string.room_code_alphabet);
         StringBuilder sb = new StringBuilder(6);
         for (int i = 0; i < 6; i++) {
             sb.append(alphabet.charAt(random.nextInt(alphabet.length())));
@@ -750,7 +778,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideMatchmakingLoading() {
-        if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) return;
+        if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
+            return;
+        }
         binding.matchmakingOverlay.animate()
                 .alpha(0f)
                 .setDuration(140)
@@ -780,7 +810,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getPlayerDisplayName() {
-        if (passAndPlayMode) return "Jogador 1";
+        if (passAndPlayMode) {
+            return getString(R.string.label_player_one);
+        }
 
         var user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
@@ -803,7 +835,9 @@ public class MainActivity extends AppCompatActivity {
         String symbol = gameManager.getCurrentPlayerSymbol();
         boolean won = gameManager.play(row, col);
 
-        if (beforeMoves == gameManager.getFinalMoves()) return;
+        if (beforeMoves == gameManager.getFinalMoves()) {
+            return;
+        }
 
         state.resetTimeoutStreak(actingX);
         updateHeaderStatus();
@@ -904,7 +938,7 @@ public class MainActivity extends AppCompatActivity {
         setGameMode();
         state.setGameMode(DomainGameMode.BOT.getValue());
         gameManager.resetGame();
-        boolean playerHomeVsBot = homeAwayManager.chooseHome(getPlayerDisplayName(), "BOT");
+        boolean playerHomeVsBot = homeAwayManager.chooseHome(getPlayerDisplayName(), getString(R.string.label_bot));
         state.setXTurn(playerHomeVsBot);
         victoryOverlayAnimator.clearLines();
         setArenaUiVisible(false);
@@ -913,6 +947,11 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         matchIntroAnimator.startFromHome();
+    }
+
+    @NonNull
+    private String buildTagFromUid(@NonNull String uid) {
+        return uid.substring(0, Math.min(4, uid.length())).toUpperCase() + "#" + (1000 + (Math.abs(uid.hashCode()) % 9000));
     }
 
     private void setArenaUiVisible(boolean visible) {
@@ -925,12 +964,81 @@ public class MainActivity extends AppCompatActivity {
         binding.lineRightConnector.setVisibility(visibility);
     }
 
+    private void openProfileDialog() {
+        String uid = getMyUidOrNull();
+        if (uid == null) {
+            Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        EditText nameInput = new EditText(this);
+        nameInput.setText(getPlayerDisplayName());
+        nameInput.setHint(getString(R.string.profile_name));
+
+        String tag = buildTagFromUid(uid);
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.profile_title))
+                .setMessage(getString(R.string.profile_tag) + ": " + tag)
+                .setView(nameInput)
+                .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
+                    String displayName = nameInput.getText() == null ? getPlayerDisplayName() : nameInput.getText().toString().trim();
+                    if (displayName.isEmpty()) {
+                        displayName = getPlayerDisplayName();
+                    }
+                    socialManager.upsertUserProfile(uid, displayName, tag);
+                    playerServices.updateDisplayNameAndPersist(displayName);
+                    updateHeaderStatus();
+                })
+                .setNegativeButton(getString(R.string.btn_back), null)
+                .show();
+    }
+
+    private void openFriendsDialog() {
+        String uid = getMyUidOrNull();
+        if (uid == null) {
+            Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        EditText tagInput = new EditText(this);
+        tagInput.setHint(getString(R.string.friends_tag_hint));
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.friends_title))
+                .setMessage(getString(R.string.friends_add_by_tag))
+                .setView(tagInput)
+                .setPositiveButton(getString(R.string.btn_ok), (d, w) -> {
+                    String tag = tagInput.getText() == null ? "" : tagInput.getText().toString().trim().toUpperCase();
+                    if (tag.isEmpty()) {
+                        return;
+                    }
+                    socialManager.sendFriendRequestByTag(uid, tag, new SocialManager.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(MainActivity.this, getString(R.string.friends_request_sent), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(@NonNull String message) {
+                            Toast.makeText(MainActivity.this, getString(R.string.friends_request_error), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton(getString(R.string.btn_back), null)
+                .show();
+    }
+
     @Override
     protected void onDestroy() {
         botManager.cancelPending();
         matchManager.onDestroy();
         matchIntroAnimator.cancel();
         playerServices.onDestroy();
+        String myUid = getMyUidOrNull();
+        if (myUid != null) {
+            socialManager.setPresence(myUid, "offline");
+        }
         super.onDestroy();
     }
 

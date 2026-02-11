@@ -121,7 +121,7 @@ public class MatchManager {
     public void startOnlineMatchmaking(@NonNull Supplier<String> myUidSupplier) {
         String myUid = myUidSupplier.get();
         if (myUid == null) {
-            Toast.makeText(context, "Authentication is not ready yet. Please try again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -185,7 +185,7 @@ public class MatchManager {
 
         opponentName = opponentUid.trim().isEmpty()
                 ? context.getString(R.string.status_waiting_opponent)
-                : "Player " + opponentUid.substring(0, Math.min(6, opponentUid.length()));
+                : context.getString(R.string.player_short_format, opponentUid.substring(0, Math.min(6, opponentUid.length())));
 
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
 
@@ -210,7 +210,7 @@ public class MatchManager {
         }
 
         onlineSession.listenOpponentJoin(oUid -> cb.runOnUi(() -> {
-            opponentName = "Player " + oUid.substring(0, Math.min(6, oUid.length()));
+            opponentName = context.getString(R.string.player_short_format, oUid.substring(0, Math.min(6, oUid.length())));
             cb.onUpdateHeaderStatus();
 
             if (iAmXOnline) {
@@ -221,7 +221,9 @@ public class MatchManager {
         onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
             long delay = Math.max(0L, startAt - serverNow);
             cb.runOnUi(() -> handler.postDelayed(() -> {
-                if (!isOnlineMatch || onlineSession == null) return;
+                if (!isOnlineMatch || onlineSession == null) {
+                    return;
+                }
                 cb.onRestoreMenuButtons();
                 cb.onOnlineMatchShouldStartPlaying();
             }, delay));
@@ -230,7 +232,9 @@ public class MatchManager {
 
 
     private void hookOnlineListenersInternal() {
-        if (onlineSession == null) return;
+        if (onlineSession == null) {
+            return;
+        }
 
         onlineSession.startListening(
                 new OnlineMatchSession.ActionListener() {
@@ -307,7 +311,9 @@ public class MatchManager {
 
 
     public void onBothIntroReady() {
-        if (!isOnlineMatch) return;
+        if (!isOnlineMatch) {
+            return;
+        }
         if (gameManager.getFinalMoves() <= 0) {
             stopOnlineBarAnim(true);
             return;
@@ -378,7 +384,9 @@ public class MatchManager {
     }
 
     public void scheduleOnlineTimeoutBanner() {
-        if (!isOnlineMatch) return;
+        if (!isOnlineMatch) {
+            return;
+        }
 
         handler.removeCallbacks(onlineTimeoutBannerRunnable);
 
@@ -391,10 +399,14 @@ public class MatchManager {
     }
 
     private void maybeShowOnlineTimeoutBanner() {
-        if (!isOnlineMatch) return;
+        if (!isOnlineMatch) {
+            return;
+        }
 
         String currentTurnKey = turnOnline + ":" + turnStartedAtOnlineMs;
-        if (!currentTurnKey.equals(scheduledTimeoutTurnKey)) return;
+        if (!currentTurnKey.equals(scheduledTimeoutTurnKey)) {
+            return;
+        }
 
         long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
@@ -405,7 +417,9 @@ public class MatchManager {
             return;
         }
 
-        if (currentTurnKey.equals(lastTimeoutBannerTurnKey)) return;
+        if (currentTurnKey.equals(lastTimeoutBannerTurnKey)) {
+            return;
+        }
 
         lastTimeoutBannerTurnKey = currentTurnKey;
 
