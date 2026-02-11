@@ -28,6 +28,7 @@
 
     <string name="btn_quick_match">Rápida</string>
     <string name="btn_store">Loja</string>
+    <string name="btn_modes">Modos</string>
     <string name="mode_title">Modo de jogo</string>
     <string name="mode_subtitle_online_offline">Offline: Jogador vs Máquina. Online: Jogador vs Jogador.</string>
     <string name="mode_subtitle">Escolha seu ritmo de batalha</string>
