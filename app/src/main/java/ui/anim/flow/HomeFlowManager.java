@@ -16,7 +16,8 @@ public class HomeFlowManager {
         void onGoogleLoginFromSettingsClicked();
         void onConfirmOfflineVsBot();
         void onConfirmOnlinePvp();
-        void onConfirmLocalMultiplayer();
+        void onConfirmLocalPassPlay();
+        void onConfirmLocalLobby();
         void onModeChanged(@NonNull enums.DomainMatchKind selected);
     }
 
@@ -49,6 +50,18 @@ public class HomeFlowManager {
             cb.onModeChanged(selectedMatchKind);
         });
 
+        binding.btnModeLocalPassPlay.setOnClickListener(v -> {
+            selectedMatchKind = enums.DomainMatchKind.LOCAL_PASS_PLAY;
+            updateModeButtonStyles();
+            cb.onModeChanged(selectedMatchKind);
+        });
+
+        binding.btnModeLocalLobby.setOnClickListener(v -> {
+            selectedMatchKind = enums.DomainMatchKind.LOCAL_LOBBY;
+            updateModeButtonStyles();
+            cb.onModeChanged(selectedMatchKind);
+        });
+
         binding.btnModeCancel.setOnClickListener(v -> closeModeModal());
         binding.btnModeConfirm.setOnClickListener(v -> {
             closeModeModal();
@@ -57,8 +70,10 @@ public class HomeFlowManager {
                 cb.onConfirmOnlinePvp();
             } else if (selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT) {
                 cb.onConfirmOfflineVsBot();
+            } else if (selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY) {
+                cb.onConfirmLocalPassPlay();
             } else {
-                cb.onConfirmLocalMultiplayer();
+                cb.onConfirmLocalLobby();
             }
         });
 
@@ -99,18 +114,25 @@ public class HomeFlowManager {
     }
 
     public void updateModeButtonStyles() {
-        boolean offlineSelected = (selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT);
-
         int selectedBg = 0xFF22D3EE;
         int selectedText = 0xFF082F49;
         int defaultBg = 0xFF312E81;
         int defaultText = 0xFFE0E7FF;
 
-        binding.btnModeOffline.setBackgroundTintList(ColorStateList.valueOf(offlineSelected ? selectedBg : defaultBg));
-        binding.btnModeOffline.setTextColor(offlineSelected ? selectedText : defaultText);
+        styleModeButton(binding.btnModeOnline, selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP, selectedBg, selectedText, defaultBg, defaultText);
+        styleModeButton(binding.btnModeOffline, selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT, selectedBg, selectedText, defaultBg, defaultText);
+        styleModeButton(binding.btnModeLocalPassPlay, selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY, selectedBg, selectedText, defaultBg, defaultText);
+        styleModeButton(binding.btnModeLocalLobby, selectedMatchKind == enums.DomainMatchKind.LOCAL_LOBBY, selectedBg, selectedText, defaultBg, defaultText);
+    }
 
-        binding.btnModeOnline.setBackgroundTintList(ColorStateList.valueOf(offlineSelected ? defaultBg : selectedBg));
-        binding.btnModeOnline.setTextColor(offlineSelected ? defaultText : selectedText);
+    private void styleModeButton(@NonNull android.widget.Button button,
+                                 boolean selected,
+                                 int selectedBg,
+                                 int selectedText,
+                                 int defaultBg,
+                                 int defaultText) {
+        button.setBackgroundTintList(ColorStateList.valueOf(selected ? selectedBg : defaultBg));
+        button.setTextColor(selected ? selectedText : defaultText);
     }
 
     public void showWaitingOpponentUi() {
@@ -126,4 +148,3 @@ public class HomeFlowManager {
         binding.btnOnline.setEnabled(true);
     }
 }
-

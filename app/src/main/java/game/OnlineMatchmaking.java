@@ -153,16 +153,26 @@ public class OnlineMatchmaking {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() == null) return Transaction.abort();
+                if (currentData.getValue() == null) {
+                    return Transaction.abort();
+                }
 
                 String status = currentData.child("status").getValue(String.class);
                 String xUid = currentData.child("players").child("X").getValue(String.class);
                 String oUid = currentData.child("players").child("O").getValue(String.class);
 
-                if (!STATUS_WAITING.equals(status)) return Transaction.abort();
-                if (xUid == null || xUid.isEmpty()) return Transaction.abort();
-                if (oUid != null && !oUid.isEmpty()) return Transaction.abort();
-                if (myUid.equals(xUid)) return Transaction.abort();
+                if (!STATUS_WAITING.equals(status)) {
+                    return Transaction.abort();
+                }
+                if (xUid == null || xUid.isEmpty()) {
+                    return Transaction.abort();
+                }
+                if (oUid != null && !oUid.isEmpty()) {
+                    return Transaction.abort();
+                }
+                if (myUid.equals(xUid)) {
+                    return Transaction.abort();
+                }
 
                 currentData.child("players").child("O").setValue(myUid);
 
@@ -200,13 +210,98 @@ public class OnlineMatchmaking {
         });
     }
 
+
+    public void createLocalLobbyRoom(@NonNull String myUid, @NonNull String roomCode, @NonNull MatchmakingCallback callback) {
+        String roomId = roomsRef.push().getKey();
+        if (roomId == null) {
+            callback.onError("Could not generate a room ID.");
+            return;
+        }
+
+        DatabaseReference roomRef = roomsRef.child(roomId);
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (currentData.getValue() != null) {
+                    return Transaction.abort();
+                }
+
+                Map<String, Object> room = new HashMap<>();
+                room.put("status", STATUS_WAITING);
+                room.put("createdAt", ServerValue.TIMESTAMP);
+                room.put("turn", TURN_X);
+                room.put("turnStartedAt", ServerValue.TIMESTAMP);
+                room.put("turnDurationMs", TURN_DURATION_MS);
+                room.put("turnSeq", 0L);
+                room.put("lastTimeoutProcessedSeq", -1L);
+                room.put("timeoutStreakX", 0L);
+                room.put("timeoutStreakO", 0L);
+                room.put("winner", "");
+                room.put("endReason", "");
+                room.put("roomCode", roomCode);
+                room.put("roomKind", "LOCAL_LOBBY");
+
+                Map<String, Object> players = new HashMap<>();
+                players.put("X", myUid);
+                players.put("O", "");
+                room.put("players", players);
+
+                Map<String, Object> introReady = new HashMap<>();
+                introReady.put("X", false);
+                introReady.put("O", false);
+                room.put("introReady", introReady);
+
+                currentData.setValue(room);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (error != null) {
+                    callback.onError("Failed to create lobby room: " + safeMsg(error.toException()));
+                    return;
+                }
+                if (!committed) {
+                    callback.onError("Could not create local lobby due to concurrency conflict.");
+                    return;
+                }
+                callback.onMatched(roomId, true, "");
+            }
+        });
+    }
+
+    public void joinLocalLobbyRoom(@NonNull String myUid, @NonNull String roomCode, @NonNull MatchmakingCallback callback) {
+        roomsRef.orderByChild("roomCode")
+                .equalTo(roomCode)
+                .limitToFirst(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.exists()) {
+                        callback.onError("Room code not found.");
+                        return;
+                    }
+
+                    for (DataSnapshot roomSnap : snapshot.getChildren()) {
+                        String roomId = roomSnap.getKey();
+                        if (roomId == null) continue;
+                        attemptJoinRoomTransaction(roomId, myUid, 0, callback);
+                        return;
+                    }
+                    callback.onError("Room code not found.");
+                })
+                .addOnFailureListener(e -> callback.onError("Failed to join room: " + safeMsg(e)));
+    }
+
     public void cleanupOldWaitingRooms() {
         roomsRef.orderByChild("status")
                 .equalTo(STATUS_WAITING)
                 .limitToFirst(50)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    if (!snapshot.exists()) return;
+                    if (!snapshot.exists()) {
+                        return;
+                    }
 
                     for (DataSnapshot s : snapshot.getChildren()) {
                         String roomId = s.getKey();
@@ -225,7 +320,9 @@ public class OnlineMatchmaking {
     }
 
     private String safeMsg(Throwable e) {
-        if (e == null) return "Unknown error.";
+        if (e == null) {
+            return "Unknown error.";
+        }
         String m = e.getMessage();
         return (m == null || m.trim().isEmpty()) ? "Unknown error." : m.trim();
     }
