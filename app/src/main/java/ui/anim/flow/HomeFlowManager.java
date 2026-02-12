@@ -110,9 +110,9 @@ public class HomeFlowManager {
 
     private void configureModeOverlayButtons() {
         int iconColor = 0xFFEAF2FF;
-        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 14, iconColor, 10);
-        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 14, iconColor, 10);
-        FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 13, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 13, iconColor, 6);
+        FontAwesomeIconFactory.applyTopIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 13, iconColor, 6);
         binding.btnModeLocalLobby.setVisibility(View.GONE);
     }
 
@@ -164,7 +164,6 @@ public class HomeFlowManager {
         binding.modeOverlay.setAlpha(0f);
         binding.modeCard.setScaleX(0.97f);
         binding.modeCard.setScaleY(0.97f);
-        binding.lottieModeOverlay.playAnimation();
 
         binding.modeOverlay.animate().alpha(1f).setDuration(180).start();
         binding.modeCard.animate().scaleX(1f).scaleY(1f).setDuration(220).start();
@@ -176,7 +175,6 @@ public class HomeFlowManager {
                 .setDuration(150)
                 .withEndAction(() -> {
                     binding.modeOverlay.setVisibility(View.GONE);
-                    binding.lottieModeOverlay.pauseAnimation();
                 })
                 .start();
     }
@@ -189,8 +187,8 @@ public class HomeFlowManager {
 
     private void styleModeButton(@NonNull android.widget.Button button, boolean selected) {
         button.setTextColor(selected ? 0xFF04131F : 0xFFEAF2FF);
-        button.setBackgroundResource(selected ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
-        button.setAlpha(selected ? 1f : 0.92f);
+        button.setBackgroundResource(selected ? R.drawable.bg_mode_card_selected : R.drawable.bg_mode_card);
+        button.setAlpha(selected ? 1f : 0.96f);
     }
 
     public void playHomeEntrance() {
