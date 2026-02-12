@@ -15,6 +15,8 @@ public class MatchIntroAnimator {
         @NonNull String getPlayerName();
         @NonNull String getOpponentName();
         @NonNull String getModeLabel();
+        @NonNull String getBreakSymbolLeft();
+        @NonNull String getBreakSymbolRight();
         void setArenaUiVisible(boolean visible);
         void onIntroFinished();
     }
@@ -71,6 +73,9 @@ public class MatchIntroAnimator {
         binding.txtVersusMode.setText(cb.getModeLabel());
         binding.txtVersusCenter.setText(binding.getRoot().getContext().getString(R.string.versus_battle_title));
 
+        binding.txtBreakX.setText(cb.getBreakSymbolLeft());
+        binding.txtBreakO.setText(cb.getBreakSymbolRight());
+
         binding.txtVersusMode.setAlpha(0f);
         binding.viewVersusStripeTop.setAlpha(0f);
         binding.viewVersusStripeBottom.setAlpha(0f);
@@ -91,39 +96,41 @@ public class MatchIntroAnimator {
     private void playVersusBreakAnimation() {
         if (binding.versusOverlay.getVisibility() != View.VISIBLE) return;
 
-        binding.txtBreakX.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(120).start();
-        binding.txtBreakO.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(120).start();
+        binding.txtBreakX.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(140).start();
+        binding.txtBreakO.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(140).start();
 
-        float dist = binding.getRoot().getWidth() * 0.65f;
+        binding.versusBandRoot.post(() -> {
+            float dist = Math.max(binding.versusBandRoot.getWidth(), binding.getRoot().getWidth()) * 0.62f;
 
-        binding.txtBreakX.animate()
-                .translationX(-dist)
-                .alpha(0f)
-                .setDuration(380)
-                .setInterpolator(new OvershootInterpolator(0.8f))
-                .start();
+            binding.txtBreakX.animate()
+                    .translationX(-dist)
+                    .alpha(0f)
+                    .setDuration(420)
+                    .setInterpolator(new OvershootInterpolator(0.8f))
+                    .start();
 
-        binding.txtBreakO.animate()
-                .translationX(dist)
-                .alpha(0f)
-                .setDuration(380)
-                .setInterpolator(new OvershootInterpolator(0.8f))
-                .start();
+            binding.txtBreakO.animate()
+                    .translationX(dist)
+                    .alpha(0f)
+                    .setDuration(420)
+                    .setInterpolator(new OvershootInterpolator(0.8f))
+                    .start();
 
-        binding.versusBandRoot.animate()
-                .alpha(0f)
-                .setDuration(260)
-                .start();
+            binding.versusBandRoot.animate()
+                    .alpha(0f)
+                    .setDuration(280)
+                    .start();
 
-        binding.versusDim.animate()
-                .alpha(0f)
-                .setDuration(260)
-                .withEndAction(() -> {
-                    binding.versusOverlay.setVisibility(View.GONE);
-                    binding.lottieVersusTransition.cancelAnimation();
-                    cb.onIntroFinished();
-                })
-                .start();
+            binding.versusDim.animate()
+                    .alpha(0f)
+                    .setDuration(280)
+                    .withEndAction(() -> {
+                        binding.versusOverlay.setVisibility(View.GONE);
+                        binding.lottieVersusTransition.cancelAnimation();
+                        cb.onIntroFinished();
+                    })
+                    .start();
+        });
     }
 
     private void resetVersusUiState() {
@@ -175,4 +182,3 @@ public class MatchIntroAnimator {
         binding.lottieVersusTransition.cancelAnimation();
     }
 }
-
