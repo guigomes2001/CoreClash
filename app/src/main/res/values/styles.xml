@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Text.CoreClash.Title">
+    <style name="Text.CoreClash" />
+
+    <style name="Text.CoreClash.Title" parent="Text.CoreClash">
         <item name="android:textColor">@color/ds_text_primary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/ds_title_size</item>
     </style>
 
-    <style name="Text.CoreClash.Subtitle">
+    <style name="Text.CoreClash.Subtitle" parent="Text.CoreClash">
         <item name="android:textColor">@color/ds_text_muted</item>
         <item name="android:textSize">@dimen/ds_subtitle_size</item>
     </style>
