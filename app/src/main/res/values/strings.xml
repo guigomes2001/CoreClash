@@ -94,28 +94,28 @@
 
 
 
-    <string name="mode_online_world">Online (Mundo)</string>
+    <string name="mode_online_world">Online (World)</string>
     <string name="mode_vs_bot">Vs Bot</string>
-    <string name="mode_local_pass_play">Local (2 no mesmo celular)</string>
-    <string name="mode_local_lobby">Sala Local (Convite)</string>
-    <string name="countdown_you_start">Você começa</string>
-    <string name="countdown_opponent_starts">Adversário começa</string>
-    <string name="countdown_player_starts">%1$s começa</string>
-    <string name="countdown_starting_in">Partida começando em</string>
-    <string name="countdown_go">VAI!</string>
-    <string name="local_lobby_host_code">Código da sala: %1$s</string>
-    <string name="local_lobby_enter_code">Digite o código da sala</string>
-    <string name="local_lobby_create">Criar sala</string>
-    <string name="local_lobby_join">Entrar em sala</string>
-    <string name="local_lobby_waiting">Aguardando convidado...</string>
+    <string name="mode_local_pass_play">Local (2 on the same device)</string>
+    <string name="mode_local_lobby">Local Lobby (Invite)</string>
+    <string name="countdown_you_start">You start</string>
+    <string name="countdown_opponent_starts">Opponent starts</string>
+    <string name="countdown_player_starts">%1$s starts</string>
+    <string name="countdown_starting_in">Match starting in</string>
+    <string name="countdown_go">GO!</string>
+    <string name="local_lobby_host_code">Room code: %1$s</string>
+    <string name="local_lobby_enter_code">Type the room code</string>
+    <string name="local_lobby_create">Create room</string>
+    <string name="local_lobby_join">Join room</string>
+    <string name="local_lobby_waiting">Waiting for guest...</string>
 
 
     <string name="auth_not_ready">Authentication is not ready yet. Please try again.</string>
-    <string name="label_player_one">Jogador 1</string>
-    <string name="label_player_two">Jogador 2</string>
+    <string name="label_player_one">Player 1</string>
+    <string name="label_player_two">Player 2</string>
     <string name="label_bot">BOT</string>
     <string name="hint_room_code_example">ABC123</string>
-    <string name="error_invalid_room_code">Código inválido.</string>
+    <string name="error_invalid_room_code">Invalid room code.</string>
     <string name="btn_profile">Perfil</string>
     <string name="btn_friends">Amigos</string>
     <string name="profile_title">Perfil</string>
