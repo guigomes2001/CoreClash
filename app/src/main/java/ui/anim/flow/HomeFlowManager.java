@@ -117,6 +117,14 @@ public class HomeFlowManager {
         binding.btnModeLocalLobby.setVisibility(View.GONE);
     }
 
+    private void configureModeOverlayButtons() {
+        int iconColor = 0xFFEAF2FF;
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalLobby, binding.getRoot().getContext().getString(R.string.fa_store), 14, iconColor, 10);
+    }
+
     private void setupSpringInteractions() {
         attachTileSpringInteraction(binding.btnPlay);
         attachTileSpringInteraction(binding.btnStore);
