@@ -1078,11 +1078,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        View content = getLayoutInflater().inflate(R.layout.dialog_no_internet, null, false);
+
         noInternetDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.error_online_requires_internet_title))
-                .setMessage(getString(R.string.error_online_requires_internet))
+                .setView(content)
+                .setCancelable(true)
                 .setPositiveButton(getString(R.string.btn_ok), null)
                 .create();
+
+        Window window = noInternetDialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
+        }
 
         noInternetDialog.setOnDismissListener(d -> noInternetDialog = null);
 
@@ -1090,13 +1097,7 @@ public class MainActivity extends AppCompatActivity {
             applyDialogStyle(noInternetDialog);
             Button positive = noInternetDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (positive != null) {
-                positive.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        FontAwesomeIconFactory.createDrawable(this, getString(R.string.fa_wifi), 14, 0xFF6EE7FF),
-                        null,
-                        null,
-                        null
-                );
-                positive.setCompoundDrawablePadding((int) (8 * getResources().getDisplayMetrics().density));
+                positive.setText(getString(R.string.btn_ok));
             }
         });
 
