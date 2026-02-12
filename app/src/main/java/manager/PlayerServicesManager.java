@@ -14,6 +14,7 @@ import com.example.coreclash.data.ProfileRepository;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.Objects;
 
@@ -106,6 +107,14 @@ public class PlayerServicesManager {
             }
             if (!NullUtil.isNull(profileManager) && !NullUtil.isNull(profileManager.localProfileRepository)) {
                 profileManager.localProfileRepository.saveProfile(currentProfile);
+            }
+
+            var user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
+                        .setDisplayName(displayName)
+                        .build();
+                user.updateProfile(req);
             }
         } catch (Exception ignored) {}
     }

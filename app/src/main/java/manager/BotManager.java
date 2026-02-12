@@ -18,6 +18,7 @@ public class BotManager {
         boolean isMatchStarted();
         boolean isXTurn();
         boolean isGameOver();
+        boolean isActionLocked();
         @NonNull DomainDifficulty getDifficulty();
     }
 
@@ -51,7 +52,7 @@ public class BotManager {
 
         cancelPending();
 
-        long thinkDelayMs = 900L + random.nextInt(700);
+        long thinkDelayMs = 1400L + random.nextInt(1200);
         scheduledBotRunnable = () -> {
             if (!canBotActNow()) return;
 
@@ -78,7 +79,7 @@ public class BotManager {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean canBotActNow() {
-        if (gate.isOnlineMatch() || !gate.isVersusBot() || !gate.isMatchStarted() || gate.isGameOver()) {
+        if (gate.isOnlineMatch() || !gate.isVersusBot() || !gate.isMatchStarted() || gate.isGameOver() || gate.isActionLocked()) {
             return false;
         }
         return !gate.isXTurn();

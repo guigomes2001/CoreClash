@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import enums.DomainSymmetries;
 import game.OnlineMatchSession;
@@ -53,6 +54,7 @@ public class MatchManager {
     private final Callbacks cb;
 
     private final OnlineMatchmaking matchmaking = new OnlineMatchmaking();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private OnlineMatchSession onlineSession;
 
@@ -192,6 +194,10 @@ public class MatchManager {
                 ? context.getString(R.string.status_waiting_opponent)
                 : context.getString(R.string.player_short_format, opponentUid.substring(0, Math.min(6, opponentUid.length())));
 
+        if (!opponentUid.trim().isEmpty()) {
+            resolveOpponentName(opponentUid);
+        }
+
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
 
         hookOnlineListenersInternal();
@@ -217,6 +223,7 @@ public class MatchManager {
         onlineSession.listenOpponentJoin(oUid -> cb.runOnUi(() -> {
             opponentName = context.getString(R.string.player_short_format, oUid.substring(0, Math.min(6, oUid.length())));
             cb.onUpdateHeaderStatus();
+            resolveOpponentName(oUid);
 
             if (iAmXOnline) {
                 onlineSession.scheduleIntroIfHost(true, 500L, 3000L);
@@ -235,6 +242,22 @@ public class MatchManager {
         });
     }
 
+
+
+    private void resolveOpponentName(@NonNull String opponentUid) {
+        db.collection("users").document(opponentUid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    String displayName = doc.getString("displayName");
+                    if (displayName == null || displayName.trim().isEmpty()) {
+                        return;
+                    }
+                    cb.runOnUi(() -> {
+                        opponentName = displayName.trim();
+                        cb.onUpdateHeaderStatus();
+                    });
+                });
+    }
 
     private void hookOnlineListenersInternal() {
         if (onlineSession == null) {
