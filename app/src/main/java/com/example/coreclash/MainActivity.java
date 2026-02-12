@@ -989,6 +989,7 @@ public class MainActivity extends AppCompatActivity {
                     binding.txtMatchmakingDots.setText("");
                     binding.matchmakingOverlay.setAlpha(1f);
                     lastMatchmakingStatus = "";
+                    matchmakingBaseStatus = "";
                 })
                 .start();
     }
