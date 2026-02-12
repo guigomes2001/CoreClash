@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.CoreClash" parent="Base.Theme.CoreClash">
+        <item name="android:windowSplashScreenBackground">@color/ds_bg_root</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/ds_bg_root</item>
+        <item name="android:windowSplashScreenBrandingImage">@null</item>
+    </style>
+</resources>

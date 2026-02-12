@@ -1,0 +1,45 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071428"/>
+      <stop offset="0.55" stop-color="#112A4A"/>
+      <stop offset="1" stop-color="#2B145A"/>
+    </linearGradient>
+    <radialGradient id="glowCyan" cx="0.2" cy="0.2" r="0.5">
+      <stop offset="0" stop-color="#62F4FF" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#62F4FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowMagenta" cx="0.8" cy="0.82" r="0.5">
+      <stop offset="0" stop-color="#FF59C7" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FF59C7" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur20"><feGaussianBlur stdDeviation="20"/></filter>
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#001018" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#glowCyan)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#glowMagenta)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="84" y="84" width="856" height="856" rx="188" fill="none" stroke="#8BEFFF" stroke-width="8" stroke-opacity="0.7"/>
+
+    <rect x="196" y="196" width="632" height="632" rx="96" fill="#0D213B" stroke="#9BEFFF" stroke-width="8"/>
+
+    <line x1="406" y1="196" x2="406" y2="828" stroke="#7DE8FF" stroke-opacity="0.35" stroke-width="5"/>
+    <line x1="618" y1="196" x2="618" y2="828" stroke="#7DE8FF" stroke-opacity="0.35" stroke-width="5"/>
+    <line x1="196" y1="406" x2="828" y2="406" stroke="#7DE8FF" stroke-opacity="0.35" stroke-width="5"/>
+    <line x1="196" y1="618" x2="828" y2="618" stroke="#7DE8FF" stroke-opacity="0.35" stroke-width="5"/>
+
+    <g stroke-linecap="round" stroke-linejoin="round">
+      <path d="M268 274 L332 338 M332 274 L268 338" stroke="#68F5FF" stroke-width="26"/>
+      <circle cx="724" cy="300" r="42" stroke="#FF76D9" stroke-width="20" fill="none"/>
+      <path d="M274 684 L332 784 L216 784 Z" stroke="#FFD96F" stroke-width="18" fill="none"/>
+      <rect x="668" y="684" width="116" height="116" rx="18" stroke="#A4FFC7" stroke-width="16" fill="none"/>
+    </g>
+  </g>
+
+  <ellipse cx="512" cy="872" rx="250" ry="24" fill="#5CEFFF" fill-opacity="0.15" filter="url(#blur20)"/>
+</svg>
