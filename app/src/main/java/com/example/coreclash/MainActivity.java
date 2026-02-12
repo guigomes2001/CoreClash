@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
     private String lastUiToastMessage = "";
     private boolean arenaVisibilityApplying = false;
     private AlertDialog noInternetDialog;
+    private String matchmakingBaseStatus = "";
     private int matchmakingDotsPhase = 0;
     private final Runnable matchmakingStatusTicker = new Runnable() {
         @Override
