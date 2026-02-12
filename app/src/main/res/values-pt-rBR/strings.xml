@@ -46,7 +46,7 @@
     <string name="stats_moves_default">Movimentos: 0</string>
     <string name="stats_ghosts_default">Fantasmas: 0</string>
     <string name="btn_rematch">Revanche</string>
-    <string name="btn_new_match">Nova</string>
+    <string name="btn_new_match">Nova partida</string>
     <string name="btn_back_to_menu">Voltar ao menu</string>
     <string name="btn_link_google">Vincular Google</string>
     <string name="mode_dialog_title">Escolha o modo</string>
@@ -109,7 +109,7 @@
     <string name="local_lobby_waiting">Aguardando convidado...</string>
 
 
-    <string name="auth_not_ready">Authentication is not ready yet. Please try again.</string>
+    <string name="auth_not_ready">A autenticação ainda não está pronta. Tente novamente.</string>
     <string name="label_player_one">Jogador 1</string>
     <string name="label_player_two">Jogador 2</string>
     <string name="label_bot">BOT</string>
@@ -129,7 +129,7 @@
 
     <string name="room_code_alphabet">ABCDEFGHJKLMNPQRSTUVWXYZ23456789</string>
 
-    <string name="player_short_format">Player %1$s</string>
+    <string name="player_short_format">Jogador %1$s</string>
 
     <!-- FontAwesome Solid Icons -->
     <string name="fa_gamepad" translatable="false">&#xf11b;</string>
