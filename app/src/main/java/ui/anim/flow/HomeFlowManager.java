@@ -72,12 +72,11 @@ public class HomeFlowManager {
 
         SafeClickUtil.setSafeClick(binding.btnModeCancel, 280, v -> closeModeModal());
         SafeClickUtil.setSafeClick(binding.btnModeConfirm, 280, v -> {
-            closeModeModal();
-
             if (selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP) {
                 cb.onConfirmOnlinePvp();
                 return;
             }
+            closeModeModal();
             if (selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT) {
                 cb.onConfirmOfflineVsBot();
                 return;
