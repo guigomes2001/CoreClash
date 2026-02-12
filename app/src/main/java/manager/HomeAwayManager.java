@@ -23,7 +23,7 @@ public class HomeAwayManager {
         int bCount = prefs.getInt(keyB, 0);
 
         int diff = Math.max(-3, Math.min(3, aCount - bCount));
-        double chanceAHome = clamp(0.35, 0.65, 0.5 - (diff * 0.1));
+        double chanceAHome = clamp(0.5 - (diff * 0.1));
 
         boolean aHome = Math.random() < chanceAHome;
 
@@ -33,8 +33,8 @@ public class HomeAwayManager {
         return aHome;
     }
 
-    private double clamp(double min, double max, double v) {
-        return Math.max(min, Math.min(max, v));
+    private double clamp(double v) {
+        return Math.max(0.35, Math.min(0.65, v));
     }
 
     @NonNull

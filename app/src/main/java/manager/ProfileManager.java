@@ -4,6 +4,8 @@ import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.data.ProfileRepository;
 import com.example.coreclash.model.PlayerProfile;
 
+import util.NullUtil;
+
 public class ProfileManager {
 
     private PlayerProfile currentProfile;
@@ -14,9 +16,11 @@ public class ProfileManager {
         this.currentProfile = profile;
     }
     public void persistProfile() {
-        if (currentProfile == null) return;
+        if (NullUtil.isNull(currentProfile)) {
+            return;
+        }
         localProfileRepository.saveProfile(currentProfile);
-        if (profileRepository != null) {
+        if (!NullUtil.isNull(profileRepository)) {
             profileRepository.saveProfile(currentProfile);
         }
     }

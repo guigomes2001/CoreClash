@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enums.DomainMatchStatus;
+import util.NullUtil;
 
 public class OnlineMatchmaking {
 
@@ -24,7 +25,6 @@ public class OnlineMatchmaking {
     }
 
     private static final String STATUS_WAITING = DomainMatchStatus.WAITING.getValue();
-    private static final String STATUS_PLAYING = DomainMatchStatus.PLAYING.getValue();
     private static final String STATUS_ENDED   = DomainMatchStatus.ENDED.getValue();
     private static final String STATUS_MATCHED = DomainMatchStatus.MATCHED.getValue();
 
@@ -82,7 +82,7 @@ public class OnlineMatchmaking {
 
     private void createNewRoomTransaction(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
         String roomId = roomsRef.push().getKey();
-        if (roomId == null) {
+        if (NullUtil.isNull(roomId)) {
             callback.onError("Could not generate a room ID.");
             return;
         }
@@ -93,7 +93,7 @@ public class OnlineMatchmaking {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() != null) {
+                if (!NullUtil.isNull(currentData.getValue())) {
                     return Transaction.abort();
                 }
 
@@ -133,7 +133,7 @@ public class OnlineMatchmaking {
                     boolean committed,
                     DataSnapshot currentData
             ) {
-                if (error != null) {
+                if (!NullUtil.isNull(error)) {
                     callback.onError("Failed to create room: " + safeMsg(error.toException()));
                     return;
                 }
@@ -153,7 +153,7 @@ public class OnlineMatchmaking {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() == null) {
+                if (NullUtil.isNull(currentData.getValue())) {
                     return Transaction.abort();
                 }
 
@@ -164,10 +164,10 @@ public class OnlineMatchmaking {
                 if (!STATUS_WAITING.equals(status)) {
                     return Transaction.abort();
                 }
-                if (xUid == null || xUid.isEmpty()) {
+                if (NullUtil.isNullOrEmpty(xUid)) {
                     return Transaction.abort();
                 }
-                if (oUid != null && !oUid.isEmpty()) {
+                if (!NullUtil.isNullOrEmpty(oUid)) {
                     return Transaction.abort();
                 }
                 if (myUid.equals(xUid)) {
@@ -182,19 +182,19 @@ public class OnlineMatchmaking {
                 currentData.child("introReady").child(TURN_X).setValue(false);
                 currentData.child("introReady").child(TURN_O).setValue(false);
 
-                if (currentData.child("turnSeq").getValue() == null) currentData.child("turnSeq").setValue(0L);
-                if (currentData.child("lastTimeoutProcessedSeq").getValue() == null) currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
-                if (currentData.child("timeoutStreakX").getValue() == null) currentData.child("timeoutStreakX").setValue(0L);
-                if (currentData.child("timeoutStreakO").getValue() == null) currentData.child("timeoutStreakO").setValue(0L);
-                if (currentData.child("winner").getValue() == null) currentData.child("winner").setValue("");
-                if (currentData.child("endReason").getValue() == null) currentData.child("endReason").setValue("");
+                if (NullUtil.isNull(currentData.child("turnSeq").getValue())) currentData.child("turnSeq").setValue(0L);
+                if (NullUtil.isNull(currentData.child("lastTimeoutProcessedSeq").getValue())) currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
+                if (NullUtil.isNull(currentData.child("timeoutStreakX").getValue())) currentData.child("timeoutStreakX").setValue(0L);
+                if (NullUtil.isNull(currentData.child("timeoutStreakO").getValue())) currentData.child("timeoutStreakO").setValue(0L);
+                if (NullUtil.isNull(currentData.child("winner").getValue())) currentData.child("winner").setValue("");
+                if (NullUtil.isNull(currentData.child("endReason").getValue())) currentData.child("endReason").setValue("");
 
                 return Transaction.success(currentData);
             }
 
             @Override
             public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
-                if (error != null) {
+                if (!NullUtil.isNull(error)) {
                     callback.onError("Failed to join room: " + safeMsg(error.toException()));
                     return;
                 }
@@ -205,7 +205,7 @@ public class OnlineMatchmaking {
                 }
 
                 String xUid = currentData.child("players").child("X").getValue(String.class);
-                callback.onMatched(roomId, false, xUid == null ? "" : xUid);
+                callback.onMatched(roomId, false, NullUtil.isNull(xUid) ? "" : xUid);
             }
         });
     }
@@ -213,7 +213,7 @@ public class OnlineMatchmaking {
 
     public void createLocalLobbyRoom(@NonNull String myUid, @NonNull String roomCode, @NonNull MatchmakingCallback callback) {
         String roomId = roomsRef.push().getKey();
-        if (roomId == null) {
+        if (NullUtil.isNullOrEmptyOrZero(roomId)) {
             callback.onError("Could not generate a room ID.");
             return;
         }
@@ -223,7 +223,7 @@ public class OnlineMatchmaking {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() != null) {
+                if (!NullUtil.isNull(currentData.getValue())) {
                     return Transaction.abort();
                 }
 
@@ -258,7 +258,7 @@ public class OnlineMatchmaking {
 
             @Override
             public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
-                if (error != null) {
+                if (!NullUtil.isNull(error)) {
                     callback.onError("Failed to create lobby room: " + safeMsg(error.toException()));
                     return;
                 }
@@ -284,7 +284,9 @@ public class OnlineMatchmaking {
 
                     for (DataSnapshot roomSnap : snapshot.getChildren()) {
                         String roomId = roomSnap.getKey();
-                        if (roomId == null) continue;
+                        if (NullUtil.isNull(roomId)) {
+                            continue;
+                        }
                         attemptJoinRoomTransaction(roomId, myUid, 0, callback);
                         return;
                     }
@@ -306,7 +308,9 @@ public class OnlineMatchmaking {
                     for (DataSnapshot s : snapshot.getChildren()) {
                         String roomId = s.getKey();
                         Long createdAt = s.child("createdAt").getValue(Long.class);
-                        if (roomId == null || createdAt == null) continue;
+                        if (NullUtil.isNull(roomId) || NullUtil.isNull(createdAt)) {
+                            continue;
+                        }
 
                         long now = System.currentTimeMillis();
                         if (now - createdAt > ROOM_TTL_MS) {
@@ -320,10 +324,10 @@ public class OnlineMatchmaking {
     }
 
     private String safeMsg(Throwable e) {
-        if (e == null) {
+        if (NullUtil.isNull(e)) {
             return "Unknown error.";
         }
         String m = e.getMessage();
-        return (m == null || m.trim().isEmpty()) ? "Unknown error." : m.trim();
+        return (NullUtil.isNull(m) || m.trim().isEmpty()) ? "Unknown error." : m.trim();
     }
 }

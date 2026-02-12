@@ -1,8 +1,6 @@
 package game;
 
 import enums.DomainGameMode;
-import enums.DomainRankLevel;
-import enums.DomainSymbolSkin;
 
 public class GameState {
 
@@ -18,8 +16,6 @@ public class GameState {
     private Boolean squareOwnerIsX = null;
 
     private String gameMode = String.valueOf(DomainGameMode.CASUAL);
-    private DomainSymbolSkin symbolSkin = DomainSymbolSkin.CLASSIC;
-    private int rankedPoints = 0;
     private int totalWins = 0;
     private int winStreak = 0;
     private int bestWinStreak = 0;
@@ -44,14 +40,6 @@ public class GameState {
             return false;
         }
         return squareOwnerIsX == null || squareOwnerIsX == xTurn;
-    }
-
-    public int getTriangleUnlockMove() {
-        return TRIANGLE_UNLOCK_MOVE;
-    }
-
-    public int getSquareUnlockMove() {
-        return SQUARE_UNLOCK_MOVE;
     }
 
     public void triggerTriangleUsed() {
@@ -92,18 +80,6 @@ public class GameState {
         this.gameMode = gameMode;
     }
 
-    public DomainSymbolSkin getSymbolSkin() {
-        return symbolSkin;
-    }
-
-    public void setSymbolSkin(DomainSymbolSkin symbolSkin) {
-        this.symbolSkin = symbolSkin;
-    }
-
-    public int getRankedPoints() {
-        return rankedPoints;
-    }
-
     public int getTotalWins() {
         return totalWins;
     }
@@ -112,41 +88,14 @@ public class GameState {
         return winStreak;
     }
 
-    public int getBestWinStreak() {
-        return bestWinStreak;
-    }
-
     public void setXTurn(boolean xTurn) {
         this.xTurn = xTurn;
-    }
-
-    public String getRankLabel() {
-        if (rankedPoints >= 120) {
-            return DomainRankLevel.MASTER.getLabel();
-        }
-        if (rankedPoints >= 80) {
-            return DomainRankLevel.ELITE.getLabel();
-        }
-        if (rankedPoints >= 40) {
-            return DomainRankLevel.VETERAN.getLabel();
-        }
-        if (rankedPoints >= 10) {
-            return DomainRankLevel.RECRUIT.getLabel();
-        }
-        return DomainRankLevel.ROOKIE.getLabel();
     }
 
     public void registerWin() {
         totalWins++;
         winStreak++;
         bestWinStreak = Math.max(bestWinStreak, winStreak);
-
-        if (gameMode.equals(DomainGameMode.RANKED.getValue())) {
-            int base = 10;
-            int moveBonus = Math.max(0, 9 - moveCount);
-            int ghostPenalty = Math.max(0, ghostCount / 2);
-            rankedPoints += Math.max(3, base + moveBonus - ghostPenalty);
-        }
     }
 
     public void registerLossOrDraw() {
@@ -180,12 +129,5 @@ public class GameState {
         } else {
             timeoutStreakO = 0;
         }
-    }
-
-    public int getTimeoutStreakX() {
-        return timeoutStreakX;
-    }
-    public int getTimeoutStreakO() {
-        return timeoutStreakO;
     }
 }

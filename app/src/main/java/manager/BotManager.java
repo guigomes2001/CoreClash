@@ -9,7 +9,6 @@ import java.util.Random;
 
 import enums.DomainDifficulty;
 import enums.DomainSymbols;
-import game.GameState;
 
 public class BotManager {
 
@@ -30,7 +29,6 @@ public class BotManager {
     private final Handler handler;
     private final Random random;
     private final GameManager gameManager;
-    private final GameState state;
     private final Gate gate;
     private final Callbacks cb;
 
@@ -39,13 +37,11 @@ public class BotManager {
     public BotManager(@NonNull Handler handler,
                       @NonNull Random random,
                       @NonNull GameManager gameManager,
-                      @NonNull GameState state,
                       @NonNull Gate gate,
                       @NonNull Callbacks callbacks) {
         this.handler = handler;
         this.random = random;
         this.gameManager = gameManager;
-        this.state = state;
         this.gate = gate;
         this.cb = callbacks;
     }
@@ -80,12 +76,11 @@ public class BotManager {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean canBotActNow() {
-        if (gate.isOnlineMatch()) return false;
-        if (!gate.isVersusBot()) return false;
-        if (!gate.isMatchStarted()) return false;
-        if (gate.isGameOver()) return false;
-
+        if (gate.isOnlineMatch() || !gate.isVersusBot() || !gate.isMatchStarted() || gate.isGameOver()) {
+            return false;
+        }
         return !gate.isXTurn();
     }
 

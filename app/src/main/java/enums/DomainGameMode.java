@@ -5,9 +5,7 @@ public enum DomainGameMode {
     RANKED("RANKED"),
     ONLINE("ONLINE"),
     BOT("BOT"),
-    LOCAL_PASS_PLAY("LOCAL_PASS_PLAY"),
-    LOCAL_LOBBY("LOCAL_LOBBY");
-
+    LOCAL_PASS_PLAY("LOCAL_PASS_PLAY");
     private final String value;
 
     DomainGameMode(String value) {

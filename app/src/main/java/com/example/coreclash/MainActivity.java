@@ -50,6 +50,7 @@ import manager.SocialManager;
 import manager.TurnHudManager;
 import util.AnimationHelper;
 import util.FontAwesomeIconFactory;
+import util.NullUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,13 +78,12 @@ public class MainActivity extends AppCompatActivity {
     private boolean passAndPlayMode = false;
     private DomainMatchPhase matchPhase = DomainMatchPhase.LOADING;
 
-    private boolean localIntroCompleted = false;
     private boolean bothIntroReady = false;
 
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
 
     private String opponentName = "";
-    private String selectedMode = DomainGameMode.CASUAL.getValue();
+    private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
     private TimeoutBannerAnimator timeoutBannerAnimator;
     private MatchIntroAnimator matchIntroAnimator;
     private VictoryOverlayAnimator victoryOverlayAnimator;
-    private static final int MAX_TIMEOUTS = 3;
     private boolean passPlayPlayerOneIsX = true;
 
     @Override
@@ -184,7 +183,6 @@ public class MainActivity extends AppCompatActivity {
                 handler,
                 random,
                 gameManager,
-                state,
                 new BotManager.Gate() {
                     @Override public boolean isOnlineMatch() { return matchManager != null && matchManager.isOnlineMatch(); }
                     @Override public boolean isVersusBot() { return versusBot; }
@@ -266,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
     private PlayerServicesManager initPlayerServices() {
         return new PlayerServicesManager(
                 this,
-                r -> runOnUiThread(r),
+                this::runOnUiThread,
                 binding,
                 board,
                 handler,
@@ -321,8 +319,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override public void onIntroFinished() {
-                        localIntroCompleted = true;
-
                         if (matchManager.isOnlineMatch()) {
                             matchStarted = false;
                             matchPhase = DomainMatchPhase.LOADING;
@@ -367,7 +363,6 @@ public class MainActivity extends AppCompatActivity {
                 handler,
                 binding,
                 gameManager,
-                state,
                 new MatchManager.Callbacks() {
                     @Override public void runOnUi(@NonNull Runnable r) { runOnUiThread(r); }
                     @Override public void onUpdateHeaderStatus() { updateHeaderStatus(); }
@@ -375,7 +370,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onShowWaitingOpponentUi() {
                         matchStarted = false;
                         bothIntroReady = false;
-                        localIntroCompleted = false;
 
                         opponentName = getString(R.string.status_waiting_opponent);
                         updateHeaderStatus();
@@ -395,7 +389,6 @@ public class MainActivity extends AppCompatActivity {
                         versusBot = false;
                         passAndPlayMode = false;
                         matchPhase = DomainMatchPhase.LOADING;
-                        localIntroCompleted = false;
                         bothIntroReady = false;
 
                         setGameMode();
@@ -477,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
         googleSignInLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    if (result.getResultCode() == RESULT_OK && !NullUtil.isNull(result.getData())) {
                         authenticationManager.handleSignInResult(result.getData(), new AuthenticationManager.AuthCallback() {
                             @Override public void onGoogleLinked(String displayName) {
                                 playerServices.updateDisplayNameAndPersist(displayName);
@@ -621,7 +614,6 @@ public class MainActivity extends AppCompatActivity {
         versusBot = false;
         passAndPlayMode = false;
         matchPhase = DomainMatchPhase.LOADING;
-        localIntroCompleted = false;
         bothIntroReady = false;
 
         botManager.cancelPending();
@@ -685,13 +677,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         handler.postDelayed(() -> binding.txtCountdownValue.setText(getString(R.string.countdown_go)), 3 * 700L);
-        handler.postDelayed(() -> {
-            binding.countdownOverlay.animate().alpha(0f).setDuration(140).withEndAction(() -> {
-                binding.countdownOverlay.setVisibility(View.GONE);
-                binding.countdownOverlay.setAlpha(1f);
-                onFinish.run();
-            }).start();
-        }, 3 * 700L + 450L);
+        handler.postDelayed(() -> binding.countdownOverlay.animate().alpha(0f).setDuration(140).withEndAction(() -> {
+            binding.countdownOverlay.setVisibility(View.GONE);
+            binding.countdownOverlay.setAlpha(1f);
+            onFinish.run();
+        }).start(), 3 * 700L + 450L);
     }
 
     @NonNull
@@ -1084,9 +1074,5 @@ public class MainActivity extends AppCompatActivity {
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), decorView);
         controller.hide(WindowInsetsCompat.Type.systemBars());
         controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-    }
-
-    private void updateAbandonHud() {
-        turnHud.renderAbandon(this, state.getTimeoutStreakX(), state.getTimeoutStreakO(), MAX_TIMEOUTS);
     }
 }

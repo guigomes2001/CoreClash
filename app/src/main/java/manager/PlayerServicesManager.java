@@ -17,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Objects;
 
+import util.NullUtil;
+
 public class PlayerServicesManager {
 
     public interface UiRunner {
@@ -90,27 +92,19 @@ public class PlayerServicesManager {
 
     }
 
-    @NonNull
-    public PlayerProfile getCurrentProfileOrDefault() {
-        if (currentProfile != null) return currentProfile;
-        return PlayerProfile.createDefault("temp_" + System.currentTimeMillis());
-    }
-
-    public StoreManager getStoreManagerOrNull() {
-        return storeManager;
-    }
-
     public void updateDisplayNameAndPersist(@NonNull String displayName) {
-        if (currentProfile == null) return;
+        if (currentProfile == null) {
+            return;
+        }
 
         currentProfile.displayName = displayName;
 
         try {
-            if (profileManager != null) {
+            if (!NullUtil.isNull(profileManager)) {
                 profileManager.setCurrentProfile(currentProfile);
                 profileManager.persistProfile();
             }
-            if (profileManager != null && profileManager.localProfileRepository != null) {
+            if (!NullUtil.isNull(profileManager) && !NullUtil.isNull(profileManager.localProfileRepository)) {
                 profileManager.localProfileRepository.saveProfile(currentProfile);
             }
         } catch (Exception ignored) {}

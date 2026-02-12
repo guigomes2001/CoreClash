@@ -47,7 +47,6 @@ public class OnlineMatchSession {
 
     private static final String TAG = "RTDB";
 
-    private static final String STATUS_WAITING = DomainMatchStatus.WAITING.getValue();
     private static final String STATUS_PLAYING = DomainMatchStatus.PLAYING.getValue();
     private static final String STATUS_ENDED = DomainMatchStatus.ENDED.getValue();
     private static final String STATUS_ABANDONED = DomainMatchStatus.ABANDONED.getValue();
@@ -107,10 +106,6 @@ public class OnlineMatchSession {
     public void enableOnDisconnectAbandon() {
         roomRef.child("status").onDisconnect().setValue(STATUS_ABANDONED);
         roomRef.child("endedAt").onDisconnect().setValue(ServerValue.TIMESTAMP);
-    }
-
-    public void startListening(@NonNull ActionListener listener) {
-        startListening(listener, null);
     }
 
     public void startListening(@NonNull ActionListener listener, @Nullable TurnClockListener clockListener) {
@@ -361,10 +356,8 @@ public class OnlineMatchSession {
     }
 
     public static class Action {
-        public String actionId;
         public String playerUid;
         public String actionType;
-        public Long timestamp;
         public Integer row;
         public Integer col;
         public Action() {}
@@ -372,15 +365,15 @@ public class OnlineMatchSession {
 
     public void sendMove(int row, int col) {
         if (!isValidCell(row, col)) return;
-        pushActionAuthoritative("MOVE", row, col, true);
+        pushActionAuthoritative("MOVE", row, col);
     }
 
     public void sendTriangle() {
-        pushActionAuthoritative("TRIANGLE", null, null, true);
+        pushActionAuthoritative("TRIANGLE", null, null);
     }
 
     public void sendSquare() {
-        pushActionAuthoritative("SQUARE", null, null, true);
+        pushActionAuthoritative("SQUARE", null, null);
     }
 
     public void advanceTurnIfExpired(@NonNull String expectedTurn, long expectedTurnSeq, @NonNull TurnAdvanceCallback callback) {
@@ -407,7 +400,7 @@ public class OnlineMatchSession {
 
                 if (turnSeq != expectedTurnSeq) return Transaction.abort();
 
-                if (turnSeq == lastProcessed) return Transaction.abort();
+                if (turnSeq.equals(lastProcessed)) return Transaction.abort();
 
                 long now = nowServerApprox();
                 long endAt = startedAt + duration;
@@ -454,7 +447,7 @@ public class OnlineMatchSession {
         });
     }
 
-    private void pushActionAuthoritative(@NonNull String type, @Nullable Integer row, @Nullable Integer col, boolean consumesTurn) {
+    private void pushActionAuthoritative(@NonNull String type, @Nullable Integer row, @Nullable Integer col) {
         String actionId = actionsRef.push().getKey();
         if (actionId == null) return;
 
@@ -480,24 +473,22 @@ public class OnlineMatchSession {
                 if (TURN_X.equals(mySymbol)) currentData.child("timeoutStreakX").setValue(0L);
                 else currentData.child("timeoutStreakO").setValue(0L);
 
-                if (consumesTurn) {
-                    String next = TURN_X.equals(turn) ? TURN_O : TURN_X;
-                    currentData.child("turn").setValue(next);
-                    currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+                String next = TURN_X.equals(turn) ? TURN_O : TURN_X;
+                currentData.child("turn").setValue(next);
+                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
 
-                    Long seq = currentData.child("turnSeq").getValue(Long.class);
-                    if (seq == null) seq = 0L;
-                    currentData.child("turnSeq").setValue(seq + 1L);
+                Long seq = currentData.child("turnSeq").getValue(Long.class);
+                if (seq == null) seq = 0L;
+                currentData.child("turnSeq").setValue(seq + 1L);
 
-                    if (currentData.child("turnDurationMs").getValue() == null) {
-                        currentData.child("turnDurationMs").setValue(10_000L);
-                    }
-                    if (currentData.child("lastTimeoutProcessedSeq").getValue() == null) {
-                        currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
-                    }
-                    if (currentData.child("timeoutStreakX").getValue() == null) currentData.child("timeoutStreakX").setValue(0L);
-                    if (currentData.child("timeoutStreakO").getValue() == null) currentData.child("timeoutStreakO").setValue(0L);
+                if (currentData.child("turnDurationMs").getValue() == null) {
+                    currentData.child("turnDurationMs").setValue(10_000L);
                 }
+                if (currentData.child("lastTimeoutProcessedSeq").getValue() == null) {
+                    currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
+                }
+                if (currentData.child("timeoutStreakX").getValue() == null) currentData.child("timeoutStreakX").setValue(0L);
+                if (currentData.child("timeoutStreakO").getValue() == null) currentData.child("timeoutStreakO").setValue(0L);
 
                 return Transaction.success(currentData);
             }

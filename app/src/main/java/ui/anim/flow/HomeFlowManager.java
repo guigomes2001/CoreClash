@@ -2,6 +2,7 @@ package ui.anim.flow;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.view.MotionEvent;
 import android.view.View;
@@ -122,6 +123,7 @@ public class HomeFlowManager {
         attachTileSpringInteraction(binding.btnFriends);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void attachTileSpringInteraction(@NonNull View view) {
         view.setOnTouchListener((v, event) -> {
             if (!v.isEnabled()) {
@@ -154,11 +156,6 @@ public class HomeFlowManager {
     public void setSelectedMatchKind(@NonNull enums.DomainMatchKind kind) {
         this.selectedMatchKind = kind;
         updateModeButtonStyles();
-    }
-
-    @NonNull
-    public enums.DomainMatchKind getSelectedMatchKind() {
-        return selectedMatchKind;
     }
 
     public void openModeModal() {

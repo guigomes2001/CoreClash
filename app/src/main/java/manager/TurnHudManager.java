@@ -16,8 +16,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.example.coreclash.R;
-
 import ui.style.HudIdentityStyle;
 
 import util.AnimationHelper;
@@ -45,10 +43,8 @@ public class TurnHudManager {
 
     private float pulseBaseScale = 1f;
     private float pulseAmp = 0f;
-    private TextView abandonX;
-    private TextView abandonO;
 
-    private HudIdentityStyle identityStyle = HudIdentityStyle.defaults();
+    private final HudIdentityStyle identityStyle = HudIdentityStyle.defaults();
 
     public TurnHudManager(
             @NonNull View hudRoot,
@@ -91,28 +87,24 @@ public class TurnHudManager {
         }
     }
 
-    public void setIdentityStyle(@NonNull HudIdentityStyle style) {
-        this.identityStyle = style;
-    }
-
     @NonNull
     private CharSequence buildNameLabel(@NonNull String playerName, @NonNull String symbol, boolean isMe) {
-        String prefix = isMe ? identityStyle.localPipePrefix : "";
-        String label = prefix + playerName + identityStyle.nameSymbolSeparator + symbol;
+        String prefix = isMe ? identityStyle.localPipePrefix() : "";
+        String label = prefix + playerName + identityStyle.nameSymbolSeparator() + symbol;
 
         SpannableString span = new SpannableString(label);
 
         int symbolStart = label.length() - symbol.length();
         int symbolEnd = label.length();
 
-        int color = "X".equals(symbol) ? identityStyle.xSymbolColor : identityStyle.oSymbolColor;
+        int color = "X".equals(symbol) ? identityStyle.xSymbolColor() : identityStyle.oSymbolColor();
 
         span.setSpan(new ForegroundColorSpan(color), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        span.setSpan(new RelativeSizeSpan(identityStyle.symbolRelativeSize), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new RelativeSizeSpan(identityStyle.symbolRelativeSize()), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         span.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), symbolStart, symbolEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         if (isMe && !prefix.isEmpty()) {
-            span.setSpan(new ForegroundColorSpan(identityStyle.localMarkerColor), 0, prefix.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            span.setSpan(new ForegroundColorSpan(identityStyle.localMarkerColor()), 0, prefix.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         return span;
@@ -128,14 +120,6 @@ public class TurnHudManager {
         barO.setScaleY(1f);
         barX.setAlpha(1f);
         barO.setAlpha(1f);
-
-        if (abandonX != null) abandonX.setAlpha(0.35f);
-        if (abandonO != null) abandonO.setAlpha(0.35f);
-    }
-
-    public void release() {
-        cancelTimer();
-        stopPulse();
     }
 
     private void startTurn(boolean xTurn) {
@@ -272,22 +256,5 @@ public class TurnHudManager {
                 .start();
 
         AnimationHelper.shakeButton(hudRoot);
-    }
-
-    public void bindAbandonViews(@NonNull TextView x, @NonNull TextView o) {
-        this.abandonX = x;
-        this.abandonO = o;
-    }
-
-    public void renderAbandon(@NonNull android.content.Context context, int xCount, int oCount, int max) {
-        if (abandonX == null || abandonO == null) return;
-
-        String label = context.getString(R.string.hud_abandon_label);
-
-        abandonX.setText(context.getString(R.string.hud_abandon_format, label, xCount, max));
-        abandonO.setText(context.getString(R.string.hud_abandon_format, label, oCount, max));
-
-        abandonX.setAlpha(xCount > 0 ? 1f : 0.35f);
-        abandonO.setAlpha(oCount > 0 ? 1f : 0.35f);
     }
 }

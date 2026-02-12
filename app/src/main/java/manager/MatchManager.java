@@ -13,7 +13,6 @@ import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
 
 import enums.DomainSymmetries;
-import game.GameState;
 import game.OnlineMatchSession;
 import game.OnlineMatchmaking;
 
@@ -51,7 +50,6 @@ public class MatchManager {
     private final android.os.Handler handler;
     private final ActivityMainBinding binding;
     private final GameManager gameManager;
-    private final GameState state;
     private final Callbacks cb;
 
     private final OnlineMatchmaking matchmaking = new OnlineMatchmaking();
@@ -79,21 +77,18 @@ public class MatchManager {
     private String opponentName = "";
 
     private int matchmakingRequestToken = 0;
-    private boolean matchmakingPending = false;
 
     public MatchManager(
             @NonNull Context context,
             @NonNull android.os.Handler handler,
             @NonNull ActivityMainBinding binding,
             @NonNull GameManager gameManager,
-            @NonNull GameState state,
             @NonNull Callbacks callbacks
     ) {
         this.context = context;
         this.handler = handler;
         this.binding = binding;
         this.gameManager = gameManager;
-        this.state = state;
         this.cb = callbacks;
     }
 
@@ -129,7 +124,6 @@ public class MatchManager {
         }
 
         final int requestToken = ++matchmakingRequestToken;
-        matchmakingPending = true;
 
         Toast.makeText(context, context.getString(R.string.toast_looking_match), Toast.LENGTH_SHORT).show();
         matchmaking.cleanupOldWaitingRooms();
@@ -140,7 +134,6 @@ public class MatchManager {
                 if (requestToken != matchmakingRequestToken) {
                     return;
                 }
-                matchmakingPending = false;
                 bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
             }
 
@@ -149,7 +142,6 @@ public class MatchManager {
                 if (requestToken != matchmakingRequestToken) {
                     return;
                 }
-                matchmakingPending = false;
                 cb.onRestoreMenuButtons();
                 cb.onSetArenaUiVisible(false);
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
@@ -348,12 +340,6 @@ public class MatchManager {
         if (onlineSession != null) onlineSession.sendSquare();
     }
 
-    public boolean playTurnLocal(int r, int c) {
-        int beforeMoves = gameManager.getFinalMoves();
-        boolean won = gameManager.play(r, c);
-        return beforeMoves != gameManager.getFinalMoves() && won;
-    }
-
     public boolean playTurnRemote(int r, int c) {
         int beforeMoves = gameManager.getFinalMoves();
         boolean won = gameManager.play(r, c);
@@ -458,7 +444,6 @@ public class MatchManager {
 
         onlineSession = null;
         isOnlineMatch = false;
-        matchmakingPending = false;
 
         lastTimeoutBannerTurnKey = "";
         scheduledTimeoutTurnKey = "";
@@ -470,7 +455,6 @@ public class MatchManager {
 
     public void cancelMatchmakingSearch() {
         matchmakingRequestToken++;
-        matchmakingPending = false;
 
         if (onlineSession != null && isOnlineMatch) {
             endOnlineSessionToMenu();
@@ -480,10 +464,6 @@ public class MatchManager {
         cb.onRestoreMenuButtons();
         cb.onSetArenaUiVisible(false);
         stopOnlineBarAnim(true);
-    }
-
-    public boolean isMatchmakingPending() {
-        return matchmakingPending;
     }
 
     public void onDestroy() {

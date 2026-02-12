@@ -91,7 +91,7 @@ public class BoardManager {
     }
 
     private void setupOverlay(GridLayout grid) {
-        ViewGroup parent = (ViewGroup) grid.getRootView().findViewById(android.R.id.content);
+        ViewGroup parent = grid.getRootView().findViewById(android.R.id.content);
         if (parent == null) {
             parent = (ViewGroup) grid.getParent();
             while (parent.getParent() instanceof ViewGroup && ((ViewGroup) parent.getParent()).getId() != android.view.View.NO_ID) {
@@ -442,7 +442,7 @@ public class BoardManager {
         }
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(@NonNull Canvas canvas) {
             super.onDraw(canvas);
             canvas.drawPath(drawingPath, paint);
         }
