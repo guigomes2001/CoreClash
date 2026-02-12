@@ -1,6 +1,9 @@
 package com.example.coreclash;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,6 +15,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -86,8 +90,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean bothIntroReady = false;
 
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
+    private static final int ROUNDS_TO_WIN = 2;
+    private static final long SKILL_ACTION_LOCK_MS = 650L;
 
     private String opponentName = "";
+    private int roundsWonX = 0;
+    private int roundsWonO = 0;
+    private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
 
@@ -107,6 +116,23 @@ public class MainActivity extends AppCompatActivity {
     private long lastUiToastAtMs = 0L;
     private String lastUiToastMessage = "";
     private boolean arenaVisibilityApplying = false;
+    private String matchmakingBaseStatus = "";
+    private int matchmakingDotsPhase = 0;
+    private final Runnable matchmakingStatusTicker = new Runnable() {
+        @Override
+        public void run() {
+            if (binding == null || binding.matchmakingOverlay.getVisibility() != View.VISIBLE) return;
+            String dots = switch (matchmakingDotsPhase % 4) {
+                case 1 -> ".";
+                case 2 -> "..";
+                case 3 -> "...";
+                default -> "";
+            };
+            binding.txtMatchmakingDots.setText(dots);
+            matchmakingDotsPhase++;
+            handler.postDelayed(this, 360);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +171,11 @@ public class MainActivity extends AppCompatActivity {
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
             if (!matchStarted || gameManager.isGameOver()) {
+                return;
+            }
+
+            if (isActionLocked()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
             }
 
@@ -199,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public boolean isMatchStarted() { return matchStarted; }
                     @Override public boolean isXTurn() { return state.isXTurn(); }
                     @Override public boolean isGameOver() { return gameManager.isGameOver(); }
+                    @Override public boolean isActionLocked() { return MainActivity.this.isActionLocked(); }
                     @NonNull @Override public DomainDifficulty getDifficulty() { return currentBotDifficulty; }
                 },
                 new BotManager.Callbacks() {
@@ -221,11 +253,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onPlayOnlineClicked() {
+                if (!ensureInternetForOnlineModes()) return;
+
+                homeFlow.closeModeModal();
+
                 String uid = getMyUidOrNull();
                 if (uid == null) {
                     Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
@@ -252,6 +289,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmOnlinePvp() {
+                if (!ensureInternetForOnlineModes()) return;
+
+                homeFlow.closeModeModal();
+
                 String uid = getMyUidOrNull();
                 if (uid == null) {
                     Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
@@ -407,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
                         bothIntroReady = false;
 
                         setGameMode();
+                        resetRoundSeries();
                         state.setGameMode(DomainGameMode.ONLINE.getValue());
                         gameManager.resetGame();
                         victoryOverlayAnimator.clearLines();
@@ -427,16 +469,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onOnlineRemoteWin(@NonNull String winnerSymbol) {
-                        matchStarted = false;
-                        matchPhase = DomainMatchPhase.FINISHED;
-                        victoryOverlayAnimator.showWin(winnerSymbol, 450);
+                        handleRoundFinished(winnerSymbol, false);
                     }
 
                     @Override
                     public void onOnlineRemoteDraw() {
-                        matchStarted = false;
-                        matchPhase = DomainMatchPhase.FINISHED;
-                        victoryOverlayAnimator.showDraw(420);
+                        handleRoundFinished(null, true);
                     }
 
                     @Override public void onEndOnlineSessionToMenu() { onlineSessionEndedCleanup(); }
@@ -524,6 +562,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            if (isActionLocked()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             if (versusBot && !state.isXTurn()) {
                 AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
@@ -533,6 +576,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (gameManager.useTriangle()) {
                 state.resetTimeoutStreak(actingX);
+                lockActionsTemporarily(SKILL_ACTION_LOCK_MS);
 
                 AnimationHelper.spin(v);
 
@@ -564,6 +608,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            if (isActionLocked()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             if (versusBot && !state.isXTurn()) {
                 AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
@@ -573,6 +622,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (gameManager.useSquare()) {
                 state.resetTimeoutStreak(actingX);
+                lockActionsTemporarily(SKILL_ACTION_LOCK_MS);
 
                 AnimationHelper.pulse(v);
 
@@ -594,7 +644,9 @@ public class MainActivity extends AppCompatActivity {
         binding.btnMatchmakingCancel.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
         binding.btnMatchmakingCancel.setCompoundDrawablePadding((int) (8 * getResources().getDisplayMetrics().density));
         binding.btnMatchmakingCancel.setEnabled(false);
-        binding.lottieMatchmaking.setSpeed(1.0f);
+        binding.lottieMatchmaking.setSpeed(1.06f);
+        binding.lottieMatchmaking.setProgress(0f);
+        binding.lottieMatchmaking.setRepeatCount(-1);
     }
 
     private void setupMetaControls() {
@@ -666,16 +718,12 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showWin(symbol, 450);
+            handleRoundFinished(symbol, false);
             return;
         }
 
         if (gameManager.isGameOver()) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showDraw(420);
+            handleRoundFinished(null, true);
         }
     }
 
@@ -698,6 +746,25 @@ public class MainActivity extends AppCompatActivity {
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
+        long now = System.currentTimeMillis();
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
+        lastUiToastMessage = message;
+        lastUiToastAtMs = now;
+
+        View content = getLayoutInflater().inflate(R.layout.toast_system_message, null, false);
+        TextView icon = content.findViewById(R.id.txtToastIcon);
+        TextView text = content.findViewById(R.id.txtToastMessage);
+        icon.setText(iconGlyph);
+        icon.setTextColor(iconColor);
+        text.setText(message);
+
+        Toast toast = new Toast(this);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(content);
+        toast.show();
     }
 
     private void setGameMode() {
@@ -779,6 +846,7 @@ public class MainActivity extends AppCompatActivity {
         matchPhase = DomainMatchPhase.LOADING;
         passPlayPlayerOneIsX = homeAwayManager.chooseHome(getString(R.string.label_player_one), getString(R.string.label_player_two));
         opponentName = getString(R.string.label_player_two);
+        resetRoundSeries();
 
         setGameMode();
         state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
@@ -823,6 +891,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openLocalLobbyDialog() {
+        if (!ensureInternetForOnlineModes()) return;
+
         String uid = getMyUidOrNull();
         if (uid == null) {
             Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
@@ -893,14 +963,15 @@ public class MainActivity extends AppCompatActivity {
             updateSkillVisuals();
         }
 
-        showUiToastDeduped(getString(R.string.btn_cancel_matchmaking));
+        showUiToastDedupedStyled(getString(R.string.toast_matchmaking_canceled), getString(R.string.fa_xmark), 0xFFFF7A8C);
     }
 
     private void showMatchmakingLoading(@NonNull String statusText) {
-        if (statusText.equals(lastMatchmakingStatus) && binding.matchmakingOverlay.getVisibility() == View.VISIBLE) return;
-
         lastMatchmakingStatus = statusText;
-        binding.txtMatchmakingStatus.setText(statusText);
+        matchmakingDotsPhase = 0;
+        String stableStatus = statusText.replace("…", "").replace("...", "");
+        binding.txtMatchmakingStatus.setText(stableStatus);
+        binding.txtMatchmakingDots.setText("");
         binding.btnMatchmakingCancel.setEnabled(true);
 
         if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
@@ -909,7 +980,12 @@ public class MainActivity extends AppCompatActivity {
             binding.matchmakingOverlay.animate().alpha(1f).setDuration(180).start();
         }
 
-        if (!binding.lottieMatchmaking.isAnimating()) binding.lottieMatchmaking.playAnimation();
+        if (!binding.lottieMatchmaking.isAnimating()) {
+            binding.lottieMatchmaking.playAnimation();
+        }
+
+        handler.removeCallbacks(matchmakingStatusTicker);
+        handler.post(matchmakingStatusTicker);
 
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
@@ -917,6 +993,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideMatchmakingLoading() {
+        handler.removeCallbacks(matchmakingStatusTicker);
+
         if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
             return;
         }
@@ -927,6 +1005,7 @@ public class MainActivity extends AppCompatActivity {
                     binding.matchmakingOverlay.setVisibility(View.GONE);
                     binding.btnMatchmakingCancel.setEnabled(false);
                     binding.lottieMatchmaking.cancelAnimation();
+                    binding.txtMatchmakingDots.setText("");
                     binding.matchmakingOverlay.setAlpha(1f);
                     lastMatchmakingStatus = "";
                 })
@@ -990,20 +1069,99 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showWin(symbol, 450);
+            handleRoundFinished(symbol, false);
             return;
         }
 
         if (gameManager.isGameOver()) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showDraw(420);
+            handleRoundFinished(null, true);
             return;
         }
 
         botManager.maybeRunBotTurn();
+    }
+
+    private void resetRoundSeries() {
+        roundsWonX = 0;
+        roundsWonO = 0;
+    }
+
+    private boolean isActionLocked() {
+        return System.currentTimeMillis() < actionLockedUntilMs;
+    }
+
+    private void lockActionsTemporarily(long durationMs) {
+        actionLockedUntilMs = Math.max(actionLockedUntilMs, System.currentTimeMillis() + Math.max(0L, durationMs));
+    }
+
+    private boolean ensureInternetForOnlineModes() {
+        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        if (cm == null) {
+            showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
+            return false;
+        }
+
+        Network active = cm.getActiveNetwork();
+        if (active == null) {
+            showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
+            return false;
+        }
+
+        NetworkCapabilities caps = cm.getNetworkCapabilities(active);
+        boolean connected = caps != null && (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                || caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                || caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
+
+        if (!connected) {
+            showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
+        }
+
+        return connected;
+    }
+
+    private void handleRoundFinished(String winnerSymbol, boolean draw) {
+        if (matchManager.isOnlineMatch()) {
+            matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
+            if (draw) {
+                victoryOverlayAnimator.showDraw(420);
+            } else {
+                victoryOverlayAnimator.showWin(winnerSymbol, 450);
+            }
+            return;
+        }
+
+        if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX++;
+        if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO++;
+
+        int winnerRounds = Math.max(roundsWonX, roundsWonO);
+        int loserRounds = Math.min(roundsWonX, roundsWonO);
+
+        if (winnerRounds >= ROUNDS_TO_WIN) {
+            matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
+            String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
+            showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
+            victoryOverlayAnimator.showWin(champion, 450);
+            return;
+        }
+
+        matchStarted = false;
+        matchPhase = DomainMatchPhase.LOADING;
+        String roundSummary = draw
+                ? getString(R.string.round_draw_replay, roundsWonX, roundsWonO)
+                : getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO);
+        showUiToastDeduped(roundSummary);
+
+        handler.postDelayed(() -> {
+            if (matchManager.isOnlineMatch()) return;
+            gameManager.resetGame();
+            victoryOverlayAnimator.clearLines();
+            updateHeaderStatus();
+            updateSkillVisuals();
+            runCountdown(getLocalStartsLabel(), () -> beginPlayingAfterCountdown(false));
+        }, 900L);
     }
 
     public void updateHeaderStatus() {
@@ -1080,6 +1238,7 @@ public class MainActivity extends AppCompatActivity {
         versusBot = true;
         opponentName = randomBotName();
         currentBotDifficulty = randomDifficulty();
+        resetRoundSeries();
 
         setGameMode();
         state.setGameMode(DomainGameMode.BOT.getValue());
@@ -1186,6 +1345,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        handler.removeCallbacks(matchmakingStatusTicker);
         botManager.cancelPending();
         matchManager.onDestroy();
         matchIntroAnimator.cancel();
