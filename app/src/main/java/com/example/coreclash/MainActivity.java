@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override public void setArenaUiVisible(boolean visible) {
-                        MainActivity.this.setArenaUiVisible(visible);
+                        MainActivity.this.applyArenaUiVisibility(visible);
                     }
 
                     @Override public void onIntroFinished() {
@@ -392,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
                         homeFlow.restoreMenuButtons();
                     }
                     @Override public void onSetArenaUiVisible(boolean visible) {
-                        MainActivity.this.setArenaUiVisible(visible);
+                        MainActivity.this.applyArenaUiVisibility(visible);
                     }
 
                     @Override public void onBeforeOnlineMatchStart() {
@@ -759,7 +759,7 @@ public class MainActivity extends AppCompatActivity {
         gameManager.resetGame();
         state.setXTurn(true);
         victoryOverlayAnimator.clearLines();
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
 
         updateHeaderStatus();
         updateSkillVisuals();
@@ -825,7 +825,7 @@ public class MainActivity extends AppCompatActivity {
         binding.settingsOverlay.setVisibility(View.GONE);
 
         if (!hadOnlineSession) {
-            setArenaUiVisible(false);
+            applyArenaUiVisibility(false);
             binding.homeOverlay.setVisibility(View.VISIBLE);
             binding.homeOverlay.setAlpha(1f);
             updateHeaderStatus();
@@ -852,7 +852,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
     }
 
     private void hideMatchmakingLoading() {
@@ -883,7 +883,7 @@ public class MainActivity extends AppCompatActivity {
         victoryOverlayAnimator.clearLines();
 
         hideMatchmakingLoading();
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
@@ -1003,7 +1003,7 @@ public class MainActivity extends AppCompatActivity {
         binding.progressTurnHudX.setProgress(0);
         binding.progressTurnHudO.setProgress(0);
 
-        setArenaUiVisible(true);
+        applyArenaUiVisibility(true);
 
         binding.homeOverlay.setVisibility(View.GONE);
         binding.modeOverlay.setVisibility(View.GONE);
@@ -1026,7 +1026,7 @@ public class MainActivity extends AppCompatActivity {
         boolean playerHomeVsBot = homeAwayManager.chooseHome(getPlayerDisplayName(), getString(R.string.label_bot));
         state.setXTurn(playerHomeVsBot);
         victoryOverlayAnimator.clearLines();
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
 
         updateHeaderStatus();
         updateSkillVisuals();
@@ -1039,7 +1039,7 @@ public class MainActivity extends AppCompatActivity {
         return uid.substring(0, Math.min(4, uid.length())).toUpperCase() + "#" + (1000 + (Math.abs(uid.hashCode()) % 9000));
     }
 
-    private void setArenaUiVisible(boolean visible) {
+    private void applyArenaUiVisibility(boolean visible) {
         int visibility = visible ? View.VISIBLE : View.INVISIBLE;
         binding.turnHudBar.setVisibility(visibility);
         binding.containerTriangle.setVisibility(visibility);
