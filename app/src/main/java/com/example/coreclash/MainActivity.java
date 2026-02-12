@@ -1,6 +1,9 @@
 package com.example.coreclash;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -86,8 +89,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean bothIntroReady = false;
 
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
+    private static final int ROUNDS_TO_WIN = 2;
+    private static final long SKILL_ACTION_LOCK_MS = 650L;
 
     private String opponentName = "";
+    private int roundsWonX = 0;
+    private int roundsWonO = 0;
+    private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
 
@@ -107,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     private long lastUiToastAtMs = 0L;
     private String lastUiToastMessage = "";
     private boolean arenaVisibilityApplying = false;
+    private AlertDialog noInternetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +154,11 @@ public class MainActivity extends AppCompatActivity {
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
             if (!matchStarted || gameManager.isGameOver()) {
+                return;
+            }
+
+            if (isActionLocked()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
             }
 
@@ -199,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public boolean isMatchStarted() { return matchStarted; }
                     @Override public boolean isXTurn() { return state.isXTurn(); }
                     @Override public boolean isGameOver() { return gameManager.isGameOver(); }
+                    @Override public boolean isActionLocked() { return MainActivity.this.isActionLocked(); }
                     @NonNull @Override public DomainDifficulty getDifficulty() { return currentBotDifficulty; }
                 },
                 new BotManager.Callbacks() {
@@ -221,11 +236,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onPlayOnlineClicked() {
+                if (!ensureInternetForOnlineModes()) return;
+
+                homeFlow.closeModeModal();
+
                 String uid = getMyUidOrNull();
                 if (uid == null) {
                     Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
@@ -252,6 +272,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmOnlinePvp() {
+                if (!ensureInternetForOnlineModes()) return;
+
+                homeFlow.closeModeModal();
+
                 String uid = getMyUidOrNull();
                 if (uid == null) {
                     Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
@@ -407,6 +431,7 @@ public class MainActivity extends AppCompatActivity {
                         bothIntroReady = false;
 
                         setGameMode();
+                        resetRoundSeries();
                         state.setGameMode(DomainGameMode.ONLINE.getValue());
                         gameManager.resetGame();
                         victoryOverlayAnimator.clearLines();
@@ -427,16 +452,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onOnlineRemoteWin(@NonNull String winnerSymbol) {
-                        matchStarted = false;
-                        matchPhase = DomainMatchPhase.FINISHED;
-                        victoryOverlayAnimator.showWin(winnerSymbol, 450);
+                        handleRoundFinished(winnerSymbol, false);
                     }
 
                     @Override
                     public void onOnlineRemoteDraw() {
-                        matchStarted = false;
-                        matchPhase = DomainMatchPhase.FINISHED;
-                        victoryOverlayAnimator.showDraw(420);
+                        handleRoundFinished(null, true);
                     }
 
                     @Override public void onEndOnlineSessionToMenu() { onlineSessionEndedCleanup(); }
@@ -524,6 +545,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            if (isActionLocked()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             if (versusBot && !state.isXTurn()) {
                 AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
@@ -533,6 +559,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (gameManager.useTriangle()) {
                 state.resetTimeoutStreak(actingX);
+                lockActionsTemporarily(SKILL_ACTION_LOCK_MS);
 
                 AnimationHelper.spin(v);
 
@@ -564,6 +591,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            if (isActionLocked()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             if (versusBot && !state.isXTurn()) {
                 AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
@@ -573,6 +605,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (gameManager.useSquare()) {
                 state.resetTimeoutStreak(actingX);
+                lockActionsTemporarily(SKILL_ACTION_LOCK_MS);
 
                 AnimationHelper.pulse(v);
 
@@ -666,16 +699,12 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showWin(symbol, 450);
+            handleRoundFinished(symbol, false);
             return;
         }
 
         if (gameManager.isGameOver()) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showDraw(420);
+            handleRoundFinished(null, true);
         }
     }
 
@@ -779,6 +808,7 @@ public class MainActivity extends AppCompatActivity {
         matchPhase = DomainMatchPhase.LOADING;
         passPlayPlayerOneIsX = homeAwayManager.chooseHome(getString(R.string.label_player_one), getString(R.string.label_player_two));
         opponentName = getString(R.string.label_player_two);
+        resetRoundSeries();
 
         setGameMode();
         state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
@@ -823,6 +853,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openLocalLobbyDialog() {
+        if (!ensureInternetForOnlineModes()) return;
+
         String uid = getMyUidOrNull();
         if (uid == null) {
             Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
@@ -990,20 +1022,130 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showWin(symbol, 450);
+            handleRoundFinished(symbol, false);
             return;
         }
 
         if (gameManager.isGameOver()) {
-            matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
-            victoryOverlayAnimator.showDraw(420);
+            handleRoundFinished(null, true);
             return;
         }
 
         botManager.maybeRunBotTurn();
+    }
+
+    private void resetRoundSeries() {
+        roundsWonX = 0;
+        roundsWonO = 0;
+    }
+
+    private boolean isActionLocked() {
+        return System.currentTimeMillis() < actionLockedUntilMs;
+    }
+
+    private void lockActionsTemporarily(long durationMs) {
+        actionLockedUntilMs = Math.max(actionLockedUntilMs, System.currentTimeMillis() + Math.max(0L, durationMs));
+    }
+
+    private boolean ensureInternetForOnlineModes() {
+        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        if (cm == null) {
+            showNoInternetDialog();
+            return false;
+        }
+
+        Network active = cm.getActiveNetwork();
+        if (active == null) {
+            showNoInternetDialog();
+            return false;
+        }
+
+        NetworkCapabilities caps = cm.getNetworkCapabilities(active);
+        boolean connected = caps != null && (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                || caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                || caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
+
+        if (!connected) {
+            showNoInternetDialog();
+        }
+
+        return connected;
+    }
+
+    private void showNoInternetDialog() {
+        if (noInternetDialog != null && noInternetDialog.isShowing()) {
+            return;
+        }
+
+        View content = getLayoutInflater().inflate(R.layout.dialog_no_internet, null, false);
+
+        noInternetDialog = new AlertDialog.Builder(this)
+                .setView(content)
+                .setCancelable(true)
+                .setPositiveButton(getString(R.string.btn_ok), null)
+                .create();
+
+        Window window = noInternetDialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
+        }
+
+        noInternetDialog.setOnDismissListener(d -> noInternetDialog = null);
+
+        noInternetDialog.setOnShowListener(d -> {
+            applyDialogStyle(noInternetDialog);
+            Button positive = noInternetDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (positive != null) {
+                positive.setText(getString(R.string.btn_ok));
+            }
+        });
+
+        noInternetDialog.show();
+    }
+
+    private void handleRoundFinished(String winnerSymbol, boolean draw) {
+        if (matchManager.isOnlineMatch()) {
+            matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
+            if (draw) {
+                victoryOverlayAnimator.showDraw(420);
+            } else {
+                victoryOverlayAnimator.showWin(winnerSymbol, 450);
+            }
+            return;
+        }
+
+        if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX++;
+        if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO++;
+
+        int winnerRounds = Math.max(roundsWonX, roundsWonO);
+        int loserRounds = Math.min(roundsWonX, roundsWonO);
+
+        if (winnerRounds >= ROUNDS_TO_WIN) {
+            matchStarted = false;
+            matchPhase = DomainMatchPhase.FINISHED;
+            String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
+            showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
+            victoryOverlayAnimator.showWin(champion, 450);
+            return;
+        }
+
+        matchStarted = false;
+        matchPhase = DomainMatchPhase.LOADING;
+        String roundSummary = draw
+                ? getString(R.string.round_draw_replay, roundsWonX, roundsWonO)
+                : getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO);
+        showUiToastDeduped(roundSummary);
+
+        handler.postDelayed(() -> {
+            if (matchManager.isOnlineMatch()) return;
+            gameManager.resetGame();
+            victoryOverlayAnimator.clearLines();
+            updateHeaderStatus();
+            updateSkillVisuals();
+            runCountdown(getLocalStartsLabel(), () -> beginPlayingAfterCountdown(false));
+        }, 900L);
     }
 
     public void updateHeaderStatus() {
@@ -1080,6 +1222,7 @@ public class MainActivity extends AppCompatActivity {
         versusBot = true;
         opponentName = randomBotName();
         currentBotDifficulty = randomDifficulty();
+        resetRoundSeries();
 
         setGameMode();
         state.setGameMode(DomainGameMode.BOT.getValue());
