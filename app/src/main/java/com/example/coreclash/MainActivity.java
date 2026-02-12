@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     private String lastMatchmakingStatus = "";
     private long lastUiToastAtMs = 0L;
     private String lastUiToastMessage = "";
+    private boolean arenaVisibilityApplying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1040,6 +1041,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyArenaUiVisibility(boolean visible) {
+        if (arenaVisibilityApplying) return;
+        arenaVisibilityApplying = true;
+
         int visibility = visible ? View.VISIBLE : View.INVISIBLE;
         binding.turnHudBar.setVisibility(visibility);
         binding.containerTriangle.setVisibility(visibility);
@@ -1047,6 +1051,8 @@ public class MainActivity extends AppCompatActivity {
         binding.boardContainer.setVisibility(visibility);
         binding.containerSquare.setVisibility(visibility);
         binding.lineRightConnector.setVisibility(visibility);
+
+        arenaVisibilityApplying = false;
     }
 
     private void openProfileDialog() {
