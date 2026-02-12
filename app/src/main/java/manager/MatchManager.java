@@ -125,7 +125,6 @@ public class MatchManager {
 
         final int requestToken = ++matchmakingRequestToken;
 
-        Toast.makeText(context, context.getString(R.string.toast_looking_match), Toast.LENGTH_SHORT).show();
         matchmaking.cleanupOldWaitingRooms();
 
         matchmaking.findOrCreateMatch(myUid, new OnlineMatchmaking.MatchmakingCallback() {
