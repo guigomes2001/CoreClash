@@ -17,10 +17,12 @@ import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
 
 import util.FontAwesomeIconFactory;
+import util.SafeClickUtil;
 
 public class HomeFlowManager {
 
     public interface Callbacks {
+        void onQuickPlayClicked();
         void onPlayOnlineClicked();
         void onStoreClicked();
         void onSettingsClicked();
@@ -44,79 +46,80 @@ public class HomeFlowManager {
 
     public void bind() {
         configureHomeMenuTiles();
+        configureModeOverlayButtons();
         setupSpringInteractions();
 
-        binding.btnPlay.setOnClickListener(v -> openModeModal());
-        binding.btnOnline.setOnClickListener(v -> cb.onPlayOnlineClicked());
+        SafeClickUtil.setSafeClick(binding.btnPlay, 420, v -> openModeModal());
+        SafeClickUtil.setSafeClick(binding.btnStore, 420, v -> cb.onStoreClicked());
+        SafeClickUtil.setSafeClick(binding.btnSettings, 320, v -> cb.onSettingsClicked());
 
-        binding.btnStore.setOnClickListener(v -> cb.onStoreClicked());
-        binding.btnArena.setOnClickListener(v -> openModeModal());
-        binding.btnSettings.setOnClickListener(v -> cb.onSettingsClicked());
-
-        binding.btnModeOffline.setOnClickListener(v -> {
+        SafeClickUtil.setSafeClick(binding.btnModeOffline, 220, v -> {
             selectedMatchKind = enums.DomainMatchKind.OFFLINE_BOT;
             updateModeButtonStyles();
             cb.onModeChanged(selectedMatchKind);
         });
 
-        binding.btnModeOnline.setOnClickListener(v -> {
+        SafeClickUtil.setSafeClick(binding.btnModeOnline, 220, v -> {
             selectedMatchKind = enums.DomainMatchKind.ONLINE_PVP;
             updateModeButtonStyles();
             cb.onModeChanged(selectedMatchKind);
         });
 
-        binding.btnModeLocalPassPlay.setOnClickListener(v -> {
+        SafeClickUtil.setSafeClick(binding.btnModeLocalPassPlay, 220, v -> {
             selectedMatchKind = enums.DomainMatchKind.LOCAL_PASS_PLAY;
             updateModeButtonStyles();
             cb.onModeChanged(selectedMatchKind);
         });
 
-        binding.btnModeLocalLobby.setOnClickListener(v -> {
-            selectedMatchKind = enums.DomainMatchKind.LOCAL_LOBBY;
-            updateModeButtonStyles();
-            cb.onModeChanged(selectedMatchKind);
-        });
-
-        binding.btnModeCancel.setOnClickListener(v -> closeModeModal());
-        binding.btnModeConfirm.setOnClickListener(v -> {
+        SafeClickUtil.setSafeClick(binding.btnModeCancel, 280, v -> closeModeModal());
+        SafeClickUtil.setSafeClick(binding.btnModeConfirm, 280, v -> {
             closeModeModal();
 
             if (selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP) {
                 cb.onConfirmOnlinePvp();
-            } else if (selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT) {
-                cb.onConfirmOfflineVsBot();
-            } else if (selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY) {
-                cb.onConfirmLocalPassPlay();
-            } else {
-                cb.onConfirmLocalLobby();
+                return;
             }
+            if (selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT) {
+                cb.onConfirmOfflineVsBot();
+                return;
+            }
+            if (selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY) {
+                cb.onConfirmLocalPassPlay();
+                return;
+            }
+            cb.onConfirmLocalLobby();
         });
 
-        binding.modeOverlay.setOnClickListener(v -> closeModeModal());
+        binding.modeOverlay.setOnClickListener(v -> {});
 
-        binding.btnGoogleLoginSettings.setOnClickListener(v -> cb.onGoogleLoginFromSettingsClicked());
+        SafeClickUtil.setSafeClick(binding.btnGoogleLoginSettings, 320, v -> cb.onGoogleLoginFromSettingsClicked());
 
         updateModeButtonStyles();
     }
 
     private void configureHomeMenuTiles() {
         binding.btnPlay.setText(R.string.btn_play);
-        binding.btnOnline.setText(R.string.mode_online_world);
         binding.btnStore.setText(R.string.btn_store);
-        binding.btnArena.setText(R.string.btn_modes);
 
         int iconColor = 0xFFDDEBFF;
         FontAwesomeIconFactory.applyTopIcon(binding.btnPlay, binding.getRoot().getContext().getString(R.string.fa_gamepad), 16, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 16, iconColor, 6);
         FontAwesomeIconFactory.applyTopIcon(binding.btnStore, binding.getRoot().getContext().getString(R.string.fa_store), 16, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnArena, binding.getRoot().getContext().getString(R.string.fa_users), 16, iconColor, 6);
+
+        binding.btnOnline.setVisibility(View.GONE);
+        binding.btnArena.setVisibility(View.GONE);
+    }
+
+    private void configureModeOverlayButtons() {
+        int iconColor = 0xFFEAF2FF;
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 14, iconColor, 10);
+        binding.btnModeLocalLobby.setVisibility(View.GONE);
     }
 
     private void setupSpringInteractions() {
         attachTileSpringInteraction(binding.btnPlay);
-        attachTileSpringInteraction(binding.btnOnline);
         attachTileSpringInteraction(binding.btnStore);
-        attachTileSpringInteraction(binding.btnArena);
 
         attachTileSpringInteraction(binding.btnSettings);
         attachTileSpringInteraction(binding.btnProfile);
@@ -126,9 +129,7 @@ public class HomeFlowManager {
     @SuppressLint("ClickableViewAccessibility")
     private void attachTileSpringInteraction(@NonNull View view) {
         view.setOnTouchListener((v, event) -> {
-            if (!v.isEnabled()) {
-                return false;
-            }
+            if (!v.isEnabled()) return false;
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 springTo(v, DynamicAnimation.SCALE_X, 0.94f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY, SpringForce.STIFFNESS_MEDIUM);
                 springTo(v, DynamicAnimation.SCALE_Y, 0.94f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY, SpringForce.STIFFNESS_MEDIUM);
@@ -162,8 +163,8 @@ public class HomeFlowManager {
         updateModeButtonStyles();
         binding.modeOverlay.setVisibility(View.VISIBLE);
         binding.modeOverlay.setAlpha(0f);
-        binding.modeCard.setScaleX(0.9f);
-        binding.modeCard.setScaleY(0.9f);
+        binding.modeCard.setScaleX(0.97f);
+        binding.modeCard.setScaleY(0.97f);
         binding.lottieModeOverlay.playAnimation();
 
         binding.modeOverlay.animate().alpha(1f).setDuration(180).start();
@@ -203,15 +204,12 @@ public class HomeFlowManager {
         button.setTextColor(selected ? selectedText : defaultText);
     }
 
-
     public void playHomeEntrance() {
         View[] revealViews = new View[]{
                 binding.homeCard,
                 binding.homeQuickActions,
                 binding.btnPlay,
-                binding.btnOnline,
-                binding.btnStore,
-                binding.btnArena
+                binding.btnStore
         };
 
         for (View view : revealViews) {
@@ -227,18 +225,14 @@ public class HomeFlowManager {
                 buildAlpha(binding.homeCard, 200L, 0L),
                 buildAlpha(binding.homeQuickActions, 180L, 80L),
                 buildAlpha(binding.btnPlay, 170L, 130L),
-                buildAlpha(binding.btnOnline, 170L, 180L),
-                buildAlpha(binding.btnStore, 170L, 230L),
-                buildAlpha(binding.btnArena, 170L, 280L)
+                buildAlpha(binding.btnStore, 170L, 200L)
         );
         alphaTimeline.start();
 
         startEntranceSpring(binding.homeCard, 0L, 0.78f);
         startEntranceSpring(binding.homeQuickActions, 70L, 0.82f);
         startEntranceSpring(binding.btnPlay, 120L, 0.86f);
-        startEntranceSpring(binding.btnOnline, 170L, 0.86f);
-        startEntranceSpring(binding.btnStore, 220L, 0.86f);
-        startEntranceSpring(binding.btnArena, 270L, 0.86f);
+        startEntranceSpring(binding.btnStore, 190L, 0.86f);
     }
 
     private void startEntranceSpring(@NonNull View view, long delayMs, float damping) {
@@ -263,13 +257,17 @@ public class HomeFlowManager {
         binding.homeOverlay.setAlpha(1f);
 
         binding.btnPlay.setEnabled(false);
-        binding.btnOnline.setEnabled(false);
-        binding.btnArena.setEnabled(false);
+        binding.btnStore.setEnabled(false);
+        binding.btnSettings.setEnabled(false);
+        binding.btnProfile.setEnabled(false);
+        binding.btnFriends.setEnabled(false);
     }
 
     public void restoreMenuButtons() {
         binding.btnPlay.setEnabled(true);
-        binding.btnOnline.setEnabled(true);
-        binding.btnArena.setEnabled(true);
+        binding.btnStore.setEnabled(true);
+        binding.btnSettings.setEnabled(true);
+        binding.btnProfile.setEnabled(true);
+        binding.btnFriends.setEnabled(true);
     }
 }
