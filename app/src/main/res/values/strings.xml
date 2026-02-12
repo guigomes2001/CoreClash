@@ -141,4 +141,12 @@
     <string name="fa_store" translatable="false">&#xf54e;</string>
     <string name="fa_xmark" translatable="false">&#xf00d;</string>
 
+    <string name="error_online_requires_internet">📡 No internet connection detected. Check your network and try again.</string>
+    <string name="round_result_score">Round won by %1$s. Score %2$d-%3$d</string>
+    <string name="round_draw_replay">Round draw. Score stays %1$d-%2$d</string>
+    <string name="rounds_finished_score">🏆 Match finished! Final rounds score: %1$d-%2$d</string>
+
+    <string name="error_online_requires_internet_title">🌐 Connection needed</string>
+    <string name="fa_wifi" translatable="false">&#xf1eb;</string>
+
 </resources>
