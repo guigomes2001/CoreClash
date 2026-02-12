@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Text.CoreClash" />
+    <style name="Text" />
+
+    <style name="Text.CoreClash" parent="Text" />
 
     <style name="Text.CoreClash.Title" parent="Text.CoreClash">
         <item name="android:textColor">@color/ds_text_primary</item>
