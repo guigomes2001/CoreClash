@@ -325,7 +325,7 @@
         android:id="@+id/homeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ds_bg_overlay"
+        android:background="@drawable/bg_gradient_dark"
         android:elevation="92dp"
         android:clickable="true"
         android:focusable="true">
@@ -548,7 +548,7 @@
         android:id="@+id/matchmakingOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ds_bg_overlay"
+        android:background="@drawable/bg_gradient_dark"
         android:visibility="gone"
         android:elevation="95dp"
         android:clickable="true"
@@ -594,7 +594,7 @@
         android:id="@+id/modeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ds_bg_overlay"
+        android:background="@drawable/bg_gradient_dark"
         android:visibility="gone"
         android:elevation="94dp"
         android:clickable="true"
@@ -936,7 +936,7 @@
         android:clickable="true"
         android:focusable="true"
         android:elevation="99dp"
-        android:background="@color/ds_bg_overlay">
+        android:background="@drawable/bg_gradient_dark">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -1307,7 +1307,7 @@
         android:id="@+id/settingsOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ds_bg_overlay"
+        android:background="@drawable/bg_gradient_dark"
         android:visibility="gone"
         android:elevation="97dp"
         android:clickable="true"
@@ -1352,8 +1352,8 @@
                 android:layout_height="54dp"
                 android:text="@string/btn_link_google"
                 android:textStyle="bold"
-                android:textColor="#04131F"
-                android:backgroundTint="#F7C948"
+                android:textColor="#E0F2FE"
+                android:background="@drawable/bg_button_secondary"
                 android:drawableStart="@drawable/ic_flash_simple"
                 android:drawablePadding="12dp"
                 android:layout_marginBottom="20dp"/>
