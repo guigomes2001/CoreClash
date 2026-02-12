@@ -36,6 +36,20 @@ public final class FontAwesomeIconFactory {
         button.setCompoundDrawablePadding(paddingPx);
     }
 
+
+    public static void applyStartIcon(
+            @NonNull Button button,
+            @NonNull String glyph,
+            int iconSizeDp,
+            @ColorInt int iconColor,
+            int iconEndPaddingDp
+    ) {
+        Drawable icon = createDrawable(button.getContext(), glyph, iconSizeDp, iconColor);
+        button.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
+        int paddingPx = dp(button.getContext(), iconEndPaddingDp);
+        button.setCompoundDrawablePadding(paddingPx);
+    }
+
     @NonNull
     public static Drawable createDrawable(
             @NonNull Context context,
