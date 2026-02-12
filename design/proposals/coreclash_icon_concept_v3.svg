@@ -1,0 +1,67 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgMain" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071326"/>
+      <stop offset="0.55" stop-color="#122E4E"/>
+      <stop offset="1" stop-color="#2C165D"/>
+    </linearGradient>
+
+    <radialGradient id="glowTop" cx="0.25" cy="0.18" r="0.45">
+      <stop offset="0" stop-color="#58F2FF" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#58F2FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glowBottom" cx="0.78" cy="0.82" r="0.50">
+      <stop offset="0" stop-color="#FF5EC9" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FF5EC9" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="boardFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0F2946"/>
+      <stop offset="1" stop-color="#0B1E36"/>
+    </linearGradient>
+
+    <filter id="cardShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000A14" flood-opacity="0.55"/>
+    </filter>
+
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#bgMain)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#glowTop)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#glowBottom)"/>
+
+  <rect x="72" y="72" width="880" height="880" rx="196" fill="none" stroke="#86EEFF" stroke-opacity="0.68" stroke-width="8"/>
+
+  <g filter="url(#cardShadow)">
+    <rect x="192" y="192" width="640" height="640" rx="108" fill="url(#boardFill)" stroke="#98EEFF" stroke-width="8"/>
+
+    <line x1="405.33" y1="192" x2="405.33" y2="832" stroke="#78E7FF" stroke-opacity="0.30" stroke-width="5"/>
+    <line x1="618.66" y1="192" x2="618.66" y2="832" stroke="#78E7FF" stroke-opacity="0.30" stroke-width="5"/>
+    <line x1="192" y1="405.33" x2="832" y2="405.33" stroke="#78E7FF" stroke-opacity="0.30" stroke-width="5"/>
+    <line x1="192" y1="618.66" x2="832" y2="618.66" stroke="#78E7FF" stroke-opacity="0.30" stroke-width="5"/>
+  </g>
+
+  <!-- Uniform symbol system: all symbols centered in equal 132x132 cells -->
+  <!-- Cell A center (298.66, 298.66) -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <line x1="252" y1="252" x2="345.33" y2="345.33" stroke="#67F4FF" stroke-width="20"/>
+    <line x1="345.33" y1="252" x2="252" y2="345.33" stroke="#67F4FF" stroke-width="20"/>
+  </g>
+
+  <!-- Cell C center (725.33, 298.66) -->
+  <circle cx="725.33" cy="298.66" r="46" fill="none" stroke="#FF75DA" stroke-width="20"/>
+
+  <!-- Cell G center (298.66, 725.33) -->
+  <polygon points="298.66,672.33 251.66,758.33 345.66,758.33" fill="none" stroke="#FFD86B" stroke-width="18" stroke-linejoin="round"/>
+
+  <!-- Cell I center (725.33, 725.33) -->
+  <rect x="679.33" y="679.33" width="92" height="92" rx="16" fill="none" stroke="#A7FFC9" stroke-width="18"/>
+
+  <g filter="url(#softGlow)">
+    <ellipse cx="512" cy="878" rx="240" ry="18" fill="#5CEFFF" fill-opacity="0.17"/>
+  </g>
+</svg>
