@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     private long lastUiToastAtMs = 0L;
     private String lastUiToastMessage = "";
     private boolean arenaVisibilityApplying = false;
+    private AlertDialog noInternetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public boolean isMatchStarted() { return matchStarted; }
                     @Override public boolean isXTurn() { return state.isXTurn(); }
                     @Override public boolean isGameOver() { return gameManager.isGameOver(); }
-                    @Override public boolean isActionLocked() { return isActionLocked(); }
+                    @Override public boolean isActionLocked() { return MainActivity.this.isActionLocked(); }
                     @NonNull @Override public DomainDifficulty getDifficulty() { return currentBotDifficulty; }
                 },
                 new BotManager.Callbacks() {
@@ -236,6 +237,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override public void onPlayOnlineClicked() {
                 if (!ensureInternetForOnlineModes()) return;
+
+                homeFlow.closeModeModal();
 
                 String uid = getMyUidOrNull();
                 if (uid == null) {
@@ -270,6 +273,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override public void onConfirmOnlinePvp() {
                 if (!ensureInternetForOnlineModes()) return;
+
+                homeFlow.closeModeModal();
 
                 String uid = getMyUidOrNull();
                 if (uid == null) {
@@ -1045,13 +1050,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean ensureInternetForOnlineModes() {
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         if (cm == null) {
-            showUiToastDeduped(getString(R.string.error_online_requires_internet));
+            showNoInternetDialog();
             return false;
         }
 
         Network active = cm.getActiveNetwork();
         if (active == null) {
-            showUiToastDeduped(getString(R.string.error_online_requires_internet));
+            showNoInternetDialog();
             return false;
         }
 
@@ -1062,10 +1067,40 @@ public class MainActivity extends AppCompatActivity {
                 || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
 
         if (!connected) {
-            showUiToastDeduped(getString(R.string.error_online_requires_internet));
+            showNoInternetDialog();
         }
 
         return connected;
+    }
+
+    private void showNoInternetDialog() {
+        if (noInternetDialog != null && noInternetDialog.isShowing()) {
+            return;
+        }
+
+        noInternetDialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.error_online_requires_internet_title))
+                .setMessage(getString(R.string.error_online_requires_internet))
+                .setPositiveButton(getString(R.string.btn_ok), null)
+                .create();
+
+        noInternetDialog.setOnDismissListener(d -> noInternetDialog = null);
+
+        noInternetDialog.setOnShowListener(d -> {
+            applyDialogStyle(noInternetDialog);
+            Button positive = noInternetDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (positive != null) {
+                positive.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        FontAwesomeIconFactory.createDrawable(this, getString(R.string.fa_wifi), 14, 0xFF6EE7FF),
+                        null,
+                        null,
+                        null
+                );
+                positive.setCompoundDrawablePadding((int) (8 * getResources().getDisplayMetrics().density));
+            }
+        });
+
+        noInternetDialog.show();
     }
 
     private void handleRoundFinished(String winnerSymbol, boolean draw) {

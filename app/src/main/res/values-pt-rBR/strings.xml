@@ -145,4 +145,7 @@
     <string name="round_draw_replay">Round empatado. Placar permanece %1$d-%2$d</string>
     <string name="rounds_finished_score">🏆 Partida encerrada! Placar final dos rounds: %1$d-%2$d</string>
 
+    <string name="error_online_requires_internet_title">🌐 Conexão necessária</string>
+    <string name="fa_wifi" translatable="false">&#xf1eb;</string>
+
 </resources>
