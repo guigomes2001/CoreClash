@@ -3,7 +3,6 @@ package ui.anim.flow;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.content.res.ColorStateList;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -87,7 +86,7 @@ public class HomeFlowManager {
                 cb.onConfirmLocalPassPlay();
                 return;
             }
-            cb.onConfirmLocalLobby();
+            cb.onConfirmLocalPassPlay();
         });
 
         binding.modeOverlay.setOnClickListener(v -> {});
@@ -115,14 +114,6 @@ public class HomeFlowManager {
         FontAwesomeIconFactory.applyStartIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 14, iconColor, 10);
         FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 14, iconColor, 10);
         binding.btnModeLocalLobby.setVisibility(View.GONE);
-    }
-
-    private void configureModeOverlayButtons() {
-        int iconColor = 0xFFEAF2FF;
-        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 14, iconColor, 10);
-        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 14, iconColor, 10);
-        FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 14, iconColor, 10);
-        FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalLobby, binding.getRoot().getContext().getString(R.string.fa_store), 14, iconColor, 10);
     }
 
     private void setupSpringInteractions() {
@@ -191,25 +182,15 @@ public class HomeFlowManager {
     }
 
     public void updateModeButtonStyles() {
-        int selectedBg = 0xFF22D3EE;
-        int selectedText = 0xFF082F49;
-        int defaultBg = 0xFF312E81;
-        int defaultText = 0xFFE0E7FF;
-
-        styleModeButton(binding.btnModeOnline, selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP, selectedBg, selectedText, defaultBg, defaultText);
-        styleModeButton(binding.btnModeOffline, selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT, selectedBg, selectedText, defaultBg, defaultText);
-        styleModeButton(binding.btnModeLocalPassPlay, selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY, selectedBg, selectedText, defaultBg, defaultText);
-        styleModeButton(binding.btnModeLocalLobby, selectedMatchKind == enums.DomainMatchKind.LOCAL_LOBBY, selectedBg, selectedText, defaultBg, defaultText);
+        styleModeButton(binding.btnModeOffline, selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT);
+        styleModeButton(binding.btnModeOnline, selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP);
+        styleModeButton(binding.btnModeLocalPassPlay, selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY);
     }
 
-    private void styleModeButton(@NonNull android.widget.Button button,
-                                 boolean selected,
-                                 int selectedBg,
-                                 int selectedText,
-                                 int defaultBg,
-                                 int defaultText) {
-        button.setBackgroundTintList(ColorStateList.valueOf(selected ? selectedBg : defaultBg));
-        button.setTextColor(selected ? selectedText : defaultText);
+    private void styleModeButton(@NonNull android.widget.Button button, boolean selected) {
+        button.setTextColor(selected ? 0xFF04131F : 0xFFEAF2FF);
+        button.setBackgroundResource(selected ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
+        button.setAlpha(selected ? 1f : 0.92f);
     }
 
     public void playHomeEntrance() {
