@@ -1,12 +1,16 @@
 package com.example.coreclash;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -777,6 +781,36 @@ public class MainActivity extends AppCompatActivity {
         matchIntroAnimator.startFromHome();
     }
 
+    private void applyDialogStyle(@NonNull AlertDialog dialog) {
+        Window window = dialog.getWindow();
+        if (window != null) window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
+
+        Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        Button neutral = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+        if (positive != null) {
+            positive.setAllCaps(false);
+            positive.setTextColor(Color.parseColor("#6EE7FF"));
+        }
+        if (negative != null) {
+            negative.setAllCaps(false);
+            negative.setTextColor(Color.parseColor("#D8E9FF"));
+        }
+        if (neutral != null) {
+            neutral.setAllCaps(false);
+            neutral.setTextColor(Color.parseColor("#D8E9FF"));
+        }
+    }
+
+    private void styleInput(@NonNull EditText input) {
+        int pad = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics());
+        input.setTextColor(Color.parseColor("#EAF2FF"));
+        input.setHintTextColor(Color.parseColor("#8FAACA"));
+        input.setBackgroundResource(R.drawable.bg_button_tertiary);
+        input.setPadding(pad, pad, pad, pad);
+    }
+
     private void openLocalLobbyDialog() {
         String uid = getMyUidOrNull();
         if (uid == null) {
@@ -784,7 +818,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        new AlertDialog.Builder(this)
+        AlertDialog localLobbyDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.mode_local_lobby))
                 .setMessage(getString(R.string.local_lobby_enter_code))
                 .setPositiveButton(getString(R.string.local_lobby_create), (d, w) -> {
@@ -797,7 +831,8 @@ public class MainActivity extends AppCompatActivity {
                     EditText input = new EditText(this);
                     input.setInputType(InputType.TYPE_CLASS_TEXT);
                     input.setHint(getString(R.string.hint_room_code_example));
-                    new AlertDialog.Builder(this)
+                    styleInput(input);
+                    AlertDialog joinDialog = new AlertDialog.Builder(this)
                             .setTitle(getString(R.string.local_lobby_enter_code))
                             .setView(input)
                             .setPositiveButton(getString(R.string.local_lobby_join), (d2, w2) -> {
@@ -810,9 +845,13 @@ public class MainActivity extends AppCompatActivity {
                                 matchManager.joinLocalLobby(uid, code);
                             })
                             .setNegativeButton(getString(R.string.btn_back), null)
-                            .show();
+                            .create();
+                    joinDialog.show();
+                    applyDialogStyle(joinDialog);
                 })
-                .show();
+                .create();
+        localLobbyDialog.show();
+        applyDialogStyle(localLobbyDialog);
     }
 
     @NonNull
@@ -1075,24 +1114,26 @@ public class MainActivity extends AppCompatActivity {
         EditText nameInput = new EditText(this);
         nameInput.setText(getPlayerDisplayName());
         nameInput.setHint(getString(R.string.profile_name));
+        styleInput(nameInput);
 
         String tag = buildTagFromUid(uid);
 
-        new AlertDialog.Builder(this)
+        AlertDialog profileDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.profile_title))
                 .setMessage(getString(R.string.profile_tag) + ": " + tag)
                 .setView(nameInput)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
                     String displayName = nameInput.getText() == null ? getPlayerDisplayName() : nameInput.getText().toString().trim();
-                    if (displayName.isEmpty()) {
-                        displayName = getPlayerDisplayName();
-                    }
+                    if (displayName.isEmpty()) displayName = getPlayerDisplayName();
                     socialManager.upsertUserProfile(uid, displayName, tag);
                     playerServices.updateDisplayNameAndPersist(displayName);
                     updateHeaderStatus();
                 })
                 .setNegativeButton(getString(R.string.btn_back), null)
-                .show();
+                .create();
+
+        profileDialog.show();
+        applyDialogStyle(profileDialog);
     }
 
     private void openFriendsDialog() {
@@ -1104,16 +1145,15 @@ public class MainActivity extends AppCompatActivity {
 
         EditText tagInput = new EditText(this);
         tagInput.setHint(getString(R.string.friends_tag_hint));
+        styleInput(tagInput);
 
-        new AlertDialog.Builder(this)
+        AlertDialog friendsDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.friends_title))
                 .setMessage(getString(R.string.friends_add_by_tag))
                 .setView(tagInput)
                 .setPositiveButton(getString(R.string.btn_ok), (d, w) -> {
                     String tag = tagInput.getText() == null ? "" : tagInput.getText().toString().trim().toUpperCase();
-                    if (tag.isEmpty()) {
-                        return;
-                    }
+                    if (tag.isEmpty()) return;
                     socialManager.sendFriendRequestByTag(uid, tag, new SocialManager.Callback() {
                         @Override
                         public void onSuccess() {
@@ -1127,7 +1167,10 @@ public class MainActivity extends AppCompatActivity {
                     });
                 })
                 .setNegativeButton(getString(R.string.btn_back), null)
-                .show();
+                .create();
+
+        friendsDialog.show();
+        applyDialogStyle(friendsDialog);
     }
 
     @Override

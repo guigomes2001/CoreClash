@@ -6,7 +6,8 @@
     android:id="@+id/mainRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_dark">
+    android:background="@drawable/bg_gradient_dark"
+        android:alpha="0.98">
 
     <LinearLayout
         android:id="@+id/turnHudBar"
@@ -755,7 +756,7 @@
                     android:text="X"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"
-                    android:backgroundTint="#334155"/>
+                    android:background="@drawable/bg_button_tertiary"/>
             </LinearLayout>
 
             <TextView
@@ -1318,7 +1319,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginHorizontal="32dp"
-            android:background="@drawable/bg_cyber_glass"
+            android:background="@drawable/bg_modal_panel"
             android:orientation="vertical"
             android:padding="24dp">
 
@@ -1340,7 +1341,7 @@
                 android:text="@string/btn_language"
                 android:textStyle="bold"
                 android:textColor="#E0F2FE"
-                android:backgroundTint="#1E3A5F"
+                android:background="@drawable/bg_button_secondary"
                 android:drawableStart="@drawable/ic_settings_gear"
                 android:drawablePadding="12dp"
                 android:layout_marginBottom="12dp"/>
@@ -1364,7 +1365,7 @@
                 android:text="@string/btn_close"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
-                android:backgroundTint="#334155"/>
+                android:background="@drawable/bg_button_tertiary"/>
         </LinearLayout>
     </FrameLayout>
 
