@@ -1,0 +1,46 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#061126"/>
+      <stop offset="55%" stop-color="#102542"/>
+      <stop offset="100%" stop-color="#2A1A5A"/>
+    </linearGradient>
+    <radialGradient id="orb1" cx="25%" cy="22%" r="30%">
+      <stop offset="0%" stop-color="#56F2FF" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#56F2FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orb2" cx="78%" cy="78%" r="35%">
+      <stop offset="0%" stop-color="#A26BFF" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#A26BFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1024" height="1024" rx="220" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="220" fill="url(#orb1)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="220" fill="url(#orb2)"/>
+
+  <rect x="58" y="58" width="908" height="908" rx="190" fill="none" stroke="#7CEEFF" stroke-opacity="0.65" stroke-width="8"/>
+
+  <polygon points="512,195 829,512 512,829 195,512" fill="#10233E" fill-opacity="0.92" stroke="#8EECFF" stroke-width="10"/>
+
+  <line x1="406" y1="300" x2="617" y2="512" stroke="#72F5FF" stroke-opacity="0.35" stroke-width="6"/>
+  <line x1="512" y1="406" x2="300" y2="617" stroke="#72F5FF" stroke-opacity="0.35" stroke-width="6"/>
+  <line x1="617" y1="300" x2="406" y2="512" stroke="#72F5FF" stroke-opacity="0.35" stroke-width="6"/>
+  <line x1="724" y1="406" x2="512" y2="617" stroke="#72F5FF" stroke-opacity="0.35" stroke-width="6"/>
+
+  <g filter="url(#soft)">
+    <line x1="334" y1="386" x2="455" y2="507" stroke="#68F4FF" stroke-width="26" stroke-linecap="round"/>
+    <line x1="455" y1="386" x2="334" y2="507" stroke="#68F4FF" stroke-width="26" stroke-linecap="round"/>
+
+    <circle cx="631" cy="445" r="76" fill="none" stroke="#FF7BDC" stroke-width="22"/>
+
+    <polygon points="390,625 332,736 448,736" fill="none" stroke="#FFD86A" stroke-width="20" stroke-linejoin="round"/>
+
+    <rect x="565" y="614" width="132" height="132" rx="16" fill="none" stroke="#9FFFC5" stroke-width="18"/>
+  </g>
+
+  <text x="512" y="920" text-anchor="middle" font-family="Orbitron, Rajdhani, sans-serif" font-size="72" fill="#D9F7FF" fill-opacity="0.9">CORE CLASH</text>
+</svg>

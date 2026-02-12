@@ -86,7 +86,8 @@
 
     <string name="turn_hud_player_default">Jogador</string>
     <string name="turn_hud_opponent_default">Oponente</string>
-    <string name="status_waiting_opponent">Aguardando adversário…</string>
+    <string name="status_waiting_opponent">Aguardando adversário</string>
+    <string name="matchmaking_loading_subtitle">Sincronizando na arena</string>
     <string name="status_waiting_player">Aguardando jogador…</string>
 
     <string name="hud_abandon_label">ABANDONO</string>
@@ -139,5 +140,13 @@
     <string name="fa_cog" translatable="false">&#xf013;</string>
     <string name="fa_store" translatable="false">&#xf54e;</string>
     <string name="fa_xmark" translatable="false">&#xf00d;</string>
+
+    <string name="error_online_requires_internet">📡 Sem conexão com a internet. Verifique sua rede e tente novamente.</string>
+    <string name="round_result_score">Round vencido por %1$s. Placar %2$d-%3$d</string>
+    <string name="round_draw_replay">Round empatado. Placar permanece %1$d-%2$d</string>
+    <string name="rounds_finished_score">🏆 Partida encerrada! Placar final dos rounds: %1$d-%2$d</string>
+
+    <string name="error_online_requires_internet_title">🌐 Conexão necessária</string>
+    <string name="fa_wifi" translatable="false">&#xf1eb;</string>
 
 </resources>
