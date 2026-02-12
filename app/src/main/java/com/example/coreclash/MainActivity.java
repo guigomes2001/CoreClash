@@ -715,13 +715,15 @@ public class MainActivity extends AppCompatActivity {
         matchPhase = DomainMatchPhase.COUNTDOWN;
         binding.countdownOverlay.setVisibility(View.VISIBLE);
         binding.countdownOverlay.setAlpha(0f);
-        binding.countdownOverlay.animate().alpha(1f).setDuration(120).start();
-        binding.txtCountdownWhoStarts.setText(startsLabel);
+        binding.countdownOverlay.animate().alpha(1f).setDuration(140).start();
+        updateCountdownStartsLabel(startsLabel);
 
+        final long tickDelayMs = 900L;
+        final long goHoldMs = 320L;
         int[] ticks = {3, 2, 1};
         for (int i = 0; i < ticks.length; i++) {
             int value = ticks[i];
-            long delay = i * 700L;
+            long delay = i * tickDelayMs;
             handler.postDelayed(() -> {
                 if (localToken != countdownRunToken) return;
                 binding.txtCountdownValue.setText(String.valueOf(value));
@@ -732,16 +734,25 @@ public class MainActivity extends AppCompatActivity {
             if (localToken != countdownRunToken) return;
             binding.txtCountdownValue.setText(getString(R.string.countdown_go));
             onFinish.run();
-        }, 3 * 700L);
+        }, ticks.length * tickDelayMs);
 
         handler.postDelayed(() -> {
             if (localToken != countdownRunToken) return;
-            binding.countdownOverlay.animate().alpha(0f).setDuration(140).withEndAction(() -> {
+            binding.countdownOverlay.animate().alpha(0f).setDuration(180).withEndAction(() -> {
                 if (localToken != countdownRunToken) return;
                 binding.countdownOverlay.setVisibility(View.GONE);
                 binding.countdownOverlay.setAlpha(1f);
             }).start();
-        }, 3 * 700L + 220L);
+        }, ticks.length * tickDelayMs + goHoldMs);
+    }
+
+    private void updateCountdownStartsLabel(@NonNull String startsLabel) {
+        binding.txtCountdownWhoStarts.setText(startsLabel);
+        String lower = startsLabel.toLowerCase();
+        boolean opponentStarts = lower.contains("opponent") || lower.contains("advers");
+        binding.txtCountdownWhoStarts.setTextColor(
+                opponentStarts ? Color.parseColor("#FFD6E2") : Color.parseColor("#D9FCFF")
+        );
     }
 
     @NonNull
