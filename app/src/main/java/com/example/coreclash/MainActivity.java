@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -115,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
     private long lastUiToastAtMs = 0L;
     private String lastUiToastMessage = "";
     private boolean arenaVisibilityApplying = false;
-    private AlertDialog noInternetDialog;
     private String matchmakingBaseStatus = "";
     private int matchmakingDotsPhase = 0;
     private final Runnable matchmakingStatusTicker = new Runnable() {
@@ -748,6 +748,25 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
+        long now = System.currentTimeMillis();
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
+        lastUiToastMessage = message;
+        lastUiToastAtMs = now;
+
+        View content = getLayoutInflater().inflate(R.layout.toast_system_message, null, false);
+        TextView icon = content.findViewById(R.id.txtToastIcon);
+        TextView text = content.findViewById(R.id.txtToastMessage);
+        icon.setText(iconGlyph);
+        icon.setTextColor(iconColor);
+        text.setText(message);
+
+        Toast toast = new Toast(this);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(content);
+        toast.show();
+    }
+
     private void setGameMode() {
         String gameMode = selectedMode.equalsIgnoreCase(DomainGameMode.RANKED.getValue())
                 ? DomainGameMode.RANKED.getValue()
@@ -944,7 +963,7 @@ public class MainActivity extends AppCompatActivity {
             updateSkillVisuals();
         }
 
-        showUiToastDeduped(getString(R.string.btn_cancel_matchmaking));
+        showUiToastDedupedStyled(getString(R.string.toast_matchmaking_canceled), getString(R.string.fa_xmark), 0xFFFF7A8C);
     }
 
     private void showMatchmakingLoading(@NonNull String statusText) {
@@ -1079,13 +1098,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean ensureInternetForOnlineModes() {
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         if (cm == null) {
-            showNoInternetDialog();
+            showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
             return false;
         }
 
         Network active = cm.getActiveNetwork();
         if (active == null) {
-            showNoInternetDialog();
+            showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
             return false;
         }
 
@@ -1096,41 +1115,10 @@ public class MainActivity extends AppCompatActivity {
                 || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
 
         if (!connected) {
-            showNoInternetDialog();
+            showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
         }
 
         return connected;
-    }
-
-    private void showNoInternetDialog() {
-        if (noInternetDialog != null && noInternetDialog.isShowing()) {
-            return;
-        }
-
-        View content = getLayoutInflater().inflate(R.layout.dialog_no_internet, null, false);
-
-        noInternetDialog = new AlertDialog.Builder(this)
-                .setView(content)
-                .setCancelable(true)
-                .setPositiveButton(getString(R.string.btn_ok), null)
-                .create();
-
-        Window window = noInternetDialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
-        }
-
-        noInternetDialog.setOnDismissListener(d -> noInternetDialog = null);
-
-        noInternetDialog.setOnShowListener(d -> {
-            applyDialogStyle(noInternetDialog);
-            Button positive = noInternetDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            if (positive != null) {
-                positive.setText(getString(R.string.btn_ok));
-            }
-        });
-
-        noInternetDialog.show();
     }
 
     private void handleRoundFinished(String winnerSymbol, boolean draw) {

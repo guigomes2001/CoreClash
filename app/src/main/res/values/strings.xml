@@ -9,6 +9,7 @@
     <string name="btn_play">Play</string>
     <string name="btn_settings">Settings</string>
     <string name="btn_cancel_matchmaking">Cancel search</string>
+    <string name="toast_matchmaking_canceled">❌ Matchmaking canceled.</string>
     <string name="btn_close">Close</string>
     <string name="home_subtitle">Fast arena. Less touch, more action.</string>
     <string name="btn_language">Language</string>

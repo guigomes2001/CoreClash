@@ -9,6 +9,7 @@
     <string name="btn_play">Jogar</string>
     <string name="btn_settings">Ajustes</string>
     <string name="btn_cancel_matchmaking">Cancelar busca</string>
+    <string name="toast_matchmaking_canceled">❌ Busca cancelada.</string>
     <string name="btn_close">Fechar</string>
     <string name="home_subtitle">Arena rápida. Menos toque, mais ação.</string>
     <string name="btn_language">Idioma</string>
