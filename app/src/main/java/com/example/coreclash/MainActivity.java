@@ -520,6 +520,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            if (versusBot && !state.isXTurn()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             boolean actingX = state.isXTurn();
 
             if (gameManager.useTriangle()) {
@@ -553,6 +558,11 @@ public class MainActivity extends AppCompatActivity {
                     AnimationHelper.shakeButton(binding.turnHudBar);
                     return;
                 }
+            }
+
+            if (versusBot && !state.isXTurn()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
             }
 
             boolean actingX = state.isXTurn();

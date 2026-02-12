@@ -49,10 +49,8 @@ public class HomeFlowManager {
         configureModeOverlayButtons();
         setupSpringInteractions();
 
-        SafeClickUtil.setSafeClick(binding.btnPlay, 420, v -> cb.onQuickPlayClicked());
-        SafeClickUtil.setSafeClick(binding.btnOnline, 420, v -> cb.onPlayOnlineClicked());
+        SafeClickUtil.setSafeClick(binding.btnPlay, 420, v -> openModeModal());
         SafeClickUtil.setSafeClick(binding.btnStore, 420, v -> cb.onStoreClicked());
-        SafeClickUtil.setSafeClick(binding.btnArena, 420, v -> openModeModal());
         SafeClickUtil.setSafeClick(binding.btnSettings, 320, v -> cb.onSettingsClicked());
 
         SafeClickUtil.setSafeClick(binding.btnModeOffline, 220, v -> {
@@ -69,12 +67,6 @@ public class HomeFlowManager {
 
         SafeClickUtil.setSafeClick(binding.btnModeLocalPassPlay, 220, v -> {
             selectedMatchKind = enums.DomainMatchKind.LOCAL_PASS_PLAY;
-            updateModeButtonStyles();
-            cb.onModeChanged(selectedMatchKind);
-        });
-
-        SafeClickUtil.setSafeClick(binding.btnModeLocalLobby, 220, v -> {
-            selectedMatchKind = enums.DomainMatchKind.LOCAL_LOBBY;
             updateModeButtonStyles();
             cb.onModeChanged(selectedMatchKind);
         });
@@ -107,15 +99,22 @@ public class HomeFlowManager {
 
     private void configureHomeMenuTiles() {
         binding.btnPlay.setText(R.string.btn_play);
-        binding.btnOnline.setText(R.string.mode_online_world);
         binding.btnStore.setText(R.string.btn_store);
-        binding.btnArena.setText(R.string.btn_modes);
 
         int iconColor = 0xFFDDEBFF;
         FontAwesomeIconFactory.applyTopIcon(binding.btnPlay, binding.getRoot().getContext().getString(R.string.fa_gamepad), 16, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 16, iconColor, 6);
         FontAwesomeIconFactory.applyTopIcon(binding.btnStore, binding.getRoot().getContext().getString(R.string.fa_store), 16, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnArena, binding.getRoot().getContext().getString(R.string.fa_users), 16, iconColor, 6);
+
+        binding.btnOnline.setVisibility(View.GONE);
+        binding.btnArena.setVisibility(View.GONE);
+    }
+
+    private void configureModeOverlayButtons() {
+        int iconColor = 0xFFEAF2FF;
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 14, iconColor, 10);
+        FontAwesomeIconFactory.applyStartIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 14, iconColor, 10);
+        binding.btnModeLocalLobby.setVisibility(View.GONE);
     }
 
     private void configureModeOverlayButtons() {
@@ -128,9 +127,7 @@ public class HomeFlowManager {
 
     private void setupSpringInteractions() {
         attachTileSpringInteraction(binding.btnPlay);
-        attachTileSpringInteraction(binding.btnOnline);
         attachTileSpringInteraction(binding.btnStore);
-        attachTileSpringInteraction(binding.btnArena);
 
         attachTileSpringInteraction(binding.btnSettings);
         attachTileSpringInteraction(binding.btnProfile);
@@ -220,9 +217,7 @@ public class HomeFlowManager {
                 binding.homeCard,
                 binding.homeQuickActions,
                 binding.btnPlay,
-                binding.btnOnline,
-                binding.btnStore,
-                binding.btnArena
+                binding.btnStore
         };
 
         for (View view : revealViews) {
@@ -238,18 +233,14 @@ public class HomeFlowManager {
                 buildAlpha(binding.homeCard, 200L, 0L),
                 buildAlpha(binding.homeQuickActions, 180L, 80L),
                 buildAlpha(binding.btnPlay, 170L, 130L),
-                buildAlpha(binding.btnOnline, 170L, 180L),
-                buildAlpha(binding.btnStore, 170L, 230L),
-                buildAlpha(binding.btnArena, 170L, 280L)
+                buildAlpha(binding.btnStore, 170L, 200L)
         );
         alphaTimeline.start();
 
         startEntranceSpring(binding.homeCard, 0L, 0.78f);
         startEntranceSpring(binding.homeQuickActions, 70L, 0.82f);
         startEntranceSpring(binding.btnPlay, 120L, 0.86f);
-        startEntranceSpring(binding.btnOnline, 170L, 0.86f);
-        startEntranceSpring(binding.btnStore, 220L, 0.86f);
-        startEntranceSpring(binding.btnArena, 270L, 0.86f);
+        startEntranceSpring(binding.btnStore, 190L, 0.86f);
     }
 
     private void startEntranceSpring(@NonNull View view, long delayMs, float damping) {
@@ -274,9 +265,7 @@ public class HomeFlowManager {
         binding.homeOverlay.setAlpha(1f);
 
         binding.btnPlay.setEnabled(false);
-        binding.btnOnline.setEnabled(false);
         binding.btnStore.setEnabled(false);
-        binding.btnArena.setEnabled(false);
         binding.btnSettings.setEnabled(false);
         binding.btnProfile.setEnabled(false);
         binding.btnFriends.setEnabled(false);
@@ -284,9 +273,7 @@ public class HomeFlowManager {
 
     public void restoreMenuButtons() {
         binding.btnPlay.setEnabled(true);
-        binding.btnOnline.setEnabled(true);
         binding.btnStore.setEnabled(true);
-        binding.btnArena.setEnabled(true);
         binding.btnSettings.setEnabled(true);
         binding.btnProfile.setEnabled(true);
         binding.btnFriends.setEnabled(true);

@@ -94,9 +94,9 @@
 
 
 
-    <string name="mode_online_world">Online (World)</string>
-    <string name="mode_vs_bot">Vs Bot</string>
-    <string name="mode_local_pass_play">Local (2 on the same device)</string>
+    <string name="mode_online_world">Multiplayer</string>
+    <string name="mode_vs_bot">Quick Match (Bot)</string>
+    <string name="mode_local_pass_play">Local Multiplayer</string>
     <string name="mode_local_lobby">Local Lobby (Invite)</string>
     <string name="countdown_you_start">You start</string>
     <string name="countdown_opponent_starts">Opponent starts</string>
