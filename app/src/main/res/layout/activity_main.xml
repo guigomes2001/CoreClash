@@ -1320,7 +1320,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginHorizontal="32dp"
-            android:background="@drawable/bg_cyber_glass"
+            android:background="@drawable/bg_modal_panel"
             android:orientation="vertical"
             android:padding="24dp">
 
