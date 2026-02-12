@@ -116,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
     private String lastUiToastMessage = "";
     private boolean arenaVisibilityApplying = false;
     private AlertDialog noInternetDialog;
-    private String matchmakingBaseStatus = "";
     private int matchmakingDotsPhase = 0;
     private final Runnable matchmakingStatusTicker = new Runnable() {
         @Override
@@ -128,32 +127,9 @@ public class MainActivity extends AppCompatActivity {
                 case 3 -> "...";
                 default -> "";
             };
-            binding.txtMatchmakingStatus.setText(matchmakingBaseStatus + dots);
+            binding.txtMatchmakingDots.setText(dots);
             matchmakingDotsPhase++;
             handler.postDelayed(this, 360);
-        }
-    };
-    private final Runnable matchmakingCardPulse = new Runnable() {
-        @Override
-        public void run() {
-            if (binding == null || binding.matchmakingOverlay.getVisibility() != View.VISIBLE) return;
-            binding.matchmakingCard.animate()
-                    .scaleX(1.018f)
-                    .scaleY(1.018f)
-                    .setDuration(520)
-                    .withEndAction(() -> binding.matchmakingCard.animate()
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(520)
-                            .start())
-                    .start();
-
-            binding.lottieMatchmaking.animate()
-                    .rotationBy(8f)
-                    .setDuration(700)
-                    .start();
-
-            handler.postDelayed(this, 1040);
         }
     };
 
@@ -667,11 +643,9 @@ public class MainActivity extends AppCompatActivity {
         binding.btnMatchmakingCancel.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
         binding.btnMatchmakingCancel.setCompoundDrawablePadding((int) (8 * getResources().getDisplayMetrics().density));
         binding.btnMatchmakingCancel.setEnabled(false);
-        binding.lottieMatchmaking.setSpeed(1.2f);
+        binding.lottieMatchmaking.setSpeed(1.06f);
         binding.lottieMatchmaking.setProgress(0f);
         binding.lottieMatchmaking.setRepeatCount(-1);
-        binding.matchmakingCard.setScaleX(1f);
-        binding.matchmakingCard.setScaleY(1f);
     }
 
     private void setupMetaControls() {
@@ -974,9 +948,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void showMatchmakingLoading(@NonNull String statusText) {
         lastMatchmakingStatus = statusText;
-        matchmakingBaseStatus = statusText;
         matchmakingDotsPhase = 0;
-        binding.txtMatchmakingStatus.setText(statusText);
+        String stableStatus = statusText.replace("…", "").replace("...", "");
+        binding.txtMatchmakingStatus.setText(stableStatus);
+        binding.txtMatchmakingDots.setText("");
         binding.btnMatchmakingCancel.setEnabled(true);
 
         if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
@@ -990,9 +965,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         handler.removeCallbacks(matchmakingStatusTicker);
-        handler.removeCallbacks(matchmakingCardPulse);
         handler.post(matchmakingStatusTicker);
-        handler.post(matchmakingCardPulse);
 
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
@@ -1001,7 +974,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void hideMatchmakingLoading() {
         handler.removeCallbacks(matchmakingStatusTicker);
-        handler.removeCallbacks(matchmakingCardPulse);
 
         if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
             return;
@@ -1013,9 +985,7 @@ public class MainActivity extends AppCompatActivity {
                     binding.matchmakingOverlay.setVisibility(View.GONE);
                     binding.btnMatchmakingCancel.setEnabled(false);
                     binding.lottieMatchmaking.cancelAnimation();
-                    binding.lottieMatchmaking.setRotation(0f);
-                    binding.matchmakingCard.setScaleX(1f);
-                    binding.matchmakingCard.setScaleY(1f);
+                    binding.txtMatchmakingDots.setText("");
                     binding.matchmakingOverlay.setAlpha(1f);
                     lastMatchmakingStatus = "";
                     matchmakingBaseStatus = "";
@@ -1388,7 +1358,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         handler.removeCallbacks(matchmakingStatusTicker);
-        handler.removeCallbacks(matchmakingCardPulse);
         botManager.cancelPending();
         matchManager.onDestroy();
         matchIntroAnimator.cancel();
