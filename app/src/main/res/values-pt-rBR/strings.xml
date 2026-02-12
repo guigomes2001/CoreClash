@@ -87,7 +87,7 @@
     <string name="turn_hud_player_default">Jogador</string>
     <string name="turn_hud_opponent_default">Oponente</string>
     <string name="status_waiting_opponent">Aguardando adversário</string>
-    <string name="matchmaking_loading_subtitle">X • O • △ • □ sincronizando na arena</string>
+    <string name="matchmaking_loading_subtitle">Sincronizando na arena</string>
     <string name="status_waiting_player">Aguardando jogador…</string>
 
     <string name="hud_abandon_label">ABANDONO</string>

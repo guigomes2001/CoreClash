@@ -87,7 +87,7 @@
     <string name="turn_hud_player_default">Player</string>
     <string name="turn_hud_opponent_default">Opponent</string>
     <string name="status_waiting_opponent">Waiting for opponent</string>
-    <string name="matchmaking_loading_subtitle">X • O • △ • □ syncing in the arena</string>
+    <string name="matchmaking_loading_subtitle">Syncing in the arena</string>
     <string name="status_waiting_player">Waiting for player…</string>
 
     <string name="hud_abandon_label">FORFEIT</string>
