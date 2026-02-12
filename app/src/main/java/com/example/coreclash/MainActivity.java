@@ -324,7 +324,13 @@ public class MainActivity extends AppCompatActivity {
                 board,
                 handler,
                 new PlayerServicesManager.Callbacks() {
-                    @Override public void onProfileReady(@NonNull PlayerProfile profile) { currentProfile = profile; }
+                    @Override public void onProfileReady(@NonNull PlayerProfile profile) {
+                        currentProfile = profile;
+                        String uid = getMyUidOrNull();
+                        if (uid != null) {
+                            socialManager.upsertUserProfile(uid, profile.displayName, buildTagFromUid(uid));
+                        }
+                    }
                     @Override public void onStoreReady(@NonNull StoreManager sm) { storeManager = sm; }
                     @Override public void onRender() {
                         updateHeaderStatus();
@@ -1040,12 +1046,13 @@ public class MainActivity extends AppCompatActivity {
             return getString(R.string.label_player_one);
         }
 
+        if (currentProfile != null && currentProfile.displayName != null && !currentProfile.displayName.isEmpty()) {
+            return currentProfile.displayName;
+        }
+
         var user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
             return user.getDisplayName();
-        }
-        if (currentProfile != null && currentProfile.displayName != null && !currentProfile.displayName.isEmpty()) {
-            return currentProfile.displayName;
         }
         return getString(R.string.default_player_name);
     }

@@ -9,7 +9,7 @@
     <string name="btn_play">Jogar</string>
     <string name="btn_settings">Ajustes</string>
     <string name="btn_cancel_matchmaking">Cancelar busca</string>
-    <string name="toast_matchmaking_canceled">❌ Busca cancelada.</string>
+    <string name="toast_matchmaking_canceled">Busca cancelada.</string>
     <string name="btn_close">Fechar</string>
     <string name="home_subtitle">Arena rápida. Menos toque, mais ação.</string>
     <string name="btn_language">Idioma</string>
@@ -142,7 +142,7 @@
     <string name="fa_store" translatable="false">&#xf54e;</string>
     <string name="fa_xmark" translatable="false">&#xf00d;</string>
 
-    <string name="error_online_requires_internet">📡 Sem conexão com a internet. Verifique sua rede e tente novamente.</string>
+    <string name="error_online_requires_internet">Sem conexão com a internet. Verifique sua rede e tente novamente.</string>
     <string name="round_result_score">Round vencido por %1$s. Placar %2$d-%3$d</string>
     <string name="round_draw_replay">Round empatado. Placar permanece %1$d-%2$d</string>
     <string name="rounds_finished_score">🏆 Partida encerrada! Placar final dos rounds: %1$d-%2$d</string>
