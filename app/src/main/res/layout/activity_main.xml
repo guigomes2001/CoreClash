@@ -50,7 +50,7 @@
                 android:id="@+id/turnHudTrackX"
                 android:layout_width="match_parent"
                 android:layout_height="22dp"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:clipChildren="true"
                 android:clipToPadding="true">
 
@@ -72,7 +72,7 @@
                     android:layout_gravity="center_vertical"
                     android:text="»"
                     android:textStyle="bold"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:textColor="#FFD1D8"
                     android:alpha="0"
                     android:visibility="invisible"/>
@@ -552,40 +552,70 @@
         android:visibility="gone"
         android:elevation="95dp"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:paddingHorizontal="26dp"
+        android:paddingVertical="36dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/matchmakingCard"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="@dimen/ds_space_lg"
-            android:layout_marginHorizontal="18dp"
-            android:background="@drawable/bg_cyber_glass">
+            android:padding="14dp"
+            android:background="@drawable/bg_modal_panel">
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieMatchmaking"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
                 app:lottie_rawRes="@raw/matchmaking_loading"
-                app:lottie_autoPlay="true"
+                app:lottie_autoPlay="false"
                 app:lottie_loop="true" />
 
-            <TextView
-                android:id="@+id/txtMatchmakingStatus"
-                style="@style/Text.CoreClash.Title"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/ds_space_sm"
-                android:text="@string/status_waiting_opponent"
-                android:textSize="22sp"/>
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtMatchmakingStatus"
+                    style="@style/Text.CoreClash.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/status_waiting_opponent"
+                    android:textSize="18sp"/>
+
+                <TextView
+                    android:id="@+id/txtMatchmakingDots"
+                    style="@style/Text.CoreClash.Title"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text=""
+                    android:textSize="18sp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtMatchmakingSub"
+                style="@style/Text.CoreClash.Subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/matchmaking_loading_subtitle"
+                android:textSize="13sp" />
 
             <Button
                 android:id="@+id/btnMatchmakingCancel"
                 style="@style/Widget.CoreClash.Button.Secondary"
                 android:layout_width="wrap_content"
-                android:layout_marginTop="@dimen/ds_space_lg"
-                android:minWidth="200dp"
+                android:layout_marginTop="14dp"
+                android:minWidth="210dp"
                 android:text="@string/btn_cancel_matchmaking"/>
         </LinearLayout>
     </FrameLayout>
@@ -602,7 +632,7 @@
 
         <LinearLayout
             android:id="@+id/modeCard"
-            android:layout_width="match_parent"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginHorizontal="14dp"
@@ -1327,7 +1357,7 @@
 
         <LinearLayout
             android:id="@+id/settingsCard"
-            android:layout_width="match_parent"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginHorizontal="32dp"

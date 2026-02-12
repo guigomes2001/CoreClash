@@ -86,7 +86,8 @@
 
     <string name="turn_hud_player_default">Player</string>
     <string name="turn_hud_opponent_default">Opponent</string>
-    <string name="status_waiting_opponent">Waiting for opponent…</string>
+    <string name="status_waiting_opponent">Waiting for opponent</string>
+    <string name="matchmaking_loading_subtitle">X • O • △ • □ syncing in the arena</string>
     <string name="status_waiting_player">Waiting for player…</string>
 
     <string name="hud_abandon_label">FORFEIT</string>
@@ -140,5 +141,13 @@
     <string name="fa_cog" translatable="false">&#xf013;</string>
     <string name="fa_store" translatable="false">&#xf54e;</string>
     <string name="fa_xmark" translatable="false">&#xf00d;</string>
+
+    <string name="error_online_requires_internet">📡 No internet connection detected. Check your network and try again.</string>
+    <string name="round_result_score">Round won by %1$s. Score %2$d-%3$d</string>
+    <string name="round_draw_replay">Round draw. Score stays %1$d-%2$d</string>
+    <string name="rounds_finished_score">🏆 Match finished! Final rounds score: %1$d-%2$d</string>
+
+    <string name="error_online_requires_internet_title">🌐 Connection needed</string>
+    <string name="fa_wifi" translatable="false">&#xf1eb;</string>
 
 </resources>
