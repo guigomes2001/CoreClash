@@ -51,6 +51,7 @@ import manager.TurnHudManager;
 import util.AnimationHelper;
 import util.FontAwesomeIconFactory;
 import util.NullUtil;
+import util.SafeClickUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -97,6 +98,11 @@ public class MainActivity extends AppCompatActivity {
     private MatchIntroAnimator matchIntroAnimator;
     private VictoryOverlayAnimator victoryOverlayAnimator;
     private boolean passPlayPlayerOneIsX = true;
+    private int countdownRunToken = 0;
+    private String lastMatchmakingStatus = "";
+    private long lastUiToastAtMs = 0L;
+    private String lastUiToastMessage = "";
+    private boolean arenaVisibilityApplying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +131,8 @@ public class MainActivity extends AppCompatActivity {
         homeFlow = initHomeFlow();
         homeFlow.setSelectedMatchKind(enums.DomainMatchKind.OFFLINE_BOT);
         homeFlow.bind();
-        binding.btnProfile.setOnClickListener(v -> openProfileDialog());
-        binding.btnFriends.setOnClickListener(v -> openFriendsDialog());
+        SafeClickUtil.setSafeClick(binding.btnProfile, 320, v -> openProfileDialog());
+        SafeClickUtil.setSafeClick(binding.btnFriends, 320, v -> openFriendsDialog());
 
         playerServices = initPlayerServices();
         botManager = initBotManager();
@@ -161,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         setupSkills();
         setupMetaControls();
         configureMatchmakingOverlay();
-        binding.btnMatchmakingCancel.setOnClickListener(v -> cancelMatchmakingSearch());
+        SafeClickUtil.setSafeClick(binding.btnMatchmakingCancel, 420, v -> cancelMatchmakingSearch());
 
         playerServices.start();
         String myUid = getMyUidOrNull();
@@ -206,6 +212,10 @@ public class MainActivity extends AppCompatActivity {
 
     private HomeFlowManager initHomeFlow() {
         return new HomeFlowManager(binding, new HomeFlowManager.Callbacks() {
+            @Override public void onQuickPlayClicked() {
+                startOfflineVsBot();
+            }
+
             @Override public void onPlayOnlineClicked() {
                 String uid = getMyUidOrNull();
                 if (uid == null) {
@@ -314,8 +324,21 @@ public class MainActivity extends AppCompatActivity {
                                 : getString(R.string.mode_casual_label);
                     }
 
+
+                    @NonNull @Override public String getBreakSymbolLeft() {
+                        if (passAndPlayMode) return "△";
+                        if (matchManager.isOnlineMatch() && !matchManager.isMyTurnOnline()) return "O";
+                        return "X";
+                    }
+
+                    @NonNull @Override public String getBreakSymbolRight() {
+                        if (passAndPlayMode) return "□";
+                        if (matchManager.isOnlineMatch() && !matchManager.isMyTurnOnline()) return "X";
+                        return "O";
+                    }
+
                     @Override public void setArenaUiVisible(boolean visible) {
-                        MainActivity.this.setArenaUiVisible(visible);
+                        MainActivity.this.applyArenaUiVisibility(visible);
                     }
 
                     @Override public void onIntroFinished() {
@@ -332,25 +355,13 @@ public class MainActivity extends AppCompatActivity {
 
                                     matchManager.getOnlineSession().startPlayingWhenIntroFinished();
 
-                                    runCountdown(getOnlineStartsLabel(), () -> {
-                                        matchStarted = true;
-                                        matchPhase = DomainMatchPhase.PLAYING;
-                                        updateHeaderStatus();
-                                        updateSkillVisuals();
-                                        matchManager.onBothIntroReady();
-                                    });
+                                    runCountdown(getOnlineStartsLabel(), () -> beginPlayingAfterCountdown(true));
                                 }));
                             }
                             return;
                         }
 
-                        runCountdown(getLocalStartsLabel(), () -> {
-                            matchStarted = true;
-                            matchPhase = DomainMatchPhase.PLAYING;
-                            updateHeaderStatus();
-                            updateSkillVisuals();
-                            botManager.maybeRunBotTurn();
-                        });
+                        runCountdown(getLocalStartsLabel(), () -> beginPlayingAfterCountdown(false));
                     }
                 }
         );
@@ -382,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
                         homeFlow.restoreMenuButtons();
                     }
                     @Override public void onSetArenaUiVisible(boolean visible) {
-                        MainActivity.this.setArenaUiVisible(visible);
+                        MainActivity.this.applyArenaUiVisibility(visible);
                     }
 
                     @Override public void onBeforeOnlineMatchStart() {
@@ -509,6 +520,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            if (versusBot && !state.isXTurn()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             boolean actingX = state.isXTurn();
 
             if (gameManager.useTriangle()) {
@@ -544,6 +560,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            if (versusBot && !state.isXTurn()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             boolean actingX = state.isXTurn();
 
             if (gameManager.useSquare()) {
@@ -573,7 +594,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupMetaControls() {
-        binding.btnRestart.setOnClickListener(v -> {
+        SafeClickUtil.setSafeClick(binding.btnRestart, 320, v -> {
             victoryOverlayAnimator.hide();
             matchPhase = DomainMatchPhase.LOADING;
             gameManager.resetGame();
@@ -590,7 +611,7 @@ public class MainActivity extends AppCompatActivity {
             startRematchIntro();
         });
 
-        binding.btnExit.setOnClickListener(v -> {
+        SafeClickUtil.setSafeClick(binding.btnExit, 320, v -> {
             victoryOverlayAnimator.hide();
             matchPhase = DomainMatchPhase.LOADING;
             gameManager.resetGame();
@@ -654,6 +675,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void beginPlayingAfterCountdown(boolean onlineMatch) {
+        matchStarted = true;
+        matchPhase = DomainMatchPhase.PLAYING;
+        updateHeaderStatus();
+        updateSkillVisuals();
+
+        if (onlineMatch) {
+            matchManager.onBothIntroReady();
+            return;
+        }
+        botManager.maybeRunBotTurn();
+    }
+
+    private void showUiToastDeduped(@NonNull String message) {
+        long now = System.currentTimeMillis();
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
+        lastUiToastMessage = message;
+        lastUiToastAtMs = now;
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     private void setGameMode() {
         String gameMode = selectedMode.equalsIgnoreCase(DomainGameMode.RANKED.getValue())
                 ? DomainGameMode.RANKED.getValue()
@@ -663,6 +705,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void runCountdown(@NonNull String startsLabel, @NonNull Runnable onFinish) {
+        countdownRunToken++;
+        int localToken = countdownRunToken;
+
         matchPhase = DomainMatchPhase.COUNTDOWN;
         binding.countdownOverlay.setVisibility(View.VISIBLE);
         binding.countdownOverlay.setAlpha(0f);
@@ -673,15 +718,26 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < ticks.length; i++) {
             int value = ticks[i];
             long delay = i * 700L;
-            handler.postDelayed(() -> binding.txtCountdownValue.setText(String.valueOf(value)), delay);
+            handler.postDelayed(() -> {
+                if (localToken != countdownRunToken) return;
+                binding.txtCountdownValue.setText(String.valueOf(value));
+            }, delay);
         }
 
-        handler.postDelayed(() -> binding.txtCountdownValue.setText(getString(R.string.countdown_go)), 3 * 700L);
-        handler.postDelayed(() -> binding.countdownOverlay.animate().alpha(0f).setDuration(140).withEndAction(() -> {
-            binding.countdownOverlay.setVisibility(View.GONE);
-            binding.countdownOverlay.setAlpha(1f);
+        handler.postDelayed(() -> {
+            if (localToken != countdownRunToken) return;
+            binding.txtCountdownValue.setText(getString(R.string.countdown_go));
             onFinish.run();
-        }).start(), 3 * 700L + 450L);
+        }, 3 * 700L);
+
+        handler.postDelayed(() -> {
+            if (localToken != countdownRunToken) return;
+            binding.countdownOverlay.animate().alpha(0f).setDuration(140).withEndAction(() -> {
+                if (localToken != countdownRunToken) return;
+                binding.countdownOverlay.setVisibility(View.GONE);
+                binding.countdownOverlay.setAlpha(1f);
+            }).start();
+        }, 3 * 700L + 220L);
     }
 
     @NonNull
@@ -714,7 +770,7 @@ public class MainActivity extends AppCompatActivity {
         gameManager.resetGame();
         state.setXTurn(true);
         victoryOverlayAnimator.clearLines();
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
 
         updateHeaderStatus();
         updateSkillVisuals();
@@ -774,29 +830,40 @@ public class MainActivity extends AppCompatActivity {
         boolean hadOnlineSession = matchManager.isOnlineMatch();
         matchManager.cancelMatchmakingSearch();
 
+        hideMatchmakingLoading();
+        homeFlow.restoreMenuButtons();
+        binding.modeOverlay.setVisibility(View.GONE);
+        binding.settingsOverlay.setVisibility(View.GONE);
+
         if (!hadOnlineSession) {
-            hideMatchmakingLoading();
-            setArenaUiVisible(false);
+            applyArenaUiVisibility(false);
             binding.homeOverlay.setVisibility(View.VISIBLE);
             binding.homeOverlay.setAlpha(1f);
             updateHeaderStatus();
             updateSkillVisuals();
         }
 
-        Toast.makeText(this, getString(R.string.btn_cancel_matchmaking), Toast.LENGTH_SHORT).show();
+        showUiToastDeduped(getString(R.string.btn_cancel_matchmaking));
     }
 
     private void showMatchmakingLoading(@NonNull String statusText) {
+        if (statusText.equals(lastMatchmakingStatus) && binding.matchmakingOverlay.getVisibility() == View.VISIBLE) return;
+
+        lastMatchmakingStatus = statusText;
         binding.txtMatchmakingStatus.setText(statusText);
         binding.btnMatchmakingCancel.setEnabled(true);
-        binding.matchmakingOverlay.setVisibility(View.VISIBLE);
-        binding.matchmakingOverlay.setAlpha(0f);
-        binding.lottieMatchmaking.playAnimation();
-        binding.matchmakingOverlay.animate().alpha(1f).setDuration(180).start();
+
+        if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
+            binding.matchmakingOverlay.setVisibility(View.VISIBLE);
+            binding.matchmakingOverlay.setAlpha(0f);
+            binding.matchmakingOverlay.animate().alpha(1f).setDuration(180).start();
+        }
+
+        if (!binding.lottieMatchmaking.isAnimating()) binding.lottieMatchmaking.playAnimation();
 
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
     }
 
     private void hideMatchmakingLoading() {
@@ -811,12 +878,15 @@ public class MainActivity extends AppCompatActivity {
                     binding.btnMatchmakingCancel.setEnabled(false);
                     binding.lottieMatchmaking.cancelAnimation();
                     binding.matchmakingOverlay.setAlpha(1f);
+                    lastMatchmakingStatus = "";
                 })
                 .start();
     }
 
     private void showHomeScreen() {
         matchStarted = false;
+        countdownRunToken++;
+        binding.countdownOverlay.setVisibility(View.GONE);
 
         botManager.cancelPending();
         matchManager.stopOnlineBarAnim(true);
@@ -824,7 +894,7 @@ public class MainActivity extends AppCompatActivity {
         victoryOverlayAnimator.clearLines();
 
         hideMatchmakingLoading();
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
         binding.homeOverlay.setVisibility(View.VISIBLE);
         binding.homeOverlay.setAlpha(1f);
         binding.versusOverlay.setVisibility(View.GONE);
@@ -944,7 +1014,7 @@ public class MainActivity extends AppCompatActivity {
         binding.progressTurnHudX.setProgress(0);
         binding.progressTurnHudO.setProgress(0);
 
-        setArenaUiVisible(true);
+        applyArenaUiVisibility(true);
 
         binding.homeOverlay.setVisibility(View.GONE);
         binding.modeOverlay.setVisibility(View.GONE);
@@ -967,7 +1037,7 @@ public class MainActivity extends AppCompatActivity {
         boolean playerHomeVsBot = homeAwayManager.chooseHome(getPlayerDisplayName(), getString(R.string.label_bot));
         state.setXTurn(playerHomeVsBot);
         victoryOverlayAnimator.clearLines();
-        setArenaUiVisible(false);
+        applyArenaUiVisibility(false);
 
         updateHeaderStatus();
         updateSkillVisuals();
@@ -980,7 +1050,10 @@ public class MainActivity extends AppCompatActivity {
         return uid.substring(0, Math.min(4, uid.length())).toUpperCase() + "#" + (1000 + (Math.abs(uid.hashCode()) % 9000));
     }
 
-    private void setArenaUiVisible(boolean visible) {
+    private void applyArenaUiVisibility(boolean visible) {
+        if (arenaVisibilityApplying) return;
+        arenaVisibilityApplying = true;
+
         int visibility = visible ? View.VISIBLE : View.INVISIBLE;
         binding.turnHudBar.setVisibility(visibility);
         binding.containerTriangle.setVisibility(visibility);
@@ -988,6 +1061,8 @@ public class MainActivity extends AppCompatActivity {
         binding.boardContainer.setVisibility(visibility);
         binding.containerSquare.setVisibility(visibility);
         binding.lineRightConnector.setVisibility(visibility);
+
+        arenaVisibilityApplying = false;
     }
 
     private void openProfileDialog() {
