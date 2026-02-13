@@ -3,13 +3,23 @@
     ".read": false,
     ".write": false,
 
+
+    "matchmaking": {
+      "autoQueue": {
+        "waitingRoomId": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          ".validate": "newData.val() === null || newData.isString()"
+        }
+      }
+    },
     "rooms": {
       "$roomId": {
         ".read": "auth != null && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)",
-        ".write": "auth != null && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)",
+        ".write": "auth != null && ((data.exists() && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)) || (!data.exists() && newData.child('players/X').val() === auth.uid))",
 
         "status": {
-          ".validate": "newData.isString() && (newData.val() === 'WAITING' || newData.val() === 'PLAYING' || newData.val() === 'ENDED' || newData.val() === 'ABANDONED')"
+          ".validate": "newData.isString() && (newData.val() === 'WAITING' || newData.val() === 'MATCHED' || newData.val() === 'PLAYING' || newData.val() === 'ENDED' || newData.val() === 'ABANDONED')"
         },
 
         "createdAt": {
@@ -47,7 +57,7 @@
         },
 
         "winner": {
-          ".validate": "newData.isString() && (newData.val() === 'X' || newData.val() === 'O' || newData.val() === 'DRAW')"
+          ".validate": "newData.isString() && (newData.val() === '' || newData.val() === 'X' || newData.val() === 'O' || newData.val() === 'DRAW')"
         },
 
         "actions": {
