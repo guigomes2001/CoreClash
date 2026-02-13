@@ -43,8 +43,10 @@ public class OnlineMatchmaking {
     private final DatabaseReference autoQueueRef = FirebaseDatabase.getInstance().getReference("matchmaking").child("autoQueue").child("waitingRoomId");
 
     private static final long ROOM_TTL_MS = 3 * 60 * 1000;
-    private static final int MAX_RETRIES = 4;
-    private static final long RETRY_DELAY_MS = 250;
+    private static final int MAX_RETRIES = 8;
+    private static final long RETRY_DELAY_MS = 300;
+    private static final int MAX_JOIN_WAIT_RETRIES = 30;
+    private static final long JOIN_WAIT_RETRY_DELAY_MS = 350;
 
     public void findOrCreateMatch(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
         reserveOrCreateQueueRoom(myUid, callback, 0);
@@ -99,18 +101,35 @@ public class OnlineMatchmaking {
                 }
 
                 Log.d(TAG, "queue join room=" + selected + " attempt=" + attempt);
-                attemptJoinRoomTransaction(selected, myUid, attempt, new MatchmakingCallback() {
-                    @Override
-                    public void onMatched(@NonNull String roomId, boolean isPlayerX, @NonNull String opponentUid) {
-                        clearQueueIfMatches(roomId);
-                        callback.onMatched(roomId, isPlayerX, opponentUid);
-                    }
+                joinSelectedRoomWithWait(selected, myUid, attempt, 0, callback);
+            }
+        });
+    }
 
-                    @Override
-                    public void onError(@NonNull String message) {
-                        retryOrFail(myUid, callback, attempt, "Join selected room failed: " + message);
-                    }
-                });
+
+    private void joinSelectedRoomWithWait(@NonNull String roomId,
+                                          @NonNull String myUid,
+                                          int queueAttempt,
+                                          int joinAttempt,
+                                          @NonNull MatchmakingCallback callback) {
+        attemptJoinRoomTransaction(roomId, myUid, new MatchmakingCallback() {
+            @Override
+            public void onMatched(@NonNull String matchedRoomId, boolean isPlayerX, @NonNull String opponentUid) {
+                clearQueueIfMatches(matchedRoomId);
+                callback.onMatched(matchedRoomId, isPlayerX, opponentUid);
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                if (joinAttempt >= MAX_JOIN_WAIT_RETRIES) {
+                    clearQueueIfMatches(roomId);
+                    retryOrFail(myUid, callback, queueAttempt, "Join selected room timed out: " + message);
+                    return;
+                }
+
+                Log.d(TAG, "join-wait retry=" + joinAttempt + " room=" + roomId + " reason=" + message);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .postDelayed(() -> joinSelectedRoomWithWait(roomId, myUid, queueAttempt, joinAttempt + 1, callback), JOIN_WAIT_RETRY_DELAY_MS);
             }
         });
     }
@@ -211,7 +230,7 @@ public class OnlineMatchmaking {
                 .postDelayed(() -> reserveOrCreateQueueRoom(myUid, callback, attempt + 1), RETRY_DELAY_MS);
     }
 
-    private void attemptJoinRoomTransaction(@NonNull String roomId, @NonNull String myUid, int attempt, @NonNull MatchmakingCallback callback) {
+    private void attemptJoinRoomTransaction(@NonNull String roomId, @NonNull String myUid, @NonNull MatchmakingCallback callback) {
         DatabaseReference roomRef = roomsRef.child(roomId);
 
         roomRef.runTransaction(new Transaction.Handler() {
@@ -258,7 +277,7 @@ public class OnlineMatchmaking {
                 }
 
                 if (!committed) {
-                    retryOrFail(myUid, callback, attempt, "Join transaction was not committed.");
+                    callback.onError("Join transaction was not committed.");
                     return;
                 }
 
@@ -344,7 +363,7 @@ public class OnlineMatchmaking {
                         if (NullUtil.isNull(roomId)) {
                             continue;
                         }
-                        attemptJoinRoomTransaction(roomId, myUid, 0, callback);
+                        attemptJoinRoomTransaction(roomId, myUid, callback);
                         return;
                     }
                     callback.onError("Room code not found.");
