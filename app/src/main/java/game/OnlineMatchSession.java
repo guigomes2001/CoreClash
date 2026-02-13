@@ -242,7 +242,7 @@ public class OnlineMatchSession {
                 if (NullUtil.isNull(oUid) || oUid.trim().isEmpty()) return Transaction.abort();
 
                 MutableData intro = currentData.child("intro");
-                if (intro.child("scheduledAt").!NullUtil.isNull(getValue())) return Transaction.abort();
+                if (!NullUtil.isNull(intro.child("scheduledAt").getValue())) return Transaction.abort();
 
                 intro.child("scheduledAt").setValue(ServerValue.TIMESTAMP);
                 intro.child("delayMs").setValue(delayMs);
