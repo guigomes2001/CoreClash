@@ -15,7 +15,7 @@
     },
     "rooms": {
       "$roomId": {
-        ".read": "auth != null && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)",
+        ".read": "auth != null && ((data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid) || (data.child('status').val() === 'WAITING' && data.child('players/O').val() === '' && data.child('players/X').val() !== '')))",
         ".write": "auth != null && ((!data.exists() && newData.child('players/X').val() === auth.uid) || (data.exists() && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid || (data.child('status').val() === 'WAITING' && data.child('players/O').val() === '' && data.child('players/X').val() !== '' && newData.child('players/X').val() === data.child('players/X').val() && newData.child('players/O').val() === auth.uid))))",
 
         "status": {
