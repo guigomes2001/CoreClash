@@ -32,7 +32,7 @@
 
         "players": {
           ".read": "auth != null && (data.child('X').val() === auth.uid || data.child('O').val() === auth.uid)",
-          ".write": "auth != null && (data.child('X').val() === auth.uid || data.child('O').val() === auth.uid)",
+          ".write": "auth != null && ((data.child('X').val() === auth.uid || data.child('O').val() === auth.uid) || (data.parent().child('status').val() === 'WAITING' && data.child('O').val() === '' && data.child('X').val() !== '' && newData.child('X').val() === data.child('X').val() && newData.child('O').val() === auth.uid))",
 
           "X": {
             ".validate": "newData.isString() && newData.val().length > 0"
