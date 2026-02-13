@@ -11,6 +11,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import util.FirebaseUtil;
+import util.NullUtil;
 
 public class SocialManager {
 
@@ -125,9 +127,6 @@ public class SocialManager {
 
     @NonNull
     private String safeError(Throwable e) {
-        if (e == null || e.getMessage() == null || e.getMessage().trim().isEmpty()) {
-            return "Unknown error";
-        }
-        return e.getMessage().trim();
+        return FirebaseUtil.safeErrorMessage(e, "Unknown error");
     }
 }

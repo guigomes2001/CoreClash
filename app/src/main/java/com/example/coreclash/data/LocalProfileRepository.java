@@ -9,6 +9,8 @@ import com.example.coreclash.model.PlayerProfile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import util.DateTimeUtil;
+import util.NullUtil;
 
 public class LocalProfileRepository implements ProfileRepository {
 
@@ -22,8 +24,8 @@ public class LocalProfileRepository implements ProfileRepository {
     @Override
     public void loadOrCreateProfile(@NonNull Callback callback) {
         String uid = sharedPreferences.getString("uid", null);
-        if (uid == null) {
-            uid = "local_" + System.currentTimeMillis();
+        if (NullUtil.isNull(uid)) {
+            uid = "local_" + DateTimeUtil.nowMillis();
             PlayerProfile profile = PlayerProfile.createDefault(uid);
             saveProfile(profile);
             callback.onSuccess(profile);

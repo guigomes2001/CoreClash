@@ -17,8 +17,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.function.Consumer;
 
+import enums.DomainActionType;
 import enums.DomainMatchStatus;
 import enums.DomainSymmetries;
+import util.NullUtil;
 
 public class OnlineMatchSession {
 
@@ -72,6 +74,7 @@ public class OnlineMatchSession {
     private ValueEventListener introClockListener;
 
     private volatile long serverOffsetMs = 0L;
+    private boolean opponentLeftNotified = false;
 
     public OnlineMatchSession(@NonNull String roomId, @NonNull String myUid, @NonNull String mySymbol) {
         this.roomId = roomId;
@@ -83,7 +86,6 @@ public class OnlineMatchSession {
         this.offsetRef = FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset");
 
         startServerOffsetListener();
-        enableOnDisconnectAbandon();
     }
 
     public long nowServerApprox() {
@@ -91,57 +93,62 @@ public class OnlineMatchSession {
     }
 
     private void startServerOffsetListener() {
-        if (offsetListener != null) return;
+        if (!NullUtil.isNull(offsetListener)) return;
 
         offsetListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Long off = snapshot.getValue(Long.class);
-                if (off != null) serverOffsetMs = off;
+                if (!NullUtil.isNull(off)) serverOffsetMs = off;
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         };
         offsetRef.addValueEventListener(offsetListener);
     }
 
-    public void enableOnDisconnectAbandon() {
-        roomRef.child("status").onDisconnect().setValue(STATUS_ABANDONED);
-        roomRef.child("endedAt").onDisconnect().setValue(ServerValue.TIMESTAMP);
-    }
-
     public void startListening(@NonNull ActionListener listener, @Nullable TurnClockListener clockListener) {
         stopListening();
 
+        opponentLeftNotified = false;
+
         statusListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String status = snapshot.getValue(String.class);
-                if (STATUS_ENDED.equals(status) || STATUS_ABANDONED.equals(status)) {
+                if (opponentLeftNotified) return;
+
+                String status = snapshot.child("status").getValue(String.class);
+                String endReason = snapshot.child("endReason").getValue(String.class);
+
+                boolean abandoned = STATUS_ABANDONED.equals(status)
+                        || (STATUS_ENDED.equals(status) && END_ABANDONMENT.equals(endReason));
+
+                if (abandoned) {
+                    opponentLeftNotified = true;
                     listener.onOpponentLeft();
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         };
-        roomRef.child("status").addValueEventListener(statusListener);
+        roomRef.addValueEventListener(statusListener);
 
         actionsListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Action action = snapshot.getValue(Action.class);
-                if (action == null) return;
-                if (action.playerUid == null || action.playerUid.isEmpty()) return;
-                if (action.actionType == null || action.actionType.isEmpty()) return;
+                if (NullUtil.isNull(action)) return;
+                if (NullUtil.isNull(action.playerUid) || action.playerUid.isEmpty()) return;
+                if (NullUtil.isNull(action.actionType) || action.actionType.isEmpty()) return;
 
                 if (action.playerUid.equals(myUid)) return;
 
                 switch (action.actionType) {
-                    case "MOVE":
-                        if (action.row != null && action.col != null && isValidCell(action.row, action.col)) {
+                    case DomainActionType.MOVE.getValue():
+                        if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
                             listener.onRemoteMove(action.row, action.col, action.playerUid);
                         }
                         break;
-                    case "TRIANGLE":
+                    case DomainActionType.TRIANGLE.getValue():
                         listener.onRemoteTriangle(action.playerUid);
                         break;
-                    case "SQUARE":
+                    case DomainActionType.SQUARE.getValue():
                         listener.onRemoteSquare(action.playerUid);
                         break;
                 }
@@ -154,53 +161,53 @@ public class OnlineMatchSession {
         };
         actionsRef.addChildEventListener(actionsListener);
 
-        if (clockListener != null) {
+        if (!NullUtil.isNull(clockListener)) {
             listenTurnClock(clockListener);
         }
     }
 
     public void stopListening() {
-        if (actionsListener != null) {
+        if (!NullUtil.isNull(actionsListener)) {
             actionsRef.removeEventListener(actionsListener);
             actionsListener = null;
         }
-        if (statusListener != null) {
-            roomRef.child("status").removeEventListener(statusListener);
+        if (!NullUtil.isNull(statusListener)) {
+            roomRef.removeEventListener(statusListener);
             statusListener = null;
         }
-        if (opponentListener != null) {
+        if (!NullUtil.isNull(opponentListener)) {
             roomRef.child("players").child("O").removeEventListener(opponentListener);
             opponentListener = null;
         }
-        if (turnClockListener != null) {
+        if (!NullUtil.isNull(turnClockListener)) {
             roomRef.removeEventListener(turnClockListener);
             turnClockListener = null;
         }
-        if (introReadyListener != null) {
+        if (!NullUtil.isNull(introReadyListener)) {
             roomRef.child("introReady").removeEventListener(introReadyListener);
             introReadyListener = null;
         }
-        if (introClockListener != null) {
+        if (!NullUtil.isNull(introClockListener)) {
             roomRef.child("intro").removeEventListener(introClockListener);
             introClockListener = null;
         }
     }
 
     public void listenTurnClock(@NonNull TurnClockListener listener) {
-        if (turnClockListener != null) return;
+        if (!NullUtil.isNull(turnClockListener)) return;
 
         turnClockListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String status = snapshot.child("status").getValue(String.class);
-                if (status == null || status.isEmpty() || !STATUS_PLAYING.equals(status)) return;
+                if (NullUtil.isNull(status) || status.isEmpty() || !STATUS_PLAYING.equals(status)) return;
 
                 String turn = snapshot.child("turn").getValue(String.class);
                 Long startedAt = snapshot.child("turnStartedAt").getValue(Long.class);
                 Long duration = snapshot.child("turnDurationMs").getValue(Long.class);
                 Long turnSeq = snapshot.child("turnSeq").getValue(Long.class);
 
-                if (turn == null || startedAt == null || duration == null) return;
-                if (turnSeq == null) turnSeq = 0L;
+                if (NullUtil.isNull(turn) || NullUtil.isNull(startedAt) || NullUtil.isNull(duration)) return;
+                if (NullUtil.isNull(turnSeq)) turnSeq = 0L;
 
                 listener.onTurnClock(turn, startedAt, duration, turnSeq, nowServerApprox());
             }
@@ -211,12 +218,12 @@ public class OnlineMatchSession {
     }
 
     public void listenOpponentJoin(@NonNull Consumer<String> onJoined) {
-        if (opponentListener != null) return;
+        if (!NullUtil.isNull(opponentListener)) return;
 
         opponentListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String oUid = snapshot.getValue(String.class);
-                if (oUid != null && !oUid.trim().isEmpty()) {
+                if (!NullUtil.isNull(oUid) && !oUid.trim().isEmpty()) {
                     onJoined.accept(oUid);
                 }
             }
@@ -232,16 +239,16 @@ public class OnlineMatchSession {
         roomRef.runTransaction(new Transaction.Handler() {
             @NonNull @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() == null) return Transaction.abort();
+                if (NullUtil.isNull(currentData.getValue())) return Transaction.abort();
 
                 String status = currentData.child("status").getValue(String.class);
-                if (status == null) return Transaction.abort();
+                if (NullUtil.isNull(status)) return Transaction.abort();
 
                 String oUid = currentData.child("players").child("O").getValue(String.class);
-                if (oUid == null || oUid.trim().isEmpty()) return Transaction.abort();
+                if (NullUtil.isNull(oUid) || oUid.trim().isEmpty()) return Transaction.abort();
 
                 MutableData intro = currentData.child("intro");
-                if (intro.child("scheduledAt").getValue() != null) return Transaction.abort();
+                if (!NullUtil.isNull(intro.child("scheduledAt").getValue())) return Transaction.abort();
 
                 intro.child("scheduledAt").setValue(ServerValue.TIMESTAMP);
                 intro.child("delayMs").setValue(delayMs);
@@ -254,13 +261,13 @@ public class OnlineMatchSession {
             }
 
             @Override public void onComplete(DatabaseError error, boolean committed, DataSnapshot currentData) {
-                if (error != null) Log.w(TAG, "scheduleIntroIfHost error: " + error.getMessage());
+                if (!NullUtil.isNull(error)) Log.w(TAG, "scheduleIntroIfHost error: " + error.getMessage());
             }
         });
     }
 
     public void listenIntroClock(@NonNull IntroClockListener listener) {
-        if (introClockListener != null) return;
+        if (!NullUtil.isNull(introClockListener)) return;
 
         introClockListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -268,7 +275,7 @@ public class OnlineMatchSession {
                 Long delayMs = snapshot.child("delayMs").getValue(Long.class);
                 Long durationMs = snapshot.child("durationMs").getValue(Long.class);
 
-                if (scheduledAt == null || delayMs == null || durationMs == null) return;
+                if (NullUtil.isNull(scheduledAt) || NullUtil.isNull(delayMs) || NullUtil.isNull(durationMs)) return;
 
                 long startAt = scheduledAt + delayMs;
                 listener.onIntroClock(startAt, durationMs, nowServerApprox());
@@ -283,7 +290,7 @@ public class OnlineMatchSession {
     public void markIntroReady(@NonNull IntroReadyListener listener) {
         roomRef.child("introReady").child(mySymbol).setValue(true);
 
-        if (introReadyListener != null) return;
+        if (!NullUtil.isNull(introReadyListener)) return;
 
         introReadyListener = new ValueEventListener() {
             private boolean fired = false;
@@ -309,10 +316,10 @@ public class OnlineMatchSession {
         roomRef.runTransaction(new Transaction.Handler() {
             @NonNull @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() == null) return Transaction.abort();
+                if (NullUtil.isNull(currentData.getValue())) return Transaction.abort();
 
                 String status = currentData.child("status").getValue(String.class);
-                if (status == null) return Transaction.abort();
+                if (NullUtil.isNull(status)) return Transaction.abort();
 
                 if (STATUS_PLAYING.equals(status)) return Transaction.abort();
                 if (STATUS_ENDED.equals(status) || STATUS_ABANDONED.equals(status)) return Transaction.abort();
@@ -320,10 +327,14 @@ public class OnlineMatchSession {
                 Long scheduledAt = currentData.child("intro").child("scheduledAt").getValue(Long.class);
                 Long delayMs     = currentData.child("intro").child("delayMs").getValue(Long.class);
                 Long durationMs  = currentData.child("intro").child("durationMs").getValue(Long.class);
-                if (scheduledAt == null || delayMs == null || durationMs == null) return Transaction.abort();
 
-                long startAt = scheduledAt + delayMs;
-                long endAt   = startAt + durationMs;
+                long endAt;
+                if (NullUtil.isNull(scheduledAt) || NullUtil.isNull(delayMs) || NullUtil.isNull(durationMs)) {
+                    endAt = nowServerApprox();
+                } else {
+                    long startAt = scheduledAt + delayMs;
+                    endAt = startAt + durationMs;
+                }
 
                 Boolean xReady = currentData.child("introReady").child("X").getValue(Boolean.class);
                 Boolean oReady = currentData.child("introReady").child("O").getValue(Boolean.class);
@@ -336,21 +347,21 @@ public class OnlineMatchSession {
                 currentData.child("turn").setValue(TURN_X);
                 currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
 
-                if (currentData.child("turnDurationMs").getValue() == null) {
+                if (NullUtil.isNull(currentData.child("turnDurationMs").getValue())) {
                     currentData.child("turnDurationMs").setValue(10_000L);
                 }
-                if (currentData.child("turnSeq").getValue() == null) currentData.child("turnSeq").setValue(0L);
-                if (currentData.child("lastTimeoutProcessedSeq").getValue() == null) currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
-                if (currentData.child("timeoutStreakX").getValue() == null) currentData.child("timeoutStreakX").setValue(0L);
-                if (currentData.child("timeoutStreakO").getValue() == null) currentData.child("timeoutStreakO").setValue(0L);
-                if (currentData.child("winner").getValue() == null) currentData.child("winner").setValue("");
-                if (currentData.child("endReason").getValue() == null) currentData.child("endReason").setValue("");
+                if (NullUtil.isNull(currentData.child("turnSeq").getValue())) currentData.child("turnSeq").setValue(0L);
+                if (NullUtil.isNull(currentData.child("lastTimeoutProcessedSeq").getValue())) currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
+                if (NullUtil.isNull(currentData.child("timeoutStreakX").getValue())) currentData.child("timeoutStreakX").setValue(0L);
+                if (NullUtil.isNull(currentData.child("timeoutStreakO").getValue())) currentData.child("timeoutStreakO").setValue(0L);
+                if (NullUtil.isNull(currentData.child("winner").getValue())) currentData.child("winner").setValue("");
+                if (NullUtil.isNull(currentData.child("endReason").getValue())) currentData.child("endReason").setValue("");
 
                 return Transaction.success(currentData);
             }
 
             @Override public void onComplete(DatabaseError error, boolean committed, DataSnapshot currentData) {
-                if (error != null) Log.w(TAG, "startPlayingWhenIntroFinished error: " + error.getMessage());
+                if (!NullUtil.isNull(error)) Log.w(TAG, "startPlayingWhenIntroFinished error: " + error.getMessage());
             }
         });
     }
@@ -365,15 +376,15 @@ public class OnlineMatchSession {
 
     public void sendMove(int row, int col) {
         if (!isValidCell(row, col)) return;
-        pushActionAuthoritative("MOVE", row, col);
+        pushActionAuthoritative(DomainActionType.MOVE.getValue(), row, col);
     }
 
     public void sendTriangle() {
-        pushActionAuthoritative("TRIANGLE", null, null);
+        pushActionAuthoritative(DomainActionType.TRIANGLE.getValue(), null, null);
     }
 
     public void sendSquare() {
-        pushActionAuthoritative("SQUARE", null, null);
+        pushActionAuthoritative(DomainActionType.SQUARE.getValue(), null, null);
     }
 
     public void advanceTurnIfExpired(@NonNull String expectedTurn, long expectedTurnSeq, @NonNull TurnAdvanceCallback callback) {
@@ -381,7 +392,7 @@ public class OnlineMatchSession {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() == null) return Transaction.abort();
+                if (NullUtil.isNull(currentData.getValue())) return Transaction.abort();
 
                 String status = currentData.child("status").getValue(String.class);
                 String turn = currentData.child("turn").getValue(String.class);
@@ -392,11 +403,11 @@ public class OnlineMatchSession {
                 Long lastProcessed = currentData.child("lastTimeoutProcessedSeq").getValue(Long.class);
 
                 if (!STATUS_PLAYING.equals(status)) return Transaction.abort();
-                if (turn == null || !turn.equals(expectedTurn)) return Transaction.abort();
-                if (startedAt == null || duration == null) return Transaction.abort();
+                if (NullUtil.isNull(turn) || !turn.equals(expectedTurn)) return Transaction.abort();
+                if (NullUtil.isNull(startedAt) || NullUtil.isNull(duration)) return Transaction.abort();
 
-                if (turnSeq == null) turnSeq = 0L;
-                if (lastProcessed == null) lastProcessed = -1L;
+                if (NullUtil.isNull(turnSeq)) turnSeq = 0L;
+                if (NullUtil.isNull(lastProcessed)) lastProcessed = -1L;
 
                 if (turnSeq != expectedTurnSeq) return Transaction.abort();
 
@@ -408,8 +419,8 @@ public class OnlineMatchSession {
 
                 Long streakX = currentData.child("timeoutStreakX").getValue(Long.class);
                 Long streakO = currentData.child("timeoutStreakO").getValue(Long.class);
-                if (streakX == null) streakX = 0L;
-                if (streakO == null) streakO = 0L;
+                if (NullUtil.isNull(streakX)) streakX = 0L;
+                if (NullUtil.isNull(streakO)) streakO = 0L;
 
                 boolean timedOutX = TURN_X.equals(turn);
                 if (timedOutX) streakX++;
@@ -442,33 +453,33 @@ public class OnlineMatchSession {
 
             @Override
             public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-                callback.onResult(error == null && committed);
+                callback.onResult(NullUtil.isNull(error) && committed);
             }
         });
     }
 
     private void pushActionAuthoritative(@NonNull String type, @Nullable Integer row, @Nullable Integer col) {
         String actionId = actionsRef.push().getKey();
-        if (actionId == null) return;
+        if (NullUtil.isNull(actionId)) return;
 
         roomRef.runTransaction(new Transaction.Handler() {
             @NonNull
             @Override public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                if (currentData.getValue() == null) return Transaction.abort();
+                if (NullUtil.isNull(currentData.getValue())) return Transaction.abort();
 
                 String status = currentData.child("status").getValue(String.class);
                 String turn = currentData.child("turn").getValue(String.class);
 
                 if (!STATUS_PLAYING.equals(status)) return Transaction.abort();
-                if (turn == null || !turn.equals(mySymbol)) return Transaction.abort();
+                if (NullUtil.isNull(turn) || !turn.equals(mySymbol)) return Transaction.abort();
 
                 MutableData a = currentData.child("actions").child(actionId);
                 a.child("actionId").setValue(actionId);
                 a.child("playerUid").setValue(myUid);
                 a.child("actionType").setValue(type);
                 a.child("timestamp").setValue(ServerValue.TIMESTAMP);
-                if (row != null) a.child("row").setValue(row);
-                if (col != null) a.child("col").setValue(col);
+                if (!NullUtil.isNull(row)) a.child("row").setValue(row);
+                if (!NullUtil.isNull(col)) a.child("col").setValue(col);
 
                 if (TURN_X.equals(mySymbol)) currentData.child("timeoutStreakX").setValue(0L);
                 else currentData.child("timeoutStreakO").setValue(0L);
@@ -478,23 +489,23 @@ public class OnlineMatchSession {
                 currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
 
                 Long seq = currentData.child("turnSeq").getValue(Long.class);
-                if (seq == null) seq = 0L;
+                if (NullUtil.isNull(seq)) seq = 0L;
                 currentData.child("turnSeq").setValue(seq + 1L);
 
-                if (currentData.child("turnDurationMs").getValue() == null) {
+                if (NullUtil.isNull(currentData.child("turnDurationMs").getValue())) {
                     currentData.child("turnDurationMs").setValue(10_000L);
                 }
-                if (currentData.child("lastTimeoutProcessedSeq").getValue() == null) {
+                if (NullUtil.isNull(currentData.child("lastTimeoutProcessedSeq").getValue())) {
                     currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
                 }
-                if (currentData.child("timeoutStreakX").getValue() == null) currentData.child("timeoutStreakX").setValue(0L);
-                if (currentData.child("timeoutStreakO").getValue() == null) currentData.child("timeoutStreakO").setValue(0L);
+                if (NullUtil.isNull(currentData.child("timeoutStreakX").getValue())) currentData.child("timeoutStreakX").setValue(0L);
+                if (NullUtil.isNull(currentData.child("timeoutStreakO").getValue())) currentData.child("timeoutStreakO").setValue(0L);
 
                 return Transaction.success(currentData);
             }
 
             @Override public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-                if (error != null) {
+                if (!NullUtil.isNull(error)) {
                     Log.w(TAG, "Action rejected: " + error.getMessage());
                 } else if (!committed) {
                     Log.d(TAG, "Action not committed (not your turn or room not playing).");
@@ -505,6 +516,7 @@ public class OnlineMatchSession {
 
     public void endRoom() {
         roomRef.child("status").setValue(STATUS_ENDED);
+        roomRef.child("endReason").setValue(END_ABANDONMENT);
         roomRef.child("endedAt").setValue(ServerValue.TIMESTAMP);
     }
 
