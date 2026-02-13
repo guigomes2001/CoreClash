@@ -159,46 +159,53 @@ public class OnlineMatchmaking {
                     callback.onError("Failed to create room due to a concurrency conflict. Please try again.");
                     return;
                 }
-                rebalanceOrConfirmCreatedRoom(roomId, myUid, callback);
+                reconcileCreatedRoom(roomId, myUid, callback);
             }
         });
     }
 
-    private void rebalanceOrConfirmCreatedRoom(@NonNull String createdRoomId, @NonNull String myUid, @NonNull MatchmakingCallback callback) {
+
+    private void reconcileCreatedRoom(@NonNull String createdRoomId, @NonNull String myUid, @NonNull MatchmakingCallback callback) {
         roomsRef.orderByChild("status")
                 .equalTo(STATUS_WAITING)
                 .limitToFirst(20)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    String bestRoomToJoin = null;
-                    long now = DateTimeUtil.nowMillis();
+                    String olderCandidateRoomId = null;
 
                     for (DataSnapshot roomSnap : snapshot.getChildren()) {
                         String roomId = roomSnap.getKey();
-                        if (NullUtil.isNull(roomId) || createdRoomId.equals(roomId)) continue;
+                        if (NullUtil.isNull(roomId) || createdRoomId.equals(roomId)) {
+                            continue;
+                        }
+
+                        if (roomId.compareTo(createdRoomId) >= 0) {
+                            continue;
+                        }
 
                         String roomKind = roomSnap.child("roomKind").getValue(String.class);
-                        if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) continue;
-
-                        Long createdAt = roomSnap.child("createdAt").getValue(Long.class);
-                        if (!NullUtil.isNull(createdAt) && (now - createdAt > ROOM_TTL_MS)) continue;
+                        if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) {
+                            continue;
+                        }
 
                         String xUid = roomSnap.child("players").child("X").getValue(String.class);
                         String oUid = roomSnap.child("players").child("O").getValue(String.class);
 
-                        if (NullUtil.isNullOrEmpty(xUid) || !NullUtil.isNullOrEmpty(oUid) || myUid.equals(xUid)) continue;
+                        if (NullUtil.isNullOrEmpty(xUid) || !NullUtil.isNullOrEmpty(oUid) || myUid.equals(xUid)) {
+                            continue;
+                        }
 
-                        if (NullUtil.isNull(bestRoomToJoin) || roomId.compareTo(bestRoomToJoin) < 0) {
-                            bestRoomToJoin = roomId;
+                        if (NullUtil.isNull(olderCandidateRoomId) || roomId.compareTo(olderCandidateRoomId) < 0) {
+                            olderCandidateRoomId = roomId;
                         }
                     }
 
-                    if (NullUtil.isNull(bestRoomToJoin)) {
+                    if (NullUtil.isNull(olderCandidateRoomId)) {
                         callback.onMatched(createdRoomId, true, "");
                         return;
                     }
 
-                    String targetRoomId = bestRoomToJoin;
+                    String targetRoomId = olderCandidateRoomId;
                     attemptJoinRoomTransaction(targetRoomId, myUid, 0, new MatchmakingCallback() {
                         @Override
                         public void onMatched(@NonNull String roomId, boolean isPlayerX, @NonNull String opponentUid) {
