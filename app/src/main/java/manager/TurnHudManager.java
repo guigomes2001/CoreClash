@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import ui.style.HudIdentityStyle;
 
 import util.AnimationHelper;
+import util.NullUtil;
 
 public class TurnHudManager {
 
@@ -81,7 +82,7 @@ public class TurnHudManager {
         styleName(nameX, xTurn, iAmX);
         styleName(nameO, !xTurn, !iAmX);
 
-        if (lastTurnX == null || lastTurnX != xTurn) {
+        if (NullUtil.isNull(lastTurnX) || lastTurnX != xTurn) {
             startTurn(xTurn);
             lastTurnX = xTurn;
         }
@@ -172,7 +173,7 @@ public class TurnHudManager {
     }
 
     private void cancelTimer() {
-        if (timerAnimator != null) {
+        if (!NullUtil.isNull(timerAnimator)) {
             timerAnimator.cancel();
             timerAnimator = null;
         }
@@ -213,7 +214,7 @@ public class TurnHudManager {
     }
 
     private void stopPulse() {
-        if (pulseAnimator != null) {
+        if (!NullUtil.isNull(pulseAnimator)) {
             pulseAnimator.cancel();
             pulseAnimator = null;
         }
