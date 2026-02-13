@@ -4,36 +4,39 @@ import java.util.Collection;
 
 public class NullUtil {
 
+    private NullUtil() {
+    }
+
     public static boolean isNull(Object value) {
         return value == null;
     }
 
     public static boolean isNull(Number number) {
-        return (number == null);
+        return number == null;
     }
 
     public static boolean isNullOrEmpty(String value) {
-        return (value == null) || (value.trim().isEmpty());
+        return isNull(value) || value.trim().isEmpty();
     }
 
     public static boolean isNullOrEmpty(Object value) {
-        return (value == null);
+        return isNull(value);
     }
 
     public static <T> boolean isNullOrEmpty(Collection<T> collection) {
-        return (collection == null) || (collection.isEmpty());
+        return isNull(collection) || collection.isEmpty();
     }
 
     public static boolean isNullOrEmpty(Number number) {
-        return (number == null) || (!(number.doubleValue() > 0));
+        return isNull(number) || !(number.doubleValue() > 0);
     }
 
     public static boolean isNullOrEmpty(Object[] array) {
-        return (array == null) || (array.length == 0);
+        return isNull(array) || array.length == 0;
     }
 
     public static boolean isNullOrEmptyOrZero(String value) {
-        return isNullOrEmpty(value) || value.equals("0")|| value.equals("00");
+        return isNullOrEmpty(value) || value.equals("0") || value.equals("00");
     }
 
     public static boolean isNullOrEmptyOrValorZero(String value) {

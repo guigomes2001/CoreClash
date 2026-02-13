@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enums.DomainMatchStatus;
+import enums.DomainRoomKind;
+import util.DateTimeUtil;
+import util.FirebaseUtil;
 import util.NullUtil;
 
 public class OnlineMatchmaking {
@@ -46,13 +49,24 @@ public class OnlineMatchmaking {
     private void findOrCreateMatchInternal(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt) {
         roomsRef.orderByChild("status")
                 .equalTo(STATUS_WAITING)
-                .limitToFirst(1)
+                 .limitToFirst(20)
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.exists()) {
+                        long now = DateTimeUtil.nowMillis();
                         for (DataSnapshot roomSnap : snapshot.getChildren()) {
                             String roomId = roomSnap.getKey();
-                            if (roomId == null) continue;
+                            if (NullUtil.isNull(roomId)) continue;
+
+                            String roomKind = roomSnap.child("roomKind").getValue(String.class);
+                            if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) continue;
+
+                            Long createdAt = roomSnap.child("createdAt").getValue(Long.class);
+                            if (!NullUtil.isNull(createdAt) && (now - createdAt > ROOM_TTL_MS)) continue;
+
+                            String xUid = roomSnap.child("players").child("X").getValue(String.class);
+                            String oUid = roomSnap.child("players").child("O").getValue(String.class);
+                            if (NullUtil.isNullOrEmpty(xUid) || !NullUtil.isNullOrEmpty(oUid) || myUid.equals(xUid)) continue;
 
                             attemptJoinRoomTransaction(roomId, myUid, attempt, callback);
                             return;
@@ -100,6 +114,7 @@ public class OnlineMatchmaking {
                 Map<String, Object> room = new HashMap<>();
 
                 room.put("status", STATUS_WAITING);
+                room.put("roomKind", DomainRoomKind.AUTO_QUEUE.getValue());
                 room.put("createdAt", ServerValue.TIMESTAMP);
 
                 room.put("turn", TURN_X);
@@ -160,8 +175,12 @@ public class OnlineMatchmaking {
                 String status = currentData.child("status").getValue(String.class);
                 String xUid = currentData.child("players").child("X").getValue(String.class);
                 String oUid = currentData.child("players").child("O").getValue(String.class);
+                String roomKind = currentData.child("roomKind").getValue(String.class);
 
                 if (!STATUS_WAITING.equals(status)) {
+                    return Transaction.abort();
+                }
+                if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) {
                     return Transaction.abort();
                 }
                 if (NullUtil.isNullOrEmpty(xUid)) {
@@ -240,7 +259,7 @@ public class OnlineMatchmaking {
                 room.put("winner", "");
                 room.put("endReason", "");
                 room.put("roomCode", roomCode);
-                room.put("roomKind", "LOCAL_LOBBY");
+                room.put("roomKind", DomainRoomKind.LOCAL_LOBBY.getValue());
 
                 Map<String, Object> players = new HashMap<>();
                 players.put("X", myUid);
@@ -312,7 +331,7 @@ public class OnlineMatchmaking {
                             continue;
                         }
 
-                        long now = System.currentTimeMillis();
+                        long now = DateTimeUtil.nowMillis();
                         if (now - createdAt > ROOM_TTL_MS) {
                             Map<String, Object> updates = new HashMap<>();
                             updates.put("status", STATUS_ENDED);
@@ -324,10 +343,6 @@ public class OnlineMatchmaking {
     }
 
     private String safeMsg(Throwable e) {
-        if (NullUtil.isNull(e)) {
-            return "Unknown error.";
-        }
-        String m = e.getMessage();
-        return (NullUtil.isNull(m) || m.trim().isEmpty()) ? "Unknown error." : m.trim();
+        return FirebaseUtil.safeErrorMessage(e, "Unknown error.");
     }
 }

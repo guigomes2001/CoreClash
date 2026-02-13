@@ -8,6 +8,7 @@ import java.util.List;
 import enums.DomainGameMode;
 import game.GameState;
 import manager.GameManager;
+import util.NullUtil;
 
 public class AndroidMatchStateBridge implements MatchStatePort {
 
@@ -22,7 +23,7 @@ public class AndroidMatchStateBridge implements MatchStatePort {
     @Override
     public List<int[]> availableMoves() {
         List<int[]> src = gameManager.getAvailableMoves();
-        return src == null ? new ArrayList<>() : src;
+        return NullUtil.isNull(src) ? new ArrayList<>() : src;
     }
 
     @Override
