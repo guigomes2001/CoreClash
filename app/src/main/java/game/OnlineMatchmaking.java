@@ -76,7 +76,7 @@ public class OnlineMatchmaking {
                 }
 
                 selectedRoomId[0] = waitingRoomId;
-                currentData.setValue(null);
+                currentData.setValue(waitingRoomId);
                 return Transaction.success(currentData);
             }
 
@@ -102,6 +102,7 @@ public class OnlineMatchmaking {
                 attemptJoinRoomTransaction(selected, myUid, attempt, new MatchmakingCallback() {
                     @Override
                     public void onMatched(@NonNull String roomId, boolean isPlayerX, @NonNull String opponentUid) {
+                        clearQueueIfMatches(roomId);
                         callback.onMatched(roomId, isPlayerX, opponentUid);
                     }
 
@@ -110,6 +111,30 @@ public class OnlineMatchmaking {
                         retryOrFail(myUid, callback, attempt, "Join selected room failed: " + message);
                     }
                 });
+            }
+        });
+    }
+
+    private void clearQueueIfMatches(@NonNull String roomId) {
+        autoQueueRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                String waitingRoomId = currentData.getValue(String.class);
+                if (roomId.equals(waitingRoomId)) {
+                    currentData.setValue(null);
+                    return Transaction.success(currentData);
+                }
+                return Transaction.abort();
+            }
+
+            @Override
+            public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (!NullUtil.isNull(error)) {
+                    Log.d(TAG, "clearQueueIfMatches error room=" + roomId + " msg=" + safeMsg(error.toException()));
+                    return;
+                }
+                Log.d(TAG, "clearQueueIfMatches room=" + roomId + " committed=" + committed);
             }
         });
     }
