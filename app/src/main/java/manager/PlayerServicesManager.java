@@ -18,6 +18,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.Objects;
 
+import util.DateTimeUtil;
 import util.NullUtil;
 
 public class PlayerServicesManager {
@@ -166,7 +167,7 @@ public class PlayerServicesManager {
 
             @Override public void onError(@NonNull String error) {
                 Log.e("PlayerServicesManager", "Fallback local failed: " + error);
-                currentProfile = PlayerProfile.createDefault("temp_" + System.currentTimeMillis());
+                currentProfile = PlayerProfile.createDefault("temp_" + DateTimeUtil.nowMillis());
                 ui.runOnUi(cb::onRender);
             }
         });

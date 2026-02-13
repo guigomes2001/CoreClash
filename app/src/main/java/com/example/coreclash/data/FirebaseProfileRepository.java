@@ -8,6 +8,7 @@ import com.example.coreclash.model.PlayerProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import util.FirebaseUtil;
 import util.NullUtil;
 
 public class FirebaseProfileRepository implements ProfileRepository {
@@ -31,7 +32,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
 
         auth.signInAnonymously()
                 .addOnSuccessListener(result -> fetchProfile(result.getUser(), callback))
-                .addOnFailureListener(error -> NullUtil.isNull(callback.onError(error.getMessage()) ? "Firebase auth failed" : error.getMessage()));
+                .addOnFailureListener(error -> callback.onError(FirebaseUtil.safeErrorMessage(error, "Firebase auth failed")));
     }
 
     private void fetchProfile(@NonNull FirebaseUser user, @NonNull Callback callback) {
@@ -46,7 +47,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
                     }
                     callback.onSuccess(profile);
                 })
-                .addOnFailureListener(error -> NullUtil.isNull(callback.onError(error.getMessage()) ? "Firebase read failed" : error.getMessage()));
+                .addOnFailureListener(error -> callback.onError(FirebaseUtil.safeErrorMessage(error, "Firebase read failed")));
     }
 
     @Override

@@ -60,6 +60,8 @@ import util.AnimationHelper;
 import util.FontAwesomeIconFactory;
 import util.NullUtil;
 import util.SafeClickUtil;
+import util.StringUtil;
+import util.DateTimeUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -348,13 +350,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (!NullUtil.isNull(matchManager) && matchManager.isOnlineMatch()) {
             String n = matchManager.getOpponentName();
-            if (!NullUtil.isNull(n) && !n.trim().isEmpty()) {
+            if (StringUtil.hasText(n)) {
                 return n.trim();
             }
             return getString(R.string.status_waiting_opponent);
         }
 
-        if (!NullUtil.isNull(opponentName) && !opponentName.trim().isEmpty()) {
+        if (StringUtil.hasText(opponentName)) {
             return opponentName.trim();
         }
         return getString(R.string.turn_hud_opponent_default);
@@ -747,7 +749,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showUiToastDeduped(@NonNull String message) {
-        long now = System.currentTimeMillis();
+        long now = DateTimeUtil.nowMillis();
         if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
@@ -755,7 +757,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
-        long now = System.currentTimeMillis();
+        long now = DateTimeUtil.nowMillis();
         if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
@@ -1095,11 +1097,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isActionLocked() {
-        return System.currentTimeMillis() < actionLockedUntilMs;
+        return DateTimeUtil.nowMillis() < actionLockedUntilMs;
     }
 
     private void lockActionsTemporarily(long durationMs) {
-        actionLockedUntilMs = Math.max(actionLockedUntilMs, System.currentTimeMillis() + Math.max(0L, durationMs));
+        actionLockedUntilMs = Math.max(actionLockedUntilMs, DateTimeUtil.nowMillis() + Math.max(0L, durationMs));
     }
 
     private boolean ensureInternetForOnlineModes() {
@@ -1264,7 +1266,7 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private String buildTagFromUid(@NonNull String uid) {
-        return uid.substring(0, Math.min(4, uid.length())).toUpperCase() + "#" + (1000 + (Math.abs(uid.hashCode()) % 9000));
+        return StringUtil.safePrefixUpper(uid, 4) + "#" + (1000 + (Math.abs(uid.hashCode()) % 9000));
     }
 
     private void applyArenaUiVisibility(boolean visible) {

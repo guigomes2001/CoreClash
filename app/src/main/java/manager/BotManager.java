@@ -9,6 +9,7 @@ import java.util.Random;
 
 import enums.DomainDifficulty;
 import enums.DomainSymbols;
+import util.CollectionUtil;
 import util.NullUtil;
 
 public class BotManager {
@@ -108,7 +109,7 @@ public class BotManager {
 
     private int[] chooseBotMove(@NonNull DomainDifficulty difficulty) {
         List<int[]> moves = gameManager.getAvailableMoves();
-        if (moves.isEmpty()) return null;
+        if (CollectionUtil.isNullOrEmpty(moves)) return null;
 
         if (difficulty == DomainDifficulty.BEGINNER) {
             return moves.get(random.nextInt(moves.size()));

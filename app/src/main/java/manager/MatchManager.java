@@ -19,6 +19,10 @@ import game.OnlineMatchmaking;
 
 import java.util.function.Supplier;
 import util.NullUtil;
+import util.NumberUtil;
+import util.StringUtil;
+import util.ThreadUtil;
+import util.ValidationUtil;
 
 public class MatchManager {
 
@@ -121,7 +125,7 @@ public class MatchManager {
 
     public void startOnlineMatchmaking(@NonNull Supplier<String> myUidSupplier) {
         String myUid = myUidSupplier.get();
-        if (NullUtil.isNull(myUid)) {
+        if (!ValidationUtil.isValidUid(myUid)) {
             Toast.makeText(context, context.getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -153,6 +157,11 @@ public class MatchManager {
 
 
     public void createLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
+        if (!ValidationUtil.isValidUid(myUid) || !ValidationUtil.isValidRoomCode(roomCode)) {
+            Toast.makeText(context, context.getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         matchmaking.createLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
@@ -170,6 +179,11 @@ public class MatchManager {
     }
 
     public void joinLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
+        if (!ValidationUtil.isValidUid(myUid) || !ValidationUtil.isValidRoomCode(roomCode)) {
+            Toast.makeText(context, context.getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         matchmaking.joinLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
@@ -191,11 +205,11 @@ public class MatchManager {
 
         mySymbolOnline = iAmXOnline ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
 
-        opponentName = opponentUid.trim().isEmpty()
+        opponentName = StringUtil.isBlank(opponentUid)
                 ? context.getString(R.string.status_waiting_opponent)
-                : context.getString(R.string.player_short_format, opponentUid.substring(0, Math.min(6, opponentUid.length())));
+                : context.getString(R.string.player_short_format, StringUtil.trimOrEmpty(opponentUid).substring(0, Math.min(6, StringUtil.trimOrEmpty(opponentUid).length())));
 
-        if (!opponentUid.trim().isEmpty()) {
+        if (StringUtil.hasText(opponentUid)) {
             resolveOpponentName(opponentUid);
         }
 
@@ -217,7 +231,7 @@ public class MatchManager {
         cb.onUpdateHeaderStatus();
         cb.onUpdateSkillVisuals();
 
-        if (iAmXOnline && opponentUid.trim().isEmpty()) {
+        if (iAmXOnline && StringUtil.isBlank(opponentUid)) {
             cb.onShowWaitingOpponentUi();
         }
 
@@ -232,8 +246,8 @@ public class MatchManager {
         }));
 
         onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
-            long delay = Math.max(0L, startAt - serverNow);
-            cb.runOnUi(() -> handler.postDelayed(() -> {
+            long delay = NumberUtil.clamp(startAt - serverNow, 0L, Long.MAX_VALUE);
+            cb.runOnUi(() -> ThreadUtil.postDelayed(handler, () -> {
                 if (!isOnlineMatch || NullUtil.isNull(onlineSession)) {
                     return;
                 }
@@ -250,11 +264,11 @@ public class MatchManager {
                 .get()
                 .addOnSuccessListener(doc -> {
                     String displayName = doc.getString("displayName");
-                    if (NullUtil.isNull(displayName) || displayName.trim().isEmpty()) {
+                    if (StringUtil.isBlank(displayName)) {
                         return;
                     }
                     cb.runOnUi(() -> {
-                        opponentName = displayName.trim();
+                        opponentName = StringUtil.trimOrEmpty(displayName);
                         cb.onUpdateHeaderStatus();
                     });
                 });
