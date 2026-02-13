@@ -47,6 +47,11 @@ public class OnlineMatchSession {
         void onIntroClock(long startAtMs, long durationMs, long serverNowApproxMs);
     }
 
+
+    public interface ForceTurnCallback {
+        void onResult(boolean advanced);
+    }
+
     private static final String TAG = "RTDB";
 
     private static final String STATUS_PLAYING = DomainMatchStatus.PLAYING.getValue();
@@ -511,6 +516,43 @@ public class OnlineMatchSession {
                 } else if (!committed) {
                     Log.d(TAG, "Action not committed (not your turn or room not playing).");
                 }
+            }
+        });
+    }
+
+
+    public void forceTurnTo(@NonNull String starterSymbol, @NonNull ForceTurnCallback callback) {
+        if (!TURN_X.equals(starterSymbol) && !TURN_O.equals(starterSymbol)) {
+            callback.onResult(false);
+            return;
+        }
+
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (NullUtil.isNull(currentData.getValue())) return Transaction.abort();
+
+                String status = currentData.child("status").getValue(String.class);
+                if (!STATUS_PLAYING.equals(status)) return Transaction.abort();
+
+                currentData.child("turn").setValue(starterSymbol);
+                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+
+                Long seq = currentData.child("turnSeq").getValue(Long.class);
+                if (NullUtil.isNull(seq)) seq = 0L;
+                currentData.child("turnSeq").setValue(seq + 1L);
+
+                currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
+                currentData.child("timeoutStreakX").setValue(0L);
+                currentData.child("timeoutStreakO").setValue(0L);
+
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+                callback.onResult(NullUtil.isNull(error) && committed);
             }
         });
     }
