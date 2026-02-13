@@ -72,7 +72,7 @@
                     android:layout_gravity="center_vertical"
                     android:text="»"
                     android:textStyle="bold"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="#FFD1D8"
                     android:alpha="0"
                     android:visibility="invisible"/>
@@ -122,15 +122,33 @@
             </FrameLayout>
         </LinearLayout>
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="12dp"
-            android:text="@string/versus_center"
-            android:textAllCaps="true"
-            android:textColor="#CBD5E1"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingHorizontal="10dp">
+
+            <TextView
+                android:id="@+id/txtHudVersus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/versus_center"
+                android:textAllCaps="true"
+                android:textColor="#CBD5E1"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtHudScoreInline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="0 × 0"
+                android:textColor="#D1E2FF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"

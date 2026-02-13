@@ -44,6 +44,10 @@ public class VictoryOverlayAnimator {
         }, Math.max(0L, showDelayMs));
     }
 
+    public void showWinLineOnly() {
+        drawVictoryLine();
+    }
+
     public void showDraw(long showDelayMs) {
         drawDrawLine();
 
@@ -51,6 +55,10 @@ public class VictoryOverlayAnimator {
             setDrawTexts();
             animateVictoryCard();
         }, Math.max(0L, showDelayMs));
+    }
+
+    public void showDrawLineOnly() {
+        drawDrawLine();
     }
 
     public void hide() {
