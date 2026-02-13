@@ -18,6 +18,11 @@ import game.OnlineMatchSession;
 import game.OnlineMatchmaking;
 
 import java.util.function.Supplier;
+import util.NullUtil;
+import util.NumberUtil;
+import util.StringUtil;
+import util.ThreadUtil;
+import util.ValidationUtil;
 
 public class MatchManager {
 
@@ -120,7 +125,7 @@ public class MatchManager {
 
     public void startOnlineMatchmaking(@NonNull Supplier<String> myUidSupplier) {
         String myUid = myUidSupplier.get();
-        if (myUid == null) {
+        if (!ValidationUtil.isValidUid(myUid)) {
             Toast.makeText(context, context.getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -152,6 +157,11 @@ public class MatchManager {
 
 
     public void createLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
+        if (!ValidationUtil.isValidUid(myUid) || !ValidationUtil.isValidRoomCode(roomCode)) {
+            Toast.makeText(context, context.getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         matchmaking.createLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
@@ -169,6 +179,11 @@ public class MatchManager {
     }
 
     public void joinLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
+        if (!ValidationUtil.isValidUid(myUid) || !ValidationUtil.isValidRoomCode(roomCode)) {
+            Toast.makeText(context, context.getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         matchmaking.joinLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
@@ -190,11 +205,11 @@ public class MatchManager {
 
         mySymbolOnline = iAmXOnline ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
 
-        opponentName = opponentUid.trim().isEmpty()
+        opponentName = StringUtil.isBlank(opponentUid)
                 ? context.getString(R.string.status_waiting_opponent)
-                : context.getString(R.string.player_short_format, opponentUid.substring(0, Math.min(6, opponentUid.length())));
+                : context.getString(R.string.player_short_format, StringUtil.trimOrEmpty(opponentUid).substring(0, Math.min(6, StringUtil.trimOrEmpty(opponentUid).length())));
 
-        if (!opponentUid.trim().isEmpty()) {
+        if (StringUtil.hasText(opponentUid)) {
             resolveOpponentName(opponentUid);
         }
 
@@ -216,7 +231,7 @@ public class MatchManager {
         cb.onUpdateHeaderStatus();
         cb.onUpdateSkillVisuals();
 
-        if (iAmXOnline && opponentUid.trim().isEmpty()) {
+        if (iAmXOnline && StringUtil.isBlank(opponentUid)) {
             cb.onShowWaitingOpponentUi();
         }
 
@@ -231,9 +246,9 @@ public class MatchManager {
         }));
 
         onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
-            long delay = Math.max(0L, startAt - serverNow);
-            cb.runOnUi(() -> handler.postDelayed(() -> {
-                if (!isOnlineMatch || onlineSession == null) {
+            long delay = NumberUtil.clamp(startAt - serverNow, 0L, Long.MAX_VALUE);
+            cb.runOnUi(() -> ThreadUtil.postDelayed(handler, () -> {
+                if (!isOnlineMatch || NullUtil.isNull(onlineSession)) {
                     return;
                 }
                 cb.onRestoreMenuButtons();
@@ -249,18 +264,18 @@ public class MatchManager {
                 .get()
                 .addOnSuccessListener(doc -> {
                     String displayName = doc.getString("displayName");
-                    if (displayName == null || displayName.trim().isEmpty()) {
+                    if (StringUtil.isBlank(displayName)) {
                         return;
                     }
                     cb.runOnUi(() -> {
-                        opponentName = displayName.trim();
+                        opponentName = StringUtil.trimOrEmpty(displayName);
                         cb.onUpdateHeaderStatus();
                     });
                 });
     }
 
     private void hookOnlineListenersInternal() {
-        if (onlineSession == null) {
+        if (NullUtil.isNull(onlineSession)) {
             return;
         }
 
@@ -351,15 +366,15 @@ public class MatchManager {
     }
 
     public void sendMove(int r, int c) {
-        if (onlineSession != null) onlineSession.sendMove(r, c);
+        if (!NullUtil.isNull(onlineSession)) onlineSession.sendMove(r, c);
     }
 
     public void sendTriangle() {
-        if (onlineSession != null) onlineSession.sendTriangle();
+        if (!NullUtil.isNull(onlineSession)) onlineSession.sendTriangle();
     }
 
     public void sendSquare() {
-        if (onlineSession != null) onlineSession.sendSquare();
+        if (!NullUtil.isNull(onlineSession)) onlineSession.sendSquare();
     }
 
     public boolean playTurnRemote(int r, int c) {
@@ -371,7 +386,7 @@ public class MatchManager {
     public void startOrUpdateOnlineBar() {
         stopOnlineBarAnim(false);
 
-        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long nowServer = (!NullUtil.isNull(onlineSession)) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long elapsed = Math.max(0L, nowServer - turnStartedAtOnlineMs);
         long remaining = Math.max(0L, turnDurationOnlineMs - elapsed);
 
@@ -392,7 +407,7 @@ public class MatchManager {
     }
 
     public void stopOnlineBarAnim(boolean clearTimeoutBanner) {
-        if (onlineBarAnim != null) {
+        if (!NullUtil.isNull(onlineBarAnim)) {
             onlineBarAnim.cancel();
             onlineBarAnim = null;
         }
@@ -412,7 +427,7 @@ public class MatchManager {
 
         handler.removeCallbacks(onlineTimeoutBannerRunnable);
 
-        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long nowServer = (!NullUtil.isNull(onlineSession)) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
         long delay = Math.max(0L, endAt - nowServer) + 24L;
 
@@ -430,7 +445,7 @@ public class MatchManager {
             return;
         }
 
-        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long nowServer = (!NullUtil.isNull(onlineSession)) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
 
         if (nowServer < endAt) {
@@ -448,7 +463,7 @@ public class MatchManager {
         boolean timedOutX = "X".equals(turnOnline);
         cb.onPlayTimeoutBanner(timedOutX);
 
-        if (onlineSession != null) {
+        if (!NullUtil.isNull(onlineSession)) {
             onlineSession.advanceTurnIfExpired(turnOnline, turnSeqOnline, advanced -> {
                 if (!advanced) Log.d("RTDB", "Timeout turn advance skipped or already advanced.");
             });
@@ -458,7 +473,7 @@ public class MatchManager {
     public void endOnlineSessionToMenu() {
         stopOnlineBarAnim(true);
         try {
-            if (onlineSession != null) {
+            if (!NullUtil.isNull(onlineSession)) {
                 onlineSession.stopListening();
                 onlineSession.endRoom();
             }
@@ -478,7 +493,7 @@ public class MatchManager {
     public void cancelMatchmakingSearch() {
         matchmakingRequestToken++;
 
-        if (onlineSession != null && isOnlineMatch) {
+        if (!NullUtil.isNull(onlineSession) && isOnlineMatch) {
             endOnlineSessionToMenu();
             return;
         }
@@ -491,7 +506,7 @@ public class MatchManager {
     public void onDestroy() {
         stopOnlineBarAnim(true);
         try {
-            if (onlineSession != null) {
+            if (!NullUtil.isNull(onlineSession)) {
                 onlineSession.stopListening();
                 onlineSession.endRoom();
             }

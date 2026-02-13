@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.example.coreclash.databinding.ActivityMainBinding;
+import util.NullUtil;
 
 public class TimeoutBannerAnimator {
 
@@ -156,7 +157,7 @@ public class TimeoutBannerAnimator {
 
     private void stopAnimation(boolean xSide) {
         AnimatorSet set = xSide ? timeoutBannerAnimX : timeoutBannerAnimO;
-        if (set != null) set.cancel();
+        if (!NullUtil.isNull(set)) set.cancel();
         if (xSide) timeoutBannerAnimX = null;
         else timeoutBannerAnimO = null;
     }
