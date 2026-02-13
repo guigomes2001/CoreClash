@@ -16,6 +16,7 @@ import com.android.billingclient.api.QueryProductDetailsParams;
 
 import java.util.ArrayList;
 import java.util.List;
+import util.NullUtil;
 
 public class BillingManager implements PurchasesUpdatedListener {
 
@@ -71,7 +72,7 @@ public class BillingManager implements PurchasesUpdatedListener {
     }
 
     public boolean launchCoinsPackPurchase(@NonNull Activity activity) {
-        if (billingClient == null || coinsPackDetails == null) {
+        if (NullUtil.isNull(billingClient) || NullUtil.isNull(coinsPackDetails)) {
             return false;
         }
 
@@ -90,7 +91,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 
     @Override
     public void onPurchasesUpdated(@NonNull BillingResult billingResult, List<Purchase> purchases) {
-        if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || purchases == null) {
+        if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || NullUtil.isNull(purchases)) {
             return;
         }
 
@@ -103,7 +104,7 @@ public class BillingManager implements PurchasesUpdatedListener {
                     billingClient.acknowledgePurchase(params, result -> {
                     });
                 }
-                if (coinsListener != null) {
+                if (!NullUtil.isNull(coinsListener)) {
                     coinsListener.onCoinsGranted(500);
                 }
             }

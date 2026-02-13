@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
+import util.NullUtil;
 
 public class StoreManager {
 
@@ -122,7 +123,7 @@ public class StoreManager {
         profileManager.persistProfile();
         refreshStoreUI();
         applyEquippedCosmetics();
-        if (cb != null) cb.onHeaderShouldRefresh();
+        if (!NullUtil.isNull(cb)) cb.onHeaderShouldRefresh();
     }
 
     public void applyEquippedCosmetics() {
@@ -145,7 +146,7 @@ public class StoreManager {
         binding.txtCurtainBottom.animate().translationX(0f).setDuration(320).start();
 
         handler.postDelayed(() -> {
-            if (onEnd != null) onEnd.run();
+            if (!NullUtil.isNull(onEnd)) onEnd.run();
             binding.storeTransitionOverlay.animate()
                     .alpha(0f)
                     .setDuration(180)
