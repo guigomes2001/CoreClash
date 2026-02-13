@@ -404,6 +404,19 @@ public class MatchManager {
         if (!NullUtil.isNull(onlineSession)) onlineSession.sendSquare();
     }
 
+
+    public void forceOnlineStarter(@NonNull String starterSymbol) {
+        if (NullUtil.isNull(onlineSession)) {
+            return;
+        }
+
+        onlineSession.forceTurnTo(starterSymbol, advanced -> {
+            if (!advanced) {
+                Log.d(TAG, "force starter skipped");
+            }
+        });
+    }
+
     public boolean playTurnRemote(int r, int c) {
         int beforeMoves = gameManager.getFinalMoves();
         boolean won = gameManager.play(r, c);
