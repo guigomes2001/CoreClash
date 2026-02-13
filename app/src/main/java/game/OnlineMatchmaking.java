@@ -43,10 +43,10 @@ public class OnlineMatchmaking {
     private final DatabaseReference autoQueueRef = FirebaseDatabase.getInstance().getReference("matchmaking").child("autoQueue").child("waitingRoomId");
 
     private static final long ROOM_TTL_MS = 3 * 60 * 1000;
-    private static final int MAX_RETRIES = 8;
+    private static final int MAX_RETRIES = 10;
     private static final long RETRY_DELAY_MS = 300;
-    private static final int MAX_JOIN_WAIT_RETRIES = 30;
-    private static final long JOIN_WAIT_RETRY_DELAY_MS = 350;
+    private static final int MAX_ROOM_READY_RETRIES = 80;
+    private static final long ROOM_READY_RETRY_DELAY_MS = 250;
 
     public void findOrCreateMatch(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
         reserveOrCreateQueueRoom(myUid, callback, 0);
@@ -101,37 +101,67 @@ public class OnlineMatchmaking {
                 }
 
                 Log.d(TAG, "queue join room=" + selected + " attempt=" + attempt);
-                joinSelectedRoomWithWait(selected, myUid, attempt, 0, callback);
+                waitForRoomAndJoin(selected, myUid, attempt, 0, callback);
             }
         });
     }
 
 
-    private void joinSelectedRoomWithWait(@NonNull String roomId,
-                                          @NonNull String myUid,
-                                          int queueAttempt,
-                                          int joinAttempt,
-                                          @NonNull MatchmakingCallback callback) {
-        attemptJoinRoomTransaction(roomId, myUid, new MatchmakingCallback() {
-            @Override
-            public void onMatched(@NonNull String matchedRoomId, boolean isPlayerX, @NonNull String opponentUid) {
-                clearQueueIfMatches(matchedRoomId);
-                callback.onMatched(matchedRoomId, isPlayerX, opponentUid);
+    private void waitForRoomAndJoin(@NonNull String roomId,
+                                    @NonNull String myUid,
+                                    int queueAttempt,
+                                    int readyAttempt,
+                                    @NonNull MatchmakingCallback callback) {
+        roomsRef.child(roomId).get().addOnSuccessListener(snapshot -> {
+            if (!snapshot.exists()) {
+                retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, "room missing");
+                return;
             }
 
-            @Override
-            public void onError(@NonNull String message) {
-                if (joinAttempt >= MAX_JOIN_WAIT_RETRIES) {
-                    clearQueueIfMatches(roomId);
-                    retryOrFail(myUid, callback, queueAttempt, "Join selected room timed out: " + message);
-                    return;
+            String status = snapshot.child("status").getValue(String.class);
+            String xUid = snapshot.child("players").child("X").getValue(String.class);
+            String oUid = snapshot.child("players").child("O").getValue(String.class);
+            String roomKind = snapshot.child("roomKind").getValue(String.class);
+
+            if (!STATUS_WAITING.equals(status)
+                    || DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)
+                    || NullUtil.isNullOrEmpty(xUid)
+                    || !NullUtil.isNullOrEmpty(oUid)
+                    || myUid.equals(xUid)) {
+                retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, "room not joinable yet");
+                return;
+            }
+
+            attemptJoinRoomTransaction(roomId, myUid, new MatchmakingCallback() {
+                @Override
+                public void onMatched(@NonNull String matchedRoomId, boolean isPlayerX, @NonNull String opponentUid) {
+                    clearQueueIfMatches(matchedRoomId);
+                    callback.onMatched(matchedRoomId, isPlayerX, opponentUid);
                 }
 
-                Log.d(TAG, "join-wait retry=" + joinAttempt + " room=" + roomId + " reason=" + message);
-                new android.os.Handler(android.os.Looper.getMainLooper())
-                        .postDelayed(() -> joinSelectedRoomWithWait(roomId, myUid, queueAttempt, joinAttempt + 1, callback), JOIN_WAIT_RETRY_DELAY_MS);
-            }
-        });
+                @Override
+                public void onError(@NonNull String message) {
+                    retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, message);
+                }
+            });
+        }).addOnFailureListener(e -> retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, safeMsg(e)));
+    }
+
+    private void retryWaitRoom(@NonNull String roomId,
+                               @NonNull String myUid,
+                               int queueAttempt,
+                               int readyAttempt,
+                               @NonNull MatchmakingCallback callback,
+                               @NonNull String reason) {
+        if (readyAttempt >= MAX_ROOM_READY_RETRIES) {
+            clearQueueIfMatches(roomId);
+            retryOrFail(myUid, callback, queueAttempt, "wait/join timeout room=" + roomId + " reason=" + reason);
+            return;
+        }
+
+        Log.d(TAG, "wait-room retry=" + readyAttempt + " room=" + roomId + " reason=" + reason);
+        new android.os.Handler(android.os.Looper.getMainLooper())
+                .postDelayed(() -> waitForRoomAndJoin(roomId, myUid, queueAttempt, readyAttempt + 1, callback), ROOM_READY_RETRY_DELAY_MS);
     }
 
     private void clearQueueIfMatches(@NonNull String roomId) {
