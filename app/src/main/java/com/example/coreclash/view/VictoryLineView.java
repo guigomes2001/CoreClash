@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.Nullable;
+import util.NullUtil;
 
 public class VictoryLineView extends View {
     private final Paint paint;
@@ -63,7 +64,7 @@ public class VictoryLineView extends View {
         this.shouldDraw = true;
         this.progress = 0f;
 
-        if (animator != null) {
+        if (!NullUtil.isNull(animator)) {
             animator.cancel();
         }
 
@@ -78,7 +79,7 @@ public class VictoryLineView extends View {
     }
 
     public void clear() {
-        if (animator != null) {
+        if (!NullUtil.isNull(animator)) {
             animator.cancel();
         }
         this.shouldDraw = false;

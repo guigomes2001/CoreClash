@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enums.DomainMatchStatus;
+import util.DateTimeUtil;
+import util.FirebaseUtil;
 import util.NullUtil;
 
 public class OnlineMatchmaking {
@@ -52,7 +54,7 @@ public class OnlineMatchmaking {
                     if (snapshot.exists()) {
                         for (DataSnapshot roomSnap : snapshot.getChildren()) {
                             String roomId = roomSnap.getKey();
-                            if (roomId == null) continue;
+                            if (NullUtil.isNull(roomId)) continue;
 
                             attemptJoinRoomTransaction(roomId, myUid, attempt, callback);
                             return;
@@ -312,7 +314,7 @@ public class OnlineMatchmaking {
                             continue;
                         }
 
-                        long now = System.currentTimeMillis();
+                        long now = DateTimeUtil.nowMillis();
                         if (now - createdAt > ROOM_TTL_MS) {
                             Map<String, Object> updates = new HashMap<>();
                             updates.put("status", STATUS_ENDED);
@@ -324,10 +326,6 @@ public class OnlineMatchmaking {
     }
 
     private String safeMsg(Throwable e) {
-        if (NullUtil.isNull(e)) {
-            return "Unknown error.";
-        }
-        String m = e.getMessage();
-        return (NullUtil.isNull(m) || m.trim().isEmpty()) ? "Unknown error." : m.trim();
+        return FirebaseUtil.safeErrorMessage(e, "Unknown error.");
     }
 }
