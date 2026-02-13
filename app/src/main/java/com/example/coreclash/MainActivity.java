@@ -109,12 +109,6 @@ public class MainActivity extends AppCompatActivity {
     private int roundsWonO = 0;
     private int onlineRoundNumber = 1;
     private String onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
-    private ValueAnimator fireArenaAnimator;
-    private GradientDrawable fireArenaBorder;
-    private ValueAnimator fireOrbAnimator;
-    private ValueAnimator dualStarterTimerAnimator;
-    private final List<View> fireOrbViews = new ArrayList<>();
-    private boolean decidingStarter = false;
     private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
@@ -823,170 +817,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setArenaFireMode(boolean enabled) {
-        if (!enabled) {
-            if (!NullUtil.isNull(fireArenaAnimator)) {
-                fireArenaAnimator.cancel();
-                fireArenaAnimator = null;
-            }
-            if (!NullUtil.isNull(fireOrbAnimator)) {
-                fireOrbAnimator.cancel();
-                fireOrbAnimator = null;
-            }
-            for (View orb : fireOrbViews) {
-                binding.mainRoot.removeView(orb);
-            }
-            fireOrbViews.clear();
-            binding.boardContainer.setForeground(null);
-            binding.boardContainer.setScaleX(1f);
-            binding.boardContainer.setScaleY(1f);
-            binding.txtHudVersus.setTextColor(Color.parseColor("#CBD5E1"));
-            binding.txtHudScoreInline.setTextColor(Color.parseColor("#D1E2FF"));
-            return;
-        }
-
-        if (NullUtil.isNull(fireArenaBorder)) {
-            fireArenaBorder = new GradientDrawable();
-            fireArenaBorder.setShape(GradientDrawable.RECTANGLE);
-            fireArenaBorder.setCornerRadius(22f);
-            fireArenaBorder.setColor(Color.TRANSPARENT);
-            fireArenaBorder.setStroke(4, Color.parseColor("#FF7A2F"));
-        }
-        binding.boardContainer.setForeground(fireArenaBorder);
-
-        if (fireOrbViews.isEmpty()) {
-            for (int i = 0; i < 10; i++) {
-                View particle = new View(this);
-                GradientDrawable gd = new GradientDrawable();
-                gd.setShape(GradientDrawable.OVAL);
-                gd.setColors(new int[]{Color.parseColor("#FFFFCB73"), Color.parseColor("#00FF4D2E")});
-                gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
-                gd.setGradientRadius(26f);
-                particle.setBackground(gd);
-                particle.setAlpha(0.85f);
-                int size = (i % 3 == 0) ? 22 : 16;
-                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
-                binding.mainRoot.addView(particle, lp);
-                fireOrbViews.add(particle);
-            }
-        }
-
-        if (!NullUtil.isNull(fireArenaAnimator) && fireArenaAnimator.isRunning()) {
-            return;
-        }
-
-        int c1 = Color.parseColor("#FF7A2F");
-        int c2 = Color.parseColor("#FFD166");
-        int c3 = Color.parseColor("#FF4D2E");
-
-        fireArenaAnimator = ValueAnimator.ofFloat(0f, 1f);
-        fireArenaAnimator.setDuration(420L);
-        fireArenaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        fireArenaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        fireArenaAnimator.setInterpolator(new LinearInterpolator());
-        fireArenaAnimator.addUpdateListener(anim -> {
-            float f = anim.getAnimatedFraction();
-            int strokeColor = (int) new ArgbEvaluator().evaluate(f, (f < 0.5f ? c1 : c2), c3);
-            if (!NullUtil.isNull(fireArenaBorder)) {
-                fireArenaBorder.setStroke((int) (3 + (f * 2.5f)), strokeColor);
-            }
-            binding.boardContainer.setScaleX(1f + (0.008f * f));
-            binding.boardContainer.setScaleY(1f + (0.008f * f));
-            binding.txtHudVersus.setTextColor(Color.parseColor("#FFDCC7"));
-            binding.txtHudScoreInline.setTextColor(Color.parseColor("#FFE7C9"));
-        });
-        fireArenaAnimator.start();
-
-        if (NullUtil.isNull(fireOrbAnimator) || !fireOrbAnimator.isRunning()) {
-            fireOrbAnimator = ValueAnimator.ofFloat(0f, 1f);
-            fireOrbAnimator.setDuration(1800L);
-            fireOrbAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            fireOrbAnimator.setInterpolator(new LinearInterpolator());
-            fireOrbAnimator.addUpdateListener(a -> {
-                float t = (float) a.getAnimatedValue();
-                int[] rootLoc = new int[2];
-                binding.mainRoot.getLocationOnScreen(rootLoc);
-
-                int[] boardLoc = new int[2];
-                binding.boardContainer.getLocationOnScreen(boardLoc);
-                float bx = boardLoc[0] - rootLoc[0];
-                float by = boardLoc[1] - rootLoc[1];
-                float bw = binding.boardContainer.getWidth();
-                float bh = binding.boardContainer.getHeight();
-
-                int[] scoreLoc = new int[2];
-                binding.txtHudScoreInline.getLocationOnScreen(scoreLoc);
-                float sx = scoreLoc[0] - rootLoc[0] + binding.txtHudScoreInline.getWidth() / 2f;
-                float sy = scoreLoc[1] - rootLoc[1] + binding.txtHudScoreInline.getHeight() / 2f;
-
-                for (int i = 0; i < fireOrbViews.size(); i++) {
-                    View orb = fireOrbViews.get(i);
-                    float phase = (t + (i * 0.11f)) % 1f;
-                    float angle = (float) (phase * Math.PI * 2f);
-                    float jitter = (float) Math.sin((t * 9f) + i) * 4f;
-                    if (i < 7) {
-                        float radiusX = (bw / 2f + 10f) + jitter;
-                        float radiusY = (bh / 2f + 10f) + jitter;
-                        float ox = bx + bw / 2f + (float) Math.cos(angle) * radiusX;
-                        float oy = by + bh / 2f + (float) Math.sin(angle) * radiusY;
-                        orb.setX(ox);
-                        orb.setY(oy);
-                    } else {
-                        float r = 34f + jitter;
-                        orb.setX(sx + (float) Math.cos(angle) * r);
-                        orb.setY(sy + (float) Math.sin(angle) * (18f + (jitter * 0.5f)));
-                    }
-                    float pulse = 0.75f + (0.45f * Math.abs((float) Math.sin((t * 7f) + i)));
-                    orb.setScaleX(pulse);
-                    orb.setScaleY(pulse);
-                    orb.setAlpha(0.48f + 0.5f * Math.abs((float)Math.sin((t * 8f) + i)));
-                }
-            });
-            fireOrbAnimator.start();
-        }
-    }
-
-    private void runDualStarterTimer(@NonNull Runnable onDone) {
-        decidingStarter = true;
-        matchManager.stopOnlineBarAnim(false);
-        if (!NullUtil.isNull(dualStarterTimerAnimator)) {
-            dualStarterTimerAnimator.cancel();
-        }
-        binding.progressTurnHudX.setScaleX(1f);
-        binding.progressTurnHudO.setScaleX(-1f);
-        binding.progressTurnHudX.setProgress(0);
-        binding.progressTurnHudO.setProgress(0);
-
-        dualStarterTimerAnimator = ValueAnimator.ofInt(0, 100);
-        dualStarterTimerAnimator.setDuration(7000L);
-        dualStarterTimerAnimator.setInterpolator(new LinearInterpolator());
-        dualStarterTimerAnimator.addUpdateListener(a -> {
-            int v = (int) a.getAnimatedValue();
-            binding.progressTurnHudX.setProgress(v);
-            binding.progressTurnHudO.setProgress(v);
-        });
-        dualStarterTimerAnimator.start();
-
-        handler.postDelayed(() -> {
-            long serverNow = !NullUtil.isNull(matchManager.getOnlineSession())
-                    ? matchManager.getOnlineSession().nowServerApprox()
-                    : DateTimeUtil.nowMillis();
-            String roomId = !NullUtil.isNull(matchManager.getOnlineSession())
-                    ? matchManager.getOnlineSession().getRoomId()
-                    : "room";
-            long bucket = serverNow / 7000L;
-            String starter = Math.abs((roomId + ":" + bucket).hashCode()) % 2 == 0
-                    ? DomainSymmetries.X.getValue()
-                    : DomainSymmetries.O.getValue();
-
-            onlineRoundStarterSymbol = starter;
-            if (!NullUtil.isNull(matchManager.getOnlineSession())) {
-                matchManager.forceOnlineStarter(starter);
-            }
-            binding.progressTurnHudX.setScaleX(1f);
-            binding.progressTurnHudO.setScaleX(1f);
-            decidingStarter = false;
-            onDone.run();
-        }, 7000L);
+        binding.boardContainer.setForeground(null);
+        binding.boardContainer.setScaleX(1f);
+        binding.boardContainer.setScaleY(1f);
+        binding.txtHudVersus.setTextColor(Color.parseColor("#CBD5E1"));
+        binding.txtHudScoreInline.setTextColor(Color.parseColor("#D1E2FF"));
     }
 
     @NonNull
@@ -1437,14 +1272,10 @@ public class MainActivity extends AppCompatActivity {
                                 () -> beginPlayingAfterCountdown(true));
                     };
 
-                    if (deciderRound) {
-                        runCountdown("Prontos? VAI!!!", () -> runDualStarterTimer(continueToRound));
-                    } else {
-                        if (!NullUtil.isNull(matchManager.getOnlineSession())) {
-                            matchManager.forceOnlineStarter(onlineRoundStarterSymbol);
-                        }
-                        continueToRound.run();
+                    if (!NullUtil.isNull(matchManager.getOnlineSession())) {
+                        matchManager.forceOnlineStarter(onlineRoundStarterSymbol);
                     }
+                    continueToRound.run();
                     return;
                 }
 
@@ -1646,7 +1477,6 @@ public class MainActivity extends AppCompatActivity {
         matchIntroAnimator.cancel();
         playerServices.onDestroy();
         setArenaFireMode(false);
-        if (!NullUtil.isNull(dualStarterTimerAnimator)) dualStarterTimerAnimator.cancel();
         String myUid = getMyUidOrNull();
         if (!NullUtil.isNull(myUid)) {
             socialManager.setPresence(myUid, "offline");
