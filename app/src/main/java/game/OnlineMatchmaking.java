@@ -36,6 +36,9 @@ public class OnlineMatchmaking {
 
     private static final long TURN_DURATION_MS = 10_000L;
 
+    private static final String ROOM_KIND_AUTO = "AUTO_QUEUE";
+    private static final String ROOM_KIND_LOCAL_LOBBY = "LOCAL_LOBBY";
+
     private final DatabaseReference roomsRef = FirebaseDatabase.getInstance().getReference("rooms");
 
     private static final long ROOM_TTL_MS = 3 * 60 * 1000;
