@@ -43,7 +43,7 @@ public class OnlineMatchmaking {
     private final DatabaseReference autoQueueRef = FirebaseDatabase.getInstance().getReference("matchmaking").child("autoQueue").child("waitingRoomId");
 
     private static final long ROOM_TTL_MS = 3 * 60 * 1000;
-    private static final int MAX_RETRIES = 10;
+    private static final int MAX_RETRIES = 12;
     private static final long RETRY_DELAY_MS = 300;
     private static final int MAX_ROOM_READY_RETRIES = 80;
     private static final long ROOM_READY_RETRY_DELAY_MS = 250;
@@ -123,12 +123,18 @@ public class OnlineMatchmaking {
             String oUid = snapshot.child("players").child("O").getValue(String.class);
             String roomKind = snapshot.child("roomKind").getValue(String.class);
 
+            if (myUid.equals(xUid) && STATUS_WAITING.equals(status) && NullUtil.isNullOrEmpty(oUid)) {
+                Log.d(TAG, "reuse-own-waiting-room room=" + roomId + " queueAttempt=" + queueAttempt);
+                callback.onMatched(roomId, true, "");
+                return;
+            }
+
             if (!STATUS_WAITING.equals(status)
                     || DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)
                     || NullUtil.isNullOrEmpty(xUid)
                     || !NullUtil.isNullOrEmpty(oUid)
                     || myUid.equals(xUid)) {
-                retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, "room not joinable yet");
+                maybeRecoverFromStaleQueue(roomId, myUid, queueAttempt, readyAttempt, callback, status, xUid, oUid, roomKind);
                 return;
             }
 
@@ -162,6 +168,37 @@ public class OnlineMatchmaking {
         Log.d(TAG, "wait-room retry=" + readyAttempt + " room=" + roomId + " reason=" + reason);
         new android.os.Handler(android.os.Looper.getMainLooper())
                 .postDelayed(() -> waitForRoomAndJoin(roomId, myUid, queueAttempt, readyAttempt + 1, callback), ROOM_READY_RETRY_DELAY_MS);
+    }
+
+    private void maybeRecoverFromStaleQueue(@NonNull String roomId,
+                                            @NonNull String myUid,
+                                            int queueAttempt,
+                                            int readyAttempt,
+                                            @NonNull MatchmakingCallback callback,
+                                            String status,
+                                            String xUid,
+                                            String oUid,
+                                            String roomKind) {
+        boolean terminalRoom = STATUS_MATCHED.equals(status) || STATUS_ENDED.equals(status);
+        boolean localLobbyRoom = DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind);
+        boolean fullRoom = !NullUtil.isNullOrEmpty(oUid);
+        boolean invalidHost = NullUtil.isNullOrEmpty(xUid);
+        boolean foreignWaitingConflict = STATUS_WAITING.equals(status) && !NullUtil.isNullOrEmpty(xUid) && myUid.equals(xUid) && !NullUtil.isNullOrEmpty(oUid);
+
+        if (terminalRoom || localLobbyRoom || fullRoom || invalidHost || foreignWaitingConflict) {
+            Log.d(TAG, "recover-stale-queue room=" + roomId
+                    + " stateStatus=" + status
+                    + " x=" + xUid
+                    + " o=" + oUid
+                    + " kind=" + roomKind
+                    + " queueAttempt=" + queueAttempt
+                    + " readyAttempt=" + readyAttempt);
+            clearQueueIfMatches(roomId);
+            retryOrFail(myUid, callback, queueAttempt, "stale queue room=" + roomId + " status=" + status);
+            return;
+        }
+
+        retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, "room not joinable yet");
     }
 
     private void clearQueueIfMatches(@NonNull String roomId) {
@@ -250,6 +287,7 @@ public class OnlineMatchmaking {
 
     private void retryOrFail(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, @NonNull String reason) {
         if (attempt >= MAX_RETRIES) {
+            Log.d(TAG, "matchmaking-failed attempt=" + attempt + " reason=" + reason + " uid=" + myUid);
             callback.onError("Unable to find a match. Please try again.");
             return;
         }
