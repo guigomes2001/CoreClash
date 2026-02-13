@@ -146,6 +146,21 @@ public class OnlineMatchmaking {
                 return;
             }
 
+            if (myUid.equals(oUid) && !NullUtil.isNullOrEmpty(xUid)
+                    && (STATUS_WAITING.equals(status) || STATUS_MATCHED.equals(status))) {
+                Log.d(TAG, "recover-joined-as-o room=" + roomId + " queueAttempt=" + queueAttempt + " readyAttempt=" + readyAttempt);
+                clearQueueIfMatches(roomId);
+                callback.onMatched(roomId, false, xUid);
+                return;
+            }
+
+            if (myUid.equals(xUid) && !NullUtil.isNullOrEmpty(oUid)
+                    && (STATUS_WAITING.equals(status) || STATUS_MATCHED.equals(status))) {
+                Log.d(TAG, "recover-host-with-opponent room=" + roomId + " queueAttempt=" + queueAttempt + " readyAttempt=" + readyAttempt);
+                callback.onMatched(roomId, true, oUid);
+                return;
+            }
+
             if (!STATUS_WAITING.equals(status)
                     || DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)
                     || NullUtil.isNullOrEmpty(xUid)
