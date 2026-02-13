@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import java.util.Objects;
+import util.NullUtil;
 
 public class AuthenticationManager {
 
@@ -49,7 +50,7 @@ public class AuthenticationManager {
         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
         try {
             GoogleSignInAccount account = task.getResult(ApiException.class);
-            if (account != null) {
+            if (!NullUtil.isNull(account)) {
                 AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
                 linkWithGoogle(credential, callback);
             }
@@ -61,7 +62,7 @@ public class AuthenticationManager {
 
     private void linkWithGoogle(AuthCredential credential, AuthCallback callback) {
         var user = firebaseAuth.getCurrentUser();
-        if (user != null) {
+        if (!NullUtil.isNull(user)) {
             user.linkWithCredential(credential)
                     .addOnSuccessListener(authResult -> {
                         String name = Objects.requireNonNull(authResult.getUser()).getDisplayName();
