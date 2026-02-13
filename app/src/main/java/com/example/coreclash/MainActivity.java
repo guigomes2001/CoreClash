@@ -20,6 +20,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
     private GradientDrawable fireArenaBorder;
     private ValueAnimator fireOrbAnimator;
     private ValueAnimator dualStarterTimerAnimator;
-    private final List<TextView> fireOrbViews = new ArrayList<>();
+    private final List<View> fireOrbViews = new ArrayList<>();
     private boolean decidingStarter = false;
     private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
@@ -831,7 +832,7 @@ public class MainActivity extends AppCompatActivity {
                 fireOrbAnimator.cancel();
                 fireOrbAnimator = null;
             }
-            for (TextView orb : fireOrbViews) {
+            for (View orb : fireOrbViews) {
                 binding.mainRoot.removeView(orb);
             }
             fireOrbViews.clear();
@@ -853,14 +854,19 @@ public class MainActivity extends AppCompatActivity {
         binding.boardContainer.setForeground(fireArenaBorder);
 
         if (fireOrbViews.isEmpty()) {
-            for (int i = 0; i < 3; i++) {
-                TextView orb = new TextView(this);
-                orb.setText("🔥");
-                orb.setTextSize(18f);
-                orb.setAlpha(0.92f);
-                orb.setElevation(30f);
-                binding.mainRoot.addView(orb);
-                fireOrbViews.add(orb);
+            for (int i = 0; i < 10; i++) {
+                View particle = new View(this);
+                GradientDrawable gd = new GradientDrawable();
+                gd.setShape(GradientDrawable.OVAL);
+                gd.setColors(new int[]{Color.parseColor("#FFFFCB73"), Color.parseColor("#00FF4D2E")});
+                gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+                gd.setGradientRadius(26f);
+                particle.setBackground(gd);
+                particle.setAlpha(0.85f);
+                int size = (i % 3 == 0) ? 22 : 16;
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
+                binding.mainRoot.addView(particle, lp);
+                fireOrbViews.add(particle);
             }
         }
 
@@ -873,7 +879,7 @@ public class MainActivity extends AppCompatActivity {
         int c3 = Color.parseColor("#FF4D2E");
 
         fireArenaAnimator = ValueAnimator.ofFloat(0f, 1f);
-        fireArenaAnimator.setDuration(360L);
+        fireArenaAnimator.setDuration(420L);
         fireArenaAnimator.setRepeatMode(ValueAnimator.REVERSE);
         fireArenaAnimator.setRepeatCount(ValueAnimator.INFINITE);
         fireArenaAnimator.setInterpolator(new LinearInterpolator());
@@ -881,7 +887,7 @@ public class MainActivity extends AppCompatActivity {
             float f = anim.getAnimatedFraction();
             int strokeColor = (int) new ArgbEvaluator().evaluate(f, (f < 0.5f ? c1 : c2), c3);
             if (!NullUtil.isNull(fireArenaBorder)) {
-                fireArenaBorder.setStroke((int) (3 + (f * 2f)), strokeColor);
+                fireArenaBorder.setStroke((int) (3 + (f * 2.5f)), strokeColor);
             }
             binding.boardContainer.setScaleX(1f + (0.008f * f));
             binding.boardContainer.setScaleY(1f + (0.008f * f));
@@ -892,7 +898,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (NullUtil.isNull(fireOrbAnimator) || !fireOrbAnimator.isRunning()) {
             fireOrbAnimator = ValueAnimator.ofFloat(0f, 1f);
-            fireOrbAnimator.setDuration(1700L);
+            fireOrbAnimator.setDuration(1800L);
             fireOrbAnimator.setRepeatCount(ValueAnimator.INFINITE);
             fireOrbAnimator.setInterpolator(new LinearInterpolator());
             fireOrbAnimator.addUpdateListener(a -> {
@@ -913,21 +919,26 @@ public class MainActivity extends AppCompatActivity {
                 float sy = scoreLoc[1] - rootLoc[1] + binding.txtHudScoreInline.getHeight() / 2f;
 
                 for (int i = 0; i < fireOrbViews.size(); i++) {
-                    TextView orb = fireOrbViews.get(i);
-                    float phase = (t + (i * 0.29f)) % 1f;
+                    View orb = fireOrbViews.get(i);
+                    float phase = (t + (i * 0.11f)) % 1f;
                     float angle = (float) (phase * Math.PI * 2f);
-                    if (i < 2) {
-                        float ox = bx + bw / 2f + (float) Math.cos(angle) * (bw / 2f + 8f);
-                        float oy = by + bh / 2f + (float) Math.sin(angle) * (bh / 2f + 8f);
+                    float jitter = (float) Math.sin((t * 9f) + i) * 4f;
+                    if (i < 7) {
+                        float radiusX = (bw / 2f + 10f) + jitter;
+                        float radiusY = (bh / 2f + 10f) + jitter;
+                        float ox = bx + bw / 2f + (float) Math.cos(angle) * radiusX;
+                        float oy = by + bh / 2f + (float) Math.sin(angle) * radiusY;
                         orb.setX(ox);
                         orb.setY(oy);
                     } else {
-                        float r = 26f;
+                        float r = 34f + jitter;
                         orb.setX(sx + (float) Math.cos(angle) * r);
-                        orb.setY(sy + (float) Math.sin(angle) * 14f);
+                        orb.setY(sy + (float) Math.sin(angle) * (18f + (jitter * 0.5f)));
                     }
-                    orb.setScaleX(0.86f + (0.28f * Math.abs((float) Math.sin(angle))));
-                    orb.setScaleY(0.86f + (0.28f * Math.abs((float) Math.sin(angle))));
+                    float pulse = 0.75f + (0.45f * Math.abs((float) Math.sin((t * 7f) + i)));
+                    orb.setScaleX(pulse);
+                    orb.setScaleY(pulse);
+                    orb.setAlpha(0.48f + 0.5f * Math.abs((float)Math.sin((t * 8f) + i)));
                 }
             });
             fireOrbAnimator.start();
@@ -940,10 +951,12 @@ public class MainActivity extends AppCompatActivity {
         if (!NullUtil.isNull(dualStarterTimerAnimator)) {
             dualStarterTimerAnimator.cancel();
         }
-        binding.progressTurnHudX.setProgress(100);
-        binding.progressTurnHudO.setProgress(100);
+        binding.progressTurnHudX.setScaleX(1f);
+        binding.progressTurnHudO.setScaleX(-1f);
+        binding.progressTurnHudX.setProgress(0);
+        binding.progressTurnHudO.setProgress(0);
 
-        dualStarterTimerAnimator = ValueAnimator.ofInt(100, 0);
+        dualStarterTimerAnimator = ValueAnimator.ofInt(0, 100);
         dualStarterTimerAnimator.setDuration(7000L);
         dualStarterTimerAnimator.setInterpolator(new LinearInterpolator());
         dualStarterTimerAnimator.addUpdateListener(a -> {
@@ -969,6 +982,8 @@ public class MainActivity extends AppCompatActivity {
             if (!NullUtil.isNull(matchManager.getOnlineSession())) {
                 matchManager.forceOnlineStarter(starter);
             }
+            binding.progressTurnHudX.setScaleX(1f);
+            binding.progressTurnHudO.setScaleX(1f);
             decidingStarter = false;
             onDone.run();
         }, 7000L);
