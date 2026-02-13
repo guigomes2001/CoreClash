@@ -50,7 +50,57 @@ public class OnlineMatchmaking {
     private static final long ROOM_READY_RETRY_DELAY_MS = 250;
 
     public void findOrCreateMatch(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
-        consumeQueueOrCreateHost(myUid, callback, 0, DateTimeUtil.nowMillis());
+        findJoinableRoomOrCreate(myUid, callback, 0, DateTimeUtil.nowMillis());
+    }
+
+    private void findJoinableRoomOrCreate(@NonNull String myUid,
+                                          @NonNull MatchmakingCallback callback,
+                                          int attempt,
+                                          long startedAtMs) {
+        roomsRef.orderByChild("status")
+                .equalTo(STATUS_WAITING)
+                .limitToFirst(20)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        for (DataSnapshot roomSnap : snapshot.getChildren()) {
+                            String roomId = roomSnap.getKey();
+                            String roomKind = roomSnap.child("roomKind").getValue(String.class);
+                            String xUid = roomSnap.child("players").child("X").getValue(String.class);
+                            String oUid = roomSnap.child("players").child("O").getValue(String.class);
+
+                            if (NullUtil.isNullOrEmpty(roomId)) continue;
+                            if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) continue;
+                            if (NullUtil.isNullOrEmpty(xUid)) continue;
+                            if (!NullUtil.isNullOrEmpty(oUid)) continue;
+                            if (myUid.equals(xUid)) continue;
+
+                            Log.d(TAG, "scan-join-attempt room=" + roomId + " attempt=" + attempt);
+                            attemptJoinRoomTransaction(roomId, myUid, new MatchmakingCallback() {
+                                @Override
+                                public void onMatched(@NonNull String matchedRoomId, boolean isPlayerX, @NonNull String opponentUid) {
+                                    callback.onMatched(matchedRoomId, false, opponentUid);
+                                }
+
+                                @Override
+                                public void onError(@NonNull String message) {
+                                    retryOrFail(myUid, callback, attempt, startedAtMs, "scan join failed room=" + roomId + " reason=" + message);
+                                }
+                            });
+                            return;
+                        }
+                    }
+
+                    String hostRoomId = roomsRef.push().getKey();
+                    if (NullUtil.isNullOrEmpty(hostRoomId)) {
+                        callback.onError("Could not generate a room ID.");
+                        return;
+                    }
+
+                    Log.d(TAG, "scan-create-host room=" + hostRoomId + " attempt=" + attempt);
+                    createNewRoomTransaction(hostRoomId, myUid, callback, attempt, startedAtMs);
+                })
+                .addOnFailureListener(e -> retryOrFail(myUid, callback, attempt, startedAtMs, "scan waiting rooms failed: " + safeMsg(e)));
     }
 
     private void consumeQueueOrCreateHost(@NonNull String myUid,
@@ -425,7 +475,7 @@ public class OnlineMatchmaking {
         Log.d(TAG, "retry attempt=" + attempt + " elapsedMs=" + elapsedMs + " reason=" + reason);
 
         new android.os.Handler(android.os.Looper.getMainLooper())
-                .postDelayed(() -> consumeQueueOrCreateHost(myUid, callback, attempt + 1, startedAtMs), RETRY_DELAY_MS);
+                .postDelayed(() -> findJoinableRoomOrCreate(myUid, callback, attempt + 1, startedAtMs), RETRY_DELAY_MS);
     }
 
     private void attemptJoinRoomTransaction(@NonNull String roomId, @NonNull String myUid, @NonNull MatchmakingCallback callback) {
