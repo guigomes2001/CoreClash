@@ -1,5 +1,7 @@
 package com.example.coreclash;
 
+import android.animation.ValueAnimator;
+import android.animation.ArgbEvaluator;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -13,6 +15,7 @@ import android.text.InputType;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -98,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
     private String opponentName = "";
     private int roundsWonX = 0;
     private int roundsWonO = 0;
+    private int onlineRoundNumber = 1;
+    private String onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
+    private ValueAnimator fireArenaAnimator;
     private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
@@ -219,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
         homeFlow.updateModeButtonStyles();
         updateHeaderStatus();
         updateSkillVisuals();
+        updateScoreHud(false, null);
     }
 
     private BotManager initBotManager() {
@@ -775,6 +782,72 @@ public class MainActivity extends AppCompatActivity {
         toast.show();
     }
 
+
+    private void updateScoreHud(boolean animate, String winningSymbol) {
+        binding.txtScoreX.setText(String.valueOf(roundsWonX));
+        binding.txtScoreO.setText(String.valueOf(roundsWonO));
+        binding.txtScoreLabel.setText(getString(R.string.score_best_of_three));
+
+        if (animate && !NullUtil.isNull(winningSymbol)) {
+            TextView target = DomainSymmetries.X.getValue().equals(winningSymbol) ? binding.txtScoreX : binding.txtScoreO;
+            int flashColor = DomainSymmetries.X.getValue().equals(winningSymbol)
+                    ? Color.parseColor("#FB7185")
+                    : Color.parseColor("#38BEFF");
+            target.setScaleX(0.82f);
+            target.setScaleY(0.82f);
+            target.animate().scaleX(1f).scaleY(1f).setDuration(220L).start();
+            target.animate().translationYBy(18f).alpha(0.2f).setDuration(120L).withEndAction(() -> {
+                target.setTranslationY(-18f);
+                target.animate().translationY(0f).alpha(1f).setDuration(180L).start();
+            }).start();
+            target.animate().setDuration(120L).withStartAction(() -> target.setTextColor(flashColor)).withEndAction(() -> {
+                target.setTextColor(DomainSymmetries.X.getValue().equals(winningSymbol)
+                        ? Color.parseColor("#FB7185")
+                        : Color.parseColor("#38BEFF"));
+            }).start();
+        }
+
+        boolean fireMode = roundsWonX == 1 && roundsWonO == 1;
+        setArenaFireMode(fireMode);
+    }
+
+    private void setArenaFireMode(boolean enabled) {
+        if (!enabled) {
+            if (!NullUtil.isNull(fireArenaAnimator)) {
+                fireArenaAnimator.cancel();
+                fireArenaAnimator = null;
+            }
+            binding.boardContainer.setBackgroundResource(R.drawable.bg_cyber_glass);
+            binding.scoreHudBar.setAlpha(1f);
+            return;
+        }
+
+        if (!NullUtil.isNull(fireArenaAnimator) && fireArenaAnimator.isRunning()) {
+            return;
+        }
+
+        int from = Color.parseColor("#66FF5A3D");
+        int to = Color.parseColor("#66A31621");
+        fireArenaAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), from, to);
+        fireArenaAnimator.setDuration(420L);
+        fireArenaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        fireArenaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        fireArenaAnimator.setInterpolator(new LinearInterpolator());
+        fireArenaAnimator.addUpdateListener(anim -> {
+            int color = (int) anim.getAnimatedValue();
+            binding.boardContainer.setBackgroundColor(color);
+            binding.scoreHudBar.setAlpha(0.84f + (0.16f * (anim.getAnimatedFraction())));
+        });
+        fireArenaAnimator.start();
+    }
+
+    @NonNull
+    private String oppositeSymbol(@NonNull String symbol) {
+        return DomainSymmetries.X.getValue().equals(symbol)
+                ? DomainSymmetries.O.getValue()
+                : DomainSymmetries.X.getValue();
+    }
+
     private void setGameMode() {
         String gameMode = selectedMode.equalsIgnoreCase(DomainGameMode.RANKED.getValue())
                 ? DomainGameMode.RANKED.getValue()
@@ -1094,6 +1167,9 @@ public class MainActivity extends AppCompatActivity {
     private void resetRoundSeries() {
         roundsWonX = 0;
         roundsWonO = 0;
+        onlineRoundNumber = 1;
+        onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
+        updateScoreHud(false, null);
     }
 
     private boolean isActionLocked() {
@@ -1133,12 +1209,64 @@ public class MainActivity extends AppCompatActivity {
     private void handleRoundFinished(String winnerSymbol, boolean draw) {
         if (matchManager.isOnlineMatch()) {
             matchStarted = false;
-            matchPhase = DomainMatchPhase.FINISHED;
+            matchPhase = DomainMatchPhase.LOADING;
+
+            if (!draw && DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX++;
+            if (!draw && DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO++;
+
             if (draw) {
-                victoryOverlayAnimator.showDraw(420);
+                victoryOverlayAnimator.showDraw(380);
             } else {
-                victoryOverlayAnimator.showWin(winnerSymbol, 450);
+                victoryOverlayAnimator.showWin(winnerSymbol, 420);
             }
+
+            updateScoreHud(!draw, winnerSymbol);
+
+            int winnerRounds = Math.max(roundsWonX, roundsWonO);
+            int loserRounds = Math.min(roundsWonX, roundsWonO);
+
+            if (winnerRounds >= ROUNDS_TO_WIN) {
+                matchPhase = DomainMatchPhase.FINISHED;
+                String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
+                showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
+                victoryOverlayAnimator.showWin(champion, 500);
+                return;
+            }
+
+            if (!draw) {
+                onlineRoundNumber++;
+                onlineRoundStarterSymbol = oppositeSymbol(onlineRoundStarterSymbol);
+            }
+
+            if (roundsWonX == 1 && roundsWonO == 1) {
+                showUiToastDeduped(getString(R.string.online_tiebreak_fire));
+            }
+
+            String roundSummary = draw
+                    ? getString(R.string.round_draw_replay, roundsWonX, roundsWonO)
+                    : getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO);
+            showUiToastDeduped(roundSummary);
+
+            handler.postDelayed(() -> {
+                if (!matchManager.isOnlineMatch()) return;
+
+                gameManager.resetGame();
+                victoryOverlayAnimator.clearLines();
+
+                if (!NullUtil.isNull(matchManager.getOnlineSession())) {
+                    matchManager.forceOnlineStarter(onlineRoundStarterSymbol);
+                }
+
+                state.setXTurn(DomainSymmetries.X.getValue().equals(onlineRoundStarterSymbol));
+                updateHeaderStatus();
+                updateSkillVisuals();
+
+                String startsName = DomainSymmetries.X.getValue().equals(onlineRoundStarterSymbol)
+                        ? binding.txtTurnHudNameX.getText().toString()
+                        : binding.txtTurnHudNameO.getText().toString();
+                runCountdown(getString(R.string.online_round_starting, onlineRoundNumber, startsName),
+                        () -> beginPlayingAfterCountdown(true));
+            }, 1050L);
             return;
         }
 
@@ -1147,6 +1275,8 @@ public class MainActivity extends AppCompatActivity {
 
         int winnerRounds = Math.max(roundsWonX, roundsWonO);
         int loserRounds = Math.min(roundsWonX, roundsWonO);
+
+        updateScoreHud(!draw, winnerSymbol);
 
         if (winnerRounds >= ROUNDS_TO_WIN) {
             matchStarted = false;
@@ -1360,6 +1490,7 @@ public class MainActivity extends AppCompatActivity {
         matchManager.onDestroy();
         matchIntroAnimator.cancel();
         playerServices.onDestroy();
+        setArenaFireMode(false);
         String myUid = getMyUidOrNull();
         if (!NullUtil.isNull(myUid)) {
             socialManager.setPresence(myUid, "offline");
