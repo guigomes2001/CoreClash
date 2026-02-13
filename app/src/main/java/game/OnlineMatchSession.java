@@ -74,6 +74,7 @@ public class OnlineMatchSession {
     private ValueEventListener introClockListener;
 
     private volatile long serverOffsetMs = 0L;
+    private boolean opponentLeftNotified = false;
 
     public OnlineMatchSession(@NonNull String roomId, @NonNull String myUid, @NonNull String mySymbol) {
         this.roomId = roomId;
@@ -85,7 +86,6 @@ public class OnlineMatchSession {
         this.offsetRef = FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset");
 
         startServerOffsetListener();
-        enableOnDisconnectAbandon();
     }
 
     public long nowServerApprox() {
@@ -105,24 +105,29 @@ public class OnlineMatchSession {
         offsetRef.addValueEventListener(offsetListener);
     }
 
-    public void enableOnDisconnectAbandon() {
-        roomRef.child("status").onDisconnect().setValue(STATUS_ABANDONED);
-        roomRef.child("endedAt").onDisconnect().setValue(ServerValue.TIMESTAMP);
-    }
-
     public void startListening(@NonNull ActionListener listener, @Nullable TurnClockListener clockListener) {
         stopListening();
 
+        opponentLeftNotified = false;
+
         statusListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String status = snapshot.getValue(String.class);
-                if (STATUS_ENDED.equals(status) || STATUS_ABANDONED.equals(status)) {
+                if (opponentLeftNotified) return;
+
+                String status = snapshot.child("status").getValue(String.class);
+                String endReason = snapshot.child("endReason").getValue(String.class);
+
+                boolean abandoned = STATUS_ABANDONED.equals(status)
+                        || (STATUS_ENDED.equals(status) && END_ABANDONMENT.equals(endReason));
+
+                if (abandoned) {
+                    opponentLeftNotified = true;
                     listener.onOpponentLeft();
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         };
-        roomRef.child("status").addValueEventListener(statusListener);
+        roomRef.addValueEventListener(statusListener);
 
         actionsListener = new ChildEventListener() {
             @Override
@@ -132,18 +137,20 @@ public class OnlineMatchSession {
                 if (NullUtil.isNull(action.playerUid) || action.playerUid.isEmpty()) return;
                 if (NullUtil.isNull(action.actionType) || action.actionType.isEmpty()) return;
 
-                if (action.playerUid.equals(myUid)) {
-                    return;
-                }
+                if (action.playerUid.equals(myUid)) return;
 
-                if (action.actionType.equals(DomainActionType.MOVE.getValue())) {
-                    if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
-                        listener.onRemoteMove(action.row, action.col, action.playerUid);
-                    }
-                } else if (action.actionType.equals(DomainActionType.TRIANGLE.getValue())) {
-                    listener.onRemoteTriangle(action.playerUid);
-                } else if (action.actionType.equals(DomainActionType.SQUARE.getValue())) {
-                    listener.onRemoteSquare(action.playerUid);
+                switch (action.actionType) {
+                    case DomainActionType.MOVE.getValue():
+                        if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
+                            listener.onRemoteMove(action.row, action.col, action.playerUid);
+                        }
+                        break;
+                    case DomainActionType.TRIANGLE.getValue():
+                        listener.onRemoteTriangle(action.playerUid);
+                        break;
+                    case DomainActionType.SQUARE.getValue():
+                        listener.onRemoteSquare(action.playerUid);
+                        break;
                 }
             }
 
@@ -165,7 +172,7 @@ public class OnlineMatchSession {
             actionsListener = null;
         }
         if (!NullUtil.isNull(statusListener)) {
-            roomRef.child("status").removeEventListener(statusListener);
+            roomRef.removeEventListener(statusListener);
             statusListener = null;
         }
         if (!NullUtil.isNull(opponentListener)) {
@@ -505,6 +512,7 @@ public class OnlineMatchSession {
 
     public void endRoom() {
         roomRef.child("status").setValue(STATUS_ENDED);
+        roomRef.child("endReason").setValue(END_ABANDONMENT);
         roomRef.child("endedAt").setValue(ServerValue.TIMESTAMP);
     }
 
