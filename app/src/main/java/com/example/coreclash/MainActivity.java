@@ -1217,7 +1217,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (draw) {
             if (online) {
-                victoryOverlayAnimator.showDraw(550);
+                victoryOverlayAnimator.showDrawLineOnly();
             }
             String roundSummary = getString(R.string.round_draw_replay, roundsWonX, roundsWonO);
             showUiToastDeduped(roundSummary);
@@ -1226,6 +1226,7 @@ public class MainActivity extends AppCompatActivity {
                 if (online && !matchManager.isOnlineMatch()) return;
                 if (!online && matchManager.isOnlineMatch()) return;
 
+                victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
                 victoryOverlayAnimator.clearLines();
                 updateHeaderStatus();
@@ -1244,7 +1245,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        victoryOverlayAnimator.showWin(winnerSymbol, (int) VICTORY_LINE_HOLD_MS);
+        victoryOverlayAnimator.showWinLineOnly();
 
         handler.postDelayed(() -> {
             if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX++;
@@ -1294,6 +1295,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 showUiToastDeduped(getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
+                victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
                 victoryOverlayAnimator.clearLines();
                 updateHeaderStatus();

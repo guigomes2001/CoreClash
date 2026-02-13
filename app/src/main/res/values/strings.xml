@@ -151,7 +151,6 @@
     <string name="error_online_requires_internet_title">🌐 Connection needed</string>
     <string name="fa_wifi" translatable="false">&#xf1eb;</string>
 
-    <string name="score_best_of_three">BEST OF 3</string>
     <string name="online_round_starting">Round %1$d • %2$s starts</string>
     <string name="online_tiebreak_fire">Tie-break point! Arena on fire!</string>
 
