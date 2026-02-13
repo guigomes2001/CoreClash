@@ -18,6 +18,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.Objects;
 
+import util.DateTimeUtil;
 import util.NullUtil;
 
 public class PlayerServicesManager {
@@ -94,7 +95,7 @@ public class PlayerServicesManager {
     }
 
     public void updateDisplayNameAndPersist(@NonNull String displayName) {
-        if (currentProfile == null) {
+        if (NullUtil.isNull(currentProfile)) {
             return;
         }
 
@@ -110,7 +111,7 @@ public class PlayerServicesManager {
             }
 
             var user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null) {
+            if (!NullUtil.isNull(user)) {
                 UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
                         .setDisplayName(displayName)
                         .build();
@@ -124,7 +125,7 @@ public class PlayerServicesManager {
 
         try {
             profileManager.setCurrentProfile(profile);
-            if (profileManager.localProfileRepository != null) {
+            if (!NullUtil.isNull(profileManager.localProfileRepository)) {
                 profileManager.localProfileRepository.saveProfile(profile);
             }
         } catch (Exception ignored) {}
@@ -166,7 +167,7 @@ public class PlayerServicesManager {
 
             @Override public void onError(@NonNull String error) {
                 Log.e("PlayerServicesManager", "Fallback local failed: " + error);
-                currentProfile = PlayerProfile.createDefault("temp_" + System.currentTimeMillis());
+                currentProfile = PlayerProfile.createDefault("temp_" + DateTimeUtil.nowMillis());
                 ui.runOnUi(cb::onRender);
             }
         });
