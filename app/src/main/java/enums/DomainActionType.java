@@ -1,5 +1,7 @@
 package enums;
 
+import androidx.annotation.Nullable;
+
 public enum DomainActionType {
 
     MOVE("MOVE"),
@@ -14,5 +16,15 @@ public enum DomainActionType {
 
     public String getValue() {
         return value;
+    }
+
+    @Nullable
+    public static DomainActionType fromValue(String value) {
+        for (DomainActionType type : values()) {
+            if (type.getValue().equals(value)) {
+                return type;
+            }
+        }
+        return null;
     }
 }
