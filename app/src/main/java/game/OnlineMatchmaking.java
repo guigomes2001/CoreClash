@@ -36,6 +36,9 @@ public class OnlineMatchmaking {
     private static final String TURN_X = "X";
     private static final long TURN_DURATION_MS = 10_000L;
 
+    private static final String ROOM_KIND_AUTO = "AUTO_QUEUE";
+    private static final String ROOM_KIND_LOCAL_LOBBY = "LOCAL_LOBBY";
+
     private final DatabaseReference roomsRef = FirebaseDatabase.getInstance().getReference("rooms");
     private final DatabaseReference autoQueueRef = FirebaseDatabase.getInstance().getReference("matchmaking").child("autoQueue").child("waitingRoomId");
 
