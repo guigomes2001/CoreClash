@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
     private DomainMatchPhase matchPhase = DomainMatchPhase.LOADING;
 
     private boolean bothIntroReady = false;
+    // Defensive compatibility flag: kept to avoid unresolved references in stale local builds.
+    private boolean decidingStarter = false;
 
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
     private static final int ROUNDS_TO_WIN = 2;
@@ -817,6 +819,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setArenaFireMode(boolean enabled) {
+        // MatchDown special fire animation removed by request.
         binding.boardContainer.setForeground(null);
         binding.boardContainer.setScaleX(1f);
         binding.boardContainer.setScaleY(1f);
