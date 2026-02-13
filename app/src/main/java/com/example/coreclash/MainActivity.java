@@ -1104,19 +1104,19 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean ensureInternetForOnlineModes() {
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
-        if (cm == null) {
+        if (NullUtil.isNull(cm)) {
             showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
             return false;
         }
 
         Network active = cm.getActiveNetwork();
-        if (active == null) {
+        if (NullUtil.isNull(active)) {
             showUiToastDedupedStyled(getString(R.string.error_online_requires_internet), getString(R.string.fa_wifi), 0xFF6EE7FF);
             return false;
         }
 
         NetworkCapabilities caps = cm.getNetworkCapabilities(active);
-        boolean connected = caps != null && (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        boolean connected = !NullUtil.isNull(caps) && (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 || caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
                 || caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
                 || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
