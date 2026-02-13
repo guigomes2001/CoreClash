@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enums.DomainMatchStatus;
+import enums.DomainRoomKind;
+import util.DateTimeUtil;
+import util.FirebaseUtil;
 import util.NullUtil;
 
 public class OnlineMatchmaking {
@@ -24,69 +27,94 @@ public class OnlineMatchmaking {
         void onError(@NonNull String message);
     }
 
+    private static final String TAG = "MATCH_FLOW";
+
     private static final String STATUS_WAITING = DomainMatchStatus.WAITING.getValue();
-    private static final String STATUS_ENDED   = DomainMatchStatus.ENDED.getValue();
+    private static final String STATUS_ENDED = DomainMatchStatus.ENDED.getValue();
     private static final String STATUS_MATCHED = DomainMatchStatus.MATCHED.getValue();
 
     private static final String TURN_X = "X";
-    private static final String TURN_O = "O";
-
     private static final long TURN_DURATION_MS = 10_000L;
 
     private final DatabaseReference roomsRef = FirebaseDatabase.getInstance().getReference("rooms");
+    private final DatabaseReference autoQueueRef = FirebaseDatabase.getInstance().getReference("matchmaking").child("autoQueue").child("waitingRoomId");
 
     private static final long ROOM_TTL_MS = 3 * 60 * 1000;
-    private static final int MAX_RETRIES = 3;
-    private static final long RETRY_DELAY_MS = 200;
+    private static final int MAX_RETRIES = 4;
+    private static final long RETRY_DELAY_MS = 250;
 
     public void findOrCreateMatch(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
-        findOrCreateMatchInternal(myUid, callback, 0);
+        reserveOrCreateQueueRoom(myUid, callback, 0);
     }
 
-    private void findOrCreateMatchInternal(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt) {
-        roomsRef.orderByChild("status")
-                .equalTo(STATUS_WAITING)
-                .limitToFirst(1)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        for (DataSnapshot roomSnap : snapshot.getChildren()) {
-                            String roomId = roomSnap.getKey();
-                            if (roomId == null) continue;
-
-                            attemptJoinRoomTransaction(roomId, myUid, attempt, callback);
-                            return;
-                        }
-                    }
-                    createNewRoomTransaction(myUid, callback);
-                })
-                .addOnFailureListener(e ->
-                        retryOrFail(myUid, callback, attempt, "Matchmaking search failed: " + safeMsg(e))
-                );
-    }
-
-    private void retryOrFail(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, @NonNull String reason) {
-        if (attempt >= MAX_RETRIES) {
-            callback.onError("Unable to find a match. Please try again.");
-            return;
-        }
-
-        Log.d("MM", "Retrying matchmaking (" + attempt + "): " + reason);
-
-        new android.os.Handler(android.os.Looper.getMainLooper())
-                .postDelayed(
-                        () -> findOrCreateMatchInternal(myUid, callback, attempt + 1),
-                        RETRY_DELAY_MS
-                );
-    }
-
-    private void createNewRoomTransaction(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
-        String roomId = roomsRef.push().getKey();
-        if (NullUtil.isNull(roomId)) {
+    private void reserveOrCreateQueueRoom(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt) {
+        String candidateRoomId = roomsRef.push().getKey();
+        if (NullUtil.isNullOrEmpty(candidateRoomId)) {
             callback.onError("Could not generate a room ID.");
             return;
         }
 
+        final String[] selectedRoomId = new String[]{null};
+
+        autoQueueRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                String waitingRoomId = currentData.getValue(String.class);
+
+                if (NullUtil.isNullOrEmpty(waitingRoomId)) {
+                    selectedRoomId[0] = candidateRoomId;
+                    currentData.setValue(candidateRoomId);
+                    return Transaction.success(currentData);
+                }
+
+                if (candidateRoomId.equals(waitingRoomId)) {
+                    return Transaction.abort();
+                }
+
+                selectedRoomId[0] = waitingRoomId;
+                currentData.setValue(null);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (!NullUtil.isNull(error)) {
+                    retryOrFail(myUid, callback, attempt, "Queue transaction error: " + safeMsg(error.toException()));
+                    return;
+                }
+                if (!committed || NullUtil.isNullOrEmpty(selectedRoomId[0])) {
+                    retryOrFail(myUid, callback, attempt, "Queue transaction not committed.");
+                    return;
+                }
+
+                String selected = selectedRoomId[0];
+                if (candidateRoomId.equals(selected)) {
+                    Log.d(TAG, "queue host room=" + candidateRoomId + " attempt=" + attempt);
+                    createNewRoomTransaction(candidateRoomId, myUid, callback, attempt);
+                    return;
+                }
+
+                Log.d(TAG, "queue join room=" + selected + " attempt=" + attempt);
+                attemptJoinRoomTransaction(selected, myUid, attempt, new MatchmakingCallback() {
+                    @Override
+                    public void onMatched(@NonNull String roomId, boolean isPlayerX, @NonNull String opponentUid) {
+                        callback.onMatched(roomId, isPlayerX, opponentUid);
+                    }
+
+                    @Override
+                    public void onError(@NonNull String message) {
+                        retryOrFail(myUid, callback, attempt, "Join selected room failed: " + message);
+                    }
+                });
+            }
+        });
+    }
+
+    private void createNewRoomTransaction(@NonNull String roomId,
+                                          @NonNull String myUid,
+                                          @NonNull MatchmakingCallback callback,
+                                          int attempt) {
         DatabaseReference roomRef = roomsRef.child(roomId);
 
         roomRef.runTransaction(new Transaction.Handler() {
@@ -98,8 +126,8 @@ public class OnlineMatchmaking {
                 }
 
                 Map<String, Object> room = new HashMap<>();
-
                 room.put("status", STATUS_WAITING);
+                room.put("roomKind", DomainRoomKind.AUTO_QUEUE.getValue());
                 room.put("createdAt", ServerValue.TIMESTAMP);
 
                 room.put("turn", TURN_X);
@@ -128,22 +156,31 @@ public class OnlineMatchmaking {
             }
 
             @Override
-            public void onComplete(
-                    com.google.firebase.database.DatabaseError error,
-                    boolean committed,
-                    DataSnapshot currentData
-            ) {
+            public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
                 if (!NullUtil.isNull(error)) {
-                    callback.onError("Failed to create room: " + safeMsg(error.toException()));
+                    retryOrFail(myUid, callback, attempt, "Create room failed: " + safeMsg(error.toException()));
                     return;
                 }
                 if (!committed) {
-                    callback.onError("Failed to create room due to a concurrency conflict. Please try again.");
+                    retryOrFail(myUid, callback, attempt, "Create room transaction not committed.");
                     return;
                 }
+
                 callback.onMatched(roomId, true, "");
             }
         });
+    }
+
+    private void retryOrFail(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, @NonNull String reason) {
+        if (attempt >= MAX_RETRIES) {
+            callback.onError("Unable to find a match. Please try again.");
+            return;
+        }
+
+        Log.d(TAG, "retry attempt=" + attempt + " reason=" + reason);
+
+        new android.os.Handler(android.os.Looper.getMainLooper())
+                .postDelayed(() -> reserveOrCreateQueueRoom(myUid, callback, attempt + 1), RETRY_DELAY_MS);
     }
 
     private void attemptJoinRoomTransaction(@NonNull String roomId, @NonNull String myUid, int attempt, @NonNull MatchmakingCallback callback) {
@@ -160,27 +197,20 @@ public class OnlineMatchmaking {
                 String status = currentData.child("status").getValue(String.class);
                 String xUid = currentData.child("players").child("X").getValue(String.class);
                 String oUid = currentData.child("players").child("O").getValue(String.class);
+                String roomKind = currentData.child("roomKind").getValue(String.class);
 
-                if (!STATUS_WAITING.equals(status)) {
-                    return Transaction.abort();
-                }
-                if (NullUtil.isNullOrEmpty(xUid)) {
-                    return Transaction.abort();
-                }
-                if (!NullUtil.isNullOrEmpty(oUid)) {
-                    return Transaction.abort();
-                }
-                if (myUid.equals(xUid)) {
-                    return Transaction.abort();
-                }
+                if (!STATUS_WAITING.equals(status)) return Transaction.abort();
+                if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) return Transaction.abort();
+                if (NullUtil.isNullOrEmpty(xUid)) return Transaction.abort();
+                if (!NullUtil.isNullOrEmpty(oUid)) return Transaction.abort();
+                if (myUid.equals(xUid)) return Transaction.abort();
 
                 currentData.child("players").child("O").setValue(myUid);
-
                 currentData.child("status").setValue(STATUS_MATCHED);
                 currentData.child("startedAt").setValue(ServerValue.TIMESTAMP);
 
-                currentData.child("introReady").child(TURN_X).setValue(false);
-                currentData.child("introReady").child(TURN_O).setValue(false);
+                currentData.child("introReady").child("X").setValue(false);
+                currentData.child("introReady").child("O").setValue(false);
 
                 if (NullUtil.isNull(currentData.child("turnSeq").getValue())) currentData.child("turnSeq").setValue(0L);
                 if (NullUtil.isNull(currentData.child("lastTimeoutProcessedSeq").getValue())) currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
@@ -209,7 +239,6 @@ public class OnlineMatchmaking {
             }
         });
     }
-
 
     public void createLocalLobbyRoom(@NonNull String myUid, @NonNull String roomCode, @NonNull MatchmakingCallback callback) {
         String roomId = roomsRef.push().getKey();
@@ -240,7 +269,7 @@ public class OnlineMatchmaking {
                 room.put("winner", "");
                 room.put("endReason", "");
                 room.put("roomCode", roomCode);
-                room.put("roomKind", "LOCAL_LOBBY");
+                room.put("roomKind", DomainRoomKind.LOCAL_LOBBY.getValue());
 
                 Map<String, Object> players = new HashMap<>();
                 players.put("X", myUid);
@@ -312,7 +341,7 @@ public class OnlineMatchmaking {
                             continue;
                         }
 
-                        long now = System.currentTimeMillis();
+                        long now = DateTimeUtil.nowMillis();
                         if (now - createdAt > ROOM_TTL_MS) {
                             Map<String, Object> updates = new HashMap<>();
                             updates.put("status", STATUS_ENDED);
@@ -324,10 +353,6 @@ public class OnlineMatchmaking {
     }
 
     private String safeMsg(Throwable e) {
-        if (NullUtil.isNull(e)) {
-            return "Unknown error.";
-        }
-        String m = e.getMessage();
-        return (NullUtil.isNull(m) || m.trim().isEmpty()) ? "Unknown error." : m.trim();
+        return FirebaseUtil.safeErrorMessage(e, "Unknown error.");
     }
 }

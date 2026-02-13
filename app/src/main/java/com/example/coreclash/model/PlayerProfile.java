@@ -3,6 +3,7 @@ package com.example.coreclash.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import util.NullUtil;
 
 public class PlayerProfile {
     public String uid;
@@ -30,10 +31,10 @@ public class PlayerProfile {
     }
 
     public boolean ownsTheme(String id) {
-        return ownedThemes != null && ownedThemes.contains(id);
+        return !NullUtil.isNull(ownedThemes) && ownedThemes.contains(id);
     }
 
     public boolean ownsSymbolStyle(String id) {
-        return ownedSymbolStyles != null && ownedSymbolStyles.contains(id);
+        return !NullUtil.isNull(ownedSymbolStyles) && ownedSymbolStyles.contains(id);
     }
 }

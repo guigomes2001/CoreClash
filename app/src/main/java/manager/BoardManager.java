@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import game.Cell;
+import util.NullUtil;
 
 public class BoardManager {
 
@@ -92,14 +93,14 @@ public class BoardManager {
 
     private void setupOverlay(GridLayout grid) {
         ViewGroup parent = grid.getRootView().findViewById(android.R.id.content);
-        if (parent == null) {
+        if (NullUtil.isNull(parent)) {
             parent = (ViewGroup) grid.getParent();
             while (parent.getParent() instanceof ViewGroup && ((ViewGroup) parent.getParent()).getId() != android.view.View.NO_ID) {
                 parent = (ViewGroup) parent.getParent();
             }
         }
 
-        if (overlayView != null) {
+        if (!NullUtil.isNull(overlayView)) {
             ((ViewGroup) overlayView.getParent()).removeView(overlayView);
         }
 
@@ -316,7 +317,7 @@ public class BoardManager {
     private void applyThemeToBoard() {
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
-                if (cellContainers[r][c] != null) {
+                if (!NullUtil.isNull(cellContainers[r][c])) {
                     applyInitialStyle(cellContainers[r][c]);
                 }
             }
@@ -386,7 +387,7 @@ public class BoardManager {
         public void drawShape(List<PointF> points, int color) {
             if (points.isEmpty()) return;
 
-            if (animator != null) animator.cancel();
+            if (!NullUtil.isNull(animator)) animator.cancel();
             this.animate().cancel();
 
             drawingPath.reset();
@@ -435,7 +436,7 @@ public class BoardManager {
         }
 
         public void clear() {
-            if (animator != null) animator.cancel();
+            if (!NullUtil.isNull(animator)) animator.cancel();
             this.animate().cancel();
             drawingPath.reset();
             invalidate();

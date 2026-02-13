@@ -77,9 +77,9 @@ public final class FontAwesomeIconFactory {
 
     @NonNull
     private static Typeface getTypeface(@NonNull Context context) {
-        if (cachedTypeface == null) {
+        if (NullUtil.isNull(cachedTypeface)) {
             cachedTypeface = ResourcesCompat.getFont(context, R.font.fa_solid_900);
-            if (cachedTypeface == null) {
+            if (NullUtil.isNull(cachedTypeface)) {
                 cachedTypeface = Typeface.DEFAULT_BOLD;
             }
         }
