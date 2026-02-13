@@ -12,6 +12,7 @@ import com.example.coreclash.databinding.ActivityMainBinding;
 
 import manager.BoardManager;
 import manager.GameManager;
+import util.NullUtil;
 
 public class VictoryOverlayAnimator {
 
@@ -102,7 +103,7 @@ public class VictoryOverlayAnimator {
 
     private void drawVictoryLine() {
         GameManager.WinInfo win = gameManager.getLastWin();
-        if (win == null) return;
+        if (NullUtil.isNull(win)) return;
 
         PointF start = board.getCellCenterOnScreen(win.r1(), win.c1());
         PointF end = board.getCellCenterOnScreen(win.r3(), win.c3());
