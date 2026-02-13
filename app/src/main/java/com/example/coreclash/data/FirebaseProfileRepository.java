@@ -8,6 +8,7 @@ import com.example.coreclash.model.PlayerProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import util.NullUtil;
 
 public class FirebaseProfileRepository implements ProfileRepository {
 
@@ -23,14 +24,14 @@ public class FirebaseProfileRepository implements ProfileRepository {
     @Override
     public void loadOrCreateProfile(@NonNull Callback callback) {
         FirebaseUser cachedUser = auth.getCurrentUser();
-        if (cachedUser != null) {
+        if (!NullUtil.isNull(cachedUser)) {
             fetchProfile(cachedUser, callback);
             return;
         }
 
         auth.signInAnonymously()
                 .addOnSuccessListener(result -> fetchProfile(result.getUser(), callback))
-                .addOnFailureListener(error -> callback.onError(error.getMessage() == null ? "Firebase auth failed" : error.getMessage()));
+                .addOnFailureListener(error -> NullUtil.isNull(callback.onError(error.getMessage()) ? "Firebase auth failed" : error.getMessage()));
     }
 
     private void fetchProfile(@NonNull FirebaseUser user, @NonNull Callback callback) {
@@ -39,18 +40,18 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     PlayerProfile profile = snapshot.toObject(PlayerProfile.class);
-                    if (profile == null) {
+                    if (NullUtil.isNull(profile)) {
                         profile = PlayerProfile.createDefault(user.getUid());
                         saveProfile(profile);
                     }
                     callback.onSuccess(profile);
                 })
-                .addOnFailureListener(error -> callback.onError(error.getMessage() == null ? "Firebase read failed" : error.getMessage()));
+                .addOnFailureListener(error -> NullUtil.isNull(callback.onError(error.getMessage()) ? "Firebase read failed" : error.getMessage()));
     }
 
     @Override
     public void saveProfile(PlayerProfile profile) {
-        if (profile == null || profile.uid == null) {
+        if (NullUtil.isNull(profile) || NullUtil.isNull(profile.uid)) {
             return;
         }
 

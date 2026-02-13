@@ -1,6 +1,7 @@
 package game;
 
 import enums.DomainGameMode;
+import util.NullUtil;
 
 public class GameState {
 
@@ -32,14 +33,14 @@ public class GameState {
 
     public boolean canUseTriangle() {
         if (!triangleExists || moveCount < TRIANGLE_UNLOCK_MOVE) return false;
-        return triangleOwnerIsX == null || triangleOwnerIsX == xTurn;
+        return NullUtil.isNull(triangleOwnerIsX) || triangleOwnerIsX == xTurn;
     }
 
     public boolean canUseSquare() {
         if (!squareExists || moveCount < SQUARE_UNLOCK_MOVE) {
             return false;
         }
-        return squareOwnerIsX == null || squareOwnerIsX == xTurn;
+        return NullUtil.isNull(squareOwnerIsX) || squareOwnerIsX == xTurn;
     }
 
     public void triggerTriangleUsed() {
