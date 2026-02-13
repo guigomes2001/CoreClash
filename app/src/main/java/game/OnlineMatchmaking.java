@@ -79,7 +79,7 @@ public class OnlineMatchmaking {
                 }
 
                 selectedRoomId[0] = waitingRoomId;
-                currentData.setValue(waitingRoomId);
+                currentData.setValue(null);
                 return Transaction.success(currentData);
             }
 
@@ -101,7 +101,7 @@ public class OnlineMatchmaking {
                     return;
                 }
 
-                Log.d(TAG, "queue join room=" + selected + " attempt=" + attempt);
+                Log.d(TAG, "queue join room=" + selected + " attempt=" + attempt + " consumed=true");
                 waitForRoomAndJoin(selected, myUid, attempt, 0, startedAtMs, callback);
             }
         });
@@ -124,6 +124,15 @@ public class OnlineMatchmaking {
             String xUid = snapshot.child("players").child("X").getValue(String.class);
             String oUid = snapshot.child("players").child("O").getValue(String.class);
             String roomKind = snapshot.child("roomKind").getValue(String.class);
+
+            Log.d(TAG, "waitForRoomAndJoin room=" + roomId
+                    + " exists=" + snapshot.exists()
+                    + " status=" + status
+                    + " roomKind=" + roomKind
+                    + " xUid=" + xUid
+                    + " oUid=" + oUid
+                    + " queueAttempt=" + queueAttempt
+                    + " readyAttempt=" + readyAttempt);
 
             if (myUid.equals(xUid) && STATUS_WAITING.equals(status) && NullUtil.isNullOrEmpty(oUid)) {
                 Log.d(TAG, "reuse-own-waiting-room room=" + roomId + " queueAttempt=" + queueAttempt);

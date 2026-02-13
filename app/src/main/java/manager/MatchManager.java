@@ -24,6 +24,8 @@ import util.ValidationUtil;
 
 public class MatchManager {
 
+    private static final String TAG = "MATCH_FLOW";
+
     public interface Callbacks {
         void runOnUi(@NonNull Runnable r);
 
@@ -78,6 +80,7 @@ public class MatchManager {
     private String lastTimeoutBannerTurnKey = "";
 
     private final Runnable onlineTimeoutBannerRunnable = this::maybeShowOnlineTimeoutBanner;
+    private final Runnable onlineIntroStartRunnable = this::triggerOnlineIntroStartIfNeeded;
 
     private String opponentName = "";
 
@@ -221,6 +224,7 @@ public class MatchManager {
         turnDurationOnlineMs = 10_000L;
         turnSeqOnline = 0L;
         onlineIntroTriggered = false;
+        handler.removeCallbacks(onlineIntroStartRunnable);
 
         lastTimeoutBannerTurnKey = "";
         scheduledTimeoutTurnKey = "";
@@ -242,21 +246,29 @@ public class MatchManager {
 
             if (iAmXOnline) {
                 onlineSession.scheduleIntroIfHost(true, 0L, 0L);
+                Log.d(TAG, "host-scheduled-intro room=" + onlineSession.getRoomId());
             }
 
-            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 350L);
+            handler.postDelayed(onlineIntroStartRunnable, 350L);
         }));
 
 
         if (StringUtil.hasText(opponentUid)) {
-            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 350L);
+            handler.postDelayed(onlineIntroStartRunnable, 350L);
         }
         onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
             cb.runOnUi(() -> {
                 if (!isOnlineMatch || NullUtil.isNull(onlineSession)) {
                     return;
                 }
-                triggerOnlineIntroStartIfNeeded();
+                long waitMs = Math.max(0L, startAt - serverNow);
+                Log.d(TAG, "intro-clock room=" + onlineSession.getRoomId()
+                        + " startAt=" + startAt
+                        + " serverNow=" + serverNow
+                        + " waitMs=" + waitMs
+                        + " durationMs=" + durationMs);
+                handler.removeCallbacks(onlineIntroStartRunnable);
+                handler.postDelayed(onlineIntroStartRunnable, waitMs);
             });
         });
     }
@@ -269,6 +281,7 @@ public class MatchManager {
         }
 
         onlineIntroTriggered = true;
+        Log.d(TAG, "intro-start-triggered room=" + (NullUtil.isNull(onlineSession) ? "" : onlineSession.getRoomId()));
         cb.onRestoreMenuButtons();
         cb.onOnlineMatchShouldStartPlaying();
     }
@@ -500,6 +513,7 @@ public class MatchManager {
         scheduledTimeoutTurnKey = "";
         turnSeqOnline = 0L;
         onlineIntroTriggered = false;
+        handler.removeCallbacks(onlineIntroStartRunnable);
 
         cb.onEndOnlineSessionToMenu();
     }
