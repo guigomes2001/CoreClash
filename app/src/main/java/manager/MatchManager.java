@@ -18,6 +18,7 @@ import game.OnlineMatchSession;
 import game.OnlineMatchmaking;
 
 import java.util.function.Supplier;
+import util.NullUtil;
 
 public class MatchManager {
 
@@ -120,7 +121,7 @@ public class MatchManager {
 
     public void startOnlineMatchmaking(@NonNull Supplier<String> myUidSupplier) {
         String myUid = myUidSupplier.get();
-        if (myUid == null) {
+        if (NullUtil.isNull(myUid)) {
             Toast.makeText(context, context.getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -233,7 +234,7 @@ public class MatchManager {
         onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
             long delay = Math.max(0L, startAt - serverNow);
             cb.runOnUi(() -> handler.postDelayed(() -> {
-                if (!isOnlineMatch || onlineSession == null) {
+                if (!isOnlineMatch || NullUtil.isNull(onlineSession)) {
                     return;
                 }
                 cb.onRestoreMenuButtons();
@@ -249,7 +250,7 @@ public class MatchManager {
                 .get()
                 .addOnSuccessListener(doc -> {
                     String displayName = doc.getString("displayName");
-                    if (displayName == null || displayName.trim().isEmpty()) {
+                    if (NullUtil.isNull(displayName) || displayName.trim().isEmpty()) {
                         return;
                     }
                     cb.runOnUi(() -> {
@@ -260,7 +261,7 @@ public class MatchManager {
     }
 
     private void hookOnlineListenersInternal() {
-        if (onlineSession == null) {
+        if (NullUtil.isNull(onlineSession)) {
             return;
         }
 
@@ -351,15 +352,15 @@ public class MatchManager {
     }
 
     public void sendMove(int r, int c) {
-        if (onlineSession != null) onlineSession.sendMove(r, c);
+        if (!NullUtil.isNull(onlineSession)) onlineSession.sendMove(r, c);
     }
 
     public void sendTriangle() {
-        if (onlineSession != null) onlineSession.sendTriangle();
+        if (!NullUtil.isNull(onlineSession)) onlineSession.sendTriangle();
     }
 
     public void sendSquare() {
-        if (onlineSession != null) onlineSession.sendSquare();
+        if (!NullUtil.isNull(onlineSession)) onlineSession.sendSquare();
     }
 
     public boolean playTurnRemote(int r, int c) {
@@ -371,7 +372,7 @@ public class MatchManager {
     public void startOrUpdateOnlineBar() {
         stopOnlineBarAnim(false);
 
-        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long nowServer = (!NullUtil.isNull(onlineSession)) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long elapsed = Math.max(0L, nowServer - turnStartedAtOnlineMs);
         long remaining = Math.max(0L, turnDurationOnlineMs - elapsed);
 
@@ -392,7 +393,7 @@ public class MatchManager {
     }
 
     public void stopOnlineBarAnim(boolean clearTimeoutBanner) {
-        if (onlineBarAnim != null) {
+        if (!NullUtil.isNull(onlineBarAnim)) {
             onlineBarAnim.cancel();
             onlineBarAnim = null;
         }
@@ -412,7 +413,7 @@ public class MatchManager {
 
         handler.removeCallbacks(onlineTimeoutBannerRunnable);
 
-        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long nowServer = (!NullUtil.isNull(onlineSession)) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
         long delay = Math.max(0L, endAt - nowServer) + 24L;
 
@@ -430,7 +431,7 @@ public class MatchManager {
             return;
         }
 
-        long nowServer = (onlineSession != null) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
+        long nowServer = (!NullUtil.isNull(onlineSession)) ? onlineSession.nowServerApprox() : System.currentTimeMillis();
         long endAt = turnStartedAtOnlineMs + turnDurationOnlineMs;
 
         if (nowServer < endAt) {
@@ -448,7 +449,7 @@ public class MatchManager {
         boolean timedOutX = "X".equals(turnOnline);
         cb.onPlayTimeoutBanner(timedOutX);
 
-        if (onlineSession != null) {
+        if (!NullUtil.isNull(onlineSession)) {
             onlineSession.advanceTurnIfExpired(turnOnline, turnSeqOnline, advanced -> {
                 if (!advanced) Log.d("RTDB", "Timeout turn advance skipped or already advanced.");
             });
@@ -458,7 +459,7 @@ public class MatchManager {
     public void endOnlineSessionToMenu() {
         stopOnlineBarAnim(true);
         try {
-            if (onlineSession != null) {
+            if (!NullUtil.isNull(onlineSession)) {
                 onlineSession.stopListening();
                 onlineSession.endRoom();
             }
@@ -478,7 +479,7 @@ public class MatchManager {
     public void cancelMatchmakingSearch() {
         matchmakingRequestToken++;
 
-        if (onlineSession != null && isOnlineMatch) {
+        if (!NullUtil.isNull(onlineSession) && isOnlineMatch) {
             endOnlineSessionToMenu();
             return;
         }
@@ -491,7 +492,7 @@ public class MatchManager {
     public void onDestroy() {
         stopOnlineBarAnim(true);
         try {
-            if (onlineSession != null) {
+            if (!NullUtil.isNull(onlineSession)) {
                 onlineSession.stopListening();
                 onlineSession.endRoom();
             }

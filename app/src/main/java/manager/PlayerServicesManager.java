@@ -94,7 +94,7 @@ public class PlayerServicesManager {
     }
 
     public void updateDisplayNameAndPersist(@NonNull String displayName) {
-        if (currentProfile == null) {
+        if (NullUtil.isNull(currentProfile)) {
             return;
         }
 
@@ -110,7 +110,7 @@ public class PlayerServicesManager {
             }
 
             var user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null) {
+            if (!NullUtil.isNull(user)) {
                 UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
                         .setDisplayName(displayName)
                         .build();
@@ -124,7 +124,7 @@ public class PlayerServicesManager {
 
         try {
             profileManager.setCurrentProfile(profile);
-            if (profileManager.localProfileRepository != null) {
+            if (!NullUtil.isNull(profileManager.localProfileRepository)) {
                 profileManager.localProfileRepository.saveProfile(profile);
             }
         } catch (Exception ignored) {}

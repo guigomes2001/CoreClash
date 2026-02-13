@@ -52,7 +52,7 @@ public class OnlineMatchmaking {
                     if (snapshot.exists()) {
                         for (DataSnapshot roomSnap : snapshot.getChildren()) {
                             String roomId = roomSnap.getKey();
-                            if (roomId == null) continue;
+                            if (NullUtil.isNull(roomId)) continue;
 
                             attemptJoinRoomTransaction(roomId, myUid, attempt, callback);
                             return;

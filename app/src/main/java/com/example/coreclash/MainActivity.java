@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
     private final Runnable matchmakingStatusTicker = new Runnable() {
         @Override
         public void run() {
-            if (binding == null || binding.matchmakingOverlay.getVisibility() != View.VISIBLE) return;
+            if (NullUtil.isNull(binding) || binding.matchmakingOverlay.getVisibility() != View.VISIBLE) return;
             String dots = switch (matchmakingDotsPhase % 4) {
                 case 1 -> ".";
                 case 2 -> "..";
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
 
         playerServices.start();
         String myUid = getMyUidOrNull();
-        if (myUid != null) {
+        if (!NullUtil.isNull(myUid)) {
             socialManager.setPresence(myUid, "online");
             socialManager.upsertUserProfile(myUid, getPlayerDisplayName(), buildTagFromUid(myUid));
         }
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 random,
                 gameManager,
                 new BotManager.Gate() {
-                    @Override public boolean isOnlineMatch() { return matchManager != null && matchManager.isOnlineMatch(); }
+                    @Override public boolean isOnlineMatch() { return !NullUtil.isNull(matchManager) && matchManager.isOnlineMatch(); }
                     @Override public boolean isVersusBot() { return versusBot; }
                     @Override public boolean isMatchStarted() { return matchStarted; }
                     @Override public boolean isXTurn() { return state.isXTurn(); }
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
                 homeFlow.closeModeModal();
 
                 String uid = getMyUidOrNull();
-                if (uid == null) {
+                if (NullUtil.isNull(uid)) {
                     Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onStoreClicked() {
-                if (storeManager == null) {
+                if (NullUtil.isNull(storeManager)) {
                     Toast.makeText(MainActivity.this, getString(R.string.toast_offline_loaded), Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
                 homeFlow.closeModeModal();
 
                 String uid = getMyUidOrNull();
-                if (uid == null) {
+                if (NullUtil.isNull(uid)) {
                     Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onProfileReady(@NonNull PlayerProfile profile) {
                         currentProfile = profile;
                         String uid = getMyUidOrNull();
-                        if (uid != null) {
+                        if (!NullUtil.isNull(uid)) {
                             socialManager.upsertUserProfile(uid, profile.displayName, buildTagFromUid(uid));
                         }
                     }
@@ -346,15 +346,15 @@ public class MainActivity extends AppCompatActivity {
             return getString(R.string.label_player_two);
         }
 
-        if (matchManager != null && matchManager.isOnlineMatch()) {
+        if (!NullUtil.isNull(matchManager) && matchManager.isOnlineMatch()) {
             String n = matchManager.getOpponentName();
-            if (n != null && !n.trim().isEmpty()) {
+            if (!NullUtil.isNull(n) && !n.trim().isEmpty()) {
                 return n.trim();
             }
             return getString(R.string.status_waiting_opponent);
         }
 
-        if (opponentName != null && !opponentName.trim().isEmpty()) {
+        if (!NullUtil.isNull(opponentName) && !opponentName.trim().isEmpty()) {
             return opponentName.trim();
         }
         return getString(R.string.turn_hud_opponent_default);
@@ -400,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
                             updateHeaderStatus();
                             updateSkillVisuals();
 
-                            if (matchManager.getOnlineSession() != null) {
+                            if (!NullUtil.isNull(matchManager.getOnlineSession())) {
                                 matchManager.getOnlineSession().markIntroReady(() -> runOnUiThread(() -> {
                                     bothIntroReady = true;
 
@@ -868,21 +868,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void applyDialogStyle(@NonNull AlertDialog dialog) {
         Window window = dialog.getWindow();
-        if (window != null) window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
+        if (!NullUtil.isNull(window)) window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
 
         Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
         Button neutral = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
 
-        if (positive != null) {
+        if (!NullUtil.isNull(positive)) {
             positive.setAllCaps(false);
             positive.setTextColor(Color.parseColor("#6EE7FF"));
         }
-        if (negative != null) {
+        if (!NullUtil.isNull(negative)) {
             negative.setAllCaps(false);
             negative.setTextColor(Color.parseColor("#D8E9FF"));
         }
-        if (neutral != null) {
+        if (!NullUtil.isNull(neutral)) {
             neutral.setAllCaps(false);
             neutral.setTextColor(Color.parseColor("#D8E9FF"));
         }
@@ -900,7 +900,7 @@ public class MainActivity extends AppCompatActivity {
         if (!ensureInternetForOnlineModes()) return;
 
         String uid = getMyUidOrNull();
-        if (uid == null) {
+        if (NullUtil.isNull(uid)) {
             Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -923,7 +923,7 @@ public class MainActivity extends AppCompatActivity {
                             .setTitle(getString(R.string.local_lobby_enter_code))
                             .setView(input)
                             .setPositiveButton(getString(R.string.local_lobby_join), (d2, w2) -> {
-                                String code = input.getText() == null ? "" : input.getText().toString().trim().toUpperCase();
+                                String code = NullUtil.isNull(input.getText()) ? "" : input.getText().toString().trim().toUpperCase();
                                 if (code.length() < 4) {
                                     Toast.makeText(this, getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
                                     return;
@@ -1046,12 +1046,12 @@ public class MainActivity extends AppCompatActivity {
             return getString(R.string.label_player_one);
         }
 
-        if (currentProfile != null && currentProfile.displayName != null && !currentProfile.displayName.isEmpty()) {
+        if (!NullUtil.isNull(currentProfile) && !NullUtil.isNull(currentProfile.displayName) && !currentProfile.displayName.isEmpty()) {
             return currentProfile.displayName;
         }
 
         var user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null && user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+        if (!NullUtil.isNull(user) && !NullUtil.isNull(user.getDisplayName()) && !user.getDisplayName().isEmpty()) {
             return user.getDisplayName();
         }
         return getString(R.string.default_player_name);
@@ -1059,7 +1059,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String getMyUidOrNull() {
         var u = FirebaseAuth.getInstance().getCurrentUser();
-        return u == null ? null : u.getUid();
+        return NullUtil.isNull(u) ? null : u.getUid();
     }
 
     private void playTurn(int row, int col) {
@@ -1284,7 +1284,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openProfileDialog() {
         String uid = getMyUidOrNull();
-        if (uid == null) {
+        if (NullUtil.isNull(uid)) {
             Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -1301,7 +1301,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(getString(R.string.profile_tag) + ": " + tag)
                 .setView(nameInput)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
-                    String displayName = nameInput.getText() == null ? getPlayerDisplayName() : nameInput.getText().toString().trim();
+                    String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
                     if (displayName.isEmpty()) displayName = getPlayerDisplayName();
                     socialManager.upsertUserProfile(uid, displayName, tag);
                     playerServices.updateDisplayNameAndPersist(displayName);
@@ -1316,7 +1316,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openFriendsDialog() {
         String uid = getMyUidOrNull();
-        if (uid == null) {
+        if (NullUtil.isNull(uid)) {
             Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -1330,7 +1330,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(getString(R.string.friends_add_by_tag))
                 .setView(tagInput)
                 .setPositiveButton(getString(R.string.btn_ok), (d, w) -> {
-                    String tag = tagInput.getText() == null ? "" : tagInput.getText().toString().trim().toUpperCase();
+                    String tag = NullUtil.isNull(tagInput.getText()) ? "" : tagInput.getText().toString().trim().toUpperCase();
                     if (tag.isEmpty()) return;
                     socialManager.sendFriendRequestByTag(uid, tag, new SocialManager.Callback() {
                         @Override
@@ -1359,7 +1359,7 @@ public class MainActivity extends AppCompatActivity {
         matchIntroAnimator.cancel();
         playerServices.onDestroy();
         String myUid = getMyUidOrNull();
-        if (myUid != null) {
+        if (!NullUtil.isNull(myUid)) {
             socialManager.setPresence(myUid, "offline");
         }
         super.onDestroy();

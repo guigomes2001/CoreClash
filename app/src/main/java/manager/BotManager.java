@@ -9,6 +9,7 @@ import java.util.Random;
 
 import enums.DomainDifficulty;
 import enums.DomainSymbols;
+import util.NullUtil;
 
 public class BotManager {
 
@@ -64,14 +65,14 @@ public class BotManager {
             }
 
             int[] move = chooseBotMove(difficulty);
-            if (move != null) cb.onBotPlayMove(move[0], move[1]);
+            if (!NullUtil.isNull(move)) cb.onBotPlayMove(move[0], move[1]);
         };
 
         handler.postDelayed(scheduledBotRunnable, thinkDelayMs);
     }
 
     public void cancelPending() {
-        if (scheduledBotRunnable != null) {
+        if (!NullUtil.isNull(scheduledBotRunnable)) {
             handler.removeCallbacks(scheduledBotRunnable);
             scheduledBotRunnable = null;
         }
@@ -114,17 +115,17 @@ public class BotManager {
         }
 
         int[] win = gameManager.findWinningMoveFor(DomainSymbols.O.getValue());
-        if (win != null) return win;
+        if (!NullUtil.isNull(win)) return win;
 
         int[] block = gameManager.findWinningMoveFor(DomainSymbols.X.getValue());
-        if (block != null) return block;
+        if (!NullUtil.isNull(block)) return block;
 
         if (difficulty == DomainDifficulty.MODERATE) {
             int[] center = gameManager.getCenterIfAvailable();
-            return center != null ? center : moves.get(random.nextInt(moves.size()));
+            return !NullUtil.isNull(center) ? center : moves.get(random.nextInt(moves.size()));
         }
 
         int[] best = gameManager.findBestMoveForO();
-        return best != null ? best : moves.get(random.nextInt(moves.size()));
+        return !NullUtil.isNull(best) ? best : moves.get(random.nextInt(moves.size()));
     }
 }
