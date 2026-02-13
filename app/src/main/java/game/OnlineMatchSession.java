@@ -132,20 +132,18 @@ public class OnlineMatchSession {
                 if (NullUtil.isNull(action.playerUid) || action.playerUid.isEmpty()) return;
                 if (NullUtil.isNull(action.actionType) || action.actionType.isEmpty()) return;
 
-                if (action.playerUid.equals(myUid)) return;
+                if (action.playerUid.equals(myUid)) {
+                    return;
+                }
 
-                switch (action.actionType) {
-                    case DomainActionType.MOVE.getValue():
-                        if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
-                            listener.onRemoteMove(action.row, action.col, action.playerUid);
-                        }
-                        break;
-                    case DomainActionType.TRIANGLE.getValue():
-                        listener.onRemoteTriangle(action.playerUid);
-                        break;
-                    case DomainActionType.SQUARE.getValue():
-                        listener.onRemoteSquare(action.playerUid);
-                        break;
+                if (action.actionType.equals(DomainActionType.MOVE.getValue())) {
+                    if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
+                        listener.onRemoteMove(action.row, action.col, action.playerUid);
+                    }
+                } else if (action.actionType.equals(DomainActionType.TRIANGLE.getValue())) {
+                    listener.onRemoteTriangle(action.playerUid);
+                } else if (action.actionType.equals(DomainActionType.SQUARE.getValue())) {
+                    listener.onRemoteSquare(action.playerUid);
                 }
             }
 
