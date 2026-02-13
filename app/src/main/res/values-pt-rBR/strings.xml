@@ -150,4 +150,9 @@
     <string name="error_online_requires_internet_title">🌐 Conexão necessária</string>
     <string name="fa_wifi" translatable="false">&#xf1eb;</string>
 
+    <string name="online_round_starting">Round %1$d • %2$s começa</string>
+    <string name="online_tiebreak_fire">Desempate em chamas! Arena pegando fogo!</string>
+
+    <string name="round_score_inline">%1$d × %2$d</string>
+
 </resources>
