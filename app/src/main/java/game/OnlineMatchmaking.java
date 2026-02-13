@@ -43,16 +43,17 @@ public class OnlineMatchmaking {
     private final DatabaseReference autoQueueRef = FirebaseDatabase.getInstance().getReference("matchmaking").child("autoQueue").child("waitingRoomId");
 
     private static final long ROOM_TTL_MS = 3 * 60 * 1000;
-    private static final int MAX_RETRIES = 12;
+    private static final long MATCHMAKING_TIMEOUT_MS = 60_000L;
+    private static final int MAX_RETRIES = 999;
     private static final long RETRY_DELAY_MS = 300;
     private static final int MAX_ROOM_READY_RETRIES = 80;
     private static final long ROOM_READY_RETRY_DELAY_MS = 250;
 
     public void findOrCreateMatch(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
-        reserveOrCreateQueueRoom(myUid, callback, 0);
+        reserveOrCreateQueueRoom(myUid, callback, 0, DateTimeUtil.nowMillis());
     }
 
-    private void reserveOrCreateQueueRoom(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt) {
+    private void reserveOrCreateQueueRoom(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, long startedAtMs) {
         String candidateRoomId = roomsRef.push().getKey();
         if (NullUtil.isNullOrEmpty(candidateRoomId)) {
             callback.onError("Could not generate a room ID.");
@@ -85,23 +86,23 @@ public class OnlineMatchmaking {
             @Override
             public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
                 if (!NullUtil.isNull(error)) {
-                    retryOrFail(myUid, callback, attempt, "Queue transaction error: " + safeMsg(error.toException()));
+                    retryOrFail(myUid, callback, attempt, startedAtMs, "Queue transaction error: " + safeMsg(error.toException()));
                     return;
                 }
                 if (!committed || NullUtil.isNullOrEmpty(selectedRoomId[0])) {
-                    retryOrFail(myUid, callback, attempt, "Queue transaction not committed.");
+                    retryOrFail(myUid, callback, attempt, startedAtMs, "Queue transaction not committed.");
                     return;
                 }
 
                 String selected = selectedRoomId[0];
                 if (candidateRoomId.equals(selected)) {
                     Log.d(TAG, "queue host room=" + candidateRoomId + " attempt=" + attempt);
-                    createNewRoomTransaction(candidateRoomId, myUid, callback, attempt);
+                    createNewRoomTransaction(candidateRoomId, myUid, callback, attempt, startedAtMs);
                     return;
                 }
 
                 Log.d(TAG, "queue join room=" + selected + " attempt=" + attempt);
-                waitForRoomAndJoin(selected, myUid, attempt, 0, callback);
+                waitForRoomAndJoin(selected, myUid, attempt, 0, startedAtMs, callback);
             }
         });
     }
@@ -111,10 +112,11 @@ public class OnlineMatchmaking {
                                     @NonNull String myUid,
                                     int queueAttempt,
                                     int readyAttempt,
+                                    long startedAtMs,
                                     @NonNull MatchmakingCallback callback) {
         roomsRef.child(roomId).get().addOnSuccessListener(snapshot -> {
             if (!snapshot.exists()) {
-                retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, "room missing");
+                retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, startedAtMs, callback, "room missing");
                 return;
             }
 
@@ -134,7 +136,7 @@ public class OnlineMatchmaking {
                     || NullUtil.isNullOrEmpty(xUid)
                     || !NullUtil.isNullOrEmpty(oUid)
                     || myUid.equals(xUid)) {
-                maybeRecoverFromStaleQueue(roomId, myUid, queueAttempt, readyAttempt, callback, status, xUid, oUid, roomKind);
+                maybeRecoverFromStaleQueue(roomId, myUid, queueAttempt, readyAttempt, startedAtMs, callback, status, xUid, oUid, roomKind);
                 return;
             }
 
@@ -147,33 +149,35 @@ public class OnlineMatchmaking {
 
                 @Override
                 public void onError(@NonNull String message) {
-                    retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, message);
+                    retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, startedAtMs, callback, message);
                 }
             });
-        }).addOnFailureListener(e -> retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, safeMsg(e)));
+        }).addOnFailureListener(e -> retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, startedAtMs, callback, safeMsg(e)));
     }
 
     private void retryWaitRoom(@NonNull String roomId,
                                @NonNull String myUid,
                                int queueAttempt,
                                int readyAttempt,
+                               long startedAtMs,
                                @NonNull MatchmakingCallback callback,
                                @NonNull String reason) {
         if (readyAttempt >= MAX_ROOM_READY_RETRIES) {
             clearQueueIfMatches(roomId);
-            retryOrFail(myUid, callback, queueAttempt, "wait/join timeout room=" + roomId + " reason=" + reason);
+            retryOrFail(myUid, callback, queueAttempt, startedAtMs, "wait/join timeout room=" + roomId + " reason=" + reason);
             return;
         }
 
         Log.d(TAG, "wait-room retry=" + readyAttempt + " room=" + roomId + " reason=" + reason);
         new android.os.Handler(android.os.Looper.getMainLooper())
-                .postDelayed(() -> waitForRoomAndJoin(roomId, myUid, queueAttempt, readyAttempt + 1, callback), ROOM_READY_RETRY_DELAY_MS);
+                .postDelayed(() -> waitForRoomAndJoin(roomId, myUid, queueAttempt, readyAttempt + 1, startedAtMs, callback), ROOM_READY_RETRY_DELAY_MS);
     }
 
     private void maybeRecoverFromStaleQueue(@NonNull String roomId,
                                             @NonNull String myUid,
                                             int queueAttempt,
                                             int readyAttempt,
+                                            long startedAtMs,
                                             @NonNull MatchmakingCallback callback,
                                             String status,
                                             String xUid,
@@ -194,11 +198,11 @@ public class OnlineMatchmaking {
                     + " queueAttempt=" + queueAttempt
                     + " readyAttempt=" + readyAttempt);
             clearQueueIfMatches(roomId);
-            retryOrFail(myUid, callback, queueAttempt, "stale queue room=" + roomId + " status=" + status);
+            retryOrFail(myUid, callback, queueAttempt, startedAtMs, "stale queue room=" + roomId + " status=" + status);
             return;
         }
 
-        retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, callback, "room not joinable yet");
+        retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, startedAtMs, callback, "room not joinable yet");
     }
 
     private void clearQueueIfMatches(@NonNull String roomId) {
@@ -228,7 +232,8 @@ public class OnlineMatchmaking {
     private void createNewRoomTransaction(@NonNull String roomId,
                                           @NonNull String myUid,
                                           @NonNull MatchmakingCallback callback,
-                                          int attempt) {
+                                          int attempt,
+                                          long startedAtMs) {
         DatabaseReference roomRef = roomsRef.child(roomId);
 
         roomRef.runTransaction(new Transaction.Handler() {
@@ -272,11 +277,11 @@ public class OnlineMatchmaking {
             @Override
             public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
                 if (!NullUtil.isNull(error)) {
-                    retryOrFail(myUid, callback, attempt, "Create room failed: " + safeMsg(error.toException()));
+                    retryOrFail(myUid, callback, attempt, startedAtMs, "Create room failed: " + safeMsg(error.toException()));
                     return;
                 }
                 if (!committed) {
-                    retryOrFail(myUid, callback, attempt, "Create room transaction not committed.");
+                    retryOrFail(myUid, callback, attempt, startedAtMs, "Create room transaction not committed.");
                     return;
                 }
 
@@ -285,17 +290,18 @@ public class OnlineMatchmaking {
         });
     }
 
-    private void retryOrFail(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, @NonNull String reason) {
-        if (attempt >= MAX_RETRIES) {
-            Log.d(TAG, "matchmaking-failed attempt=" + attempt + " reason=" + reason + " uid=" + myUid);
+    private void retryOrFail(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, long startedAtMs, @NonNull String reason) {
+        long elapsedMs = DateTimeUtil.nowMillis() - startedAtMs;
+        if (elapsedMs >= MATCHMAKING_TIMEOUT_MS || attempt >= MAX_RETRIES) {
+            Log.d(TAG, "matchmaking-failed attempt=" + attempt + " elapsedMs=" + elapsedMs + " timeoutMs=" + MATCHMAKING_TIMEOUT_MS + " reason=" + reason + " uid=" + myUid);
             callback.onError("Unable to find a match. Please try again.");
             return;
         }
 
-        Log.d(TAG, "retry attempt=" + attempt + " reason=" + reason);
+        Log.d(TAG, "retry attempt=" + attempt + " elapsedMs=" + elapsedMs + " reason=" + reason);
 
         new android.os.Handler(android.os.Looper.getMainLooper())
-                .postDelayed(() -> reserveOrCreateQueueRoom(myUid, callback, attempt + 1), RETRY_DELAY_MS);
+                .postDelayed(() -> reserveOrCreateQueueRoom(myUid, callback, attempt + 1, startedAtMs), RETRY_DELAY_MS);
     }
 
     private void attemptJoinRoomTransaction(@NonNull String roomId, @NonNull String myUid, @NonNull MatchmakingCallback callback) {
