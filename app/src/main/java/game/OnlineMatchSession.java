@@ -139,18 +139,19 @@ public class OnlineMatchSession {
 
                 if (action.playerUid.equals(myUid)) return;
 
-                switch (action.actionType) {
-                    case DomainActionType.MOVE.getValue():
-                        if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
+                DomainActionType type = DomainActionType.fromValue(action.actionType);
+                if (type == null) {
+                    return;
+                }
+
+                switch (type) {
+                    case MOVE -> {
+                        if (action.row != null && action.col != null && isValidCell(action.row, action.col)) {
                             listener.onRemoteMove(action.row, action.col, action.playerUid);
                         }
-                        break;
-                    case DomainActionType.TRIANGLE.getValue():
-                        listener.onRemoteTriangle(action.playerUid);
-                        break;
-                    case DomainActionType.SQUARE.getValue():
-                        listener.onRemoteSquare(action.playerUid);
-                        break;
+                    }
+                    case TRIANGLE -> listener.onRemoteTriangle(action.playerUid);
+                    case SQUARE -> listener.onRemoteSquare(action.playerUid);
                 }
             }
 
