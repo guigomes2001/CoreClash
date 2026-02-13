@@ -16,7 +16,7 @@
     "rooms": {
       "$roomId": {
         ".read": "auth != null && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)",
-        ".write": "auth != null && ((data.exists() && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid)) || (!data.exists() && newData.child('players/X').val() === auth.uid))",
+        ".write": "auth != null && ((!data.exists() && newData.child('players/X').val() === auth.uid) || (data.exists() && (data.child('players/X').val() === auth.uid || data.child('players/O').val() === auth.uid || (data.child('status').val() === 'WAITING' && data.child('players/O').val() === '' && data.child('players/X').val() !== '' && newData.child('players/X').val() === data.child('players/X').val() && newData.child('players/O').val() === auth.uid))))",
 
         "status": {
           ".validate": "newData.isString() && (newData.val() === 'WAITING' || newData.val() === 'MATCHED' || newData.val() === 'PLAYING' || newData.val() === 'ENDED' || newData.val() === 'ABANDONED')"
@@ -39,12 +39,7 @@
           },
 
           "O": {
-            ".validate":
-            "newData.isString() && (
-            (data.val() === '' && newData.val() === auth.uid) ||     /* entrar como O quando vazio */
-            (data.val() === auth.uid && newData.val() === auth.uid) || /* manter */
-            (newData.val() === '')                                    /* permitir limpar em caso de abandono */
-            )"
+            ".validate": "newData.isString() && ((data.val() === '' && newData.val() === auth.uid) || (data.val() === auth.uid && newData.val() === auth.uid) || (newData.val() === ''))"
           }
         },
 
