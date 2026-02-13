@@ -155,4 +155,6 @@
 
     <string name="round_score_inline">%1$d × %2$d</string>
 
+    <string name="score_best_of_three">MELHOR DE 3</string>
+
 </resources>
