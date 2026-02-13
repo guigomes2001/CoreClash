@@ -50,16 +50,75 @@ public class OnlineMatchmaking {
     private static final long ROOM_READY_RETRY_DELAY_MS = 250;
 
     public void findOrCreateMatch(@NonNull String myUid, @NonNull MatchmakingCallback callback) {
-        reserveOrCreateQueueRoom(myUid, callback, 0, DateTimeUtil.nowMillis());
+        consumeQueueOrCreateHost(myUid, callback, 0, DateTimeUtil.nowMillis());
     }
 
-    private void reserveOrCreateQueueRoom(@NonNull String myUid, @NonNull MatchmakingCallback callback, int attempt, long startedAtMs) {
-        String candidateRoomId = roomsRef.push().getKey();
-        if (NullUtil.isNullOrEmpty(candidateRoomId)) {
+    private void consumeQueueOrCreateHost(@NonNull String myUid,
+                                          @NonNull MatchmakingCallback callback,
+                                          int attempt,
+                                          long startedAtMs) {
+        final String[] consumedRoomId = new String[]{null};
+
+        autoQueueRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                String waitingRoomId = currentData.getValue(String.class);
+                if (NullUtil.isNullOrEmpty(waitingRoomId)) {
+                    return Transaction.abort();
+                }
+
+                consumedRoomId[0] = waitingRoomId;
+                currentData.setValue(null);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (!NullUtil.isNull(error)) {
+                    retryOrFail(myUid, callback, attempt, startedAtMs, "Queue consume transaction error: " + safeMsg(error.toException()));
+                    return;
+                }
+
+                if (committed && !NullUtil.isNullOrEmpty(consumedRoomId[0])) {
+                    Log.d(TAG, "queue consumed room=" + consumedRoomId[0] + " attempt=" + attempt);
+                    waitForRoomAndJoin(consumedRoomId[0], myUid, attempt, 0, startedAtMs, callback);
+                    return;
+                }
+
+                createAndPublishHostRoom(myUid, callback, attempt, startedAtMs);
+            }
+        });
+    }
+
+    private void createAndPublishHostRoom(@NonNull String myUid,
+                                          @NonNull MatchmakingCallback callback,
+                                          int attempt,
+                                          long startedAtMs) {
+        String hostRoomId = roomsRef.push().getKey();
+        if (NullUtil.isNullOrEmpty(hostRoomId)) {
             callback.onError("Could not generate a room ID.");
             return;
         }
 
+        createNewRoomTransaction(hostRoomId, myUid, new MatchmakingCallback() {
+            @Override
+            public void onMatched(@NonNull String roomId, boolean isPlayerX, @NonNull String opponentUid) {
+                publishCreatedRoomOrJoinExisting(roomId, myUid, attempt, startedAtMs, callback);
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                retryOrFail(myUid, callback, attempt, startedAtMs, "Create host room failed before queue publish: " + message);
+            }
+        }, attempt, startedAtMs);
+    }
+
+    private void publishCreatedRoomOrJoinExisting(@NonNull String hostRoomId,
+                                                  @NonNull String myUid,
+                                                  int attempt,
+                                                  long startedAtMs,
+                                                  @NonNull MatchmakingCallback callback) {
         final String[] selectedRoomId = new String[]{null};
 
         autoQueueRef.runTransaction(new Transaction.Handler() {
@@ -69,13 +128,13 @@ public class OnlineMatchmaking {
                 String waitingRoomId = currentData.getValue(String.class);
 
                 if (NullUtil.isNullOrEmpty(waitingRoomId)) {
-                    selectedRoomId[0] = candidateRoomId;
-                    currentData.setValue(candidateRoomId);
+                    selectedRoomId[0] = hostRoomId;
+                    currentData.setValue(hostRoomId);
                     return Transaction.success(currentData);
                 }
 
-                if (candidateRoomId.equals(waitingRoomId)) {
-                    selectedRoomId[0] = candidateRoomId;
+                if (hostRoomId.equals(waitingRoomId)) {
+                    selectedRoomId[0] = hostRoomId;
                     return Transaction.success(currentData);
                 }
 
@@ -87,27 +146,62 @@ public class OnlineMatchmaking {
             @Override
             public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
                 if (!NullUtil.isNull(error)) {
-                    retryOrFail(myUid, callback, attempt, startedAtMs, "Queue transaction error: " + safeMsg(error.toException()));
+                    cleanupCreatedHostRoom(hostRoomId);
+                    retryOrFail(myUid, callback, attempt, startedAtMs, "Queue publish transaction error: " + safeMsg(error.toException()));
                     return;
                 }
                 if (!committed || NullUtil.isNullOrEmpty(selectedRoomId[0])) {
-                    retryOrFail(myUid, callback, attempt, startedAtMs, "Queue transaction not committed.");
+                    cleanupCreatedHostRoom(hostRoomId);
+                    retryOrFail(myUid, callback, attempt, startedAtMs, "Queue publish transaction not committed.");
                     return;
                 }
 
                 String selected = selectedRoomId[0];
-                if (candidateRoomId.equals(selected)) {
-                    Log.d(TAG, "queue host room=" + candidateRoomId + " attempt=" + attempt);
-                    createNewRoomTransaction(candidateRoomId, myUid, callback, attempt, startedAtMs);
+                if (hostRoomId.equals(selected)) {
+                    Log.d(TAG, "queue host published room=" + hostRoomId + " attempt=" + attempt);
+                    callback.onMatched(hostRoomId, true, "");
                     return;
                 }
 
-                Log.d(TAG, "queue join room=" + selected + " attempt=" + attempt + " consumed=true");
+                Log.d(TAG, "queue host consumed-existing room=" + selected + " ownRoom=" + hostRoomId + " attempt=" + attempt);
+                cleanupCreatedHostRoom(hostRoomId);
                 waitForRoomAndJoin(selected, myUid, attempt, 0, startedAtMs, callback);
             }
         });
     }
 
+    private void cleanupCreatedHostRoom(@NonNull String roomId) {
+        DatabaseReference roomRef = roomsRef.child(roomId);
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (NullUtil.isNull(currentData.getValue())) {
+                    return Transaction.abort();
+                }
+
+                String status = currentData.child("status").getValue(String.class);
+                String oUid = currentData.child("players").child("O").getValue(String.class);
+                if (!STATUS_WAITING.equals(status) || !NullUtil.isNullOrEmpty(oUid)) {
+                    return Transaction.abort();
+                }
+
+                currentData.child("status").setValue(STATUS_ENDED);
+                currentData.child("endedAt").setValue(ServerValue.TIMESTAMP);
+                currentData.child("endReason").setValue("queue_recycled");
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(com.google.firebase.database.DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (!NullUtil.isNull(error)) {
+                    Log.d(TAG, "cleanupCreatedHostRoom error room=" + roomId + " msg=" + safeMsg(error.toException()));
+                    return;
+                }
+                Log.d(TAG, "cleanupCreatedHostRoom room=" + roomId + " committed=" + committed);
+            }
+        });
+    }
 
     private void waitForRoomAndJoin(@NonNull String roomId,
                                     @NonNull String myUid,
@@ -331,7 +425,7 @@ public class OnlineMatchmaking {
         Log.d(TAG, "retry attempt=" + attempt + " elapsedMs=" + elapsedMs + " reason=" + reason);
 
         new android.os.Handler(android.os.Looper.getMainLooper())
-                .postDelayed(() -> reserveOrCreateQueueRoom(myUid, callback, attempt + 1, startedAtMs), RETRY_DELAY_MS);
+                .postDelayed(() -> consumeQueueOrCreateHost(myUid, callback, attempt + 1, startedAtMs), RETRY_DELAY_MS);
     }
 
     private void attemptJoinRoomTransaction(@NonNull String roomId, @NonNull String myUid, @NonNull MatchmakingCallback callback) {
