@@ -65,18 +65,22 @@
         android:strokeLineCap="round"
         android:pathData="M27.8,48.5L37.5,58.2M37.5,48.5L27.8,58.2"/>
 
-    <!-- Row 2, Col 2: Square (purple neon) -->
+    <!-- Row 2, Col 2: VS (clean white with dark contrast) -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#5C2A9E"
-        android:strokeAlpha="0.35"
+        android:strokeColor="#10263F"
+        android:strokeAlpha="0.75"
         android:strokeWidth="3.4"
-        android:pathData="M48.5,48.5h9.8v9.8h-9.8z"/>
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M49.2,49.2l4.8,9.6l4.8,-9.6M60,49.2h5.3M60,54h4M60,58.8h5.3"/>
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#B777FF"
+        android:strokeColor="#F4F8FF"
         android:strokeWidth="2"
-        android:pathData="M48.5,48.5h9.8v9.8h-9.8z"/>
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M49.2,49.2l4.8,9.6l4.8,-9.6M60,49.2h5.3M60,54h4M60,58.8h5.3"/>
 
     <!-- Row 2, Col 3: O (blue neon) -->
     <path
@@ -90,4 +94,17 @@
         android:strokeColor="#38BEFF"
         android:strokeWidth="2"
         android:pathData="M75.2,53.4m-4.9,0a4.9,4.9 0 1,1 9.8,0a4.9,4.9 0 1,1 -9.8,0"/>
+
+    <!-- Row 3, Col 2: Square moved down for a cleaner balance -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#5C2A9E"
+        android:strokeAlpha="0.35"
+        android:strokeWidth="3.4"
+        android:pathData="M48.5,69.8h9.8v9.8h-9.8z"/>
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#B777FF"
+        android:strokeWidth="2"
+        android:pathData="M48.5,69.8h9.8v9.8h-9.8z"/>
 </vector>
