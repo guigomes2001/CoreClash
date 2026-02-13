@@ -8,6 +8,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     private static final long TURN_PROGRESS_DURATION_MS = 10000L;
     private static final int ROUNDS_TO_WIN = 2;
     private static final long SKILL_ACTION_LOCK_MS = 650L;
-    private static final long VICTORY_LINE_HOLD_MS = 2000L;
+    private static final long VICTORY_LINE_HOLD_MS = 1200L;
     private static final long SCORE_UPDATE_ANIM_MS = 1500L;
 
     private String opponentName = "";
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     private int onlineRoundNumber = 1;
     private String onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
     private ValueAnimator fireArenaAnimator;
+    private GradientDrawable fireArenaBorder;
     private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
@@ -819,28 +821,46 @@ public class MainActivity extends AppCompatActivity {
                 fireArenaAnimator.cancel();
                 fireArenaAnimator = null;
             }
-            binding.boardContainer.setBackgroundResource(R.drawable.bg_cyber_glass);
+            binding.boardContainer.setForeground(null);
+            binding.boardContainer.setScaleX(1f);
+            binding.boardContainer.setScaleY(1f);
             binding.txtHudVersus.setTextColor(Color.parseColor("#CBD5E1"));
             binding.txtHudScoreInline.setTextColor(Color.parseColor("#D1E2FF"));
             return;
         }
 
+        if (NullUtil.isNull(fireArenaBorder)) {
+            fireArenaBorder = new GradientDrawable();
+            fireArenaBorder.setShape(GradientDrawable.RECTANGLE);
+            fireArenaBorder.setCornerRadius(22f);
+            fireArenaBorder.setColor(Color.TRANSPARENT);
+            fireArenaBorder.setStroke(4, Color.parseColor("#FF7A2F"));
+        }
+        binding.boardContainer.setForeground(fireArenaBorder);
+
         if (!NullUtil.isNull(fireArenaAnimator) && fireArenaAnimator.isRunning()) {
             return;
         }
 
-        int from = Color.parseColor("#66FF5A3D");
-        int to = Color.parseColor("#66A31621");
-        fireArenaAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), from, to);
-        fireArenaAnimator.setDuration(420L);
+        int c1 = Color.parseColor("#FF7A2F");
+        int c2 = Color.parseColor("#FFD166");
+        int c3 = Color.parseColor("#FF4D2E");
+
+        fireArenaAnimator = ValueAnimator.ofFloat(0f, 1f);
+        fireArenaAnimator.setDuration(360L);
         fireArenaAnimator.setRepeatMode(ValueAnimator.REVERSE);
         fireArenaAnimator.setRepeatCount(ValueAnimator.INFINITE);
         fireArenaAnimator.setInterpolator(new LinearInterpolator());
         fireArenaAnimator.addUpdateListener(anim -> {
-            int color = (int) anim.getAnimatedValue();
-            binding.boardContainer.setBackgroundColor(color);
-            binding.txtHudVersus.setTextColor(Color.parseColor("#FFD4C8"));
-            binding.txtHudScoreInline.setTextColor(Color.parseColor("#FFCFA8"));
+            float f = anim.getAnimatedFraction();
+            int strokeColor = (int) new ArgbEvaluator().evaluate(f, (f < 0.5f ? c1 : c2), c3);
+            if (!NullUtil.isNull(fireArenaBorder)) {
+                fireArenaBorder.setStroke((int) (3 + (f * 2f)), strokeColor);
+            }
+            binding.boardContainer.setScaleX(1f + (0.008f * f));
+            binding.boardContainer.setScaleY(1f + (0.008f * f));
+            binding.txtHudVersus.setTextColor(Color.parseColor("#FFDCC7"));
+            binding.txtHudScoreInline.setTextColor(Color.parseColor("#FFE7C9"));
         });
         fireArenaAnimator.start();
     }
