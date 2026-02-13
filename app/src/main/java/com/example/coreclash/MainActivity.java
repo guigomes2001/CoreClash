@@ -8,6 +8,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +20,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -42,6 +44,8 @@ import ui.anim.flow.HomeFlowManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import enums.DomainBotNames;
@@ -182,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         matchManager = initMatchManager();
 
         board.createBoard(this, binding.gridBoard, (row, col) -> {
-            if (!matchStarted || gameManager.isGameOver()) {
+            if (!matchStarted || gameManager.isGameOver() || decidingStarter) {
                 return;
             }
 
@@ -586,7 +590,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupSkills() {
         binding.containerTriangle.setOnClickListener(v -> {
-            if (!matchStarted || gameManager.isGameOver() || !state.canUseTriangle()) {
+            if (!matchStarted || gameManager.isGameOver() || !state.canUseTriangle() || decidingStarter) {
                 AnimationHelper.shakeButton(v);
                 return;
             }
@@ -632,7 +636,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.containerSquare.setOnClickListener(v -> {
-            if (!matchStarted || gameManager.isGameOver() || !state.canUseSquare()) {
+            if (!matchStarted || gameManager.isGameOver() || !state.canUseSquare() || decidingStarter) {
                 AnimationHelper.shakeButton(v);
                 return;
             }
