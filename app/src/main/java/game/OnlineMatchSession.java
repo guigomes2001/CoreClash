@@ -137,18 +137,20 @@ public class OnlineMatchSession {
                 if (NullUtil.isNull(action.playerUid) || action.playerUid.isEmpty()) return;
                 if (NullUtil.isNull(action.actionType) || action.actionType.isEmpty()) return;
 
-                if (action.playerUid.equals(myUid)) {
-                    return;
-                }
+                if (action.playerUid.equals(myUid)) return;
 
-                if (action.actionType.equals(DomainActionType.MOVE.getValue())) {
-                    if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
-                        listener.onRemoteMove(action.row, action.col, action.playerUid);
-                    }
-                } else if (action.actionType.equals(DomainActionType.TRIANGLE.getValue())) {
-                    listener.onRemoteTriangle(action.playerUid);
-                } else if (action.actionType.equals(DomainActionType.SQUARE.getValue())) {
-                    listener.onRemoteSquare(action.playerUid);
+                switch (action.actionType) {
+                    case DomainActionType.MOVE.getValue():
+                        if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
+                            listener.onRemoteMove(action.row, action.col, action.playerUid);
+                        }
+                        break;
+                    case DomainActionType.TRIANGLE.getValue():
+                        listener.onRemoteTriangle(action.playerUid);
+                        break;
+                    case DomainActionType.SQUARE.getValue():
+                        listener.onRemoteSquare(action.playerUid);
+                        break;
                 }
             }
 
@@ -325,10 +327,14 @@ public class OnlineMatchSession {
                 Long scheduledAt = currentData.child("intro").child("scheduledAt").getValue(Long.class);
                 Long delayMs     = currentData.child("intro").child("delayMs").getValue(Long.class);
                 Long durationMs  = currentData.child("intro").child("durationMs").getValue(Long.class);
-                if (NullUtil.isNull(scheduledAt) || NullUtil.isNull(delayMs) || NullUtil.isNull(durationMs)) return Transaction.abort();
 
-                long startAt = scheduledAt + delayMs;
-                long endAt   = startAt + durationMs;
+                long endAt;
+                if (NullUtil.isNull(scheduledAt) || NullUtil.isNull(delayMs) || NullUtil.isNull(durationMs)) {
+                    endAt = nowServerApprox();
+                } else {
+                    long startAt = scheduledAt + delayMs;
+                    endAt = startAt + durationMs;
+                }
 
                 Boolean xReady = currentData.child("introReady").child("X").getValue(Boolean.class);
                 Boolean oReady = currentData.child("introReady").child("O").getValue(Boolean.class);

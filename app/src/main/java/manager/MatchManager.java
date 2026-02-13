@@ -84,6 +84,7 @@ public class MatchManager {
     private String opponentName = "";
 
     private int matchmakingRequestToken = 0;
+    private boolean onlineIntroTriggered = false;
 
     public MatchManager(
             @NonNull Context context,
@@ -221,6 +222,7 @@ public class MatchManager {
         turnStartedAtOnlineMs = 0L;
         turnDurationOnlineMs = 10_000L;
         turnSeqOnline = 0L;
+        onlineIntroTriggered = false;
 
         lastTimeoutBannerTurnKey = "";
         scheduledTimeoutTurnKey = "";
@@ -241,23 +243,38 @@ public class MatchManager {
             resolveOpponentName(oUid);
 
             if (iAmXOnline) {
-                onlineSession.scheduleIntroIfHost(true, 500L, 3000L);
+                onlineSession.scheduleIntroIfHost(true, 0L, 0L);
             }
+
+            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 1200L);
         }));
 
+
+        if (StringUtil.hasText(opponentUid)) {
+            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 1200L);
+        }
         onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
             long delay = NumberUtil.clamp(startAt - serverNow, 0L, Long.MAX_VALUE);
             cb.runOnUi(() -> ThreadUtil.postDelayed(handler, () -> {
                 if (!isOnlineMatch || NullUtil.isNull(onlineSession)) {
                     return;
                 }
-                cb.onRestoreMenuButtons();
-                cb.onOnlineMatchShouldStartPlaying();
+                triggerOnlineIntroStartIfNeeded();
             }, delay));
         });
     }
 
 
+
+    private void triggerOnlineIntroStartIfNeeded() {
+        if (!isOnlineMatch || onlineIntroTriggered) {
+            return;
+        }
+
+        onlineIntroTriggered = true;
+        cb.onRestoreMenuButtons();
+        cb.onOnlineMatchShouldStartPlaying();
+    }
 
     private void resolveOpponentName(@NonNull String opponentUid) {
         db.collection("users").document(opponentUid)
@@ -485,6 +502,7 @@ public class MatchManager {
         lastTimeoutBannerTurnKey = "";
         scheduledTimeoutTurnKey = "";
         turnSeqOnline = 0L;
+        onlineIntroTriggered = false;
 
         cb.onEndOnlineSessionToMenu();
     }
