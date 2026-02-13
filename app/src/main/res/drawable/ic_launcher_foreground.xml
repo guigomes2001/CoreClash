@@ -65,30 +65,30 @@
         android:strokeLineCap="round"
         android:pathData="M27.8,48.5L37.5,58.2M37.5,48.5L27.8,58.2"/>
 
-    <!-- Row 2, Col 2: VS (centered neon) -->
+    <!-- Row 2, Col 2: VS (serious, centered, high-contrast) -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#00E8FF"
-        android:strokeAlpha="0.40"
-        android:strokeWidth="5.2"
+        android:strokeColor="#0A1526"
+        android:strokeAlpha="0.90"
+        android:strokeWidth="4.2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M47.8,49.3L50.9,57.4L54,49.3M61,50C60.2,49.2 58.8,49.1 57.7,49.7C56.5,50.5 56.6,51.8 58,52.4C59.1,52.8 60.8,53.1 61.2,54.2C61.7,55.5 60.4,56.7 58.9,56.9C57.5,57.1 56.4,56.7 55.5,56"/>
+        android:pathData="M47.2,49.2L50.3,57.5L53.4,49.2M61.5,50.1C60.6,49.3 59.1,49 57.9,49.7C56.9,50.3 56.8,51.5 57.8,52.1C58.7,52.6 60,52.6 60.8,53.2C61.9,53.9 61.7,55.5 60.5,56.3C59.4,57.1 57.8,57 56.6,56.3"/>
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#00D9FF"
-        android:strokeAlpha="0.95"
-        android:strokeWidth="3.3"
+        android:strokeColor="#E9F1FF"
+        android:strokeWidth="2.7"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M47.8,49.3L50.9,57.4L54,49.3M61,50C60.2,49.2 58.8,49.1 57.7,49.7C56.5,50.5 56.6,51.8 58,52.4C59.1,52.8 60.8,53.1 61.2,54.2C61.7,55.5 60.4,56.7 58.9,56.9C57.5,57.1 56.4,56.7 55.5,56"/>
+        android:pathData="M47.2,49.2L50.3,57.5L53.4,49.2M61.5,50.1C60.6,49.3 59.1,49 57.9,49.7C56.9,50.3 56.8,51.5 57.8,52.1C58.7,52.6 60,52.6 60.8,53.2C61.9,53.9 61.7,55.5 60.5,56.3C59.4,57.1 57.8,57 56.6,56.3"/>
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#EAFEFF"
-        android:strokeWidth="1.6"
+        android:strokeColor="#7EA7D8"
+        android:strokeAlpha="0.85"
+        android:strokeWidth="1.15"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M47.8,49.3L50.9,57.4L54,49.3M61,50C60.2,49.2 58.8,49.1 57.7,49.7C56.5,50.5 56.6,51.8 58,52.4C59.1,52.8 60.8,53.1 61.2,54.2C61.7,55.5 60.4,56.7 58.9,56.9C57.5,57.1 56.4,56.7 55.5,56"/>
+        android:pathData="M47.2,49.2L50.3,57.5L53.4,49.2M61.5,50.1C60.6,49.3 59.1,49 57.9,49.7C56.9,50.3 56.8,51.5 57.8,52.1C58.7,52.6 60,52.6 60.8,53.2C61.9,53.9 61.7,55.5 60.5,56.3C59.4,57.1 57.8,57 56.6,56.3"/>
 
     <!-- Row 2, Col 3: O (blue neon) -->
     <path
