@@ -19,9 +19,7 @@ import game.OnlineMatchmaking;
 
 import java.util.function.Supplier;
 import util.NullUtil;
-import util.NumberUtil;
 import util.StringUtil;
-import util.ThreadUtil;
 import util.ValidationUtil;
 
 public class MatchManager {
@@ -246,21 +244,20 @@ public class MatchManager {
                 onlineSession.scheduleIntroIfHost(true, 0L, 0L);
             }
 
-            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 1200L);
+            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 350L);
         }));
 
 
         if (StringUtil.hasText(opponentUid)) {
-            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 1200L);
+            handler.postDelayed(this::triggerOnlineIntroStartIfNeeded, 350L);
         }
         onlineSession.listenIntroClock((startAt, durationMs, serverNow) -> {
-            long delay = NumberUtil.clamp(startAt - serverNow, 0L, Long.MAX_VALUE);
-            cb.runOnUi(() -> ThreadUtil.postDelayed(handler, () -> {
+            cb.runOnUi(() -> {
                 if (!isOnlineMatch || NullUtil.isNull(onlineSession)) {
                     return;
                 }
                 triggerOnlineIntroStartIfNeeded();
-            }, delay));
+            });
         });
     }
 
