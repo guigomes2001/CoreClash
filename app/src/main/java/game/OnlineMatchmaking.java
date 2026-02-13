@@ -75,7 +75,8 @@ public class OnlineMatchmaking {
                 }
 
                 if (candidateRoomId.equals(waitingRoomId)) {
-                    return Transaction.abort();
+                    selectedRoomId[0] = candidateRoomId;
+                    return Transaction.success(currentData);
                 }
 
                 selectedRoomId[0] = waitingRoomId;
@@ -116,6 +117,11 @@ public class OnlineMatchmaking {
                                     @NonNull MatchmakingCallback callback) {
         roomsRef.child(roomId).get().addOnSuccessListener(snapshot -> {
             if (!snapshot.exists()) {
+                if (readyAttempt >= 4) {
+                    clearQueueIfMatches(roomId);
+                    retryOrFail(myUid, callback, queueAttempt, startedAtMs, "room missing after retries");
+                    return;
+                }
                 retryWaitRoom(roomId, myUid, queueAttempt, readyAttempt, startedAtMs, callback, "room missing");
                 return;
             }
