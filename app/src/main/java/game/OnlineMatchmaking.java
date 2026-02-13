@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enums.DomainMatchStatus;
+import enums.DomainRoomKind;
 import util.DateTimeUtil;
 import util.FirebaseUtil;
 import util.NullUtil;
@@ -61,7 +62,7 @@ public class OnlineMatchmaking {
                             if (NullUtil.isNull(roomId)) continue;
 
                             String roomKind = roomSnap.child("roomKind").getValue(String.class);
-                            if (ROOM_KIND_LOCAL_LOBBY.equals(roomKind)) continue;
+                            if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) continue;
 
                             Long createdAt = roomSnap.child("createdAt").getValue(Long.class);
                             if (!NullUtil.isNull(createdAt) && (now - createdAt > ROOM_TTL_MS)) continue;
@@ -116,7 +117,7 @@ public class OnlineMatchmaking {
                 Map<String, Object> room = new HashMap<>();
 
                 room.put("status", STATUS_WAITING);
-                room.put("roomKind", ROOM_KIND_AUTO);
+                room.put("roomKind", DomainRoomKind.AUTO_QUEUE.getValue());
                 room.put("createdAt", ServerValue.TIMESTAMP);
 
                 room.put("turn", TURN_X);
@@ -182,7 +183,7 @@ public class OnlineMatchmaking {
                 if (!STATUS_WAITING.equals(status)) {
                     return Transaction.abort();
                 }
-                if (ROOM_KIND_LOCAL_LOBBY.equals(roomKind)) {
+                if (DomainRoomKind.LOCAL_LOBBY.getValue().equals(roomKind)) {
                     return Transaction.abort();
                 }
                 if (NullUtil.isNullOrEmpty(xUid)) {
@@ -261,7 +262,7 @@ public class OnlineMatchmaking {
                 room.put("winner", "");
                 room.put("endReason", "");
                 room.put("roomCode", roomCode);
-                room.put("roomKind", ROOM_KIND_LOCAL_LOBBY);
+                room.put("roomKind", DomainRoomKind.LOCAL_LOBBY.getValue());
 
                 Map<String, Object> players = new HashMap<>();
                 players.put("X", myUid);

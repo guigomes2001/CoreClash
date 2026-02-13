@@ -17,6 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.function.Consumer;
 
+import enums.DomainActionType;
 import enums.DomainMatchStatus;
 import enums.DomainSymmetries;
 import util.NullUtil;
@@ -134,15 +135,15 @@ public class OnlineMatchSession {
                 if (action.playerUid.equals(myUid)) return;
 
                 switch (action.actionType) {
-                    case "MOVE":
+                    case DomainActionType.MOVE.getValue():
                         if (!NullUtil.isNull(action.row) && !NullUtil.isNull(action.col) && isValidCell(action.row, action.col)) {
                             listener.onRemoteMove(action.row, action.col, action.playerUid);
                         }
                         break;
-                    case "TRIANGLE":
+                    case DomainActionType.TRIANGLE.getValue():
                         listener.onRemoteTriangle(action.playerUid);
                         break;
-                    case "SQUARE":
+                    case DomainActionType.SQUARE.getValue():
                         listener.onRemoteSquare(action.playerUid);
                         break;
                 }
@@ -366,15 +367,15 @@ public class OnlineMatchSession {
 
     public void sendMove(int row, int col) {
         if (!isValidCell(row, col)) return;
-        pushActionAuthoritative("MOVE", row, col);
+        pushActionAuthoritative(DomainActionType.MOVE.getValue(), row, col);
     }
 
     public void sendTriangle() {
-        pushActionAuthoritative("TRIANGLE", null, null);
+        pushActionAuthoritative(DomainActionType.TRIANGLE.getValue(), null, null);
     }
 
     public void sendSquare() {
-        pushActionAuthoritative("SQUARE", null, null);
+        pushActionAuthoritative(DomainActionType.SQUARE.getValue(), null, null);
     }
 
     public void advanceTurnIfExpired(@NonNull String expectedTurn, long expectedTurnSeq, @NonNull TurnAdvanceCallback callback) {
