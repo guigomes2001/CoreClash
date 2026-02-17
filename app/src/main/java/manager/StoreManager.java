@@ -222,6 +222,8 @@ public class StoreManager {
         button.setText(owned
                 ? context.getString(equipped ? R.string.store_btn_unequip : R.string.store_btn_equip)
                 : priceText);
+        button.setBackgroundResource(equipped ? R.drawable.bg_store_item_equipped : R.drawable.bg_store_item);
+        button.setAlpha(equipped ? 0.86f : 1f);
         card.setBackgroundResource(equipped ? R.drawable.bg_store_clash : R.drawable.bg_store_section);
     }
 
