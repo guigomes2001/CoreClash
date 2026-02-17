@@ -166,5 +166,5 @@
     <string name="store_restore_purchases">Restaurar compras</string>
     <string name="toast_restore_success">%1$d compra(s) restaurada(s).</string>
     <string name="toast_restore_empty">Nenhuma compra encontrada para restaurar.</string>
-    <string name="toast_store_billing_unavailable">Billing indisponível no momento. 500 moedas adicionadas no modo offline.</string>
+    <string name="toast_store_billing_unavailable">Billing indisponível no momento. Tente novamente em alguns instantes.</string>
 </resources>

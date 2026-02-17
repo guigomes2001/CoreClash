@@ -167,5 +167,5 @@
     <string name="store_restore_purchases">Restore purchases</string>
     <string name="toast_restore_success">%1$d purchase(s) restored.</string>
     <string name="toast_restore_empty">No purchases were found to restore.</string>
-    <string name="toast_store_billing_unavailable">Billing unavailable now. Added 500 coins in offline mode.</string>
+    <string name="toast_store_billing_unavailable">Billing is unavailable right now. Please try again in a few moments.</string>
 </resources>

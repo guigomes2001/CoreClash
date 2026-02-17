@@ -65,3 +65,12 @@ Critérios:
 - Crianças: confirmar se app é direcionado a menores.
 - UGC/chat: se existir, implementar moderação e report.
 - Identificadores/analytics: declarar corretamente no Data Safety.
+
+## 9) Itens finais antes de enviar para produção
+- [ ] Gerar **AAB assinado** com keystore de produção e Play App Signing ativo.
+- [ ] Preencher classificação indicativa (content rating questionnaire).
+- [ ] Definir e testar canal de suporte (email/URL) no listing.
+- [ ] Revisar permissões declaradas no manifest e remover as não usadas.
+- [ ] Subir primeiro em **closed testing** e monitorar Android Vitals (crash, ANR, cold start).
+- [ ] Validar faturamento real com contas de teste da Play Console.
+- [ ] Confirmar que URL da política de privacidade está publicada e acessível.

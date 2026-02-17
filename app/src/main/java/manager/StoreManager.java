@@ -75,10 +75,6 @@ public class StoreManager {
             return;
         }
 
-        // fallback para ambientes de desenvolvimento sem Billing configurado
-        profile.coins += 500;
-        profileManager.persistProfile();
-        refreshStoreUI();
         Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
     }
 

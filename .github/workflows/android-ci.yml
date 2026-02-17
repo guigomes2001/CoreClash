@@ -21,6 +21,9 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Unit tests
         run: ./gradlew test
 
