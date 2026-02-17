@@ -65,6 +65,8 @@ public class StoreManager {
 
         binding.btnStyleRune.setOnClickListener(v -> buyOrEquipStyle("RUNE", 140));
         binding.btnStyleFuture.setOnClickListener(v -> buyOrEquipStyle("FUTURE", 160));
+        binding.btnStyleNeon.setOnClickListener(v -> buyOrEquipStyle("NEON", 190));
+        binding.btnStyleSamurai.setOnClickListener(v -> buyOrEquipStyle("SAMURAI", 210));
 
         binding.btnBuyCoins.setOnClickListener(v -> buyCoreclashSmall());
         binding.btnBuyCoinsPro.setOnClickListener(v -> buyCoreclashPro());

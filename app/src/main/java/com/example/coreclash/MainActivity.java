@@ -1472,17 +1472,47 @@ public class MainActivity extends AppCompatActivity {
         nameInput.setHint(getString(R.string.profile_name));
         styleInput(nameInput);
 
+        List<String> ownedStyles = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
+                ? new ArrayList<>()
+                : currentProfile.ownedSymbolStyles;
+        if (ownedStyles.isEmpty()) {
+            ownedStyles = new ArrayList<>();
+            ownedStyles.add("CLASSIC");
+        }
+        final List<String> availableStyles = ownedStyles;
+
+        String[] styleOptions = new String[availableStyles.size()];
+        int selectedStyleIndex = 0;
+        for (int i = 0; i < availableStyles.size(); i++) {
+            String styleId = availableStyles.get(i);
+            styleOptions[i] = getSymbolStyleLabel(styleId);
+            if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
+                selectedStyleIndex = i;
+            }
+        }
+
+        final int[] selectedIndexHolder = { selectedStyleIndex };
         String tag = buildTagFromUid(uid);
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.profile_title))
-                .setMessage(getString(R.string.profile_tag) + ": " + tag)
+                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" + getString(R.string.profile_personalization_hint))
                 .setView(nameInput)
+                .setSingleChoiceItems(styleOptions, selectedStyleIndex, (d, which) -> selectedIndexHolder[0] = which)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
                     String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
                     if (displayName.isEmpty()) displayName = getPlayerDisplayName();
+
+                    if (!NullUtil.isNull(currentProfile) && selectedIndexHolder[0] >= 0 && selectedIndexHolder[0] < availableStyles.size()) {
+                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndexHolder[0]);
+                        if (!NullUtil.isNull(storeManager)) {
+                            storeManager.applyEquippedCosmetics();
+                        }
+                    }
+
                     socialManager.upsertUserProfile(uid, displayName, tag);
                     playerServices.updateDisplayNameAndPersist(displayName);
+                    Toast.makeText(this, getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
                     updateHeaderStatus();
                 })
                 .setNegativeButton(getString(R.string.btn_back), null)
@@ -1490,6 +1520,16 @@ public class MainActivity extends AppCompatActivity {
 
         profileDialog.show();
         applyDialogStyle(profileDialog);
+    }
+
+    private String getSymbolStyleLabel(@NonNull String styleId) {
+        return switch (styleId) {
+            case "RUNE" -> getString(R.string.store_style_rune_name);
+            case "FUTURE" -> getString(R.string.store_style_future_name);
+            case "NEON" -> getString(R.string.store_style_neon_name);
+            case "SAMURAI" -> getString(R.string.store_style_samurai_name);
+            default -> getString(R.string.store_style_classic_name);
+        };
     }
 
     private void openFriendsDialog() {
