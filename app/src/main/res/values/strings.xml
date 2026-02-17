@@ -163,9 +163,11 @@
     <string name="privacy_dialog_title">About &amp; Privacy</string>
     <string name="privacy_dialog_message">CoreClash uses account and purchase services to enable profile sync and coin purchases. Read our Privacy Policy for data usage and retention details.</string>
     <string name="privacy_dialog_open_policy">Open Privacy Policy</string>
-    <string name="privacy_policy_url">https://guigomes2001.github.io/CoreClashOfficial/privacy.html</string>
+    <string name="privacy_policy_url">https://SEU-USUARIO.github.io/CoreClashOfficial/privacy.html</string>
     <string name="store_restore_purchases">Restore purchases</string>
     <string name="toast_restore_success">%1$d purchase(s) restored.</string>
     <string name="toast_restore_empty">No purchases were found to restore.</string>
     <string name="toast_store_billing_unavailable">Billing is unavailable right now. Please try again in a few moments.</string>
+    <string name="privacy_link_invalid">Invalid privacy link.</string>
+    <string name="privacy_browser_not_found">No browser found to open the privacy page.</string>
 </resources>
