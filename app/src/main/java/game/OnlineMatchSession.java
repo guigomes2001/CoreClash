@@ -21,6 +21,7 @@ import enums.DomainActionType;
 import enums.DomainMatchStatus;
 import enums.DomainSymmetries;
 import util.NullUtil;
+import util.StringUtil;
 
 public class OnlineMatchSession {
 
@@ -47,6 +48,19 @@ public class OnlineMatchSession {
         void onIntroClock(long startAtMs, long durationMs, long serverNowApproxMs);
     }
 
+
+
+    public interface PlayerStylesListener {
+        void onPlayerStyles(@NonNull String xStyle, @NonNull String oStyle);
+    }
+
+    @NonNull
+    private static String normalizeStyle(@Nullable String style) {
+        if (StringUtil.isBlank(style)) {
+            return "CLASSIC";
+        }
+        return StringUtil.trimOrEmpty(style).toUpperCase();
+    }
 
     public interface ForceTurnCallback {
         void onResult(boolean advanced);
@@ -77,6 +91,7 @@ public class OnlineMatchSession {
     private ValueEventListener offsetListener;
     private ValueEventListener introReadyListener;
     private ValueEventListener introClockListener;
+    private ValueEventListener playerStylesListener;
 
     private volatile long serverOffsetMs = 0L;
     private boolean opponentLeftNotified = false;
@@ -197,6 +212,10 @@ public class OnlineMatchSession {
             roomRef.child("intro").removeEventListener(introClockListener);
             introClockListener = null;
         }
+        if (!NullUtil.isNull(playerStylesListener)) {
+            roomRef.child("playerStyles").removeEventListener(playerStylesListener);
+            playerStylesListener = null;
+        }
     }
 
     public void listenTurnClock(@NonNull TurnClockListener listener) {
@@ -237,6 +256,36 @@ public class OnlineMatchSession {
         };
 
         roomRef.child("players").child("O").addValueEventListener(opponentListener);
+    }
+
+    public void listenPlayerStyles(@NonNull PlayerStylesListener listener) {
+        if (!NullUtil.isNull(playerStylesListener)) return;
+
+        playerStylesListener = new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String xStyle = normalizeStyle(snapshot.child("X").getValue(String.class));
+                String oStyle = normalizeStyle(snapshot.child("O").getValue(String.class));
+                listener.onPlayerStyles(xStyle, oStyle);
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+
+        roomRef.child("playerStyles").addValueEventListener(playerStylesListener);
+    }
+
+    public void readPlayerStylesOnce(@NonNull PlayerStylesListener listener) {
+        roomRef.child("playerStyles").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String xStyle = normalizeStyle(snapshot.child("X").getValue(String.class));
+                String oStyle = normalizeStyle(snapshot.child("O").getValue(String.class));
+                listener.onPlayerStyles(xStyle, oStyle);
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    public void publishMyStyle(@Nullable String styleId) {
+        roomRef.child("playerStyles").child(mySymbol).setValue(normalizeStyle(styleId));
     }
 
     public void scheduleIntroIfHost(boolean iAmHost, long delayMs, long durationMs) {
@@ -351,7 +400,7 @@ public class OnlineMatchSession {
 
                 currentData.child("status").setValue(STATUS_PLAYING);
                 currentData.child("turn").setValue(TURN_X);
-                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+                currentData.child("turnStartedAt").setValue(endAt);
 
                 if (NullUtil.isNull(currentData.child("turnDurationMs").getValue())) {
                     currentData.child("turnDurationMs").setValue(10_000L);
