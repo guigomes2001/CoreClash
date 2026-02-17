@@ -40,6 +40,8 @@ public class BoardManager {
 
     private String boardTheme = "ARENA";
     private String symbolStyle = "CLASSIC";
+    private String symbolStyleX = "CLASSIC";
+    private String symbolStyleO = "CLASSIC";
     private final FrameLayout[][] cellContainers = new FrameLayout[3][3];
     private final TextView[][] symbolViews = new TextView[3][3];
     private final Cell[][] cells = new Cell[3][3];
@@ -295,17 +297,53 @@ public class BoardManager {
 
     public void setSymbolStyle(String symbolStyle) {
         this.symbolStyle = symbolStyle;
+        this.symbolStyleX = symbolStyle;
+        this.symbolStyleO = symbolStyle;
+        refreshMappedSymbolsOnBoard();
+    }
+
+    public void setSymbolStylesBySide(@NonNull String xStyle, @NonNull String oStyle) {
+        this.symbolStyleX = xStyle;
+        this.symbolStyleO = oStyle;
+        refreshMappedSymbolsOnBoard();
+    }
+
+    private void refreshMappedSymbolsOnBoard() {
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                Cell logic = cells[r][c];
+                if (NullUtil.isNull(logic) || logic.isEmpty()) {
+                    continue;
+                }
+                symbolViews[r][c].setText(mapSymbol(logic.getVisualSymbol()));
+            }
+        }
     }
 
     private String mapSymbol(String symbol) {
+        String activeStyle = symbolStyle;
         if ("X".equals(symbol)) {
-            if ("RUNE".equals(symbolStyle)) return "✦";
-            if ("FUTURE".equals(symbolStyle)) return "✕";
+            activeStyle = symbolStyleX;
+        } else if ("O".equals(symbol)) {
+            activeStyle = symbolStyleO;
+        }
+
+        if ("X".equals(symbol)) {
+            if ("RUNE".equals(activeStyle)) return "✦";
+            if ("FUTURE".equals(activeStyle)) return "✕";
+            if ("NEON".equals(activeStyle)) return "✶";
+            if ("SAMURAI".equals(activeStyle)) return "メ";
+            if ("ROYAL".equals(activeStyle)) return "✥";
+            if ("VOID".equals(activeStyle)) return "✣";
             return "X";
         }
         if ("O".equals(symbol)) {
-            if ("RUNE".equals(symbolStyle)) return "◉";
-            if ("FUTURE".equals(symbolStyle)) return "⬡";
+            if ("RUNE".equals(activeStyle)) return "◉";
+            if ("FUTURE".equals(activeStyle)) return "⬡";
+            if ("NEON".equals(activeStyle)) return "◎";
+            if ("SAMURAI".equals(activeStyle)) return "◍";
+            if ("ROYAL".equals(activeStyle)) return "◌";
+            if ("VOID".equals(activeStyle)) return "◈";
             return "O";
         }
         return symbol;
