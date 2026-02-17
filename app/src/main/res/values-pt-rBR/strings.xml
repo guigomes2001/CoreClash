@@ -39,8 +39,8 @@
     <string name="btn_mode_ranked">Rank</string>
     <string name="btn_back">Voltar</string>
     <string name="btn_ok">OK</string>
-    <string name="store_coins_default">Core Coins: 0</string>
-    <string name="store_coins_format">Core Coins: %1$d</string>
+    <string name="store_coins_default">CoreClash: 0</string>
+    <string name="store_coins_format">CoreClash: %1$d</string>
     <string name="versus_you">Você</string>
     <string name="versus_rival">Rival</string>
     <string name="winner_default">X venceu</string>
