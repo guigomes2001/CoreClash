@@ -66,8 +66,8 @@
     <string name="store_theme_royal">Royal Arena</string>
     <string name="store_theme_void">Void Temple</string>
     <string name="store_styles_title">Symbol Styles</string>
-    <string name="store_style_rune_price">Rune Glyphs • 140</string>
-    <string name="store_style_future_price">Future Tech • 160</string>
+    <string name="store_style_rune_price">320 Core Coins</string>
+    <string name="store_style_future_price">180 Core Coins</string>
     <string name="store_buy_coins">+500 Core Coins</string>
     <string name="versus_center">VS</string>
     <string name="versus_title">%1$s VS %2$s</string>
@@ -183,10 +183,10 @@
     <string name="store_theme_royal_preview">♔  X • O</string>
     <string name="store_theme_void_preview">✦  X • O</string>
     <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
-    <string name="store_theme_royal_price">180</string>
-    <string name="store_theme_void_price">220</string>
-    <string name="store_style_neon_price">Neon Pulse • 190</string>
-    <string name="store_style_samurai_price">Samurai Ink • 210</string>
+    <string name="store_theme_royal_price">180 Core Coins</string>
+    <string name="store_theme_void_price">220 Core Coins</string>
+    <string name="store_style_neon_price">210 Core Coins</string>
+    <string name="store_style_samurai_price">240 Core Coins</string>
     <string name="store_style_classic_name">Classic (X / O)</string>
     <string name="store_style_rune_name">Rune Glyphs (✦ / ◉)</string>
     <string name="store_style_future_name">Future Tech (✕ / ⬡)</string>
