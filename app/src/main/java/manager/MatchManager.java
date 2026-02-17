@@ -231,6 +231,7 @@ public class MatchManager {
         );
 
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
+        onlineSession.publishMyStyle(myEquippedSymbolStyle);
         onlineSession.readPlayerStylesOnce((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
         onlineSession.listenPlayerStyles((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
 

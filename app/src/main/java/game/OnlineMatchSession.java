@@ -284,6 +284,10 @@ public class OnlineMatchSession {
         });
     }
 
+    public void publishMyStyle(@Nullable String styleId) {
+        roomRef.child("playerStyles").child(mySymbol).setValue(normalizeStyle(styleId));
+    }
+
     public void scheduleIntroIfHost(boolean iAmHost, long delayMs, long durationMs) {
         if (!iAmHost) return;
 
