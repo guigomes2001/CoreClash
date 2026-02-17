@@ -6,6 +6,11 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/ds_bg_root</item>
         <item name="android:colorBackground">@color/ds_bg_root</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="textAppearanceHeadlineLarge">@style/Text.CoreClash.Title</item>
+        <item name="textAppearanceTitleLarge">@style/Text.CoreClash.Title</item>
+        <item name="textAppearanceBodyLarge">@style/Text.CoreClash.Subtitle</item>
     </style>
 
     <style name="Theme.CoreClash" parent="Base.Theme.CoreClash" />

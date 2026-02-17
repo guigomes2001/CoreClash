@@ -411,6 +411,7 @@
                     android:text="@string/home_subtitle"
                     android:textColor="#9FB3C8"
                     android:textSize="14sp"
+                    android:fontFamily="sans-serif"
                     android:layout_marginTop="6dp"
                     app:layout_constraintTop_toBottomOf="@id/txtHomeTitle"
                     app:layout_constraintStart_toStartOf="parent"
