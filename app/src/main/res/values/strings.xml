@@ -200,4 +200,11 @@
     <string name="store_style_samurai_name_short">Samurai</string>
     <string name="profile_personalization_hint">Personalização: selecione o estilo já comprado para equipar.</string>
 
+
+    <string name="store_badge_acquired">Adquirido</string>
+    <string name="store_btn_equip">Equipar</string>
+    <string name="store_btn_unequip">Desequipar</string>
+    <string name="toast_theme_default_equipped">Tema padrão equipado.</string>
+    <string name="toast_style_default_equipped">Símbolo padrão equipado.</string>
+
 </resources>

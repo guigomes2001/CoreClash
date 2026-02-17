@@ -887,6 +887,7 @@
                     android:orientation="horizontal">
 
                     <LinearLayout
+                        android:id="@+id/cardThemeRoyal"
                         android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
@@ -909,6 +910,21 @@
                             android:textSize="12sp"
                             android:textColor="#95B7D8"/>
 
+                        <TextView
+                            android:id="@+id/badgeThemeRoyal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
@@ -919,7 +935,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="X"
+                                android:text="✥"
                                 android:textSize="34sp"
                                 android:textStyle="bold"
                                 android:textColor="#FB7185"/>
@@ -928,7 +944,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="18dp"
-                                android:text="O"
+                                android:text="◌"
                                 android:textSize="34sp"
                                 android:textStyle="bold"
                                 android:textColor="#22D3EE"/>
@@ -945,11 +961,12 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/cardThemeVoid"
                         android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
                         android:padding="10dp"
-                        android:background="@drawable/bg_store_clash"
+                        android:background="@drawable/bg_store_section"
                         android:orientation="vertical">
 
                         <TextView
@@ -966,6 +983,21 @@
                             android:text="@string/store_card_type_theme"
                             android:textSize="12sp"
                             android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeThemeVoid"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -1003,6 +1035,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/cardStyleRune"
                         android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
@@ -1024,6 +1057,21 @@
                             android:text="@string/store_card_type_style"
                             android:textSize="12sp"
                             android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleRune"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -1061,6 +1109,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/cardStyleFuture"
                         android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
@@ -1082,6 +1131,21 @@
                             android:text="@string/store_card_type_style"
                             android:textSize="12sp"
                             android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleFuture"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -1119,6 +1183,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/cardStyleNeon"
                         android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
@@ -1140,6 +1205,21 @@
                             android:text="@string/store_card_type_style"
                             android:textSize="12sp"
                             android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleNeon"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -1177,6 +1257,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/cardStyleSamurai"
                         android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:padding="10dp"
@@ -1197,6 +1278,21 @@
                             android:text="@string/store_card_type_style"
                             android:textSize="12sp"
                             android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleSamurai"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
