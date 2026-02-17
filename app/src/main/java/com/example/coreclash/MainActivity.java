@@ -117,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
     private int roundsWonO = 0;
     private int onlineRoundNumber = 1;
     private String onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
+    private String onlineStyleX = "CLASSIC";
+    private String onlineStyleO = "CLASSIC";
     private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
@@ -245,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         homeFlow.updateModeButtonStyles();
         updateHeaderStatus();
         updateSkillVisuals();
-        updateScoreHud(false, null);
+        updateScoreHud(false, null, false);
     }
 
 
@@ -308,6 +310,9 @@ public class MainActivity extends AppCompatActivity {
                 },
                 new BotManager.Callbacks() {
                     @Override public void onRender() {
+                        if (!NullUtil.isNull(currentProfile) && !NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                        }
                         updateHeaderStatus();
                         updateSkillVisuals();
                     }
@@ -337,6 +342,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
+                if (!NullUtil.isNull(currentProfile)) {
+                    matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                }
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
 
@@ -372,6 +380,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
+                if (!NullUtil.isNull(currentProfile)) {
+                    matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                }
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
 
@@ -399,6 +410,9 @@ public class MainActivity extends AppCompatActivity {
                 new PlayerServicesManager.Callbacks() {
                     @Override public void onProfileReady(@NonNull PlayerProfile profile) {
                         currentProfile = profile;
+                        if (!NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(profile.equippedSymbolStyle);
+                        }
                         String uid = getMyUidOrNull();
                         if (!NullUtil.isNull(uid)) {
                             socialManager.upsertUserProfile(uid, profile.displayName, buildTagFromUid(uid));
@@ -406,6 +420,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     @Override public void onStoreReady(@NonNull StoreManager sm) { storeManager = sm; }
                     @Override public void onRender() {
+                        if (!NullUtil.isNull(currentProfile) && !NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                        }
                         updateHeaderStatus();
                         updateSkillVisuals();
                     }
@@ -520,11 +537,19 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.applyArenaUiVisibility(visible);
                     }
 
+                    @Override public void onApplyOnlineSymbolStyles(@NonNull String xStyle, @NonNull String oStyle) {
+                        onlineStyleX = xStyle;
+                        onlineStyleO = oStyle;
+                        board.setSymbolStylesBySide(xStyle, oStyle);
+                    }
+
                     @Override public void onBeforeOnlineMatchStart() {
                         versusBot = false;
                         passAndPlayMode = false;
                         matchPhase = DomainMatchPhase.LOADING;
                         bothIntroReady = false;
+                        onlineStyleX = "CLASSIC";
+                        onlineStyleO = "CLASSIC";
 
                         setGameMode();
                         resetRoundSeries();
@@ -538,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onPlayTimeoutBanner(boolean xSide) { timeoutBannerAnimator.play(xSide); }
                     @Override public void onHideTimeoutBanner(boolean xSide) { timeoutBannerAnimator.hide(xSide); }
 
-                    @Override public boolean isBothIntroReady() { return bothIntroReady; }
+                    @Override public boolean isBothIntroReady() { return bothIntroReady && matchPhase == DomainMatchPhase.PLAYING; }
 
                     @Override public void onOnlineMatchShouldStartPlaying() {
                         hideMatchmakingLoading();
@@ -548,12 +573,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onOnlineRemoteWin(@NonNull String winnerSymbol) {
-                        handleRoundFinished(winnerSymbol, false);
+                        handleRoundFinished(winnerSymbol, false, Math.max(1, gameManager.getLastWins().size()));
                     }
 
                     @Override
                     public void onOnlineRemoteDraw() {
-                        handleRoundFinished(null, true);
+                        handleRoundFinished(null, true, 0);
                     }
 
                     @Override public void onEndOnlineSessionToMenu() { onlineSessionEndedCleanup(); }
@@ -797,12 +822,12 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            handleRoundFinished(symbol, false);
+            handleRoundFinished(symbol, false, Math.max(1, gameManager.getLastWins().size()));
             return;
         }
 
         if (gameManager.isGameOver()) {
-            handleRoundFinished(null, true);
+            handleRoundFinished(null, true, 0);
         }
     }
 
@@ -813,6 +838,7 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (onlineMatch) {
+            board.setSymbolStylesBySide(onlineStyleX, onlineStyleO);
             matchManager.onBothIntroReady();
             return;
         }
@@ -847,7 +873,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void updateScoreHud(boolean animate, String winningSymbol) {
+    private void updateScoreHud(boolean animate, String winningSymbol, boolean sweepHighlight) {
         binding.txtHudScoreInline.setText(getString(R.string.round_score_inline, roundsWonX, roundsWonO));
 
         if (animate && !NullUtil.isNull(winningSymbol)) {
@@ -871,6 +897,20 @@ public class MainActivity extends AppCompatActivity {
             flash.start();
         }
 
+        if (sweepHighlight && !NullUtil.isNull(winningSymbol)) {
+            binding.txtHudScoreInline.setBackgroundResource(
+                    DomainSymmetries.X.getValue().equals(winningSymbol)
+                            ? R.drawable.bg_score_sweep_x
+                            : R.drawable.bg_score_sweep_o
+            );
+            binding.txtHudScoreInline.setPadding(16, 6, 16, 6);
+            binding.txtHudScoreInline.setScaleX(1.08f);
+            binding.txtHudScoreInline.setScaleY(1.08f);
+            binding.txtHudScoreInline.animate().scaleX(1f).scaleY(1f).setDuration(320).start();
+        } else {
+            binding.txtHudScoreInline.setBackground(null);
+        }
+
         boolean fireMode = roundsWonX == 1 && roundsWonO == 1;
         setArenaFireMode(fireMode);
     }
@@ -882,6 +922,7 @@ public class MainActivity extends AppCompatActivity {
         binding.boardContainer.setScaleY(1f);
         binding.txtHudVersus.setTextColor(Color.parseColor("#CBD5E1"));
         binding.txtHudScoreInline.setTextColor(Color.parseColor("#D1E2FF"));
+        binding.txtHudScoreInline.setBackground(null);
     }
 
     @NonNull
@@ -963,6 +1004,13 @@ public class MainActivity extends AppCompatActivity {
         return state.isXTurn() ? getString(R.string.countdown_you_start) : getString(R.string.countdown_opponent_starts);
     }
 
+    private void applyLocalEquippedStyles() {
+        String style = (NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.equippedSymbolStyle))
+                ? "CLASSIC"
+                : currentProfile.equippedSymbolStyle;
+        board.setSymbolStyle(style);
+    }
+
     private void startLocalPassAndPlay() {
         hideMatchmakingLoading();
         passAndPlayMode = true;
@@ -972,6 +1020,7 @@ public class MainActivity extends AppCompatActivity {
         opponentName = getString(R.string.label_player_two);
         resetRoundSeries();
 
+        applyLocalEquippedStyles();
         setGameMode();
         state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
         gameManager.resetGame();
@@ -1195,12 +1244,12 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            handleRoundFinished(symbol, false);
+            handleRoundFinished(symbol, false, Math.max(1, gameManager.getLastWins().size()));
             return;
         }
 
         if (gameManager.isGameOver()) {
-            handleRoundFinished(null, true);
+            handleRoundFinished(null, true, 0);
             return;
         }
 
@@ -1212,7 +1261,7 @@ public class MainActivity extends AppCompatActivity {
         roundsWonO = 0;
         onlineRoundNumber = 1;
         onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
-        updateScoreHud(false, null);
+        updateScoreHud(false, null, false);
     }
 
     private boolean isActionLocked() {
@@ -1249,7 +1298,7 @@ public class MainActivity extends AppCompatActivity {
         return connected;
     }
 
-    private void handleRoundFinished(String winnerSymbol, boolean draw) {
+    private void handleRoundFinished(String winnerSymbol, boolean draw, int winLinesInRound) {
         final boolean online = matchManager.isOnlineMatch();
         matchStarted = false;
         matchPhase = DomainMatchPhase.LOADING;
@@ -1287,10 +1336,12 @@ public class MainActivity extends AppCompatActivity {
         victoryOverlayAnimator.showWinLineOnly();
 
         handler.postDelayed(() -> {
-            if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX++;
-            if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO++;
+            int roundPoints = Math.max(1, winLinesInRound);
+            if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX += roundPoints;
+            if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO += roundPoints;
 
-            updateScoreHud(true, winnerSymbol);
+            boolean doubleLineSweep = roundPoints >= 2;
+            updateScoreHud(true, winnerSymbol, doubleLineSweep);
 
             int winnerRounds = Math.max(roundsWonX, roundsWonO);
             int loserRounds = Math.min(roundsWonX, roundsWonO);
@@ -1313,7 +1364,7 @@ public class MainActivity extends AppCompatActivity {
                         showUiToastDeduped(getString(R.string.online_tiebreak_fire));
                     }
 
-                    showUiToastDeduped(getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
+                    showUiToastDeduped(getString(doubleLineSweep ? R.string.round_result_double_line_score : R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
 
                     victoryOverlayAnimator.hideInstant();
                     gameManager.resetGame();
@@ -1339,7 +1390,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                showUiToastDeduped(getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
+                showUiToastDeduped(getString(doubleLineSweep ? R.string.round_result_double_line_score : R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
                 victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
                 victoryOverlayAnimator.clearLines();
@@ -1426,6 +1477,7 @@ public class MainActivity extends AppCompatActivity {
         currentBotDifficulty = randomDifficulty();
         resetRoundSeries();
 
+        applyLocalEquippedStyles();
         setGameMode();
         state.setGameMode(DomainGameMode.BOT.getValue());
         gameManager.resetGame();
@@ -1472,17 +1524,47 @@ public class MainActivity extends AppCompatActivity {
         nameInput.setHint(getString(R.string.profile_name));
         styleInput(nameInput);
 
+        List<String> ownedStyles = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
+                ? new ArrayList<>()
+                : currentProfile.ownedSymbolStyles;
+        if (ownedStyles.isEmpty()) {
+            ownedStyles = new ArrayList<>();
+            ownedStyles.add("CLASSIC");
+        }
+        final List<String> availableStyles = ownedStyles;
+
+        String[] styleOptions = new String[availableStyles.size()];
+        int selectedStyleIndex = 0;
+        for (int i = 0; i < availableStyles.size(); i++) {
+            String styleId = availableStyles.get(i);
+            styleOptions[i] = getSymbolStyleLabel(styleId);
+            if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
+                selectedStyleIndex = i;
+            }
+        }
+
+        final int[] selectedIndexHolder = { selectedStyleIndex };
         String tag = buildTagFromUid(uid);
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.profile_title))
-                .setMessage(getString(R.string.profile_tag) + ": " + tag)
+                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" + getString(R.string.profile_personalization_hint))
                 .setView(nameInput)
+                .setSingleChoiceItems(styleOptions, selectedStyleIndex, (d, which) -> selectedIndexHolder[0] = which)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
                     String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
                     if (displayName.isEmpty()) displayName = getPlayerDisplayName();
+
+                    if (!NullUtil.isNull(currentProfile) && selectedIndexHolder[0] >= 0 && selectedIndexHolder[0] < availableStyles.size()) {
+                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndexHolder[0]);
+                        if (!NullUtil.isNull(storeManager)) {
+                            storeManager.applyEquippedCosmetics();
+                        }
+                    }
+
                     socialManager.upsertUserProfile(uid, displayName, tag);
                     playerServices.updateDisplayNameAndPersist(displayName);
+                    Toast.makeText(this, getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
                     updateHeaderStatus();
                 })
                 .setNegativeButton(getString(R.string.btn_back), null)
@@ -1490,6 +1572,16 @@ public class MainActivity extends AppCompatActivity {
 
         profileDialog.show();
         applyDialogStyle(profileDialog);
+    }
+
+    private String getSymbolStyleLabel(@NonNull String styleId) {
+        return switch (styleId) {
+            case "RUNE" -> getString(R.string.store_style_rune_name);
+            case "FUTURE" -> getString(R.string.store_style_future_name);
+            case "NEON" -> getString(R.string.store_style_neon_name);
+            case "SAMURAI" -> getString(R.string.store_style_samurai_name);
+            default -> getString(R.string.store_style_classic_name);
+        };
     }
 
     private void openFriendsDialog() {

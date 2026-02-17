@@ -48,6 +48,11 @@ public class OnlineMatchSession {
     }
 
 
+
+    public interface PlayerStylesListener {
+        void onPlayerStyles(@NonNull String xStyle, @NonNull String oStyle);
+    }
+
     public interface ForceTurnCallback {
         void onResult(boolean advanced);
     }
@@ -77,6 +82,7 @@ public class OnlineMatchSession {
     private ValueEventListener offsetListener;
     private ValueEventListener introReadyListener;
     private ValueEventListener introClockListener;
+    private ValueEventListener playerStylesListener;
 
     private volatile long serverOffsetMs = 0L;
     private boolean opponentLeftNotified = false;
@@ -197,6 +203,10 @@ public class OnlineMatchSession {
             roomRef.child("intro").removeEventListener(introClockListener);
             introClockListener = null;
         }
+        if (!NullUtil.isNull(playerStylesListener)) {
+            roomRef.child("playerStyles").removeEventListener(playerStylesListener);
+            playerStylesListener = null;
+        }
     }
 
     public void listenTurnClock(@NonNull TurnClockListener listener) {
@@ -237,6 +247,23 @@ public class OnlineMatchSession {
         };
 
         roomRef.child("players").child("O").addValueEventListener(opponentListener);
+    }
+
+    public void listenPlayerStyles(@NonNull PlayerStylesListener listener) {
+        if (!NullUtil.isNull(playerStylesListener)) return;
+
+        playerStylesListener = new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String xStyle = snapshot.child("X").getValue(String.class);
+                String oStyle = snapshot.child("O").getValue(String.class);
+                if (NullUtil.isNullOrEmpty(xStyle)) xStyle = "CLASSIC";
+                if (NullUtil.isNullOrEmpty(oStyle)) oStyle = "CLASSIC";
+                listener.onPlayerStyles(xStyle, oStyle);
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+
+        roomRef.child("playerStyles").addValueEventListener(playerStylesListener);
     }
 
     public void scheduleIntroIfHost(boolean iAmHost, long delayMs, long durationMs) {
@@ -351,7 +378,7 @@ public class OnlineMatchSession {
 
                 currentData.child("status").setValue(STATUS_PLAYING);
                 currentData.child("turn").setValue(TURN_X);
-                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+                currentData.child("turnStartedAt").setValue(endAt);
 
                 if (NullUtil.isNull(currentData.child("turnDurationMs").getValue())) {
                     currentData.child("turnDurationMs").setValue(10_000L);
