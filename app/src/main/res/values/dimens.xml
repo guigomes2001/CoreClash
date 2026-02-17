@@ -17,4 +17,14 @@
     <dimen name="ds_title_size">28sp</dimen>
     <dimen name="ds_subtitle_size">14sp</dimen>
     <dimen name="ds_body_size">15sp</dimen>
+
+    <dimen name="game_hud_top_margin">8dp</dimen>
+    <dimen name="game_hud_horizontal_margin">18dp</dimen>
+    <dimen name="game_hud_horizontal_padding">18dp</dimen>
+    <dimen name="game_board_top_margin">19dp</dimen>
+    <dimen name="game_board_container_size">291dp</dimen>
+    <dimen name="game_board_cell_size">85dp</dimen>
+    <dimen name="game_board_cell_margin">4dp</dimen>
+    <dimen name="game_skill_button_size">86dp</dimen>
+    <dimen name="game_skill_button_gap">70dp</dimen>
 </resources>
