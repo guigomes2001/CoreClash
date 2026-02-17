@@ -39,8 +39,8 @@
     <string name="btn_mode_ranked">Rank</string>
     <string name="btn_back">Back</string>
     <string name="btn_ok">OK</string>
-    <string name="store_coins_default">Core Coins: 0</string>
-    <string name="store_coins_format">Core Coins: %1$d</string>
+    <string name="store_coins_default">CoreClash: 0</string>
+    <string name="store_coins_format">CoreClash: %1$d</string>
     <string name="versus_you">You</string>
     <string name="versus_rival">Rival</string>
     <string name="winner_default">X wins</string>
@@ -53,12 +53,12 @@
     <string name="mode_dialog_title">Choose mode</string>
     <string name="mode_dialog_subtitle">If no rival is available, a bot joins the arena automatically.</string>
     <string name="mode_dialog_ranked">Ranked</string>
-    <string name="toast_coins_added">Coins added!</string>
+    <string name="toast_coins_added">CoreClash credit added!</string>
     <string name="toast_theme_equipped">Theme equipped</string>
     <string name="toast_theme_bought">Theme purchased!</string>
     <string name="toast_style_equipped">Style equipped</string>
     <string name="toast_style_bought">Style purchased!</string>
-    <string name="toast_insufficient_coins">Not enough coins</string>
+    <string name="toast_insufficient_coins">Not enough CoreClash</string>
     <string name="auth_google_connect_error">Could not connect to Google</string>
     <string name="auth_google_link_in_use">Could not link: account already in use.</string>
     <string name="status_waiting">Waiting</string>
@@ -68,7 +68,7 @@
     <string name="store_styles_title">⚔ Styles</string>
     <string name="store_style_rune_price">Rune 140</string>
     <string name="store_style_future_price">Future Tech • 160</string>
-    <string name="store_buy_coins">+500 Coins</string>
+    <string name="store_buy_coins">+500 CoreClash</string>
     <string name="versus_center">VS</string>
     <string name="versus_title">%1$s VS %2$s</string>
 
@@ -159,4 +159,19 @@
 
     <string name="score_best_of_three">BEST OF 3</string>
 
+    <string name="btn_about_privacy">About &amp; Privacy</string>
+    <string name="privacy_dialog_title">About &amp; Privacy</string>
+    <string name="privacy_dialog_message">CoreClash uses account and purchase services to enable profile sync and coin purchases. Read our Privacy Policy for data usage and retention details.</string>
+    <string name="privacy_dialog_open_policy">Open Privacy Policy</string>
+    <string name="privacy_policy_url">https://SEU-USUARIO.github.io/CoreClashOfficial/privacy.html</string>
+    <string name="store_restore_purchases">Restore purchases</string>
+    <string name="toast_restore_success">%1$d purchase(s) restored.</string>
+    <string name="toast_restore_empty">No purchases were found to restore.</string>
+    <string name="toast_store_billing_unavailable">Billing is unavailable right now. Please try again in a few moments.</string>
+    <string name="privacy_link_invalid">Invalid privacy link.</string>
+    <string name="privacy_browser_not_found">No browser found to open the privacy page.</string>
+    <string name="store_coreclash_shop_title">CORECLASH SHOP • REAL MONEY</string>
+    <string name="store_buy_coreclash_small">500 CoreClash • R$ 9,90</string>
+    <string name="store_buy_coreclash_pro">1200 CoreClash • R$ 19,90 • BEST VALUE</string>
+    <string name="store_buy_coreclash_hint">Most players pick BEST VALUE for faster unlocks.</string>
 </resources>

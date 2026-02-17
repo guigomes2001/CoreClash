@@ -1,6 +1,7 @@
 package com.example.coreclash.billing;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
@@ -13,9 +14,13 @@ import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryPurchasesParams;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import util.NullUtil;
 
 public class BillingManager implements PurchasesUpdatedListener {
@@ -24,14 +29,26 @@ public class BillingManager implements PurchasesUpdatedListener {
         void onCoinsGranted(int amount);
     }
 
-    private static final String PRODUCT_COINS_SMALL = "coins_pack_small";
+    public interface RestoreListener {
+        void onRestoreCompleted(int restoredPurchasesCount);
+    }
+
+    public static final String PRODUCT_CORECLASH_SMALL = "coreclash_pack_small";
+    public static final String PRODUCT_CORECLASH_PRO = "coreclash_pack_pro";
+
+    private static final String PREFS_NAME = "billing_prefs";
+    private static final String TOKEN_PREFIX = "ack_";
+
+    private final Map<String, ProductDetails> productDetailsById = new HashMap<>();
 
     private BillingClient billingClient;
-    private ProductDetails coinsPackDetails;
     private CoinsListener coinsListener;
+    private SharedPreferences prefs;
 
     public void start(@NonNull Activity activity, @NonNull CoinsListener listener) {
         this.coinsListener = listener;
+        this.prefs = activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE);
+
         billingClient = BillingClient.newBuilder(activity)
                 .setListener(this)
                 .enablePendingPurchases()
@@ -47,7 +64,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 
             @Override
             public void onBillingServiceDisconnected() {
-                // reconnect lazily when player opens the store again
+                // reconnect lazily
             }
         });
     }
@@ -55,7 +72,11 @@ public class BillingManager implements PurchasesUpdatedListener {
     private void queryProducts() {
         List<QueryProductDetailsParams.Product> products = new ArrayList<>();
         products.add(QueryProductDetailsParams.Product.newBuilder()
-                .setProductId(PRODUCT_COINS_SMALL)
+                .setProductId(PRODUCT_CORECLASH_SMALL)
+                .setProductType(BillingClient.ProductType.INAPP)
+                .build());
+        products.add(QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(PRODUCT_CORECLASH_PRO)
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build());
 
@@ -63,22 +84,31 @@ public class BillingManager implements PurchasesUpdatedListener {
                 .setProductList(products)
                 .build();
 
-        billingClient.queryProductDetailsAsync(params, (billingResult, productDetailsList) -> {
-            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || productDetailsList.isEmpty()) {
+        billingClient.queryProductDetailsAsync(params, (billingResult, detailsList) -> {
+            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || NullUtil.isNull(detailsList)) {
                 return;
             }
-            coinsPackDetails = productDetailsList.get(0);
+
+            productDetailsById.clear();
+            for (ProductDetails details : detailsList) {
+                productDetailsById.put(details.getProductId(), details);
+            }
         });
     }
 
-    public boolean launchCoinsPackPurchase(@NonNull Activity activity) {
-        if (NullUtil.isNull(billingClient) || NullUtil.isNull(coinsPackDetails)) {
+    public boolean launchProductPurchase(@NonNull Activity activity, @NonNull String productId) {
+        if (NullUtil.isNull(billingClient) || !productDetailsById.containsKey(productId)) {
+            return false;
+        }
+
+        ProductDetails details = productDetailsById.get(productId);
+        if (NullUtil.isNull(details)) {
             return false;
         }
 
         List<BillingFlowParams.ProductDetailsParams> products = new ArrayList<>();
         products.add(BillingFlowParams.ProductDetailsParams.newBuilder()
-                .setProductDetails(coinsPackDetails)
+                .setProductDetails(details)
                 .build());
 
         BillingFlowParams flowParams = BillingFlowParams.newBuilder()
@@ -89,6 +119,30 @@ public class BillingManager implements PurchasesUpdatedListener {
         return result.getResponseCode() == BillingClient.BillingResponseCode.OK;
     }
 
+    public void restorePurchases(@NonNull RestoreListener listener) {
+        if (NullUtil.isNull(billingClient)) {
+            listener.onRestoreCompleted(0);
+            return;
+        }
+
+        QueryPurchasesParams params = QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.INAPP)
+                .build();
+
+        billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
+            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || NullUtil.isNull(purchases)) {
+                listener.onRestoreCompleted(0);
+                return;
+            }
+
+            int restored = 0;
+            for (Purchase purchase : purchases) {
+                restored += processPurchase(purchase);
+            }
+            listener.onRestoreCompleted(restored);
+        });
+    }
+
     @Override
     public void onPurchasesUpdated(@NonNull BillingResult billingResult, List<Purchase> purchases) {
         if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || NullUtil.isNull(purchases)) {
@@ -96,18 +150,59 @@ public class BillingManager implements PurchasesUpdatedListener {
         }
 
         for (Purchase purchase : purchases) {
-            if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-                if (!purchase.isAcknowledged()) {
-                    AcknowledgePurchaseParams params = AcknowledgePurchaseParams.newBuilder()
-                            .setPurchaseToken(purchase.getPurchaseToken())
-                            .build();
-                    billingClient.acknowledgePurchase(params, result -> {
-                    });
-                }
-                if (!NullUtil.isNull(coinsListener)) {
-                    coinsListener.onCoinsGranted(500);
-                }
-            }
+            processPurchase(purchase);
         }
+    }
+
+    private int processPurchase(@NonNull Purchase purchase) {
+        if (purchase.getPurchaseState() != Purchase.PurchaseState.PURCHASED) {
+            return 0;
+        }
+
+        String token = purchase.getPurchaseToken();
+        if (isTokenProcessed(token)) {
+            return 0;
+        }
+
+        if (!purchase.isAcknowledged()) {
+            AcknowledgePurchaseParams params = AcknowledgePurchaseParams.newBuilder()
+                    .setPurchaseToken(token)
+                    .build();
+            billingClient.acknowledgePurchase(params, result -> { });
+        }
+
+        int granted = 0;
+        List<String> products = purchase.getProducts();
+        for (String productId : products) {
+            granted += coresForProduct(productId);
+        }
+
+        if (granted <= 0) {
+            granted = 500;
+        }
+
+        markTokenProcessed(token);
+
+        if (!NullUtil.isNull(coinsListener)) {
+            coinsListener.onCoinsGranted(granted);
+        }
+        return 1;
+    }
+
+    private int coresForProduct(@NonNull String productId) {
+        return switch (productId) {
+            case PRODUCT_CORECLASH_SMALL -> 500;
+            case PRODUCT_CORECLASH_PRO -> 1200;
+            default -> 0;
+        };
+    }
+
+    private boolean isTokenProcessed(@NonNull String token) {
+        return !NullUtil.isNull(prefs) && prefs.getBoolean(TOKEN_PREFIX + token, false);
+    }
+
+    private void markTokenProcessed(@NonNull String token) {
+        if (NullUtil.isNull(prefs)) return;
+        prefs.edit().putBoolean(TOKEN_PREFIX + token, true).apply();
     }
 }

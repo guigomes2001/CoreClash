@@ -3,20 +3,26 @@
 
     <style name="Text" />
 
-    <style name="Text.CoreClash" parent="Text" />
+    <style name="Text.CoreClash" parent="Text">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
 
     <style name="Text.CoreClash.Title" parent="Text.CoreClash">
         <item name="android:textColor">@color/ds_text_primary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/ds_title_size</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:letterSpacing">0.03</item>
     </style>
 
     <style name="Text.CoreClash.Subtitle" parent="Text.CoreClash">
         <item name="android:textColor">@color/ds_text_muted</item>
         <item name="android:textSize">@dimen/ds_subtitle_size</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
     <style name="Widget.CoreClash.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:layout_height">@dimen/ds_button_height</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
@@ -25,6 +31,7 @@
     </style>
 
     <style name="Widget.CoreClash.Button.Secondary" parent="Widget.Material3.Button">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:layout_height">@dimen/ds_button_height</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
@@ -33,6 +40,7 @@
     </style>
 
     <style name="Widget.CoreClash.Button.Tertiary" parent="Widget.Material3.Button">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:layout_height">@dimen/ds_button_height</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
