@@ -53,7 +53,7 @@
     <string name="mode_dialog_title">Escolha o modo</string>
     <string name="mode_dialog_subtitle">Se não houver adversário disponível, um bot entra na arena automaticamente.</string>
     <string name="mode_dialog_ranked">Ranqueada</string>
-    <string name="toast_coins_added">Crédito CoreClash adicionado!</string>
+    <string name="toast_coins_added">Core Coins adicionadas!</string>
     <string name="toast_theme_equipped">Tema equipado</string>
     <string name="toast_theme_bought">Tema comprado!</string>
     <string name="toast_style_equipped">Estilo equipado</string>
@@ -68,7 +68,7 @@
     <string name="store_styles_title">⚔ Estilos</string>
     <string name="store_style_rune_price">Rune 140</string>
     <string name="store_style_future_price">Future Tech • 160</string>
-    <string name="store_buy_coins">+500 CoreClash</string>
+    <string name="store_buy_coins">+500 Core Coins</string>
     <string name="versus_center">VS</string>
     <string name="versus_title">%1$s VS %2$s</string>
 
@@ -169,9 +169,11 @@
     <string name="toast_store_billing_unavailable">Billing indisponível no momento. Tente novamente em alguns instantes.</string>
     <string name="privacy_link_invalid">Link de privacidade inválido.</string>
     <string name="privacy_browser_not_found">Nenhum navegador encontrado para abrir a página de privacidade.</string>
-    <string name="store_coreclash_shop_title">LOJA CORECLASH • DINHEIRO REAL</string>
-    <string name="store_buy_coreclash_small">500 CoreClash • R$ 9,90</string>
-    <string name="store_buy_coreclash_pro">1200 CoreClash • R$ 19,90 • MELHOR CUSTO</string>
+    <string name="store_coreclash_shop_title">LOJA CORE COINS • DINHEIRO REAL</string>
+    <string name="store_buy_coreclash_small">500 Core Coins • R$ 9,90</string>
+    <string name="store_buy_coreclash_pro">1200 Core Coins • R$ 19,90 • MELHOR CUSTO</string>
     <string name="store_buy_coreclash_hint">A maioria escolhe MELHOR CUSTO para desbloquear mais rápido.</string>
-    <string name="store_wallet_plus_desc">Abrir loja de CoreClash</string>
+    <string name="store_wallet_plus_desc">Abrir loja de Core Coins</string>
+    <string name="store_pack_starter">Pacote Inicial</string>
+    <string name="store_pack_best_value">Melhor Custo</string>
 </resources>

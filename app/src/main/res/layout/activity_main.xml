@@ -440,16 +440,16 @@
                         android:textStyle="bold"
                         android:fontFamily="sans-serif-condensed"/>
 
-                    <Button
+                    <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/btnWalletPlus"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_store_buy_button"
-                        android:text="+"
-                        android:textStyle="bold"
-                        android:textColor="#04131F"
-                        android:contentDescription="@string/store_wallet_plus_desc"/>
+                        android:padding="7dp"
+                        android:contentDescription="@string/store_wallet_plus_desc"
+                        app:srcCompat="@drawable/ic_plus_small"
+                        app:tint="#04131F"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -1015,6 +1015,62 @@
                 android:background="@drawable/bg_store_item"
                 android:textColor="#FFFFFF"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="74dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_store_clash"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🪙🪙🪙"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_pack_starter"
+                        android:textColor="#F8FAFC"
+                        android:textStyle="bold"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="74dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_store_section"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🪙🪙🪙🪙🪙"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_pack_best_value"
+                        android:textColor="#FDE68A"
+                        android:textStyle="bold"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/sectionCoreclashShop"
                 android:layout_width="match_parent"
@@ -1029,7 +1085,7 @@
             <Button
                 android:id="@+id/btnBuyCoins"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/store_buy_coreclash_small"
                 android:textStyle="bold"
@@ -1039,7 +1095,7 @@
             <Button
                 android:id="@+id/btnBuyCoinsPro"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/store_buy_coreclash_pro"
                 android:textStyle="bold"
