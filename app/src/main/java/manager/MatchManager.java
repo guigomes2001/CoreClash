@@ -372,13 +372,9 @@ public class MatchManager {
 
                     cb.runOnUi(() -> {
                         cb.onUpdateHeaderStatus();
-                        if (cb.isBothIntroReady()) {
-                            if (gameManager.getFinalMoves() > 0) {
-                                startOrUpdateOnlineBar();
-                                scheduleOnlineTimeoutBanner();
-                            } else {
-                                stopOnlineBarAnim(true);
-                            }
+                        if (cb.isBothIntroReady() && !gameManager.isGameOver()) {
+                            startOrUpdateOnlineBar();
+                            scheduleOnlineTimeoutBanner();
                         } else {
                             stopOnlineBarAnim(true);
                         }
@@ -392,7 +388,7 @@ public class MatchManager {
         if (!isOnlineMatch) {
             return;
         }
-        if (gameManager.getFinalMoves() <= 0) {
+        if (gameManager.isGameOver()) {
             stopOnlineBarAnim(true);
             return;
         }
@@ -438,6 +434,7 @@ public class MatchManager {
         long elapsed = Math.max(0L, nowServer - turnStartedAtOnlineMs);
         long remaining = Math.max(0L, turnDurationOnlineMs - elapsed);
 
+        if (turnDurationOnlineMs <= 0L) turnDurationOnlineMs = 10_000L;
         int startProgress = (int) (100f * (remaining / (float) turnDurationOnlineMs));
 
         final boolean xTurn = "X".equals(turnOnline);

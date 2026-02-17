@@ -299,11 +299,25 @@ public class BoardManager {
         this.symbolStyle = symbolStyle;
         this.symbolStyleX = symbolStyle;
         this.symbolStyleO = symbolStyle;
+        refreshMappedSymbolsOnBoard();
     }
 
     public void setSymbolStylesBySide(@NonNull String xStyle, @NonNull String oStyle) {
         this.symbolStyleX = xStyle;
         this.symbolStyleO = oStyle;
+        refreshMappedSymbolsOnBoard();
+    }
+
+    private void refreshMappedSymbolsOnBoard() {
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                Cell logic = cells[r][c];
+                if (NullUtil.isNull(logic) || logic.isEmpty()) {
+                    continue;
+                }
+                symbolViews[r][c].setText(mapSymbol(logic.getVisualSymbol()));
+            }
+        }
     }
 
     private String mapSymbol(String symbol) {
