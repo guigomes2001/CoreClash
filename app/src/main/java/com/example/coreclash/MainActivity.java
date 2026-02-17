@@ -493,9 +493,6 @@ public class MainActivity extends AppCompatActivity {
                             if (!NullUtil.isNull(matchManager.getOnlineSession())) {
                                 matchManager.getOnlineSession().markIntroReady(() -> runOnUiThread(() -> {
                                     bothIntroReady = true;
-
-                                    matchManager.getOnlineSession().startPlayingWhenIntroFinished();
-
                                     runCountdown(getOnlineStartsLabel(), () -> beginPlayingAfterCountdown(true));
                                 }));
                             }

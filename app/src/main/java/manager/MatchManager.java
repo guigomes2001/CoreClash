@@ -397,12 +397,10 @@ public class MatchManager {
         if (!isOnlineMatch) {
             return;
         }
-        if (gameManager.isGameOver()) {
-            stopOnlineBarAnim(true);
+        if (NullUtil.isNull(onlineSession)) {
             return;
         }
-        startOrUpdateOnlineBar();
-        scheduleOnlineTimeoutBanner();
+        onlineSession.startPlayingWhenIntroFinished();
     }
 
     public void sendMove(int r, int c) {
