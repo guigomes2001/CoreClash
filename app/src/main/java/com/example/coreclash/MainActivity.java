@@ -117,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
     private int roundsWonO = 0;
     private int onlineRoundNumber = 1;
     private String onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
+    private String onlineStyleX = "CLASSIC";
+    private String onlineStyleO = "CLASSIC";
     private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
@@ -536,6 +538,8 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override public void onApplyOnlineSymbolStyles(@NonNull String xStyle, @NonNull String oStyle) {
+                        onlineStyleX = xStyle;
+                        onlineStyleO = oStyle;
                         board.setSymbolStylesBySide(xStyle, oStyle);
                     }
 
@@ -544,6 +548,8 @@ public class MainActivity extends AppCompatActivity {
                         passAndPlayMode = false;
                         matchPhase = DomainMatchPhase.LOADING;
                         bothIntroReady = false;
+                        onlineStyleX = "CLASSIC";
+                        onlineStyleO = "CLASSIC";
 
                         setGameMode();
                         resetRoundSeries();
@@ -557,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onPlayTimeoutBanner(boolean xSide) { timeoutBannerAnimator.play(xSide); }
                     @Override public void onHideTimeoutBanner(boolean xSide) { timeoutBannerAnimator.hide(xSide); }
 
-                    @Override public boolean isBothIntroReady() { return bothIntroReady; }
+                    @Override public boolean isBothIntroReady() { return bothIntroReady && matchPhase == DomainMatchPhase.PLAYING; }
 
                     @Override public void onOnlineMatchShouldStartPlaying() {
                         hideMatchmakingLoading();
@@ -832,6 +838,7 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (onlineMatch) {
+            board.setSymbolStylesBySide(onlineStyleX, onlineStyleO);
             matchManager.onBothIntroReady();
             return;
         }
