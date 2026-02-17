@@ -110,14 +110,33 @@ public class VictoryOverlayAnimator {
     }
 
     private void drawVictoryLine() {
-        GameManager.WinInfo win = gameManager.getLastWin();
-        if (NullUtil.isNull(win)) return;
-
-        PointF start = board.getCellCenterOnScreen(win.r1(), win.c1());
-        PointF end = board.getCellCenterOnScreen(win.r3(), win.c3());
+        java.util.List<GameManager.WinInfo> wins = gameManager.getLastWins();
+        if (wins.isEmpty()) return;
 
         int[] lineLoc = new int[2];
         binding.victoryLineView.getLocationOnScreen(lineLoc);
+
+        GameManager.WinInfo first = wins.get(0);
+        PointF start = board.getCellCenterOnScreen(first.r1(), first.c1());
+        PointF end = board.getCellCenterOnScreen(first.r3(), first.c3());
+
+        if (wins.size() >= 2) {
+            GameManager.WinInfo second = wins.get(1);
+            PointF start2 = board.getCellCenterOnScreen(second.r1(), second.c1());
+            PointF end2 = board.getCellCenterOnScreen(second.r3(), second.c3());
+
+            binding.victoryLineView.setDrawData(
+                    start.x - lineLoc[0],
+                    start.y - lineLoc[1],
+                    end.x - lineLoc[0],
+                    end.y - lineLoc[1],
+                    start2.x - lineLoc[0],
+                    start2.y - lineLoc[1],
+                    end2.x - lineLoc[0],
+                    end2.y - lineLoc[1]
+            );
+            return;
+        }
 
         binding.victoryLineView.setData(
                 start.x - lineLoc[0],

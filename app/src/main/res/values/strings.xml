@@ -39,8 +39,8 @@
     <string name="btn_mode_ranked">Rank</string>
     <string name="btn_back">Back</string>
     <string name="btn_ok">OK</string>
-    <string name="store_coins_default">CoreClash: 0</string>
-    <string name="store_coins_format">CoreClash: %1$d</string>
+    <string name="store_coins_default">Core Coins: 0</string>
+    <string name="store_coins_format">Core Coins: %1$d</string>
     <string name="versus_you">You</string>
     <string name="versus_rival">Rival</string>
     <string name="winner_default">X wins</string>
@@ -63,11 +63,11 @@
     <string name="auth_google_link_in_use">Could not link: account already in use.</string>
     <string name="status_waiting">Waiting</string>
 
-    <string name="store_theme_royal">👑 Royal</string>
-    <string name="store_theme_void">🌌 Void</string>
-    <string name="store_styles_title">⚔ Styles</string>
-    <string name="store_style_rune_price">Rune 140</string>
-    <string name="store_style_future_price">Future Tech • 160</string>
+    <string name="store_theme_royal">Royal Arena</string>
+    <string name="store_theme_void">Void Temple</string>
+    <string name="store_styles_title">Symbol Styles</string>
+    <string name="store_style_rune_price">320 Core Coins</string>
+    <string name="store_style_future_price">180 Core Coins</string>
     <string name="store_buy_coins">+500 Core Coins</string>
     <string name="versus_center">VS</string>
     <string name="versus_title">%1$s VS %2$s</string>
@@ -145,6 +145,7 @@
 
     <string name="error_online_requires_internet">No internet connection detected. Check your network and try again.</string>
     <string name="round_result_score">Round won by %1$s. Score %2$d-%3$d</string>
+    <string name="round_result_double_line_score">%1$s fez duas linhas no mesmo round! Placar %2$d-%3$d</string>
     <string name="round_draw_replay">Round draw. Score stays %1$d-%2$d</string>
     <string name="rounds_finished_score">🏆 Match finished! Final rounds score: %1$d-%2$d</string>
 
@@ -170,11 +171,41 @@
     <string name="toast_store_billing_unavailable">Billing is unavailable right now. Please try again in a few moments.</string>
     <string name="privacy_link_invalid">Invalid privacy link.</string>
     <string name="privacy_browser_not_found">No browser found to open the privacy page.</string>
-    <string name="store_coreclash_shop_title">CORE COINS SHOP • REAL MONEY</string>
-    <string name="store_buy_coreclash_small">500 Core Coins • R$ 9,90</string>
-    <string name="store_buy_coreclash_pro">1200 Core Coins • R$ 19,90 • BEST VALUE</string>
-    <string name="store_buy_coreclash_hint">Most players pick BEST VALUE for faster unlocks.</string>
+    <string name="store_coreclash_shop_title">Coin Packs</string>
+    <string name="store_buy_coreclash_small">500 Core Coins • R$ 29,90</string>
+    <string name="store_buy_coreclash_pro">1200 Core Coins • R$ 49,99</string>
+    <string name="store_buy_coreclash_hint">After purchase, coins are delivered instantly so you can unlock new styles right away.</string>
     <string name="store_wallet_plus_desc">Open Core Coins shop</string>
     <string name="store_pack_starter">Starter Pack</string>
     <string name="store_pack_best_value">Best Value</string>
+
+    <string name="store_title">Arena Shop</string>
+    <string name="store_personalization_title">Personalization</string>
+    <string name="store_theme_royal_preview">♔  X • O</string>
+    <string name="store_theme_void_preview">✦  X • O</string>
+    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
+    <string name="store_theme_royal_price">180 Core Coins</string>
+    <string name="store_theme_void_price">220 Core Coins</string>
+    <string name="store_style_neon_price">210 Core Coins</string>
+    <string name="store_style_samurai_price">240 Core Coins</string>
+    <string name="store_style_classic_name">Classic (X / O)</string>
+    <string name="store_style_rune_name">Rune Glyphs (✦ / ◉)</string>
+    <string name="store_style_future_name">Future Tech (✕ / ⬡)</string>
+    <string name="store_style_neon_name">Neon Pulse (✶ / ◎)</string>
+    <string name="store_style_samurai_name">Samurai Ink (メ / ◍)</string>
+    <string name="store_card_type_theme">Symbol Style</string>
+    <string name="store_card_type_style">Symbol Style</string>
+    <string name="store_style_rune_name_short">Rune</string>
+    <string name="store_style_future_name_short">Future</string>
+    <string name="store_style_neon_name_short">Neon</string>
+    <string name="store_style_samurai_name_short">Samurai</string>
+    <string name="profile_personalization_hint">Personalization: select an already owned style to equip.</string>
+
+
+    <string name="store_badge_acquired">Owned</string>
+    <string name="store_btn_equip">Equip</string>
+    <string name="store_btn_unequip">Unequip</string>
+    <string name="toast_theme_default_equipped">Default theme equipped.</string>
+    <string name="toast_style_default_equipped">Default symbol style equipped.</string>
+
 </resources>

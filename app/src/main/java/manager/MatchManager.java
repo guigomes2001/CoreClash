@@ -25,6 +25,8 @@ import util.ValidationUtil;
 public class MatchManager {
 
     private static final String TAG = "MATCH_FLOW";
+    // Must match MainActivity#runCountdown timing (3 ticks x 900ms = 2700ms).
+    private static final long ONLINE_COUNTDOWN_DURATION_MS = 2_700L;
 
     public interface Callbacks {
         void runOnUi(@NonNull Runnable r);
@@ -36,6 +38,8 @@ public class MatchManager {
         void onRestoreMenuButtons();
 
         void onSetArenaUiVisible(boolean visible);
+
+        void onApplyOnlineSymbolStyles(@NonNull String xStyle, @NonNull String oStyle);
 
         void onBeforeOnlineMatchStart();
 
@@ -83,6 +87,7 @@ public class MatchManager {
     private final Runnable onlineIntroStartRunnable = this::triggerOnlineIntroStartIfNeeded;
 
     private String opponentName = "";
+    private String myEquippedSymbolStyle = "CLASSIC";
 
     private int matchmakingRequestToken = 0;
     private boolean onlineIntroTriggered = false;
@@ -121,6 +126,10 @@ public class MatchManager {
         return opponentName;
     }
 
+    public void setMyEquippedSymbolStyle(@NonNull String styleId) {
+        myEquippedSymbolStyle = StringUtil.isBlank(styleId) ? "CLASSIC" : styleId;
+    }
+
     public OnlineMatchSession getOnlineSession() {
         return onlineSession;
     }
@@ -136,7 +145,7 @@ public class MatchManager {
 
         matchmaking.cleanupOldWaitingRooms();
 
-        matchmaking.findOrCreateMatch(myUid, new OnlineMatchmaking.MatchmakingCallback() {
+        matchmaking.findOrCreateMatch(myUid, myEquippedSymbolStyle, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
                 if (requestToken != matchmakingRequestToken) {
@@ -164,7 +173,7 @@ public class MatchManager {
             return;
         }
 
-        matchmaking.createLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
+        matchmaking.createLocalLobbyRoom(myUid, myEquippedSymbolStyle, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
                 bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
@@ -186,7 +195,7 @@ public class MatchManager {
             return;
         }
 
-        matchmaking.joinLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
+        matchmaking.joinLocalLobbyRoom(myUid, myEquippedSymbolStyle, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
                 bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
@@ -215,7 +224,15 @@ public class MatchManager {
             resolveOpponentName(opponentUid);
         }
 
+        cb.onBeforeOnlineMatchStart();
+        cb.onApplyOnlineSymbolStyles(
+                iAmXOnline ? myEquippedSymbolStyle : "CLASSIC",
+                iAmXOnline ? "CLASSIC" : myEquippedSymbolStyle
+        );
+
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
+        onlineSession.readPlayerStylesOnce((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
+        onlineSession.listenPlayerStyles((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
 
         hookOnlineListenersInternal();
 
@@ -229,7 +246,6 @@ public class MatchManager {
         lastTimeoutBannerTurnKey = "";
         scheduledTimeoutTurnKey = "";
 
-        cb.onBeforeOnlineMatchStart();
         cb.onSetArenaUiVisible(false);
 
         cb.onUpdateHeaderStatus();
@@ -245,7 +261,7 @@ public class MatchManager {
             resolveOpponentName(oUid);
 
             if (iAmXOnline) {
-                onlineSession.scheduleIntroIfHost(true, 0L, 0L);
+                onlineSession.scheduleIntroIfHost(true, 0L, ONLINE_COUNTDOWN_DURATION_MS);
                 Log.d(TAG, "host-scheduled-intro room=" + onlineSession.getRoomId());
             }
 
@@ -364,13 +380,9 @@ public class MatchManager {
 
                     cb.runOnUi(() -> {
                         cb.onUpdateHeaderStatus();
-                        if (cb.isBothIntroReady()) {
-                            if (gameManager.getFinalMoves() > 0) {
-                                startOrUpdateOnlineBar();
-                                scheduleOnlineTimeoutBanner();
-                            } else {
-                                stopOnlineBarAnim(true);
-                            }
+                        if (cb.isBothIntroReady() && !gameManager.isGameOver()) {
+                            startOrUpdateOnlineBar();
+                            scheduleOnlineTimeoutBanner();
                         } else {
                             stopOnlineBarAnim(true);
                         }
@@ -384,7 +396,7 @@ public class MatchManager {
         if (!isOnlineMatch) {
             return;
         }
-        if (gameManager.getFinalMoves() <= 0) {
+        if (gameManager.isGameOver()) {
             stopOnlineBarAnim(true);
             return;
         }
@@ -430,6 +442,7 @@ public class MatchManager {
         long elapsed = Math.max(0L, nowServer - turnStartedAtOnlineMs);
         long remaining = Math.max(0L, turnDurationOnlineMs - elapsed);
 
+        if (turnDurationOnlineMs <= 0L) turnDurationOnlineMs = 10_000L;
         int startProgress = (int) (100f * (remaining / (float) turnDurationOnlineMs));
 
         final boolean xTurn = "X".equals(turnOnline);
