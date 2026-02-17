@@ -1,5 +1,6 @@
 package manager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
@@ -7,8 +8,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.coreclash.R;
+import com.example.coreclash.billing.BillingManager;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
+
 import util.NullUtil;
 
 public class StoreManager {
@@ -24,6 +27,7 @@ public class StoreManager {
     private final ProfileManager profileManager;
     private final BoardManager board;
     private final Callbacks cb;
+    private final BillingManager billingManager = new BillingManager();
 
     public StoreManager(
             @NonNull Context context,
@@ -41,6 +45,15 @@ public class StoreManager {
         this.profileManager = profileManager;
         this.board = board;
         this.cb = callbacks;
+
+        if (context instanceof Activity activity) {
+            billingManager.start(activity, amount -> {
+                profile.coins += amount;
+                finalizePurchase();
+                Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+            });
+        }
+
         setupActions();
     }
 
@@ -53,11 +66,26 @@ public class StoreManager {
         binding.btnStyleRune.setOnClickListener(v -> buyOrEquipStyle("RUNE", 140));
         binding.btnStyleFuture.setOnClickListener(v -> buyOrEquipStyle("FUTURE", 160));
 
-        binding.btnBuyCoins.setOnClickListener(v -> {
-            profile.coins += 500;
-            profileManager.persistProfile();
+        binding.btnBuyCoins.setOnClickListener(v -> buyCoins());
+        binding.btnRestorePurchases.setOnClickListener(v -> restorePurchases());
+    }
+
+    private void buyCoins() {
+        if (context instanceof Activity activity && billingManager.launchCoinsPackPurchase(activity)) {
+            return;
+        }
+
+        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
+    private void restorePurchases() {
+        billingManager.restorePurchases(restoredCount -> {
+            if (restoredCount > 0) {
+                Toast.makeText(context, context.getString(R.string.toast_restore_success, restoredCount), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, context.getString(R.string.toast_restore_empty), Toast.LENGTH_SHORT).show();
+            }
             refreshStoreUI();
-            Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
         });
     }
 
