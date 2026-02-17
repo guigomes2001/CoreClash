@@ -20,6 +20,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        applySiteLikeTypography(binding.getRoot());
         applyHomeTitleBrandStyle();
 
         hideSystemBars();
@@ -239,6 +241,33 @@ public class MainActivity extends AppCompatActivity {
         updateHeaderStatus();
         updateSkillVisuals();
         updateScoreHud(false, null);
+    }
+
+
+    private void applySiteLikeTypography(@NonNull View root) {
+        Typeface titleTypeface = Typeface.create("sans-serif-condensed", Typeface.BOLD);
+        Typeface bodyTypeface = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+        applySiteLikeTypographyRecursive(root, titleTypeface, bodyTypeface);
+    }
+
+    private void applySiteLikeTypographyRecursive(@NonNull View view, @NonNull Typeface titleTypeface, @NonNull Typeface bodyTypeface) {
+        if (view instanceof TextView tv) {
+            boolean titleLike = tv.getTextSize() >= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18f, getResources().getDisplayMetrics());
+            if (titleLike) {
+                tv.setTypeface(titleTypeface, Typeface.BOLD);
+                if (tv.getLetterSpacing() == 0f) {
+                    tv.setLetterSpacing(0.02f);
+                }
+            } else {
+                tv.setTypeface(bodyTypeface, Typeface.NORMAL);
+            }
+        }
+
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                applySiteLikeTypographyRecursive(group.getChildAt(i), titleTypeface, bodyTypeface);
+            }
+        }
     }
 
 

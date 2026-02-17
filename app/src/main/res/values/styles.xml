@@ -11,7 +11,7 @@
         <item name="android:textColor">@color/ds_text_primary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/ds_title_size</item>
-        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:letterSpacing">0.03</item>
     </style>
 
