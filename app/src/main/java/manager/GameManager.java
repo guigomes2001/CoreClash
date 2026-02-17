@@ -14,6 +14,7 @@ public class GameManager {
     private final GameState state;
     private boolean isGameOver = false;
     private WinInfo lastWin;
+    private final List<WinInfo> lastWins = new ArrayList<>();
 
     public GameManager(BoardManager board, GameState state) {
         this.board = board;
@@ -55,6 +56,10 @@ public class GameManager {
         return lastWin;
     }
 
+    public List<WinInfo> getLastWins() {
+        return new ArrayList<>(lastWins);
+    }
+
     public boolean isGameOver() {
         return isGameOver;
     }
@@ -72,26 +77,31 @@ public class GameManager {
     }
 
     private boolean checkWinner() {
+        lastWins.clear();
+
         for (int i = 0; i < 3; i++) {
             if (checkLine(i, 0, i, 1, i, 2)) {
-                lastWin = new WinInfo(i, 0, i, 2);
-                return true;
+                lastWins.add(new WinInfo(i, 0, i, 2));
             }
         }
         for (int i = 0; i < 3; i++) {
             if (checkLine(0, i, 1, i, 2, i)) {
-                lastWin = new WinInfo(0, i, 2, i);
-                return true;
+                lastWins.add(new WinInfo(0, i, 2, i));
             }
         }
         if (checkLine(0, 0, 1, 1, 2, 2)) {
-            lastWin = new WinInfo(0, 0, 2, 2);
-            return true;
+            lastWins.add(new WinInfo(0, 0, 2, 2));
         }
         if (checkLine(0, 2, 1, 1, 2, 0)) {
-            lastWin = new WinInfo(0, 2, 2, 0);
+            lastWins.add(new WinInfo(0, 2, 2, 0));
+        }
+
+        if (!lastWins.isEmpty()) {
+            lastWin = lastWins.get(0);
             return true;
         }
+
+        lastWin = null;
         return false;
     }
 
@@ -133,6 +143,7 @@ public class GameManager {
     public void resetGame() {
         isGameOver = false;
         lastWin = null;
+        lastWins.clear();
         board.resetBoard();
         state.reset();
     }
