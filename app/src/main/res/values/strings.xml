@@ -163,7 +163,7 @@
     <string name="privacy_dialog_title">About &amp; Privacy</string>
     <string name="privacy_dialog_message">CoreClash uses account and purchase services to enable profile sync and coin purchases. Read our Privacy Policy for data usage and retention details.</string>
     <string name="privacy_dialog_open_policy">Open Privacy Policy</string>
-    <string name="privacy_policy_url">https://coreclash.app/privacy</string>
+    <string name="privacy_policy_url">https://SEU-USUARIO.github.io/CoreClashOfficial/privacy.html</string>
     <string name="store_restore_purchases">Restore purchases</string>
     <string name="toast_restore_success">%1$d purchase(s) restored.</string>
     <string name="toast_restore_empty">No purchases were found to restore.</string>
