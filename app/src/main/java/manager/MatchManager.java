@@ -400,7 +400,11 @@ public class MatchManager {
         if (NullUtil.isNull(onlineSession)) {
             return;
         }
-        onlineSession.startPlayingWhenIntroFinished();
+        onlineSession.startOrRestartTurnClockAtGo(advanced -> {
+            if (!advanced) {
+                Log.d(TAG, "go-turn-clock start skipped");
+            }
+        });
     }
 
     public void sendMove(int r, int c) {

@@ -421,6 +421,48 @@ public class OnlineMatchSession {
         });
     }
 
+    public void startOrRestartTurnClockAtGo(@NonNull TurnAdvanceCallback callback) {
+        roomRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                if (NullUtil.isNull(currentData.getValue())) return Transaction.abort();
+
+                String status = currentData.child("status").getValue(String.class);
+                if (NullUtil.isNull(status)) return Transaction.abort();
+
+                if (STATUS_ENDED.equals(status) || STATUS_ABANDONED.equals(status)) return Transaction.abort();
+
+                if (!STATUS_PLAYING.equals(status)) {
+                    currentData.child("status").setValue(STATUS_PLAYING);
+                    if (NullUtil.isNull(currentData.child("turn").getValue())) {
+                        currentData.child("turn").setValue(TURN_X);
+                    }
+                }
+
+                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+
+                Long seq = currentData.child("turnSeq").getValue(Long.class);
+                if (NullUtil.isNull(seq)) seq = 0L;
+                currentData.child("turnSeq").setValue(seq + 1L);
+
+                if (NullUtil.isNull(currentData.child("turnDurationMs").getValue())) {
+                    currentData.child("turnDurationMs").setValue(10_000L);
+                }
+                if (NullUtil.isNull(currentData.child("lastTimeoutProcessedSeq").getValue())) {
+                    currentData.child("lastTimeoutProcessedSeq").setValue(-1L);
+                }
+
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+                callback.onResult(NullUtil.isNull(error) && committed);
+            }
+        });
+    }
+
     public static class Action {
         public String playerUid;
         public String actionType;
@@ -586,7 +628,6 @@ public class OnlineMatchSession {
                 if (!STATUS_PLAYING.equals(status)) return Transaction.abort();
 
                 currentData.child("turn").setValue(starterSymbol);
-                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
 
                 Long seq = currentData.child("turnSeq").getValue(Long.class);
                 if (NullUtil.isNull(seq)) seq = 0L;
