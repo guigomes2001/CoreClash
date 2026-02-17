@@ -37,6 +37,8 @@ public class MatchManager {
 
         void onSetArenaUiVisible(boolean visible);
 
+        void onApplyOnlineSymbolStyles(@NonNull String xStyle, @NonNull String oStyle);
+
         void onBeforeOnlineMatchStart();
 
         void onPlayTimeoutBanner(boolean xSide);
@@ -83,6 +85,7 @@ public class MatchManager {
     private final Runnable onlineIntroStartRunnable = this::triggerOnlineIntroStartIfNeeded;
 
     private String opponentName = "";
+    private String myEquippedSymbolStyle = "CLASSIC";
 
     private int matchmakingRequestToken = 0;
     private boolean onlineIntroTriggered = false;
@@ -121,6 +124,10 @@ public class MatchManager {
         return opponentName;
     }
 
+    public void setMyEquippedSymbolStyle(@NonNull String styleId) {
+        myEquippedSymbolStyle = StringUtil.isBlank(styleId) ? "CLASSIC" : styleId;
+    }
+
     public OnlineMatchSession getOnlineSession() {
         return onlineSession;
     }
@@ -136,7 +143,7 @@ public class MatchManager {
 
         matchmaking.cleanupOldWaitingRooms();
 
-        matchmaking.findOrCreateMatch(myUid, new OnlineMatchmaking.MatchmakingCallback() {
+        matchmaking.findOrCreateMatch(myUid, myEquippedSymbolStyle, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
                 if (requestToken != matchmakingRequestToken) {
@@ -164,7 +171,7 @@ public class MatchManager {
             return;
         }
 
-        matchmaking.createLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
+        matchmaking.createLocalLobbyRoom(myUid, myEquippedSymbolStyle, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
                 bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
@@ -186,7 +193,7 @@ public class MatchManager {
             return;
         }
 
-        matchmaking.joinLocalLobbyRoom(myUid, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
+        matchmaking.joinLocalLobbyRoom(myUid, myEquippedSymbolStyle, roomCode, new OnlineMatchmaking.MatchmakingCallback() {
             @Override
             public void onMatched(@NonNull String roomId, boolean iAmX, @NonNull String opponentUid) {
                 bindMatchedRoom(myUid, roomId, iAmX, opponentUid);
@@ -216,6 +223,7 @@ public class MatchManager {
         }
 
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
+        onlineSession.listenPlayerStyles((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
 
         hookOnlineListenersInternal();
 
