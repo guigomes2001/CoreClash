@@ -58,7 +58,7 @@ public class StoreManager {
     }
 
     private void setupActions() {
-        binding.btnStoreClose.setOnClickListener(v -> closeStore());
+        binding.btnStoreOverlayClose.setOnClickListener(v -> closeStore());
 
         binding.btnThemeRoyal.setOnClickListener(v -> buyOrEquipTheme("ROYAL", 180));
         binding.btnThemeVoid.setOnClickListener(v -> buyOrEquipTheme("VOID", 220));
