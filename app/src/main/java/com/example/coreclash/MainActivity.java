@@ -9,12 +9,18 @@ import android.net.NetworkCapabilities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
@@ -157,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        removeLegacyScorePanelIfPresent();
+        applySiteLikeTypography(binding.getRoot());
+        applyHomeTitleBrandStyle();
 
         hideSystemBars();
         setupGoogleSignInLauncher();
@@ -179,6 +186,11 @@ public class MainActivity extends AppCompatActivity {
         homeFlow.bind();
         SafeClickUtil.setSafeClick(binding.btnProfile, 320, v -> openProfileDialog());
         SafeClickUtil.setSafeClick(binding.btnFriends, 320, v -> openFriendsDialog());
+        SafeClickUtil.setSafeClick(binding.btnWalletPlus, 320, v -> {
+            if (!NullUtil.isNull(storeManager)) {
+                storeManager.openStore(true);
+            }
+        });
 
         playerServices = initPlayerServices();
         botManager = initBotManager();
@@ -237,25 +249,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void removeLegacyScorePanelIfPresent() {
-        int[] legacyIds = new int[] {
-                getResources().getIdentifier("scoreHudBar", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreLabel", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreX", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreO", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreSeparator", "id", getPackageName())
-        };
+    private void applySiteLikeTypography(@NonNull View root) {
+        Typeface titleTypeface = Typeface.create("sans-serif-condensed", Typeface.BOLD);
+        Typeface bodyTypeface = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+        applySiteLikeTypographyRecursive(root, titleTypeface, bodyTypeface);
+    }
 
-        for (int id : legacyIds) {
-            if (id == 0) continue;
-            View v = findViewById(id);
-            if (NullUtil.isNull(v)) continue;
-            v.setVisibility(View.GONE);
-            if (v.getParent() instanceof android.view.ViewGroup) {
-                ((android.view.ViewGroup) v.getParent()).removeView(v);
+    private void applySiteLikeTypographyRecursive(@NonNull View view, @NonNull Typeface titleTypeface, @NonNull Typeface bodyTypeface) {
+        if (view instanceof TextView tv) {
+            boolean titleLike = tv.getTextSize() >= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18f, getResources().getDisplayMetrics());
+            if (titleLike) {
+                tv.setTypeface(titleTypeface, Typeface.BOLD);
+                if (tv.getLetterSpacing() == 0f) {
+                    tv.setLetterSpacing(0.02f);
+                }
+            } else {
+                tv.setTypeface(bodyTypeface, Typeface.NORMAL);
+            }
+        }
+
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                applySiteLikeTypographyRecursive(group.getChildAt(i), titleTypeface, bodyTypeface);
             }
         }
     }
+
+
+    private void applyHomeTitleBrandStyle() {
+        String appName = getString(R.string.app_name);
+        int split = appName.indexOf(' ');
+        if (split <= 0 || split >= appName.length() - 1) {
+            return;
+        }
+
+        SpannableString styled = new SpannableString(appName);
+        styled.setSpan(new ForegroundColorSpan(Color.parseColor("#F8FAFC")), 0, split, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        styled.setSpan(new ForegroundColorSpan(Color.parseColor("#22D3EE")), split + 1, appName.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        styled.setSpan(new StyleSpan(Typeface.BOLD), 0, appName.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        binding.txtHomeTitle.setText(styled);
+    }
+
 
     private BotManager initBotManager() {
         return new BotManager(

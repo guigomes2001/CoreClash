@@ -15,15 +15,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="18dp"
+        android:paddingHorizontal="@dimen/game_hud_horizontal_padding"
         android:paddingVertical="14dp"
         android:background="@drawable/bg_cyber_glass"
         android:elevation="10dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginHorizontal="18dp">
+        android:layout_marginTop="@dimen/game_hud_top_margin"
+        android:layout_marginHorizontal="@dimen/game_hud_horizontal_margin">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -249,73 +249,16 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/scoreHudBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="8dp"
-        android:background="@drawable/bg_cyber_glass"
-        android:elevation="8dp"
-        app:layout_constraintTop_toBottomOf="@id/turnHudBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
-
-        <TextView
-            android:id="@+id/txtScoreX"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textColor="#FB7185"
-            android:textStyle="bold"
-            android:textSize="24sp" />
-
-        <TextView
-            android:id="@+id/txtScoreSeparator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:text="x"
-            android:textColor="#D1E2FF"
-            android:textStyle="bold"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/txtScoreO"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textColor="#38BEFF"
-            android:textStyle="bold"
-            android:textSize="24sp" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/txtScoreLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/score_best_of_three"
-        android:textColor="#AFC6E6"
-        android:textSize="11sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/scoreHudBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="3dp" />
-
     <FrameLayout
         android:id="@+id/containerTriangle"
-        android:layout_width="86dp"
-        android:layout_height="86dp"
+        android:layout_width="@dimen/game_skill_button_size"
+        android:layout_height="@dimen/game_skill_button_size"
         android:background="@drawable/selector_btn_triangle"
         android:clickable="true"
         android:focusable="true"
         android:elevation="12dp"
         app:layout_constraintEnd_toStartOf="@id/boardContainer"
-        android:layout_marginEnd="70dp"
+        android:layout_marginEnd="@dimen/game_skill_button_gap"
         app:layout_constraintTop_toTopOf="@id/boardContainer"
         app:layout_constraintBottom_toBottomOf="@id/boardContainer">
 
@@ -339,12 +282,12 @@
 
     <FrameLayout
         android:id="@+id/boardContainer"
-        android:layout_width="291dp"
-        android:layout_height="291dp"
+        android:layout_width="@dimen/game_board_container_size"
+        android:layout_height="@dimen/game_board_container_size"
         android:background="@drawable/bg_cyber_glass"
         android:padding="6dp"
-        android:layout_marginTop="19dp"
-        app:layout_constraintTop_toBottomOf="@id/txtScoreLabel"
+        android:layout_marginTop="@dimen/game_board_top_margin"
+        app:layout_constraintTop_toBottomOf="@id/turnHudBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.33">
@@ -367,14 +310,14 @@
 
     <FrameLayout
         android:id="@+id/containerSquare"
-        android:layout_width="86dp"
-        android:layout_height="86dp"
+        android:layout_width="@dimen/game_skill_button_size"
+        android:layout_height="@dimen/game_skill_button_size"
         android:background="@drawable/selector_btn_square"
         android:clickable="true"
         android:focusable="true"
         android:elevation="12dp"
         app:layout_constraintStart_toEndOf="@id/boardContainer"
-        android:layout_marginStart="70dp"
+        android:layout_marginStart="@dimen/game_skill_button_gap"
         app:layout_constraintTop_toTopOf="@id/boardContainer"
         app:layout_constraintBottom_toBottomOf="@id/boardContainer">
 
@@ -468,11 +411,46 @@
                     android:text="@string/home_subtitle"
                     android:textColor="#9FB3C8"
                     android:textSize="14sp"
+                    android:fontFamily="sans-serif"
                     android:layout_marginTop="6dp"
                     app:layout_constraintTop_toBottomOf="@id/txtHomeTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:gravity="center"/>
+
+                <LinearLayout
+                    android:id="@+id/homeWalletRow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_cyber_glass"
+                    app:layout_constraintTop_toBottomOf="@id/txtHomeSubtitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <TextView
+                        android:id="@+id/txtHomeWallet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_coins_default"
+                        android:textColor="#CFE8FF"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-condensed"/>
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/btnWalletPlus"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_store_buy_button"
+                        android:padding="7dp"
+                        android:contentDescription="@string/store_wallet_plus_desc"
+                        app:srcCompat="@drawable/ic_plus_small"
+                        app:tint="#04131F"/>
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/homeQuickActions"
@@ -481,7 +459,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    app:layout_constraintTop_toBottomOf="@id/txtHomeSubtitle"
+                    app:layout_constraintTop_toBottomOf="@id/homeWalletRow"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 
@@ -839,13 +817,20 @@
         android:clickable="true"
         android:focusable="true">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:id="@+id/storeScreen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@drawable/bg_cyber_glass">
+            android:fillViewport="true"
+            android:background="@drawable/bg_cyber_glass"
+            android:padding="0dp">
+
+            <LinearLayout
+                android:id="@+id/storeContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -878,7 +863,9 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/store_coins_default"
                 android:textColor="#CFE8FF"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-condensed"
+                android:letterSpacing="0.03" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -938,7 +925,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
                         android:padding="8dp"
-                        android:background="@drawable/bg_store_section"
+                        android:background="@drawable/bg_store_clash"
                         android:orientation="vertical">
 
                         <TextView
@@ -979,7 +966,7 @@
                         android:layout_width="170dp"
                         android:layout_height="match_parent"
                         android:padding="8dp"
-                        android:background="@drawable/bg_store_section"
+                        android:background="@drawable/bg_cyber_glass"
                         android:orientation="vertical">
 
                         <TextView
@@ -1028,16 +1015,112 @@
                 android:background="@drawable/bg_store_item"
                 android:textColor="#FFFFFF"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="74dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_store_clash"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🪙🪙🪙"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_pack_starter"
+                        android:textColor="#F8FAFC"
+                        android:textStyle="bold"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="74dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_store_section"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🪙🪙🪙🪙🪙"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_pack_best_value"
+                        android:textColor="#FDE68A"
+                        android:textStyle="bold"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/sectionCoreclashShop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/store_coreclash_shop_title"
+                android:textColor="#9BDCFD"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-condensed"
+                android:letterSpacing="0.04" />
+
             <Button
                 android:id="@+id/btnBuyCoins"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/store_buy_coins"
+                android:text="@string/store_buy_coreclash_small"
                 android:textStyle="bold"
                 android:textColor="#04131F"
                 android:background="@drawable/bg_store_buy_button"/>
-        </LinearLayout>
+
+            <Button
+                android:id="@+id/btnBuyCoinsPro"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/store_buy_coreclash_pro"
+                android:textStyle="bold"
+                android:textColor="#04131F"
+                android:background="@drawable/bg_store_buy_button"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/store_buy_coreclash_hint"
+                android:textColor="#8CC5EA"
+                android:textSize="12sp"/>
+
+            <Button
+                android:id="@+id/btnRestorePurchases"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/store_restore_purchases"
+                android:textStyle="bold"
+                android:textColor="#DDEBFF"
+                android:background="@drawable/bg_button_tertiary"/>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
     </FrameLayout>
 
     <FrameLayout
@@ -1062,8 +1145,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="X  O  △  ▢"
-                android:textSize="44sp"
+                android:textSize="50sp"
                 android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.10"
+                android:shadowColor="#AA000000"
+                android:shadowRadius="6"
                 android:textColor="#EAF2FF"/>
 
             <TextView
@@ -1072,8 +1159,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="△  X  ▢  O"
-                android:textSize="40sp"
+                android:textSize="50sp"
                 android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.10"
+                android:shadowColor="#AA000000"
+                android:shadowRadius="6"
                 android:textColor="#CFE8FF"/>
 
             <TextView
@@ -1082,8 +1173,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="▢  O  X  △"
-                android:textSize="44sp"
+                android:textSize="50sp"
                 android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.10"
+                android:shadowColor="#AA000000"
+                android:shadowRadius="6"
                 android:textColor="#F8FAFC"/>
         </LinearLayout>
     </FrameLayout>
@@ -1481,6 +1576,18 @@
                 android:drawableStart="@drawable/ic_flash_simple"
                 android:drawablePadding="12dp"
                 android:layout_marginBottom="20dp"/>
+
+            <Button
+                android:id="@+id/btnAboutPrivacy"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="@string/btn_about_privacy"
+                android:textStyle="bold"
+                android:textColor="#E0F2FE"
+                android:background="@drawable/bg_button_secondary"
+                android:drawableStart="@drawable/ic_fa_user"
+                android:drawablePadding="12dp"
+                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/btnSettingsClose"
