@@ -419,13 +419,47 @@
                     android:gravity="center"/>
 
                 <LinearLayout
+                    android:id="@+id/homeWalletRow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_cyber_glass"
+                    app:layout_constraintTop_toBottomOf="@id/txtHomeSubtitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <TextView
+                        android:id="@+id/txtHomeWallet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_coins_default"
+                        android:textColor="#CFE8FF"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-condensed"/>
+
+                    <Button
+                        android:id="@+id/btnWalletPlus"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_store_buy_button"
+                        android:text="+"
+                        android:textStyle="bold"
+                        android:textColor="#04131F"
+                        android:contentDescription="@string/store_wallet_plus_desc"/>
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/homeQuickActions"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    app:layout_constraintTop_toBottomOf="@id/txtHomeSubtitle"
+                    app:layout_constraintTop_toBottomOf="@id/homeWalletRow"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 
@@ -783,13 +817,20 @@
         android:clickable="true"
         android:focusable="true">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:id="@+id/storeScreen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@drawable/bg_cyber_glass">
+            android:fillViewport="true"
+            android:background="@drawable/bg_cyber_glass"
+            android:padding="0dp">
+
+            <LinearLayout
+                android:id="@+id/storeContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -884,7 +925,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
                         android:padding="8dp"
-                        android:background="@drawable/bg_store_section"
+                        android:background="@drawable/bg_store_clash"
                         android:orientation="vertical">
 
                         <TextView
@@ -925,7 +966,7 @@
                         android:layout_width="170dp"
                         android:layout_height="match_parent"
                         android:padding="8dp"
-                        android:background="@drawable/bg_store_section"
+                        android:background="@drawable/bg_cyber_glass"
                         android:orientation="vertical">
 
                         <TextView
@@ -975,6 +1016,7 @@
                 android:textColor="#FFFFFF"/>
 
             <TextView
+                android:id="@+id/sectionCoreclashShop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -1021,7 +1063,8 @@
                 android:textStyle="bold"
                 android:textColor="#DDEBFF"
                 android:background="@drawable/bg_button_tertiary"/>
-        </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
     </FrameLayout>
 
     <FrameLayout
@@ -1046,7 +1089,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="X  O  △  ▢"
-                android:textSize="52sp"
+                android:textSize="50sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.10"
@@ -1060,7 +1103,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="△  X  ▢  O"
-                android:textSize="46sp"
+                android:textSize="50sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.10"
@@ -1074,7 +1117,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="▢  O  X  △"
-                android:textSize="52sp"
+                android:textSize="50sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.10"

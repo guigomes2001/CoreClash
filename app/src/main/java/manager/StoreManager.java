@@ -99,6 +99,10 @@ public class StoreManager {
     }
 
     public void openStore() {
+        openStore(false);
+    }
+
+    public void openStore(boolean focusCoreclashShop) {
         refreshStoreUI();
         playStoreTransition(() -> {
             binding.storeOverlay.setVisibility(View.VISIBLE);
@@ -106,6 +110,13 @@ public class StoreManager {
             binding.storeScreen.setTranslationY(40f);
             binding.storeOverlay.animate().alpha(1f).setDuration(200).start();
             binding.storeScreen.animate().translationY(0f).setDuration(240).start();
+
+            if (focusCoreclashShop) {
+                binding.storeScreen.post(() -> {
+                    int targetY = Math.max(0, binding.sectionCoreclashShop.getTop() - 20);
+                    binding.storeScreen.smoothScrollTo(0, targetY);
+                });
+            }
         });
     }
 
@@ -120,6 +131,7 @@ public class StoreManager {
 
     private void refreshStoreUI() {
         binding.txtStoreCoinsFull.setText(context.getString(R.string.store_coins_format, profile.coins));
+        binding.txtHomeWallet.setText(context.getString(R.string.store_coins_format, profile.coins));
     }
 
     private void buyOrEquipTheme(String themeId, int price) {

@@ -173,4 +173,5 @@
     <string name="store_buy_coreclash_small">500 CoreClash • R$ 9,90</string>
     <string name="store_buy_coreclash_pro">1200 CoreClash • R$ 19,90 • MELHOR CUSTO</string>
     <string name="store_buy_coreclash_hint">A maioria escolhe MELHOR CUSTO para desbloquear mais rápido.</string>
+    <string name="store_wallet_plus_desc">Abrir loja de CoreClash</string>
 </resources>

@@ -186,6 +186,11 @@ public class MainActivity extends AppCompatActivity {
         homeFlow.bind();
         SafeClickUtil.setSafeClick(binding.btnProfile, 320, v -> openProfileDialog());
         SafeClickUtil.setSafeClick(binding.btnFriends, 320, v -> openFriendsDialog());
+        SafeClickUtil.setSafeClick(binding.btnWalletPlus, 320, v -> {
+            if (!NullUtil.isNull(storeManager)) {
+                storeManager.openStore(true);
+            }
+        });
 
         playerServices = initPlayerServices();
         botManager = initBotManager();
