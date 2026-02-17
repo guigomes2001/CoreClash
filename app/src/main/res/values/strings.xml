@@ -171,8 +171,8 @@
     <string name="privacy_link_invalid">Invalid privacy link.</string>
     <string name="privacy_browser_not_found">No browser found to open the privacy page.</string>
     <string name="store_coreclash_shop_title">Coin Packs</string>
-    <string name="store_buy_coreclash_small">500 Core Coins • R$ 10,00</string>
-    <string name="store_buy_coreclash_pro">1200 Core Coins • R$ 20,00 • Best Value</string>
+    <string name="store_buy_coreclash_small">500 Core Coins • R$ 29,90</string>
+    <string name="store_buy_coreclash_pro">1200 Core Coins • R$ 49,99</string>
     <string name="store_buy_coreclash_hint">Após comprar, as moedas entram na hora e você já pode desbloquear novos estilos.</string>
     <string name="store_wallet_plus_desc">Open Core Coins shop</string>
     <string name="store_pack_starter">Starter Pack</string>
