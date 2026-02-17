@@ -25,7 +25,7 @@ import util.ValidationUtil;
 public class MatchManager {
 
     private static final String TAG = "MATCH_FLOW";
-    private static final long ONLINE_COUNTDOWN_DURATION_MS = 2_200L;
+    private static final long ONLINE_COUNTDOWN_DURATION_MS = 2_700L;
 
     public interface Callbacks {
         void runOnUi(@NonNull Runnable r);
@@ -224,6 +224,10 @@ public class MatchManager {
         }
 
         cb.onBeforeOnlineMatchStart();
+        cb.onApplyOnlineSymbolStyles(
+                iAmXOnline ? myEquippedSymbolStyle : "CLASSIC",
+                iAmXOnline ? "CLASSIC" : myEquippedSymbolStyle
+        );
 
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
         onlineSession.listenPlayerStyles((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
