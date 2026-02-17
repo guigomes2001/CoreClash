@@ -308,6 +308,9 @@ public class MainActivity extends AppCompatActivity {
                 },
                 new BotManager.Callbacks() {
                     @Override public void onRender() {
+                        if (!NullUtil.isNull(currentProfile) && !NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                        }
                         updateHeaderStatus();
                         updateSkillVisuals();
                     }
@@ -337,6 +340,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
+                if (!NullUtil.isNull(currentProfile)) {
+                    matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                }
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
 
@@ -372,6 +378,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
+                if (!NullUtil.isNull(currentProfile)) {
+                    matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                }
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
 
@@ -399,6 +408,9 @@ public class MainActivity extends AppCompatActivity {
                 new PlayerServicesManager.Callbacks() {
                     @Override public void onProfileReady(@NonNull PlayerProfile profile) {
                         currentProfile = profile;
+                        if (!NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(profile.equippedSymbolStyle);
+                        }
                         String uid = getMyUidOrNull();
                         if (!NullUtil.isNull(uid)) {
                             socialManager.upsertUserProfile(uid, profile.displayName, buildTagFromUid(uid));
@@ -406,6 +418,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     @Override public void onStoreReady(@NonNull StoreManager sm) { storeManager = sm; }
                     @Override public void onRender() {
+                        if (!NullUtil.isNull(currentProfile) && !NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                        }
                         updateHeaderStatus();
                         updateSkillVisuals();
                     }
@@ -518,6 +533,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     @Override public void onSetArenaUiVisible(boolean visible) {
                         MainActivity.this.applyArenaUiVisibility(visible);
+                    }
+
+                    @Override public void onApplyOnlineSymbolStyles(@NonNull String xStyle, @NonNull String oStyle) {
+                        board.setSymbolStylesBySide(xStyle, oStyle);
                     }
 
                     @Override public void onBeforeOnlineMatchStart() {
@@ -963,6 +982,13 @@ public class MainActivity extends AppCompatActivity {
         return state.isXTurn() ? getString(R.string.countdown_you_start) : getString(R.string.countdown_opponent_starts);
     }
 
+    private void applyLocalEquippedStyles() {
+        String style = (NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.equippedSymbolStyle))
+                ? "CLASSIC"
+                : currentProfile.equippedSymbolStyle;
+        board.setSymbolStyle(style);
+    }
+
     private void startLocalPassAndPlay() {
         hideMatchmakingLoading();
         passAndPlayMode = true;
@@ -972,6 +998,7 @@ public class MainActivity extends AppCompatActivity {
         opponentName = getString(R.string.label_player_two);
         resetRoundSeries();
 
+        applyLocalEquippedStyles();
         setGameMode();
         state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
         gameManager.resetGame();
@@ -1426,6 +1453,7 @@ public class MainActivity extends AppCompatActivity {
         currentBotDifficulty = randomDifficulty();
         resetRoundSeries();
 
+        applyLocalEquippedStyles();
         setGameMode();
         state.setGameMode(DomainGameMode.BOT.getValue());
         gameManager.resetGame();
@@ -1472,17 +1500,47 @@ public class MainActivity extends AppCompatActivity {
         nameInput.setHint(getString(R.string.profile_name));
         styleInput(nameInput);
 
+        List<String> ownedStyles = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
+                ? new ArrayList<>()
+                : currentProfile.ownedSymbolStyles;
+        if (ownedStyles.isEmpty()) {
+            ownedStyles = new ArrayList<>();
+            ownedStyles.add("CLASSIC");
+        }
+        final List<String> availableStyles = ownedStyles;
+
+        String[] styleOptions = new String[availableStyles.size()];
+        int selectedStyleIndex = 0;
+        for (int i = 0; i < availableStyles.size(); i++) {
+            String styleId = availableStyles.get(i);
+            styleOptions[i] = getSymbolStyleLabel(styleId);
+            if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
+                selectedStyleIndex = i;
+            }
+        }
+
+        final int[] selectedIndexHolder = { selectedStyleIndex };
         String tag = buildTagFromUid(uid);
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.profile_title))
-                .setMessage(getString(R.string.profile_tag) + ": " + tag)
+                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" + getString(R.string.profile_personalization_hint))
                 .setView(nameInput)
+                .setSingleChoiceItems(styleOptions, selectedStyleIndex, (d, which) -> selectedIndexHolder[0] = which)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
                     String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
                     if (displayName.isEmpty()) displayName = getPlayerDisplayName();
+
+                    if (!NullUtil.isNull(currentProfile) && selectedIndexHolder[0] >= 0 && selectedIndexHolder[0] < availableStyles.size()) {
+                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndexHolder[0]);
+                        if (!NullUtil.isNull(storeManager)) {
+                            storeManager.applyEquippedCosmetics();
+                        }
+                    }
+
                     socialManager.upsertUserProfile(uid, displayName, tag);
                     playerServices.updateDisplayNameAndPersist(displayName);
+                    Toast.makeText(this, getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
                     updateHeaderStatus();
                 })
                 .setNegativeButton(getString(R.string.btn_back), null)
@@ -1490,6 +1548,16 @@ public class MainActivity extends AppCompatActivity {
 
         profileDialog.show();
         applyDialogStyle(profileDialog);
+    }
+
+    private String getSymbolStyleLabel(@NonNull String styleId) {
+        return switch (styleId) {
+            case "RUNE" -> getString(R.string.store_style_rune_name);
+            case "FUTURE" -> getString(R.string.store_style_future_name);
+            case "NEON" -> getString(R.string.store_style_neon_name);
+            case "SAMURAI" -> getString(R.string.store_style_samurai_name);
+            default -> getString(R.string.store_style_classic_name);
+        };
     }
 
     private void openFriendsDialog() {

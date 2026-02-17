@@ -63,8 +63,10 @@ public class StoreManager {
         binding.btnThemeRoyal.setOnClickListener(v -> buyOrEquipTheme("ROYAL", 180));
         binding.btnThemeVoid.setOnClickListener(v -> buyOrEquipTheme("VOID", 220));
 
-        binding.btnStyleRune.setOnClickListener(v -> buyOrEquipStyle("RUNE", 140));
-        binding.btnStyleFuture.setOnClickListener(v -> buyOrEquipStyle("FUTURE", 160));
+        binding.btnStyleRune.setOnClickListener(v -> buyOrEquipStyle("RUNE", 320));
+        binding.btnStyleFuture.setOnClickListener(v -> buyOrEquipStyle("FUTURE", 180));
+        binding.btnStyleNeon.setOnClickListener(v -> buyOrEquipStyle("NEON", 210));
+        binding.btnStyleSamurai.setOnClickListener(v -> buyOrEquipStyle("SAMURAI", 240));
 
         binding.btnBuyCoins.setOnClickListener(v -> buyCoreclashSmall());
         binding.btnBuyCoinsPro.setOnClickListener(v -> buyCoreclashPro());
@@ -132,16 +134,31 @@ public class StoreManager {
     private void refreshStoreUI() {
         binding.txtStoreCoinsFull.setText(context.getString(R.string.store_coins_format, profile.coins));
         binding.txtHomeWallet.setText(context.getString(R.string.store_coins_format, profile.coins));
+        refreshOwnershipCards();
     }
 
     private void buyOrEquipTheme(String themeId, int price) {
         if (profile.ownsTheme(themeId)) {
-            profile.equippedTheme = themeId;
-            Toast.makeText(context, context.getString(R.string.toast_theme_equipped), Toast.LENGTH_SHORT).show();
+            if (themeId.equals(profile.equippedSymbolStyle)) {
+                profile.equippedTheme = "ARENA";
+                profile.equippedSymbolStyle = "CLASSIC";
+                Toast.makeText(context, context.getString(R.string.toast_style_default_equipped), Toast.LENGTH_SHORT).show();
+            } else {
+                profile.equippedTheme = themeId;
+                profile.equippedSymbolStyle = themeId;
+                if (!profile.ownedSymbolStyles.contains(themeId)) {
+                    profile.ownedSymbolStyles.add(themeId);
+                }
+                Toast.makeText(context, context.getString(R.string.toast_theme_equipped), Toast.LENGTH_SHORT).show();
+            }
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedThemes.add(themeId);
+            if (!profile.ownedSymbolStyles.contains(themeId)) {
+                profile.ownedSymbolStyles.add(themeId);
+            }
             profile.equippedTheme = themeId;
+            profile.equippedSymbolStyle = themeId;
             Toast.makeText(context, context.getString(R.string.toast_theme_bought), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, context.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
@@ -153,8 +170,13 @@ public class StoreManager {
 
     private void buyOrEquipStyle(String styleId, int price) {
         if (profile.ownsSymbolStyle(styleId)) {
-            profile.equippedSymbolStyle = styleId;
-            Toast.makeText(context, context.getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
+            if (styleId.equals(profile.equippedSymbolStyle)) {
+                profile.equippedSymbolStyle = "CLASSIC";
+                Toast.makeText(context, context.getString(R.string.toast_style_default_equipped), Toast.LENGTH_SHORT).show();
+            } else {
+                profile.equippedSymbolStyle = styleId;
+                Toast.makeText(context, context.getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
+            }
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedSymbolStyles.add(styleId);
@@ -166,6 +188,41 @@ public class StoreManager {
         }
 
         finalizePurchase();
+    }
+
+
+    private void refreshOwnershipCards() {
+        bindCardState(profile.ownsSymbolStyle("ROYAL") || profile.ownsTheme("ROYAL"), "ROYAL".equals(profile.equippedSymbolStyle),
+                binding.badgeThemeRoyal, binding.btnThemeRoyal, binding.cardThemeRoyal,
+                context.getString(R.string.store_theme_royal_price));
+
+        bindCardState(profile.ownsSymbolStyle("VOID") || profile.ownsTheme("VOID"), "VOID".equals(profile.equippedSymbolStyle),
+                binding.badgeThemeVoid, binding.btnThemeVoid, binding.cardThemeVoid,
+                context.getString(R.string.store_theme_void_price));
+
+        bindCardState(profile.ownsSymbolStyle("RUNE"), "RUNE".equals(profile.equippedSymbolStyle),
+                binding.badgeStyleRune, binding.btnStyleRune, binding.cardStyleRune,
+                context.getString(R.string.store_style_rune_price));
+
+        bindCardState(profile.ownsSymbolStyle("FUTURE"), "FUTURE".equals(profile.equippedSymbolStyle),
+                binding.badgeStyleFuture, binding.btnStyleFuture, binding.cardStyleFuture,
+                context.getString(R.string.store_style_future_price));
+
+        bindCardState(profile.ownsSymbolStyle("NEON"), "NEON".equals(profile.equippedSymbolStyle),
+                binding.badgeStyleNeon, binding.btnStyleNeon, binding.cardStyleNeon,
+                context.getString(R.string.store_style_neon_price));
+
+        bindCardState(profile.ownsSymbolStyle("SAMURAI"), "SAMURAI".equals(profile.equippedSymbolStyle),
+                binding.badgeStyleSamurai, binding.btnStyleSamurai, binding.cardStyleSamurai,
+                context.getString(R.string.store_style_samurai_price));
+    }
+
+    private void bindCardState(boolean owned, boolean equipped, View badge, android.widget.Button button, View card, String priceText) {
+        badge.setVisibility(owned ? View.VISIBLE : View.GONE);
+        button.setText(owned
+                ? context.getString(equipped ? R.string.store_btn_unequip : R.string.store_btn_equip)
+                : priceText);
+        card.setBackgroundResource(equipped ? R.drawable.bg_store_clash : R.drawable.bg_store_section);
     }
 
     private void finalizePurchase() {
