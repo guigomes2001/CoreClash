@@ -857,14 +857,14 @@
             android:id="@+id/storeScreen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="72dp"
+            android:layout_marginTop="86dp"
             android:layout_marginHorizontal="12dp"
             android:layout_marginBottom="8dp"
             android:fillViewport="true"
             android:background="@drawable/bg_store_modal_inner_depth"
             android:clipToPadding="true"
             android:paddingHorizontal="16dp"
-            android:paddingTop="6dp"
+            android:paddingTop="10dp"
             android:paddingBottom="22dp"
             android:clipChildren="true">
 
@@ -874,7 +874,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="0dp"
-                android:paddingTop="24dp"
+                android:paddingTop="28dp"
                 android:paddingBottom="20dp">
 
             <TextView
