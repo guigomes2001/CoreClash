@@ -344,7 +344,7 @@
         android:background="@drawable/bg_cyber_glass"
         android:padding="6dp"
         android:layout_marginTop="@dimen/game_board_top_margin"
-        app:layout_constraintTop_toBottomOf="@id/txtScoreLabel"
+        app:layout_constraintTop_toBottomOf="@id/turnHudBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.33">
