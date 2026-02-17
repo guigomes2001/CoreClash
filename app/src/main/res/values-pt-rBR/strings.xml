@@ -39,8 +39,8 @@
     <string name="btn_mode_ranked">Rank</string>
     <string name="btn_back">Voltar</string>
     <string name="btn_ok">OK</string>
-    <string name="store_coins_default">Core Coins: 0</string>
-    <string name="store_coins_format">Core Coins: %1$d</string>
+    <string name="store_coins_default">CoreClash: 0</string>
+    <string name="store_coins_format">CoreClash: %1$d</string>
     <string name="versus_you">Você</string>
     <string name="versus_rival">Rival</string>
     <string name="winner_default">X venceu</string>
@@ -53,12 +53,12 @@
     <string name="mode_dialog_title">Escolha o modo</string>
     <string name="mode_dialog_subtitle">Se não houver adversário disponível, um bot entra na arena automaticamente.</string>
     <string name="mode_dialog_ranked">Ranqueada</string>
-    <string name="toast_coins_added">Moedas adicionadas!</string>
+    <string name="toast_coins_added">Crédito CoreClash adicionado!</string>
     <string name="toast_theme_equipped">Tema equipado</string>
     <string name="toast_theme_bought">Tema comprado!</string>
     <string name="toast_style_equipped">Estilo equipado</string>
     <string name="toast_style_bought">Estilo comprado!</string>
-    <string name="toast_insufficient_coins">Moedas insuficientes</string>
+    <string name="toast_insufficient_coins">CoreClash insuficiente</string>
     <string name="auth_google_connect_error">Erro ao conectar com Google</string>
     <string name="auth_google_link_in_use">Falha ao vincular: Conta já em uso.</string>
     <string name="status_waiting">Aguardando</string>
@@ -68,7 +68,7 @@
     <string name="store_styles_title">⚔ Estilos</string>
     <string name="store_style_rune_price">Rune 140</string>
     <string name="store_style_future_price">Future Tech • 160</string>
-    <string name="store_buy_coins">+500 Moedas</string>
+    <string name="store_buy_coins">+500 CoreClash</string>
     <string name="versus_center">VS</string>
     <string name="versus_title">%1$s VS %2$s</string>
 
@@ -162,11 +162,15 @@
     <string name="privacy_dialog_title">Sobre e Privacidade</string>
     <string name="privacy_dialog_message">CoreClash usa serviços de conta e compras para sincronizar perfil e moedas. Leia nossa Política de Privacidade para detalhes de uso e retenção de dados.</string>
     <string name="privacy_dialog_open_policy">Abrir Política de Privacidade</string>
-    <string name="privacy_policy_url">https://guigomes2001.github.io/CoreClashOfficial/privacy.html</string>
+    <string name="privacy_policy_url">https://SEU-USUARIO.github.io/CoreClashOfficial/privacy.html</string>
     <string name="store_restore_purchases">Restaurar compras</string>
     <string name="toast_restore_success">%1$d compra(s) restaurada(s).</string>
     <string name="toast_restore_empty">Nenhuma compra encontrada para restaurar.</string>
     <string name="toast_store_billing_unavailable">Billing indisponível no momento. Tente novamente em alguns instantes.</string>
     <string name="privacy_link_invalid">Link de privacidade inválido.</string>
     <string name="privacy_browser_not_found">Nenhum navegador encontrado para abrir a página de privacidade.</string>
+    <string name="store_coreclash_shop_title">LOJA CORECLASH • DINHEIRO REAL</string>
+    <string name="store_buy_coreclash_small">500 CoreClash • R$ 9,90</string>
+    <string name="store_buy_coreclash_pro">1200 CoreClash • R$ 19,90 • MELHOR CUSTO</string>
+    <string name="store_buy_coreclash_hint">A maioria escolhe MELHOR CUSTO para desbloquear mais rápido.</string>
 </resources>

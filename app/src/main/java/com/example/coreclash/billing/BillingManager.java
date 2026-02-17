@@ -17,7 +17,9 @@ import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import util.NullUtil;
 
@@ -31,12 +33,15 @@ public class BillingManager implements PurchasesUpdatedListener {
         void onRestoreCompleted(int restoredPurchasesCount);
     }
 
-    private static final String PRODUCT_COINS_SMALL = "coins_pack_small";
+    public static final String PRODUCT_CORECLASH_SMALL = "coreclash_pack_small";
+    public static final String PRODUCT_CORECLASH_PRO = "coreclash_pack_pro";
+
     private static final String PREFS_NAME = "billing_prefs";
     private static final String TOKEN_PREFIX = "ack_";
 
+    private final Map<String, ProductDetails> productDetailsById = new HashMap<>();
+
     private BillingClient billingClient;
-    private ProductDetails coinsPackDetails;
     private CoinsListener coinsListener;
     private SharedPreferences prefs;
 
@@ -67,7 +72,11 @@ public class BillingManager implements PurchasesUpdatedListener {
     private void queryProducts() {
         List<QueryProductDetailsParams.Product> products = new ArrayList<>();
         products.add(QueryProductDetailsParams.Product.newBuilder()
-                .setProductId(PRODUCT_COINS_SMALL)
+                .setProductId(PRODUCT_CORECLASH_SMALL)
+                .setProductType(BillingClient.ProductType.INAPP)
+                .build());
+        products.add(QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(PRODUCT_CORECLASH_PRO)
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build());
 
@@ -75,22 +84,31 @@ public class BillingManager implements PurchasesUpdatedListener {
                 .setProductList(products)
                 .build();
 
-        billingClient.queryProductDetailsAsync(params, (billingResult, productDetailsList) -> {
-            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || productDetailsList.isEmpty()) {
+        billingClient.queryProductDetailsAsync(params, (billingResult, detailsList) -> {
+            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || NullUtil.isNull(detailsList)) {
                 return;
             }
-            coinsPackDetails = productDetailsList.get(0);
+
+            productDetailsById.clear();
+            for (ProductDetails details : detailsList) {
+                productDetailsById.put(details.getProductId(), details);
+            }
         });
     }
 
-    public boolean launchCoinsPackPurchase(@NonNull Activity activity) {
-        if (NullUtil.isNull(billingClient) || NullUtil.isNull(coinsPackDetails)) {
+    public boolean launchProductPurchase(@NonNull Activity activity, @NonNull String productId) {
+        if (NullUtil.isNull(billingClient) || !productDetailsById.containsKey(productId)) {
+            return false;
+        }
+
+        ProductDetails details = productDetailsById.get(productId);
+        if (NullUtil.isNull(details)) {
             return false;
         }
 
         List<BillingFlowParams.ProductDetailsParams> products = new ArrayList<>();
         products.add(BillingFlowParams.ProductDetailsParams.newBuilder()
-                .setProductDetails(coinsPackDetails)
+                .setProductDetails(details)
                 .build());
 
         BillingFlowParams flowParams = BillingFlowParams.newBuilder()
@@ -153,12 +171,30 @@ public class BillingManager implements PurchasesUpdatedListener {
             billingClient.acknowledgePurchase(params, result -> { });
         }
 
+        int granted = 0;
+        List<String> products = purchase.getProducts();
+        for (String productId : products) {
+            granted += coresForProduct(productId);
+        }
+
+        if (granted <= 0) {
+            granted = 500;
+        }
+
         markTokenProcessed(token);
 
         if (!NullUtil.isNull(coinsListener)) {
-            coinsListener.onCoinsGranted(500);
+            coinsListener.onCoinsGranted(granted);
         }
         return 1;
+    }
+
+    private int coresForProduct(@NonNull String productId) {
+        return switch (productId) {
+            case PRODUCT_CORECLASH_SMALL -> 500;
+            case PRODUCT_CORECLASH_PRO -> 1200;
+            default -> 0;
+        };
     }
 
     private boolean isTokenProcessed(@NonNull String token) {

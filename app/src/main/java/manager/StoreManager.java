@@ -66,12 +66,21 @@ public class StoreManager {
         binding.btnStyleRune.setOnClickListener(v -> buyOrEquipStyle("RUNE", 140));
         binding.btnStyleFuture.setOnClickListener(v -> buyOrEquipStyle("FUTURE", 160));
 
-        binding.btnBuyCoins.setOnClickListener(v -> buyCoins());
+        binding.btnBuyCoins.setOnClickListener(v -> buyCoreclashSmall());
+        binding.btnBuyCoinsPro.setOnClickListener(v -> buyCoreclashPro());
         binding.btnRestorePurchases.setOnClickListener(v -> restorePurchases());
     }
 
-    private void buyCoins() {
-        if (context instanceof Activity activity && billingManager.launchCoinsPackPurchase(activity)) {
+    private void buyCoreclashSmall() {
+        if (context instanceof Activity activity && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_CORECLASH_SMALL)) {
+            return;
+        }
+
+        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
+    private void buyCoreclashPro() {
+        if (context instanceof Activity activity && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_CORECLASH_PRO)) {
             return;
         }
 

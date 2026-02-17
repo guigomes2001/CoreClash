@@ -822,7 +822,9 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/store_coins_default"
                 android:textColor="#CFE8FF"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-condensed"
+                android:letterSpacing="0.03" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -972,20 +974,49 @@
                 android:background="@drawable/bg_store_item"
                 android:textColor="#FFFFFF"/>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/store_coreclash_shop_title"
+                android:textColor="#9BDCFD"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-condensed"
+                android:letterSpacing="0.04" />
+
             <Button
                 android:id="@+id/btnBuyCoins"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/store_buy_coins"
+                android:text="@string/store_buy_coreclash_small"
                 android:textStyle="bold"
                 android:textColor="#04131F"
                 android:background="@drawable/bg_store_buy_button"/>
+
+            <Button
+                android:id="@+id/btnBuyCoinsPro"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/store_buy_coreclash_pro"
+                android:textStyle="bold"
+                android:textColor="#04131F"
+                android:background="@drawable/bg_store_buy_button"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/store_buy_coreclash_hint"
+                android:textColor="#8CC5EA"
+                android:textSize="12sp"/>
+
             <Button
                 android:id="@+id/btnRestorePurchases"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/store_restore_purchases"
                 android:textStyle="bold"
                 android:textColor="#DDEBFF"
@@ -1015,8 +1046,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="X  O  △  ▢"
-                android:textSize="44sp"
+                android:textSize="52sp"
                 android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.10"
+                android:shadowColor="#AA000000"
+                android:shadowRadius="6"
                 android:textColor="#EAF2FF"/>
 
             <TextView
@@ -1025,8 +1060,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="△  X  ▢  O"
-                android:textSize="40sp"
+                android:textSize="46sp"
                 android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.10"
+                android:shadowColor="#AA000000"
+                android:shadowRadius="6"
                 android:textColor="#CFE8FF"/>
 
             <TextView
@@ -1035,8 +1074,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="▢  O  X  △"
-                android:textSize="44sp"
+                android:textSize="52sp"
                 android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.10"
+                android:shadowColor="#AA000000"
+                android:shadowRadius="6"
                 android:textColor="#F8FAFC"/>
         </LinearLayout>
     </FrameLayout>
