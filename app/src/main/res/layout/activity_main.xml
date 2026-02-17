@@ -346,7 +346,8 @@
         android:background="@drawable/bg_gradient_dark"
         android:elevation="92dp"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:padding="10dp">
 
         <!-- Orbs decorativos -->
         <ImageView
@@ -422,11 +423,11 @@
                     android:id="@+id/homeWalletRow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="12dp"
                     android:gravity="center_vertical"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="6dp"
-                    android:background="@drawable/bg_cyber_glass"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:background="@drawable/bg_store_section"
                     app:layout_constraintTop_toBottomOf="@id/txtHomeSubtitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -436,20 +437,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/store_coins_default"
-                        android:textColor="#CFE8FF"
+                        android:textColor="#E6F3FF"
                         android:textStyle="bold"
                         android:fontFamily="sans-serif-condensed"/>
 
                     <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/btnWalletPlus"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_store_buy_button"
+                        android:background="@drawable/bg_wallet_plus"
                         android:padding="7dp"
                         android:contentDescription="@string/store_wallet_plus_desc"
                         app:srcCompat="@drawable/ic_plus_small"
-                        app:tint="#04131F"/>
+                        app:tint="#D8F1FF"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -503,7 +504,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginBottom="8dp"
                     app:layout_constraintTop_toBottomOf="@id/homeQuickActions"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -815,46 +816,63 @@
         android:background="@drawable/bg_gradient_dark"
         android:elevation="96dp"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:padding="14dp"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:id="@+id/storeOverlayHeaderBar"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="12dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="8dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_cyber_glass"
+            android:elevation="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/store_title"
+                android:textColor="#F8FAFC"
+                android:textStyle="bold"
+                android:textSize="24sp"/>
+
+            <Button
+                android:id="@+id/btnStoreOverlayClose"
+                android:layout_width="54dp"
+                android:layout_height="40dp"
+                android:text="X"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_button_tertiary"/>
+        </LinearLayout>
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/storeScreen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="72dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginBottom="8dp"
             android:fillViewport="true"
             android:background="@drawable/bg_cyber_glass"
-            android:padding="0dp">
+            android:clipToPadding="false"
+            android:paddingHorizontal="10dp"
+            android:paddingBottom="14dp">
 
             <LinearLayout
                 android:id="@+id/storeContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/btn_store"
-                    android:textColor="#EAF2FF"
-                    android:textStyle="bold"
-                    android:textSize="24sp"/>
-
-                <Button
-                    android:id="@+id/btnStoreClose"
-                    android:layout_width="54dp"
-                    android:layout_height="40dp"
-                    android:text="X"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:background="@drawable/bg_button_tertiary"/>
-            </LinearLayout>
+                android:paddingHorizontal="12dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="18dp">
 
             <TextView
                 android:id="@+id/txtStoreCoinsFull"
@@ -862,15 +880,26 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/store_coins_default"
-                android:textColor="#CFE8FF"
+                android:textColor="#D6EEFF"
                 android:textStyle="bold"
-                android:fontFamily="sans-serif-condensed"
-                android:letterSpacing="0.03" />
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/store_personalization_title"
+                android:textColor="#A6D7FF"
+                android:textStyle="bold"/>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
-                android:layout_height="190dp"
+                android:layout_height="214dp"
                 android:layout_marginTop="8dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:clipToPadding="false"
                 android:scrollbars="none">
 
                 <LinearLayout
@@ -879,10 +908,11 @@
                     android:orientation="horizontal">
 
                     <LinearLayout
-                        android:layout_width="170dp"
+                        android:id="@+id/cardThemeRoyal"
+                        android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
-                        android:padding="8dp"
+                        android:padding="10dp"
                         android:background="@drawable/bg_store_section"
                         android:orientation="vertical">
 
@@ -893,39 +923,71 @@
                             android:textStyle="bold"
                             android:textColor="#EAF2FF"/>
 
-                        <FrameLayout
+                        <TextView
                             android:layout_width="match_parent"
-                            android:layout_height="90dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_cyber_glass">
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_theme"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeThemeRoyal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
 
                             <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:text="X  O"
-                                android:textSize="28sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✥"
+                                android:textSize="34sp"
                                 android:textStyle="bold"
-                                android:textColor="#F8FAFC"/>
-                        </FrameLayout>
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◌"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
 
                         <Button
                             android:id="@+id/btnThemeRoyal"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
-                            android:layout_marginTop="8dp"
-                            android:text="180"
+                            android:text="@string/store_theme_royal_price"
                             android:textStyle="bold"
                             android:background="@drawable/bg_store_item"
                             android:textColor="#FFFFFF"/>
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="170dp"
+                        android:id="@+id/cardThemeVoid"
+                        android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
-                        android:padding="8dp"
-                        android:background="@drawable/bg_store_clash"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
                         android:orientation="vertical">
 
                         <TextView
@@ -935,69 +997,354 @@
                             android:textStyle="bold"
                             android:textColor="#EAF2FF"/>
 
-                        <FrameLayout
+                        <TextView
                             android:layout_width="match_parent"
-                            android:layout_height="90dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_cyber_glass">
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_theme"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeThemeVoid"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
 
                             <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:text="✦  ⬡"
-                                android:textSize="28sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✣"
+                                android:textSize="34sp"
                                 android:textStyle="bold"
-                                android:textColor="#E9D5FF"/>
-                        </FrameLayout>
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◈"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
 
                         <Button
                             android:id="@+id/btnThemeVoid"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
-                            android:layout_marginTop="8dp"
-                            android:text="220"
+                            android:text="@string/store_theme_void_price"
                             android:textStyle="bold"
                             android:background="@drawable/bg_store_item"
                             android:textColor="#FFFFFF"/>
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="170dp"
+                        android:id="@+id/cardStyleRune"
+                        android:layout_width="176dp"
                         android:layout_height="match_parent"
-                        android:padding="8dp"
-                        android:background="@drawable/bg_cyber_glass"
+                        android:layout_marginEnd="10dp"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/store_styles_title"
+                            android:text="@string/store_style_rune_name_short"
                             android:textStyle="bold"
                             android:textColor="#EAF2FF"/>
 
-                        <FrameLayout
+                        <TextView
                             android:layout_width="match_parent"
-                            android:layout_height="90dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_cyber_glass">
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleRune"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
 
                             <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:text="✦ vs ◉"
-                                android:textSize="26sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✦"
+                                android:textSize="34sp"
                                 android:textStyle="bold"
-                                android:textColor="#BAE6FD"/>
-                        </FrameLayout>
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◉"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
 
                         <Button
                             android:id="@+id/btnStyleRune"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
-                            android:layout_marginTop="8dp"
                             android:text="@string/store_style_rune_price"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_store_item"
+                            android:textColor="#FFFFFF"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/cardStyleFuture"
+                        android:layout_width="176dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/store_style_future_name_short"
+                            android:textStyle="bold"
+                            android:textColor="#EAF2FF"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleFuture"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✕"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="⬡"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnStyleFuture"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:text="@string/store_style_future_price"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_store_item"
+                            android:textColor="#FFFFFF"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/cardStyleNeon"
+                        android:layout_width="176dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/store_style_neon_name_short"
+                            android:textStyle="bold"
+                            android:textColor="#EAF2FF"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleNeon"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✶"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◎"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnStyleNeon"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:text="@string/store_style_neon_price"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_store_item"
+                            android:textColor="#FFFFFF"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/cardStyleSamurai"
+                        android:layout_width="176dp"
+                        android:layout_height="match_parent"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/store_style_samurai_name_short"
+                            android:textStyle="bold"
+                            android:textColor="#EAF2FF"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <TextView
+                            android:id="@+id/badgeStyleSamurai"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_store_acquired_badge"
+                            android:text="@string/store_badge_acquired"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#F8FAFC"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="メ"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◍"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnStyleSamurai"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:text="@string/store_style_samurai_price"
                             android:textStyle="bold"
                             android:background="@drawable/bg_store_item"
                             android:textColor="#FFFFFF"/>
@@ -1005,102 +1352,70 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <Button
-                android:id="@+id/btnStyleFuture"
+<TextView
+                android:id="@+id/sectionCoreclashShop"
                 android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/store_style_future_price"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/store_coreclash_shop_title"
+                android:textColor="#A6D7FF"
                 android:textStyle="bold"
-                android:background="@drawable/bg_store_item"
-                android:textColor="#FFFFFF"/>
+                android:fontFamily="sans-serif-condensed"
+                android:letterSpacing="0.03" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:weightSum="2">
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_store_section"
+                android:padding="8dp">
 
-                <LinearLayout
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_coin_stack_small"
+                    android:contentDescription="@null"/>
+
+                <Button
+                    android:id="@+id/btnBuyCoins"
                     android:layout_width="0dp"
-                    android:layout_height="74dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_store_clash"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🪙🪙🪙"
-                        android:textSize="20sp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/store_pack_starter"
-                        android:textColor="#F8FAFC"
-                        android:textStyle="bold"
-                        android:textSize="12sp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="74dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_store_section"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🪙🪙🪙🪙🪙"
-                        android:textSize="20sp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/store_pack_best_value"
-                        android:textColor="#FDE68A"
-                        android:textStyle="bold"
-                        android:textSize="12sp"/>
-                </LinearLayout>
+                    android:layout_marginStart="8dp"
+                    android:text="@string/store_buy_coreclash_small"
+                    android:textStyle="bold"
+                    android:textColor="#04131F"
+                    android:background="@drawable/bg_store_buy_button"/>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/sectionCoreclashShop"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/store_coreclash_shop_title"
-                android:textColor="#9BDCFD"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-condensed"
-                android:letterSpacing="0.04" />
-
-            <Button
-                android:id="@+id/btnBuyCoins"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/store_buy_coreclash_small"
-                android:textStyle="bold"
-                android:textColor="#04131F"
-                android:background="@drawable/bg_store_buy_button"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_store_clash"
+                android:padding="8dp">
 
-            <Button
-                android:id="@+id/btnBuyCoinsPro"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/store_buy_coreclash_pro"
-                android:textStyle="bold"
-                android:textColor="#04131F"
-                android:background="@drawable/bg_store_buy_button"/>
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:src="@drawable/ic_coin_stack_large"
+                    android:contentDescription="@null"/>
+
+                <Button
+                    android:id="@+id/btnBuyCoinsPro"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/store_buy_coreclash_pro"
+                    android:textStyle="bold"
+                    android:textColor="#04131F"
+                    android:background="@drawable/bg_store_buy_button"/>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -1120,6 +1435,8 @@
                 android:textColor="#DDEBFF"
                 android:background="@drawable/bg_button_tertiary"/>
             </LinearLayout>
+
+            
         </androidx.core.widget.NestedScrollView>
     </FrameLayout>
 
@@ -1144,11 +1461,11 @@
                 android:id="@+id/txtCurtainTop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="X  O  △  ▢"
+                android:text="X  O  ▲  ■"
                 android:textSize="50sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.10"
+                android:letterSpacing="0.06"
                 android:shadowColor="#AA000000"
                 android:shadowRadius="6"
                 android:textColor="#EAF2FF"/>
@@ -1158,11 +1475,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="△  X  ▢  O"
+                android:text="▲  X  ■  O"
                 android:textSize="50sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.10"
+                android:letterSpacing="0.06"
                 android:shadowColor="#AA000000"
                 android:shadowRadius="6"
                 android:textColor="#CFE8FF"/>
@@ -1172,11 +1489,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="▢  O  X  △"
+                android:text="■  O  X  ▲"
                 android:textSize="50sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.10"
+                android:letterSpacing="0.06"
                 android:shadowColor="#AA000000"
                 android:shadowRadius="6"
                 android:textColor="#F8FAFC"/>
@@ -1252,7 +1569,7 @@
                     android:textColor="#E2E8F0"
                     android:textStyle="bold"
                     android:textSize="12sp"
-                    android:letterSpacing="0.10"/>
+                    android:letterSpacing="0.06"/>
 
                 <TextView
 		    android:id="@+id/txtVersusCenter"
