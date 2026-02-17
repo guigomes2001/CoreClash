@@ -308,6 +308,9 @@ public class MainActivity extends AppCompatActivity {
                 },
                 new BotManager.Callbacks() {
                     @Override public void onRender() {
+                        if (!NullUtil.isNull(currentProfile) && !NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                        }
                         updateHeaderStatus();
                         updateSkillVisuals();
                     }
@@ -337,6 +340,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
+                if (!NullUtil.isNull(currentProfile)) {
+                    matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                }
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
 
@@ -372,6 +378,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
+                if (!NullUtil.isNull(currentProfile)) {
+                    matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                }
                 matchManager.startOnlineMatchmaking(() -> uid);
             }
 
@@ -399,6 +408,9 @@ public class MainActivity extends AppCompatActivity {
                 new PlayerServicesManager.Callbacks() {
                     @Override public void onProfileReady(@NonNull PlayerProfile profile) {
                         currentProfile = profile;
+                        if (!NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(profile.equippedSymbolStyle);
+                        }
                         String uid = getMyUidOrNull();
                         if (!NullUtil.isNull(uid)) {
                             socialManager.upsertUserProfile(uid, profile.displayName, buildTagFromUid(uid));
@@ -406,6 +418,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     @Override public void onStoreReady(@NonNull StoreManager sm) { storeManager = sm; }
                     @Override public void onRender() {
+                        if (!NullUtil.isNull(currentProfile) && !NullUtil.isNull(matchManager)) {
+                            matchManager.setMyEquippedSymbolStyle(currentProfile.equippedSymbolStyle);
+                        }
                         updateHeaderStatus();
                         updateSkillVisuals();
                     }
@@ -518,6 +533,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     @Override public void onSetArenaUiVisible(boolean visible) {
                         MainActivity.this.applyArenaUiVisibility(visible);
+                    }
+
+                    @Override public void onApplyOnlineSymbolStyles(@NonNull String xStyle, @NonNull String oStyle) {
+                        board.setSymbolStylesBySide(xStyle, oStyle);
                     }
 
                     @Override public void onBeforeOnlineMatchStart() {
@@ -963,6 +982,13 @@ public class MainActivity extends AppCompatActivity {
         return state.isXTurn() ? getString(R.string.countdown_you_start) : getString(R.string.countdown_opponent_starts);
     }
 
+    private void applyLocalEquippedStyles() {
+        String style = (NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.equippedSymbolStyle))
+                ? "CLASSIC"
+                : currentProfile.equippedSymbolStyle;
+        board.setSymbolStyle(style);
+    }
+
     private void startLocalPassAndPlay() {
         hideMatchmakingLoading();
         passAndPlayMode = true;
@@ -972,6 +998,7 @@ public class MainActivity extends AppCompatActivity {
         opponentName = getString(R.string.label_player_two);
         resetRoundSeries();
 
+        applyLocalEquippedStyles();
         setGameMode();
         state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
         gameManager.resetGame();
@@ -1426,6 +1453,7 @@ public class MainActivity extends AppCompatActivity {
         currentBotDifficulty = randomDifficulty();
         resetRoundSeries();
 
+        applyLocalEquippedStyles();
         setGameMode();
         state.setGameMode(DomainGameMode.BOT.getValue());
         gameManager.resetGame();

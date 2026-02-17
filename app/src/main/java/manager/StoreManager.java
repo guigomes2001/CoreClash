@@ -139,17 +139,26 @@ public class StoreManager {
 
     private void buyOrEquipTheme(String themeId, int price) {
         if (profile.ownsTheme(themeId)) {
-            if (themeId.equals(profile.equippedTheme)) {
+            if (themeId.equals(profile.equippedSymbolStyle)) {
                 profile.equippedTheme = "ARENA";
-                Toast.makeText(context, context.getString(R.string.toast_theme_default_equipped), Toast.LENGTH_SHORT).show();
+                profile.equippedSymbolStyle = "CLASSIC";
+                Toast.makeText(context, context.getString(R.string.toast_style_default_equipped), Toast.LENGTH_SHORT).show();
             } else {
                 profile.equippedTheme = themeId;
+                profile.equippedSymbolStyle = themeId;
+                if (!profile.ownedSymbolStyles.contains(themeId)) {
+                    profile.ownedSymbolStyles.add(themeId);
+                }
                 Toast.makeText(context, context.getString(R.string.toast_theme_equipped), Toast.LENGTH_SHORT).show();
             }
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedThemes.add(themeId);
+            if (!profile.ownedSymbolStyles.contains(themeId)) {
+                profile.ownedSymbolStyles.add(themeId);
+            }
             profile.equippedTheme = themeId;
+            profile.equippedSymbolStyle = themeId;
             Toast.makeText(context, context.getString(R.string.toast_theme_bought), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, context.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
@@ -183,11 +192,11 @@ public class StoreManager {
 
 
     private void refreshOwnershipCards() {
-        bindCardState(profile.ownsTheme("ROYAL"), "ROYAL".equals(profile.equippedTheme),
+        bindCardState(profile.ownsSymbolStyle("ROYAL") || profile.ownsTheme("ROYAL"), "ROYAL".equals(profile.equippedSymbolStyle),
                 binding.badgeThemeRoyal, binding.btnThemeRoyal, binding.cardThemeRoyal,
                 context.getString(R.string.store_theme_royal_price));
 
-        bindCardState(profile.ownsTheme("VOID"), "VOID".equals(profile.equippedTheme),
+        bindCardState(profile.ownsSymbolStyle("VOID") || profile.ownsTheme("VOID"), "VOID".equals(profile.equippedSymbolStyle),
                 binding.badgeThemeVoid, binding.btnThemeVoid, binding.cardThemeVoid,
                 context.getString(R.string.store_theme_void_price));
 
