@@ -236,11 +236,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void removeLegacyScorePanelIfPresent() {
-        // Mantido apenas por compatibilidade com referências antigas.
-        // Não removemos mais HUD de score do layout atual para preservar o posicionamento do tabuleiro.
-    }
-
     private BotManager initBotManager() {
         return new BotManager(
                 handler,
