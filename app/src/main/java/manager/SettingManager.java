@@ -1,5 +1,7 @@
 package manager;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import androidx.appcompat.app.AlertDialog;
@@ -27,6 +29,7 @@ public class SettingManager {
         binding.btnSettingsClose.setOnClickListener(v -> closeSettings());
         binding.settingsOverlay.setOnClickListener(v -> closeSettings());
         binding.btnChangeLanguage.setOnClickListener(v -> showLanguageDialog());
+        binding.btnAboutPrivacy.setOnClickListener(v -> showPrivacyDialog());
     }
 
     public void openSettings() {
@@ -64,6 +67,23 @@ public class SettingManager {
                 })
                 .setNegativeButton(R.string.btn_close, null)
                 .show();
+    }
+
+
+    private void showPrivacyDialog() {
+        new AlertDialog.Builder(activity)
+                .setTitle(activity.getString(R.string.privacy_dialog_title))
+                .setMessage(activity.getString(R.string.privacy_dialog_message))
+                .setPositiveButton(R.string.privacy_dialog_open_policy, (dialog, which) -> openPrivacyPolicy())
+                .setNegativeButton(R.string.btn_close, null)
+                .show();
+    }
+
+    private void openPrivacyPolicy() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(activity.getString(R.string.privacy_policy_url)));
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        }
     }
 
     public void setAppLocale(String languageTag) {
