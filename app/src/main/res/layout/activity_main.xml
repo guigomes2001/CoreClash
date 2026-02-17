@@ -861,22 +861,33 @@
             android:layout_marginHorizontal="12dp"
             android:layout_marginBottom="8dp"
             android:fillViewport="true"
-            android:background="@drawable/bg_store_modal_inner_depth"
+            android:background="@drawable/bg_cyber_glass"
+            android:outlineProvider="background"
             android:clipToOutline="true"
             android:clipToPadding="true"
+            android:overScrollMode="never"
             android:paddingHorizontal="16dp"
             android:paddingTop="10dp"
             android:paddingBottom="22dp"
             android:clipChildren="true">
 
-            <LinearLayout
-                android:id="@+id/storeContent"
+
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="0dp"
-                android:paddingTop="32dp"
-                android:paddingBottom="20dp">
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_store_modal_inner_depth"
+                android:clipToOutline="true"
+                android:outlineProvider="background">
+
+                <LinearLayout
+                    android:id="@+id/storeContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="0dp"
+                    android:paddingTop="32dp"
+                    android:paddingBottom="20dp">
 
             <TextView
                 android:id="@+id/txtStoreCoinsFull"
@@ -1444,9 +1455,9 @@
                 android:textStyle="bold"
                 android:textColor="#DDEBFF"
                 android:background="@drawable/bg_button_tertiary"/>
-            </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
 
-            
         </androidx.core.widget.NestedScrollView>
     </FrameLayout>
 
