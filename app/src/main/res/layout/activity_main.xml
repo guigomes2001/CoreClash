@@ -860,7 +860,7 @@
             android:layout_marginHorizontal="12dp"
             android:layout_marginBottom="8dp"
             android:fillViewport="true"
-            android:background="@drawable/bg_cyber_glass"
+            android:background="@drawable/bg_store_modal_inner_depth"
             android:clipToPadding="false"
             android:paddingHorizontal="10dp"
             android:paddingBottom="14dp">

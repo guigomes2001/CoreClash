@@ -174,13 +174,13 @@
     <string name="store_coreclash_shop_title">Coin Packs</string>
     <string name="store_buy_coreclash_small">500 Core Coins • R$ 29,90</string>
     <string name="store_buy_coreclash_pro">1200 Core Coins • R$ 49,99</string>
-    <string name="store_buy_coreclash_hint">Após comprar, as moedas entram na hora e você já pode desbloquear novos estilos.</string>
+    <string name="store_buy_coreclash_hint">After purchase, coins are delivered instantly so you can unlock new styles right away.</string>
     <string name="store_wallet_plus_desc">Open Core Coins shop</string>
     <string name="store_pack_starter">Starter Pack</string>
     <string name="store_pack_best_value">Best Value</string>
 
     <string name="store_title">Arena Shop</string>
-    <string name="store_personalization_title">Personalização</string>
+    <string name="store_personalization_title">Personalization</string>
     <string name="store_theme_royal_preview">♔  X • O</string>
     <string name="store_theme_void_preview">✦  X • O</string>
     <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
@@ -199,13 +199,13 @@
     <string name="store_style_future_name_short">Future</string>
     <string name="store_style_neon_name_short">Neon</string>
     <string name="store_style_samurai_name_short">Samurai</string>
-    <string name="profile_personalization_hint">Personalização: selecione o estilo já comprado para equipar.</string>
+    <string name="profile_personalization_hint">Personalization: select an already owned style to equip.</string>
 
 
-    <string name="store_badge_acquired">Adquirido</string>
-    <string name="store_btn_equip">Equipar</string>
-    <string name="store_btn_unequip">Desequipar</string>
-    <string name="toast_theme_default_equipped">Tema padrão equipado.</string>
-    <string name="toast_style_default_equipped">Símbolo padrão equipado.</string>
+    <string name="store_badge_acquired">Owned</string>
+    <string name="store_btn_equip">Equip</string>
+    <string name="store_btn_unequip">Unequip</string>
+    <string name="toast_theme_default_equipped">Default theme equipped.</string>
+    <string name="toast_style_default_equipped">Default symbol style equipped.</string>
 
 </resources>
