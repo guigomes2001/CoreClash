@@ -877,7 +877,7 @@
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
-                android:layout_height="190dp"
+                android:layout_height="214dp"
                 android:layout_marginTop="8dp"
                 android:scrollbars="none">
 
@@ -887,7 +887,7 @@
                     android:orientation="horizontal">
 
                     <LinearLayout
-                        android:layout_width="180dp"
+                        android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
                         android:padding="10dp"
@@ -903,13 +903,36 @@
 
                         <TextView
                             android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_theme"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:text="@string/store_theme_royal_preview"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="#F8FAFC"/>
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="X"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="O"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
 
                         <Button
                             android:id="@+id/btnThemeRoyal"
@@ -922,11 +945,11 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="180dp"
+                        android:layout_width="176dp"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="10dp"
                         android:padding="10dp"
-                        android:background="@drawable/bg_store_clash"
+                        android:background="@drawable/bg_store_section"
                         android:orientation="vertical">
 
                         <TextView
@@ -938,13 +961,36 @@
 
                         <TextView
                             android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_theme"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:text="@string/store_theme_void_preview"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="#E9D5FF"/>
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="X"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="O"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
 
                         <Button
                             android:id="@+id/btnThemeVoid"
@@ -957,28 +1003,52 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="220dp"
+                        android:layout_width="176dp"
                         android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
                         android:padding="10dp"
-                        android:background="@drawable/bg_cyber_glass"
+                        android:background="@drawable/bg_store_section"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/store_styles_title"
+                            android:text="@string/store_style_rune_name_short"
                             android:textStyle="bold"
                             android:textColor="#EAF2FF"/>
 
                         <TextView
                             android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:text="@string/store_style_preview"
-                            android:textSize="23sp"
-                            android:textStyle="bold"
-                            android:textColor="#BAE6FD"/>
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✦"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◉"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
 
                         <Button
                             android:id="@+id/btnStyleRune"
@@ -989,40 +1059,183 @@
                             android:background="@drawable/bg_store_item"
                             android:textColor="#FFFFFF"/>
                     </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="176dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/store_style_future_name_short"
+                            android:textStyle="bold"
+                            android:textColor="#EAF2FF"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✕"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="⬡"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnStyleFuture"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:text="@string/store_style_future_price"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_store_item"
+                            android:textColor="#FFFFFF"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="176dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/store_style_neon_name_short"
+                            android:textStyle="bold"
+                            android:textColor="#EAF2FF"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✶"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◎"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnStyleNeon"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:text="@string/store_style_neon_price"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_store_item"
+                            android:textColor="#FFFFFF"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="176dp"
+                        android:layout_height="match_parent"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_store_section"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/store_style_samurai_name_short"
+                            android:textStyle="bold"
+                            android:textColor="#EAF2FF"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/store_card_type_style"
+                            android:textSize="12sp"
+                            android:textColor="#95B7D8"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="メ"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#FB7185"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="◍"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:textColor="#22D3EE"/>
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnStyleSamurai"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:text="@string/store_style_samurai_price"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_store_item"
+                            android:textColor="#FFFFFF"/>
+                    </LinearLayout>
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <Button
-                android:id="@+id/btnStyleFuture"
-                android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/store_style_future_price"
-                android:textStyle="bold"
-                android:background="@drawable/bg_store_item"
-                android:textColor="#FFFFFF"/>
-
-            <Button
-                android:id="@+id/btnStyleNeon"
-                android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/store_style_neon_price"
-                android:textStyle="bold"
-                android:background="@drawable/bg_store_item"
-                android:textColor="#FFFFFF"/>
-
-            <Button
-                android:id="@+id/btnStyleSamurai"
-                android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/store_style_samurai_price"
-                android:textStyle="bold"
-                android:background="@drawable/bg_store_item"
-                android:textColor="#FFFFFF"/>
-
-            <TextView
+<TextView
                 android:id="@+id/sectionCoreclashShop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
