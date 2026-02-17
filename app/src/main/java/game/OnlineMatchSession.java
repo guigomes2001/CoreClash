@@ -21,6 +21,7 @@ import enums.DomainActionType;
 import enums.DomainMatchStatus;
 import enums.DomainSymmetries;
 import util.NullUtil;
+import util.StringUtil;
 
 public class OnlineMatchSession {
 
@@ -51,6 +52,14 @@ public class OnlineMatchSession {
 
     public interface PlayerStylesListener {
         void onPlayerStyles(@NonNull String xStyle, @NonNull String oStyle);
+    }
+
+    @NonNull
+    private static String normalizeStyle(@Nullable String style) {
+        if (StringUtil.isBlank(style)) {
+            return "CLASSIC";
+        }
+        return StringUtil.trimOrEmpty(style).toUpperCase();
     }
 
     public interface ForceTurnCallback {
@@ -254,16 +263,25 @@ public class OnlineMatchSession {
 
         playerStylesListener = new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String xStyle = snapshot.child("X").getValue(String.class);
-                String oStyle = snapshot.child("O").getValue(String.class);
-                if (NullUtil.isNullOrEmpty(xStyle)) xStyle = "CLASSIC";
-                if (NullUtil.isNullOrEmpty(oStyle)) oStyle = "CLASSIC";
+                String xStyle = normalizeStyle(snapshot.child("X").getValue(String.class));
+                String oStyle = normalizeStyle(snapshot.child("O").getValue(String.class));
                 listener.onPlayerStyles(xStyle, oStyle);
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         };
 
         roomRef.child("playerStyles").addValueEventListener(playerStylesListener);
+    }
+
+    public void readPlayerStylesOnce(@NonNull PlayerStylesListener listener) {
+        roomRef.child("playerStyles").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String xStyle = normalizeStyle(snapshot.child("X").getValue(String.class));
+                String oStyle = normalizeStyle(snapshot.child("O").getValue(String.class));
+                listener.onPlayerStyles(xStyle, oStyle);
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
     public void scheduleIntroIfHost(boolean iAmHost, long delayMs, long durationMs) {

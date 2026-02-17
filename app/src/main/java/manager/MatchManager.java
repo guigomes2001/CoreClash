@@ -25,6 +25,7 @@ import util.ValidationUtil;
 public class MatchManager {
 
     private static final String TAG = "MATCH_FLOW";
+    // Must match MainActivity#runCountdown timing (3 ticks x 900ms = 2700ms).
     private static final long ONLINE_COUNTDOWN_DURATION_MS = 2_700L;
 
     public interface Callbacks {
@@ -230,6 +231,7 @@ public class MatchManager {
         );
 
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
+        onlineSession.readPlayerStylesOnce((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
         onlineSession.listenPlayerStyles((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
 
         hookOnlineListenersInternal();
