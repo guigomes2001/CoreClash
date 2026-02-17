@@ -817,10 +817,42 @@
         android:clickable="true"
         android:focusable="true">
 
+        <LinearLayout
+            android:id="@+id/storeHeaderBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="8dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_cyber_glass"
+            android:elevation="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/store_title"
+                android:textColor="#F8FAFC"
+                android:textStyle="bold"
+                android:textSize="24sp"/>
+
+            <Button
+                android:id="@+id/btnStoreClose"
+                android:layout_width="54dp"
+                android:layout_height="40dp"
+                android:text="X"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_button_tertiary"/>
+        </LinearLayout>
+
         <androidx.core.widget.NestedScrollView
             android:id="@+id/storeScreen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="72dp"
             android:fillViewport="true"
             android:background="@drawable/bg_cyber_glass"
             android:padding="0dp">
@@ -831,30 +863,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/store_title"
-                    android:textColor="#F8FAFC"
-                    android:textStyle="bold"
-                    android:textSize="24sp"/>
-
-                <Button
-                    android:id="@+id/btnStoreClose"
-                    android:layout_width="54dp"
-                    android:layout_height="40dp"
-                    android:text="X"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:background="@drawable/bg_button_tertiary"/>
-            </LinearLayout>
 
             <TextView
                 android:id="@+id/txtStoreCoinsFull"

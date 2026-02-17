@@ -145,6 +145,7 @@
 
     <string name="error_online_requires_internet">No internet connection detected. Check your network and try again.</string>
     <string name="round_result_score">Round won by %1$s. Score %2$d-%3$d</string>
+    <string name="round_result_double_line_score">%1$s fez duas linhas no mesmo round! Placar %2$d-%3$d</string>
     <string name="round_draw_replay">Round draw. Score stays %1$d-%2$d</string>
     <string name="rounds_finished_score">🏆 Match finished! Final rounds score: %1$d-%2$d</string>
 

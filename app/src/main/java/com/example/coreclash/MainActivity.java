@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         homeFlow.updateModeButtonStyles();
         updateHeaderStatus();
         updateSkillVisuals();
-        updateScoreHud(false, null);
+        updateScoreHud(false, null, false);
     }
 
 
@@ -567,12 +567,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onOnlineRemoteWin(@NonNull String winnerSymbol) {
-                        handleRoundFinished(winnerSymbol, false);
+                        handleRoundFinished(winnerSymbol, false, Math.max(1, gameManager.getLastWins().size()));
                     }
 
                     @Override
                     public void onOnlineRemoteDraw() {
-                        handleRoundFinished(null, true);
+                        handleRoundFinished(null, true, 0);
                     }
 
                     @Override public void onEndOnlineSessionToMenu() { onlineSessionEndedCleanup(); }
@@ -816,12 +816,12 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            handleRoundFinished(symbol, false);
+            handleRoundFinished(symbol, false, Math.max(1, gameManager.getLastWins().size()));
             return;
         }
 
         if (gameManager.isGameOver()) {
-            handleRoundFinished(null, true);
+            handleRoundFinished(null, true, 0);
         }
     }
 
@@ -866,7 +866,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void updateScoreHud(boolean animate, String winningSymbol) {
+    private void updateScoreHud(boolean animate, String winningSymbol, boolean sweepHighlight) {
         binding.txtHudScoreInline.setText(getString(R.string.round_score_inline, roundsWonX, roundsWonO));
 
         if (animate && !NullUtil.isNull(winningSymbol)) {
@@ -890,6 +890,20 @@ public class MainActivity extends AppCompatActivity {
             flash.start();
         }
 
+        if (sweepHighlight && !NullUtil.isNull(winningSymbol)) {
+            binding.txtHudScoreInline.setBackgroundResource(
+                    DomainSymmetries.X.getValue().equals(winningSymbol)
+                            ? R.drawable.bg_score_sweep_x
+                            : R.drawable.bg_score_sweep_o
+            );
+            binding.txtHudScoreInline.setPadding(16, 6, 16, 6);
+            binding.txtHudScoreInline.setScaleX(1.08f);
+            binding.txtHudScoreInline.setScaleY(1.08f);
+            binding.txtHudScoreInline.animate().scaleX(1f).scaleY(1f).setDuration(320).start();
+        } else {
+            binding.txtHudScoreInline.setBackground(null);
+        }
+
         boolean fireMode = roundsWonX == 1 && roundsWonO == 1;
         setArenaFireMode(fireMode);
     }
@@ -901,6 +915,7 @@ public class MainActivity extends AppCompatActivity {
         binding.boardContainer.setScaleY(1f);
         binding.txtHudVersus.setTextColor(Color.parseColor("#CBD5E1"));
         binding.txtHudScoreInline.setTextColor(Color.parseColor("#D1E2FF"));
+        binding.txtHudScoreInline.setBackground(null);
     }
 
     @NonNull
@@ -1222,12 +1237,12 @@ public class MainActivity extends AppCompatActivity {
         updateSkillVisuals();
 
         if (won) {
-            handleRoundFinished(symbol, false);
+            handleRoundFinished(symbol, false, Math.max(1, gameManager.getLastWins().size()));
             return;
         }
 
         if (gameManager.isGameOver()) {
-            handleRoundFinished(null, true);
+            handleRoundFinished(null, true, 0);
             return;
         }
 
@@ -1239,7 +1254,7 @@ public class MainActivity extends AppCompatActivity {
         roundsWonO = 0;
         onlineRoundNumber = 1;
         onlineRoundStarterSymbol = DomainSymmetries.X.getValue();
-        updateScoreHud(false, null);
+        updateScoreHud(false, null, false);
     }
 
     private boolean isActionLocked() {
@@ -1276,7 +1291,7 @@ public class MainActivity extends AppCompatActivity {
         return connected;
     }
 
-    private void handleRoundFinished(String winnerSymbol, boolean draw) {
+    private void handleRoundFinished(String winnerSymbol, boolean draw, int winLinesInRound) {
         final boolean online = matchManager.isOnlineMatch();
         matchStarted = false;
         matchPhase = DomainMatchPhase.LOADING;
@@ -1314,10 +1329,12 @@ public class MainActivity extends AppCompatActivity {
         victoryOverlayAnimator.showWinLineOnly();
 
         handler.postDelayed(() -> {
-            if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX++;
-            if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO++;
+            int roundPoints = Math.max(1, winLinesInRound);
+            if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX += roundPoints;
+            if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO += roundPoints;
 
-            updateScoreHud(true, winnerSymbol);
+            boolean doubleLineSweep = roundPoints >= 2;
+            updateScoreHud(true, winnerSymbol, doubleLineSweep);
 
             int winnerRounds = Math.max(roundsWonX, roundsWonO);
             int loserRounds = Math.min(roundsWonX, roundsWonO);
@@ -1340,7 +1357,7 @@ public class MainActivity extends AppCompatActivity {
                         showUiToastDeduped(getString(R.string.online_tiebreak_fire));
                     }
 
-                    showUiToastDeduped(getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
+                    showUiToastDeduped(getString(doubleLineSweep ? R.string.round_result_double_line_score : R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
 
                     victoryOverlayAnimator.hideInstant();
                     gameManager.resetGame();
@@ -1366,7 +1383,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                showUiToastDeduped(getString(R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
+                showUiToastDeduped(getString(doubleLineSweep ? R.string.round_result_double_line_score : R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
                 victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
                 victoryOverlayAnimator.clearLines();
