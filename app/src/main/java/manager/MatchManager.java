@@ -25,6 +25,7 @@ import util.ValidationUtil;
 public class MatchManager {
 
     private static final String TAG = "MATCH_FLOW";
+    private static final long ONLINE_COUNTDOWN_DURATION_MS = 2_200L;
 
     public interface Callbacks {
         void runOnUi(@NonNull Runnable r);
@@ -222,6 +223,8 @@ public class MatchManager {
             resolveOpponentName(opponentUid);
         }
 
+        cb.onBeforeOnlineMatchStart();
+
         onlineSession = new OnlineMatchSession(roomId, myUid, mySymbolOnline);
         onlineSession.listenPlayerStyles((xStyle, oStyle) -> cb.runOnUi(() -> cb.onApplyOnlineSymbolStyles(xStyle, oStyle)));
 
@@ -237,7 +240,6 @@ public class MatchManager {
         lastTimeoutBannerTurnKey = "";
         scheduledTimeoutTurnKey = "";
 
-        cb.onBeforeOnlineMatchStart();
         cb.onSetArenaUiVisible(false);
 
         cb.onUpdateHeaderStatus();
@@ -253,7 +255,7 @@ public class MatchManager {
             resolveOpponentName(oUid);
 
             if (iAmXOnline) {
-                onlineSession.scheduleIntroIfHost(true, 0L, 0L);
+                onlineSession.scheduleIntroIfHost(true, 0L, ONLINE_COUNTDOWN_DURATION_MS);
                 Log.d(TAG, "host-scheduled-intro room=" + onlineSession.getRoomId());
             }
 

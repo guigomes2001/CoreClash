@@ -378,7 +378,7 @@ public class OnlineMatchSession {
 
                 currentData.child("status").setValue(STATUS_PLAYING);
                 currentData.child("turn").setValue(TURN_X);
-                currentData.child("turnStartedAt").setValue(ServerValue.TIMESTAMP);
+                currentData.child("turnStartedAt").setValue(endAt);
 
                 if (NullUtil.isNull(currentData.child("turnDurationMs").getValue())) {
                     currentData.child("turnDurationMs").setValue(10_000L);
