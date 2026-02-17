@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="game_hud_horizontal_margin">12dp</dimen>
+    <dimen name="game_hud_horizontal_padding">12dp</dimen>
+    <dimen name="game_board_container_size">270dp</dimen>
+    <dimen name="game_board_cell_size">78dp</dimen>
+    <dimen name="game_board_cell_margin">3dp</dimen>
+    <dimen name="game_skill_button_size">72dp</dimen>
+    <dimen name="game_skill_button_gap">24dp</dimen>
+</resources>

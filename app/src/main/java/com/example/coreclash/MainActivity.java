@@ -9,10 +9,15 @@ import android.net.NetworkCapabilities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
@@ -157,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        removeLegacyScorePanelIfPresent();
+        applyHomeTitleBrandStyle();
 
         hideSystemBars();
         setupGoogleSignInLauncher();
@@ -237,25 +242,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void removeLegacyScorePanelIfPresent() {
-        int[] legacyIds = new int[] {
-                getResources().getIdentifier("scoreHudBar", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreLabel", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreX", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreO", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreSeparator", "id", getPackageName())
-        };
-
-        for (int id : legacyIds) {
-            if (id == 0) continue;
-            View v = findViewById(id);
-            if (NullUtil.isNull(v)) continue;
-            v.setVisibility(View.GONE);
-            if (v.getParent() instanceof android.view.ViewGroup) {
-                ((android.view.ViewGroup) v.getParent()).removeView(v);
-            }
+    private void applyHomeTitleBrandStyle() {
+        String appName = getString(R.string.app_name);
+        int split = appName.indexOf(' ');
+        if (split <= 0 || split >= appName.length() - 1) {
+            return;
         }
+
+        SpannableString styled = new SpannableString(appName);
+        styled.setSpan(new ForegroundColorSpan(Color.parseColor("#F8FAFC")), 0, split, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        styled.setSpan(new ForegroundColorSpan(Color.parseColor("#22D3EE")), split + 1, appName.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        styled.setSpan(new StyleSpan(Typeface.BOLD), 0, appName.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        binding.txtHomeTitle.setText(styled);
     }
+
 
     private BotManager initBotManager() {
         return new BotManager(

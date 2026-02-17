@@ -158,4 +158,13 @@
 
     <string name="score_best_of_three">MELHOR DE 3</string>
 
+    <string name="btn_about_privacy">Sobre e Privacidade</string>
+    <string name="privacy_dialog_title">Sobre e Privacidade</string>
+    <string name="privacy_dialog_message">CoreClash usa serviços de conta e compras para sincronizar perfil e moedas. Leia nossa Política de Privacidade para detalhes de uso e retenção de dados.</string>
+    <string name="privacy_dialog_open_policy">Abrir Política de Privacidade</string>
+    <string name="privacy_policy_url">https://SEU-USUARIO.github.io/CoreClashOfficial/privacy.html</string>
+    <string name="store_restore_purchases">Restaurar compras</string>
+    <string name="toast_restore_success">%1$d compra(s) restaurada(s).</string>
+    <string name="toast_restore_empty">Nenhuma compra encontrada para restaurar.</string>
+    <string name="toast_store_billing_unavailable">Billing indisponível no momento. Tente novamente em alguns instantes.</string>
 </resources>
