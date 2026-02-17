@@ -301,11 +301,15 @@ public class BoardManager {
         if ("X".equals(symbol)) {
             if ("RUNE".equals(symbolStyle)) return "✦";
             if ("FUTURE".equals(symbolStyle)) return "✕";
+            if ("NEON".equals(symbolStyle)) return "✶";
+            if ("SAMURAI".equals(symbolStyle)) return "メ";
             return "X";
         }
         if ("O".equals(symbol)) {
             if ("RUNE".equals(symbolStyle)) return "◉";
             if ("FUTURE".equals(symbolStyle)) return "⬡";
+            if ("NEON".equals(symbolStyle)) return "◎";
+            if ("SAMURAI".equals(symbolStyle)) return "◍";
             return "O";
         }
         return symbol;
