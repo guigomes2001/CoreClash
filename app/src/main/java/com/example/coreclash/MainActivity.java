@@ -157,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        removeLegacyScorePanelIfPresent();
 
         hideSystemBars();
         setupGoogleSignInLauncher();
@@ -238,23 +237,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void removeLegacyScorePanelIfPresent() {
-        int[] legacyIds = new int[] {
-                getResources().getIdentifier("scoreHudBar", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreLabel", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreX", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreO", "id", getPackageName()),
-                getResources().getIdentifier("txtScoreSeparator", "id", getPackageName())
-        };
-
-        for (int id : legacyIds) {
-            if (id == 0) continue;
-            View v = findViewById(id);
-            if (NullUtil.isNull(v)) continue;
-            v.setVisibility(View.GONE);
-            if (v.getParent() instanceof android.view.ViewGroup) {
-                ((android.view.ViewGroup) v.getParent()).removeView(v);
-            }
-        }
+        // Mantido apenas por compatibilidade com referências antigas.
+        // Não removemos mais HUD de score do layout atual para preservar o posicionamento do tabuleiro.
     }
 
     private BotManager initBotManager() {
