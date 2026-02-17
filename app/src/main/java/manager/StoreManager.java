@@ -1,5 +1,6 @@
 package manager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
@@ -7,8 +8,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.coreclash.R;
+import com.example.coreclash.billing.BillingManager;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
+
 import util.NullUtil;
 
 public class StoreManager {
@@ -24,6 +27,7 @@ public class StoreManager {
     private final ProfileManager profileManager;
     private final BoardManager board;
     private final Callbacks cb;
+    private final BillingManager billingManager = new BillingManager();
 
     public StoreManager(
             @NonNull Context context,
@@ -41,6 +45,15 @@ public class StoreManager {
         this.profileManager = profileManager;
         this.board = board;
         this.cb = callbacks;
+
+        if (context instanceof Activity activity) {
+            billingManager.start(activity, amount -> {
+                profile.coins += amount;
+                finalizePurchase();
+                Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+            });
+        }
+
         setupActions();
     }
 
@@ -53,15 +66,43 @@ public class StoreManager {
         binding.btnStyleRune.setOnClickListener(v -> buyOrEquipStyle("RUNE", 140));
         binding.btnStyleFuture.setOnClickListener(v -> buyOrEquipStyle("FUTURE", 160));
 
-        binding.btnBuyCoins.setOnClickListener(v -> {
-            profile.coins += 500;
-            profileManager.persistProfile();
+        binding.btnBuyCoins.setOnClickListener(v -> buyCoreclashSmall());
+        binding.btnBuyCoinsPro.setOnClickListener(v -> buyCoreclashPro());
+        binding.btnRestorePurchases.setOnClickListener(v -> restorePurchases());
+    }
+
+    private void buyCoreclashSmall() {
+        if (context instanceof Activity activity && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_CORECLASH_SMALL)) {
+            return;
+        }
+
+        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
+    private void buyCoreclashPro() {
+        if (context instanceof Activity activity && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_CORECLASH_PRO)) {
+            return;
+        }
+
+        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
+    private void restorePurchases() {
+        billingManager.restorePurchases(restoredCount -> {
+            if (restoredCount > 0) {
+                Toast.makeText(context, context.getString(R.string.toast_restore_success, restoredCount), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, context.getString(R.string.toast_restore_empty), Toast.LENGTH_SHORT).show();
+            }
             refreshStoreUI();
-            Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
         });
     }
 
     public void openStore() {
+        openStore(false);
+    }
+
+    public void openStore(boolean focusCoreclashShop) {
         refreshStoreUI();
         playStoreTransition(() -> {
             binding.storeOverlay.setVisibility(View.VISIBLE);
@@ -69,6 +110,13 @@ public class StoreManager {
             binding.storeScreen.setTranslationY(40f);
             binding.storeOverlay.animate().alpha(1f).setDuration(200).start();
             binding.storeScreen.animate().translationY(0f).setDuration(240).start();
+
+            if (focusCoreclashShop) {
+                binding.storeScreen.post(() -> {
+                    int targetY = Math.max(0, binding.sectionCoreclashShop.getTop() - 20);
+                    binding.storeScreen.smoothScrollTo(0, targetY);
+                });
+            }
         });
     }
 
@@ -83,6 +131,7 @@ public class StoreManager {
 
     private void refreshStoreUI() {
         binding.txtStoreCoinsFull.setText(context.getString(R.string.store_coins_format, profile.coins));
+        binding.txtHomeWallet.setText(context.getString(R.string.store_coins_format, profile.coins));
     }
 
     private void buyOrEquipTheme(String themeId, int price) {

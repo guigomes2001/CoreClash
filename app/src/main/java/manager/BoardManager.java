@@ -20,7 +20,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,11 +58,9 @@ public class BoardManager {
 
         setupOverlay(grid);
 
-        int cellSize = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 85, context.getResources().getDisplayMetrics());
+        int cellSize = context.getResources().getDimensionPixelSize(com.example.coreclash.R.dimen.game_board_cell_size);
 
-        int margin = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 4, context.getResources().getDisplayMetrics());
+        int margin = context.getResources().getDimensionPixelSize(com.example.coreclash.R.dimen.game_board_cell_margin);
 
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
