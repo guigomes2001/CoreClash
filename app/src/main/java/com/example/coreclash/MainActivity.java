@@ -186,8 +186,8 @@ public class MainActivity extends AppCompatActivity {
         homeFlow = initHomeFlow();
         homeFlow.setSelectedMatchKind(enums.DomainMatchKind.OFFLINE_BOT);
         homeFlow.bind();
-        SafeClickUtil.setSafeClick(binding.btnProfile, 320, v -> openProfileDialog());
-        SafeClickUtil.setSafeClick(binding.btnFriends, 320, v -> openFriendsDialog());
+        SafeClickUtil.setSafeClick(binding.btnProfile, 320, v -> playHomeShortcutTransition(this::openProfileDialog));
+        SafeClickUtil.setSafeClick(binding.btnFriends, 320, v -> playHomeShortcutTransition(this::openFriendsDialog));
         SafeClickUtil.setSafeClick(binding.btnWalletPlus, 320, v -> {
             if (!NullUtil.isNull(storeManager)) {
                 storeManager.openStore(true);
@@ -357,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onSettingsClicked() {
-                settingManager.openSettings();
+                playHomeShortcutTransition(() -> settingManager.openSettings());
             }
 
             @Override public void onGoogleLoginFromSettingsClicked() {
@@ -1529,6 +1529,14 @@ public class MainActivity extends AppCompatActivity {
         binding.lineRightConnector.setVisibility(visibility);
 
         arenaVisibilityApplying = false;
+    }
+
+    private void playHomeShortcutTransition(@NonNull Runnable destinationAction) {
+        if (NullUtil.isNull(storeManager)) {
+            destinationAction.run();
+            return;
+        }
+        storeManager.playCurtainTransition(destinationAction::run);
     }
 
     private void openProfileDialog() {

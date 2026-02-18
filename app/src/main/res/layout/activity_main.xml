@@ -642,17 +642,40 @@
     </FrameLayout>
         
     <FrameLayout android:background="@drawable/bg_gradient_dark" android:clickable="true" android:elevation="99dp" android:focusable="true" android:id="@+id/storeTransitionOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:visibility="gone">
-                
-        <LinearLayout android:alpha="0.95" android:gravity="center" android:layout_height="match_parent" android:layout_width="match_parent" android:orientation="vertical">
-                        
-            <TextView android:fontFamily="sans-serif-black" android:id="@+id/txtCurtainTop" android:layout_height="wrap_content" android:layout_width="wrap_content" android:letterSpacing="0.06" android:shadowColor="#AA000000" android:shadowRadius="6" android:text="X  O  ▲  ■" android:textColor="#EAF2FF" android:textSize="50sp" android:textStyle="bold"/>
-                        
-            <TextView android:fontFamily="sans-serif-black" android:id="@+id/txtCurtainMiddle" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:layout_width="wrap_content" android:letterSpacing="0.06" android:shadowColor="#AA000000" android:shadowRadius="6" android:text="▲  X  ■  O" android:textColor="#CFE8FF" android:textSize="50sp" android:textStyle="bold"/>
-                        
-            <TextView android:fontFamily="sans-serif-black" android:id="@+id/txtCurtainBottom" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:layout_width="wrap_content" android:letterSpacing="0.06" android:shadowColor="#AA000000" android:shadowRadius="6" android:text="■  O  X  ▲" android:textColor="#F8FAFC" android:textSize="50sp" android:textStyle="bold"/>
-                    
+
+        <ImageView android:alpha="0.56" android:contentDescription="@null" android:layout_gravity="top|start" android:layout_height="220dp" android:layout_marginStart="-58dp" android:layout_marginTop="-42dp" android:layout_width="220dp" android:src="@drawable/deco_orb_cyan"/>
+
+        <ImageView android:alpha="0.48" android:contentDescription="@null" android:layout_gravity="bottom|end" android:layout_height="240dp" android:layout_marginBottom="-56dp" android:layout_marginEnd="-62dp" android:layout_width="240dp" android:src="@drawable/deco_orb_gold"/>
+
+        <LinearLayout android:alpha="0.98" android:background="@drawable/bg_cyber_glass" android:gravity="center" android:layout_gravity="center" android:layout_height="wrap_content" android:layout_marginHorizontal="26dp" android:layout_width="match_parent" android:maxWidth="620dp" android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingVertical="22dp">
+
+            <TextView android:fontFamily="sans-serif-black" android:layout_height="wrap_content" android:layout_width="wrap_content" android:letterSpacing="0.08" android:text="@string/transition_loading_title" android:textColor="#EAF6FF" android:textSize="22sp" android:textStyle="bold"/>
+
+            <TextView android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:text="@string/transition_loading_subtitle" android:textColor="#A7BDD2" android:textSize="13sp"/>
+
+            <LinearLayout android:id="@+id/txtCurtainTop" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_width="wrap_content" android:gravity="center" android:orientation="horizontal">
+                <TextView android:layout_width="56dp" android:layout_height="56dp" android:gravity="center" android:text="X" android:textColor="#FB7185" android:textSize="30sp" android:textStyle="bold"/>
+                <TextView android:layout_width="56dp" android:layout_height="56dp" android:gravity="center" android:text="O" android:textColor="#67E8F9" android:textSize="30sp" android:textStyle="bold"/>
+                <ImageView android:layout_width="56dp" android:layout_height="56dp" android:padding="14dp" android:src="@drawable/ic_triangle_outline" android:tint="#F8D464"/>
+                <ImageView android:layout_width="56dp" android:layout_height="56dp" android:padding="14dp" android:src="@drawable/ic_square_outline" android:tint="#A78BFA"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/txtCurtainMiddle" android:layout_height="wrap_content" android:layout_width="wrap_content" android:gravity="center" android:orientation="horizontal">
+                <ImageView android:layout_width="56dp" android:layout_height="56dp" android:padding="14dp" android:src="@drawable/ic_triangle_outline" android:tint="#F8D464"/>
+                <TextView android:layout_width="56dp" android:layout_height="56dp" android:gravity="center" android:text="X" android:textColor="#FB7185" android:textSize="30sp" android:textStyle="bold"/>
+                <ImageView android:layout_width="56dp" android:layout_height="56dp" android:padding="14dp" android:src="@drawable/ic_square_outline" android:tint="#A78BFA"/>
+                <TextView android:layout_width="56dp" android:layout_height="56dp" android:gravity="center" android:text="O" android:textColor="#67E8F9" android:textSize="30sp" android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/txtCurtainBottom" android:layout_height="wrap_content" android:layout_width="wrap_content" android:gravity="center" android:orientation="horizontal">
+                <ImageView android:layout_width="56dp" android:layout_height="56dp" android:padding="14dp" android:src="@drawable/ic_square_outline" android:tint="#A78BFA"/>
+                <TextView android:layout_width="56dp" android:layout_height="56dp" android:gravity="center" android:text="O" android:textColor="#67E8F9" android:textSize="30sp" android:textStyle="bold"/>
+                <TextView android:layout_width="56dp" android:layout_height="56dp" android:gravity="center" android:text="X" android:textColor="#FB7185" android:textSize="30sp" android:textStyle="bold"/>
+                <ImageView android:layout_width="56dp" android:layout_height="56dp" android:padding="14dp" android:src="@drawable/ic_triangle_outline" android:tint="#F8D464"/>
+            </LinearLayout>
+
         </LinearLayout>
-            
+
     </FrameLayout>
         
     <FrameLayout android:clickable="true" android:elevation="95dp" android:focusable="true" android:id="@+id/versusOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:visibility="gone">
