@@ -47,10 +47,20 @@ public class StoreManager {
         this.cb = callbacks;
 
         if (context instanceof Activity activity) {
-            billingManager.start(activity, amount -> {
-                profile.coins += amount;
-                finalizePurchase();
-                Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+            billingManager.start(activity, new BillingManager.PurchaseListener() {
+                @Override
+                public void onCoinsGranted(int amount) {
+                    profile.coins += amount;
+                    finalizePurchase();
+                    Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onRankedPassGranted() {
+                    profile.rankedPassActive = true;
+                    finalizePurchase();
+                    Toast.makeText(context, context.getString(R.string.toast_ranked_pass_activated), Toast.LENGTH_SHORT).show();
+                }
             });
         }
 
@@ -71,6 +81,7 @@ public class StoreManager {
         binding.btnBuyCoins.setOnClickListener(v -> buyCoreclashSmall());
         binding.btnBuyCoinsPro.setOnClickListener(v -> buyCoreclashPro());
         binding.btnRestorePurchases.setOnClickListener(v -> restorePurchases());
+        binding.btnBuyRankedPass.setOnClickListener(v -> buyRankedPass());
     }
 
     private void buyCoreclashSmall() {
@@ -83,6 +94,19 @@ public class StoreManager {
 
     private void buyCoreclashPro() {
         if (context instanceof Activity activity && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_CORECLASH_PRO)) {
+            return;
+        }
+
+        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
+    private void buyRankedPass() {
+        if (profile.rankedPassActive) {
+            Toast.makeText(context, context.getString(R.string.toast_ranked_pass_already_active), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (context instanceof Activity activity && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_RANKED_PASS)) {
             return;
         }
 
@@ -134,6 +158,9 @@ public class StoreManager {
     private void refreshStoreUI() {
         binding.txtStoreCoinsFull.setText(context.getString(R.string.store_coins_format, profile.coins));
         binding.txtHomeWallet.setText(context.getString(R.string.store_coins_format, profile.coins));
+        binding.btnBuyRankedPass.setText(profile.rankedPassActive
+                ? context.getString(R.string.store_ranked_pass_active)
+                : context.getString(R.string.store_ranked_pass_price));
         refreshOwnershipCards();
     }
 
@@ -241,18 +268,28 @@ public class StoreManager {
         board.resetBoard();
     }
 
+    public void playCurtainTransition(Runnable onEnd) {
+        playStoreTransition(onEnd);
+    }
+
     private void playStoreTransition(Runnable onEnd) {
         binding.storeTransitionOverlay.setVisibility(View.VISIBLE);
         binding.storeTransitionOverlay.setAlpha(0f);
 
-        binding.txtCurtainTop.setTranslationX(-240f);
-        binding.txtCurtainMiddle.setTranslationX(240f);
-        binding.txtCurtainBottom.setTranslationX(-240f);
+        binding.txtCurtainTop.setTranslationX(-260f);
+        binding.txtCurtainMiddle.setTranslationX(260f);
+        binding.txtCurtainBottom.setTranslationX(-260f);
+        binding.txtCurtainTop.setAlpha(0f);
+        binding.txtCurtainMiddle.setAlpha(0f);
+        binding.txtCurtainBottom.setAlpha(0f);
+        binding.txtCurtainTop.setScaleX(0.94f);
+        binding.txtCurtainMiddle.setScaleX(0.94f);
+        binding.txtCurtainBottom.setScaleX(0.94f);
 
-        binding.storeTransitionOverlay.animate().alpha(1f).setDuration(120).start();
-        binding.txtCurtainTop.animate().translationX(0f).setDuration(240).start();
-        binding.txtCurtainMiddle.animate().translationX(0f).setDuration(280).start();
-        binding.txtCurtainBottom.animate().translationX(0f).setDuration(320).start();
+        binding.storeTransitionOverlay.animate().alpha(1f).setDuration(130).start();
+        binding.txtCurtainTop.animate().translationX(0f).alpha(1f).scaleX(1f).setDuration(250).start();
+        binding.txtCurtainMiddle.animate().translationX(0f).alpha(1f).scaleX(1f).setDuration(290).start();
+        binding.txtCurtainBottom.animate().translationX(0f).alpha(1f).scaleX(1f).setDuration(330).start();
 
         handler.postDelayed(() -> {
             if (!NullUtil.isNull(onEnd)) onEnd.run();

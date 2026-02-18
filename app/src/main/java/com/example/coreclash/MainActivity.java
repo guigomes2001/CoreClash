@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
     private String onlineStyleO = "CLASSIC";
     private long actionLockedUntilMs = 0L;
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
+    private final RankedSeasonManager rankedSeasonManager = new RankedSeasonManager();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
@@ -186,8 +187,8 @@ public class MainActivity extends AppCompatActivity {
         homeFlow = initHomeFlow();
         homeFlow.setSelectedMatchKind(enums.DomainMatchKind.OFFLINE_BOT);
         homeFlow.bind();
-        SafeClickUtil.setSafeClick(binding.btnProfile, 320, v -> openProfileDialog());
-        SafeClickUtil.setSafeClick(binding.btnFriends, 320, v -> openFriendsDialog());
+        SafeClickUtil.setSafeClick(binding.btnProfile, 320, v -> playHomeShortcutTransition(this::openProfileDialog));
+        SafeClickUtil.setSafeClick(binding.btnFriends, 320, v -> playHomeShortcutTransition(this::openFriendsDialog));
         SafeClickUtil.setSafeClick(binding.btnWalletPlus, 320, v -> {
             if (!NullUtil.isNull(storeManager)) {
                 storeManager.openStore(true);
@@ -327,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
     private HomeFlowManager initHomeFlow() {
         return new HomeFlowManager(binding, new HomeFlowManager.Callbacks() {
             @Override public void onQuickPlayClicked() {
-                startOfflineVsBot();
+                prepareOfflineMatchFromMode();
             }
 
             @Override public void onPlayOnlineClicked() {
@@ -357,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onSettingsClicked() {
-                settingManager.openSettings();
+                playHomeShortcutTransition(() -> settingManager.openSettings());
             }
 
             @Override public void onGoogleLoginFromSettingsClicked() {
@@ -366,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmOfflineVsBot() {
-                startOfflineVsBot();
+                prepareOfflineMatchFromMode();
             }
 
             @Override public void onConfirmOnlinePvp() {
@@ -387,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmLocalPassPlay() {
-                startLocalPassAndPlay();
+                prepareLocalPassPlayFromMode();
             }
 
             @Override public void onConfirmLocalLobby() {
@@ -410,6 +411,10 @@ public class MainActivity extends AppCompatActivity {
                 new PlayerServicesManager.Callbacks() {
                     @Override public void onProfileReady(@NonNull PlayerProfile profile) {
                         currentProfile = profile;
+                        rankedSeasonManager.ensureProfileRankFields(profile);
+                        if (rankedSeasonManager.rolloverSeasonIfNeeded(profile)) {
+                            persistCurrentProfile();
+                        }
                         if (!NullUtil.isNull(matchManager)) {
                             matchManager.setMyEquippedSymbolStyle(profile.equippedSymbolStyle);
                         }
@@ -1008,8 +1013,29 @@ public class MainActivity extends AppCompatActivity {
         board.setSymbolStyle(style);
     }
 
+    private void prepareOfflineMatchFromMode() {
+        homeFlow.closeModeModal();
+        showMatchmakingLoading(getString(R.string.mode_loading_building_board));
+        binding.btnMatchmakingCancel.setEnabled(false);
+        binding.btnMatchmakingCancel.setAlpha(0.45f);
+        handler.postDelayed(() -> {
+            hideMatchmakingLoading();
+            startOfflineVsBot();
+        }, 360L);
+    }
+
+    private void prepareLocalPassPlayFromMode() {
+        homeFlow.closeModeModal();
+        showMatchmakingLoading(getString(R.string.mode_loading_preparing_local_match));
+        binding.btnMatchmakingCancel.setEnabled(false);
+        binding.btnMatchmakingCancel.setAlpha(0.45f);
+        handler.postDelayed(() -> {
+            hideMatchmakingLoading();
+            startLocalPassAndPlay();
+        }, 360L);
+    }
+
     private void startLocalPassAndPlay() {
-        hideMatchmakingLoading();
         passAndPlayMode = true;
         versusBot = false;
         matchPhase = DomainMatchPhase.LOADING;
@@ -1143,6 +1169,7 @@ public class MainActivity extends AppCompatActivity {
         binding.txtMatchmakingStatus.setText(stableStatus);
         binding.txtMatchmakingDots.setText("");
         binding.btnMatchmakingCancel.setEnabled(true);
+        binding.btnMatchmakingCancel.setAlpha(1f);
 
         if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
             binding.matchmakingOverlay.setVisibility(View.VISIBLE);
@@ -1174,6 +1201,7 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(() -> {
                     binding.matchmakingOverlay.setVisibility(View.GONE);
                     binding.btnMatchmakingCancel.setEnabled(false);
+                    binding.btnMatchmakingCancel.setAlpha(1f);
                     binding.lottieMatchmaking.cancelAnimation();
                     binding.txtMatchmakingDots.setText("");
                     binding.matchmakingOverlay.setAlpha(1f);
@@ -1347,6 +1375,7 @@ public class MainActivity extends AppCompatActivity {
                 if (winnerRounds >= ROUNDS_TO_WIN) {
                     matchPhase = DomainMatchPhase.FINISHED;
                     String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
+                    applyRankedOutcomeIfOnlineMatchFinished(champion);
                     showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
                     victoryOverlayAnimator.showWin(champion, 450);
                     return;
@@ -1398,8 +1427,44 @@ public class MainActivity extends AppCompatActivity {
         }, VICTORY_LINE_HOLD_MS);
     }
 
+    private void applyRankedOutcomeIfOnlineMatchFinished(@NonNull String championSymbol) {
+        if (!matchManager.isOnlineMatch() || NullUtil.isNull(currentProfile)) return;
+        rankedSeasonManager.ensureProfileRankFields(currentProfile);
+        boolean won = championSymbol.equals(matchManager.getMySymbolOnline());
+        int delta = rankedSeasonManager.applyMatchResult(currentProfile, won);
+
+        persistCurrentProfile();
+
+        showUiToastDedupedStyled(
+                getString(won ? R.string.toast_ranked_gain : R.string.toast_ranked_loss, delta),
+                getString(won ? R.string.fa_bolt : R.string.fa_xmark),
+                won ? 0xFF6EE7FF : 0xFFFF9CAA
+        );
+    }
+
     public void updateHeaderStatus() {
         updateTurnHud();
+        updateRankBadge();
+    }
+
+    private void updateRankBadge() {
+        if (NullUtil.isNull(currentProfile)) return;
+        rankedSeasonManager.ensureProfileRankFields(currentProfile);
+        binding.txtHomeRankBadge.setText(getString(
+                R.string.ranked_badge_format,
+                rankedTierLabel(currentProfile.mmr),
+                currentProfile.mmr
+        ));
+    }
+
+    @NonNull
+    private String rankedTierLabel(int mmr) {
+        RankedSeasonManager.Tier tier = rankedSeasonManager.tierFor(mmr);
+        return switch (tier) {
+            case GOLD -> getString(R.string.ranked_tier_gold);
+            case SILVER -> getString(R.string.ranked_tier_silver);
+            default -> getString(R.string.ranked_tier_bronze);
+        };
     }
 
     private void updateTurnHud() {
@@ -1468,7 +1533,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startOfflineVsBot() {
-        hideMatchmakingLoading();
         versusBot = true;
         opponentName = randomBotName();
         currentBotDifficulty = randomDifficulty();
@@ -1494,6 +1558,15 @@ public class MainActivity extends AppCompatActivity {
         return StringUtil.safePrefixUpper(uid, 4) + "#" + (1000 + (Math.abs(uid.hashCode()) % 9000));
     }
 
+    private void persistCurrentProfile() {
+        if (NullUtil.isNull(currentProfile)) return;
+        try {
+            new LocalProfileRepository(getApplicationContext()).saveProfile(currentProfile);
+            new FirebaseProfileRepository().saveProfile(currentProfile);
+        } catch (Exception ignored) {
+        }
+    }
+
     private void applyArenaUiVisibility(boolean visible) {
         if (arenaVisibilityApplying) return;
         arenaVisibilityApplying = true;
@@ -1507,6 +1580,14 @@ public class MainActivity extends AppCompatActivity {
         binding.lineRightConnector.setVisibility(visibility);
 
         arenaVisibilityApplying = false;
+    }
+
+    private void playHomeShortcutTransition(@NonNull Runnable destinationAction) {
+        if (NullUtil.isNull(storeManager)) {
+            destinationAction.run();
+            return;
+        }
+        storeManager.playCurtainTransition(destinationAction::run);
     }
 
     private void openProfileDialog() {
@@ -1545,7 +1626,9 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.profile_title))
-                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" + getString(R.string.profile_personalization_hint))
+                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" +
+                        getString(R.string.profile_ranked_stats, currentProfile.seasonId, rankedTierLabel(currentProfile.mmr), currentProfile.mmr, currentProfile.rankedWins, currentProfile.rankedLosses) + "\n" +
+                        getString(R.string.profile_personalization_hint))
                 .setView(nameInput)
                 .setSingleChoiceItems(styleOptions, selectedStyleIndex, (d, which) -> selectedIndexHolder[0] = which)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
@@ -1577,6 +1660,7 @@ public class MainActivity extends AppCompatActivity {
             case "FUTURE" -> getString(R.string.store_style_future_name);
             case "NEON" -> getString(R.string.store_style_neon_name);
             case "SAMURAI" -> getString(R.string.store_style_samurai_name);
+            case "MYTHIC" -> getString(R.string.store_style_mythic_name);
             default -> getString(R.string.store_style_classic_name);
         };
     }
