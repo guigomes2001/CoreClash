@@ -40,6 +40,10 @@ public class LocalProfileRepository implements ProfileRepository {
         profile.equippedSymbolStyle = sharedPreferences.getString("equippedSymbolStyle", "CLASSIC");
         profile.ownedThemes = new ArrayList<>(Arrays.asList(sharedPreferences.getString("ownedThemes", "ARENA").split(",")));
         profile.ownedSymbolStyles = new ArrayList<>(Arrays.asList(sharedPreferences.getString("ownedStyles", "CLASSIC").split(",")));
+        profile.mmr = sharedPreferences.getInt("mmr", 1000);
+        profile.rankedWins = sharedPreferences.getInt("rankedWins", 0);
+        profile.rankedLosses = sharedPreferences.getInt("rankedLosses", 0);
+        profile.seasonId = sharedPreferences.getString("seasonId", java.time.LocalDate.now(java.time.ZoneOffset.UTC).getYear() + "-" + String.format("%02d", java.time.LocalDate.now(java.time.ZoneOffset.UTC).getMonthValue()));
         callback.onSuccess(profile);
     }
 
@@ -53,6 +57,10 @@ public class LocalProfileRepository implements ProfileRepository {
                 .putString("equippedSymbolStyle", profile.equippedSymbolStyle)
                 .putString("ownedThemes", String.join(",", profile.ownedThemes))
                 .putString("ownedStyles", String.join(",", profile.ownedSymbolStyles))
+                .putInt("mmr", profile.mmr)
+                .putInt("rankedWins", profile.rankedWins)
+                .putInt("rankedLosses", profile.rankedLosses)
+                .putString("seasonId", profile.seasonId)
                 .apply();
     }
 }

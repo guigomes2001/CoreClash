@@ -89,6 +89,7 @@ public class StoreManager {
         Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
     }
 
+
     private void restorePurchases() {
         billingManager.restorePurchases(restoredCount -> {
             if (restoredCount > 0) {
@@ -241,18 +242,28 @@ public class StoreManager {
         board.resetBoard();
     }
 
+    public void playCurtainTransition(Runnable onEnd) {
+        playStoreTransition(onEnd);
+    }
+
     private void playStoreTransition(Runnable onEnd) {
         binding.storeTransitionOverlay.setVisibility(View.VISIBLE);
         binding.storeTransitionOverlay.setAlpha(0f);
 
-        binding.txtCurtainTop.setTranslationX(-240f);
-        binding.txtCurtainMiddle.setTranslationX(240f);
-        binding.txtCurtainBottom.setTranslationX(-240f);
+        binding.txtCurtainTop.setTranslationX(-260f);
+        binding.txtCurtainMiddle.setTranslationX(260f);
+        binding.txtCurtainBottom.setTranslationX(-260f);
+        binding.txtCurtainTop.setAlpha(0f);
+        binding.txtCurtainMiddle.setAlpha(0f);
+        binding.txtCurtainBottom.setAlpha(0f);
+        binding.txtCurtainTop.setScaleX(0.94f);
+        binding.txtCurtainMiddle.setScaleX(0.94f);
+        binding.txtCurtainBottom.setScaleX(0.94f);
 
-        binding.storeTransitionOverlay.animate().alpha(1f).setDuration(120).start();
-        binding.txtCurtainTop.animate().translationX(0f).setDuration(240).start();
-        binding.txtCurtainMiddle.animate().translationX(0f).setDuration(280).start();
-        binding.txtCurtainBottom.animate().translationX(0f).setDuration(320).start();
+        binding.storeTransitionOverlay.animate().alpha(1f).setDuration(130).start();
+        binding.txtCurtainTop.animate().translationX(0f).alpha(1f).scaleX(1f).setDuration(250).start();
+        binding.txtCurtainMiddle.animate().translationX(0f).alpha(1f).scaleX(1f).setDuration(290).start();
+        binding.txtCurtainBottom.animate().translationX(0f).alpha(1f).scaleX(1f).setDuration(330).start();
 
         handler.postDelayed(() -> {
             if (!NullUtil.isNull(onEnd)) onEnd.run();
