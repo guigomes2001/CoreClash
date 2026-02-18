@@ -39,11 +39,14 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.coreclash.data.FirebaseProfileRepository;
+import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
 
 import enums.DomainMatchPhase;
 import enums.DomainSymmetries;
+import manager.RankedSeasonManager;
 import ui.anim.MatchIntroAnimator;
 import ui.anim.TimeoutBannerAnimator;
 import ui.anim.VictoryOverlayAnimator;
