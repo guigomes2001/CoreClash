@@ -735,8 +735,8 @@
                     android:layout_marginBottom="12dp">
 
                     <FrameLayout
-                        android:layout_width="206dp"
-                        android:layout_height="172dp"
+                        android:layout_width="214dp"
+                        android:layout_height="196dp"
                         android:layout_marginEnd="12dp">
 
                         <Button
@@ -746,9 +746,9 @@
                             android:background="@drawable/bg_mode_card_selected"
                             android:gravity="bottom|start"
                             android:paddingStart="14dp"
-                            android:paddingTop="12dp"
+                            android:paddingTop="126dp"
                             android:paddingEnd="14dp"
-                            android:paddingBottom="38dp"
+                            android:paddingBottom="40dp"
                             android:text="@string/mode_vs_bot"
                             android:textAllCaps="false"
                             android:textColor="#EAF2FF"
@@ -757,11 +757,14 @@
 
                         <ImageView
                             android:id="@+id/imgModeOfflinePreview"
-                            android:layout_width="92dp"
-                            android:layout_height="58dp"
-                            android:layout_gravity="top|center_horizontal"
-                            android:layout_marginTop="14dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="104dp"
+                            android:layout_gravity="top"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
                             android:background="@drawable/bg_mode_preview_placeholder"
+                            android:src="@drawable/bg_mode_preview_offline"
                             android:contentDescription="@null"
                             android:scaleType="centerCrop" />
 
@@ -795,8 +798,8 @@
                     </FrameLayout>
 
                     <FrameLayout
-                        android:layout_width="206dp"
-                        android:layout_height="172dp"
+                        android:layout_width="214dp"
+                        android:layout_height="196dp"
                         android:layout_marginEnd="12dp">
 
                         <Button
@@ -806,9 +809,9 @@
                             android:background="@drawable/bg_mode_card"
                             android:gravity="bottom|start"
                             android:paddingStart="14dp"
-                            android:paddingTop="12dp"
+                            android:paddingTop="126dp"
                             android:paddingEnd="14dp"
-                            android:paddingBottom="38dp"
+                            android:paddingBottom="40dp"
                             android:text="@string/mode_online_world"
                             android:textAllCaps="false"
                             android:textColor="#EAF2FF"
@@ -817,11 +820,14 @@
 
                         <ImageView
                             android:id="@+id/imgModeOnlinePreview"
-                            android:layout_width="92dp"
-                            android:layout_height="58dp"
-                            android:layout_gravity="top|center_horizontal"
-                            android:layout_marginTop="14dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="104dp"
+                            android:layout_gravity="top"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
                             android:background="@drawable/bg_mode_preview_placeholder"
+                            android:src="@drawable/bg_mode_preview_online"
                             android:contentDescription="@null"
                             android:scaleType="centerCrop" />
 
@@ -855,8 +861,8 @@
                     </FrameLayout>
 
                     <FrameLayout
-                        android:layout_width="206dp"
-                        android:layout_height="172dp">
+                        android:layout_width="214dp"
+                        android:layout_height="196dp">
 
                         <Button
                             android:id="@+id/btnModeLocalPassPlay"
@@ -865,9 +871,9 @@
                             android:background="@drawable/bg_mode_card"
                             android:gravity="bottom|start"
                             android:paddingStart="14dp"
-                            android:paddingTop="12dp"
+                            android:paddingTop="126dp"
                             android:paddingEnd="14dp"
-                            android:paddingBottom="38dp"
+                            android:paddingBottom="40dp"
                             android:text="@string/mode_local_pass_play"
                             android:textAllCaps="false"
                             android:textColor="#EAF2FF"
@@ -876,11 +882,14 @@
 
                         <ImageView
                             android:id="@+id/imgModeLocalPassPlayPreview"
-                            android:layout_width="92dp"
-                            android:layout_height="58dp"
-                            android:layout_gravity="top|center_horizontal"
-                            android:layout_marginTop="14dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="104dp"
+                            android:layout_gravity="top"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
                             android:background="@drawable/bg_mode_preview_placeholder"
+                            android:src="@drawable/bg_mode_preview_local"
                             android:contentDescription="@null"
                             android:scaleType="centerCrop" />
 
@@ -912,35 +921,6 @@
                             android:textStyle="bold"
                             android:visibility="gone"/>
                     </FrameLayout>
-
-                    <TextView
-                        android:id="@+id/txtModeLocalPassPlayDesc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start|bottom"
-                        android:layout_marginStart="14dp"
-                        android:layout_marginBottom="12dp"
-                        android:text="@string/mode_local_pass_play_desc"
-                        android:textColor="#BFDDF9"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/badgeModeLocalPassPlay"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top|end"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/bg_store_acquired_badge"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="@string/mode_badge_selected"
-                        android:textAllCaps="true"
-                        android:textColor="#EAF2FF"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:visibility="gone"/>
-                </FrameLayout>
 
                 <Button
                     android:id="@+id/btnModeLocalLobby"
@@ -1027,16 +1007,6 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/btnStoreOverlayClose"
-                android:layout_width="54dp"
-                android:layout_height="40dp"
-                android:text="X"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/bg_button_tertiary"/>
-        </LinearLayout>
 
             <Button
                 android:id="@+id/btnStoreOverlayClose"
