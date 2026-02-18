@@ -15,18 +15,17 @@
         </shape>
     </item>
 
-    <item android:left="18dp" android:top="16dp" android:width="24dp" android:height="24dp" android:drawable="@drawable/ic_fa_user" />
-    <item android:gravity="top|end" android:right="18dp" android:top="16dp" android:width="24dp" android:height="24dp" android:drawable="@drawable/ic_fa_user" />
+    <item android:left="14dp" android:top="14dp" android:width="24dp" android:height="24dp" android:drawable="@drawable/ic_fa_user" />
+    <item android:gravity="top|end" android:right="14dp" android:top="14dp" android:width="24dp" android:height="24dp" android:drawable="@drawable/ic_fa_user" />
 
-    <item android:left="46dp" android:top="26dp" android:width="88dp" android:height="2dp"><shape><solid android:color="#4D7DEEE0" /></shape></item>
-
-    <item android:gravity="top|center_horizontal" android:top="18dp">
+    <item android:left="40dp" android:top="24dp" android:width="94dp" android:height="2dp"><shape><solid android:color="#66BCE8FF" /></shape></item>
+    <item android:gravity="top|center_horizontal" android:top="16dp">
         <shape android:shape="ring" android:innerRadius="10dp" android:thickness="2dp" android:useLevel="false">
             <solid android:color="#7DEEE0" />
         </shape>
     </item>
 
-    <item android:gravity="bottom|center_horizontal" android:bottom="12dp" android:width="126dp" android:height="30dp">
+    <item android:gravity="bottom|center_horizontal" android:bottom="12dp" android:width="126dp" android:height="32dp">
         <shape>
             <corners android:radius="8dp" />
             <gradient android:angle="0" android:startColor="#16344D" android:endColor="#12253D" />
@@ -34,8 +33,8 @@
         </shape>
     </item>
 
-    <item android:gravity="bottom|center_horizontal" android:bottom="20dp" android:left="-40dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_square_outline" />
-    <item android:gravity="bottom|center_horizontal" android:bottom="20dp" android:left="-14dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_triangle_outline" />
-    <item android:gravity="bottom|center_horizontal" android:bottom="20dp" android:left="14dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_square_outline" />
-    <item android:gravity="bottom|center_horizontal" android:bottom="20dp" android:left="40dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_triangle_outline" />
+    <item android:gravity="bottom|center_horizontal" android:bottom="22dp" android:left="-40dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_square_outline" />
+    <item android:gravity="bottom|center_horizontal" android:bottom="22dp" android:left="-14dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_triangle_outline" />
+    <item android:gravity="bottom|center_horizontal" android:bottom="22dp" android:left="14dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_square_outline" />
+    <item android:gravity="bottom|center_horizontal" android:bottom="22dp" android:left="40dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_triangle_outline" />
 </layer-list>
