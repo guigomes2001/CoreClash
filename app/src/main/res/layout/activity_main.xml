@@ -720,7 +720,7 @@
                 android:text="@string/mode_subtitle_online_offline"
                 android:textSize="13sp" />
 
-            <HorizontalScrollView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -729,11 +729,10 @@
                 android:overScrollMode="never"
                 android:scrollbars="none">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingEnd="8dp">
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="112dp"
+                    android:layout_marginBottom="12dp">
 
                     <FrameLayout
                         android:layout_width="214dp"
@@ -923,14 +922,13 @@
                             android:visibility="gone"/>
                     </FrameLayout>
 
-                    <Button
-                        android:id="@+id/btnModeLocalLobby"
-                        android:layout_width="1dp"
-                        android:layout_height="1dp"
-                        android:visibility="gone"
-                        android:text="@string/mode_local_lobby" />
-                </LinearLayout>
-            </HorizontalScrollView>
+                <Button
+                    android:id="@+id/btnModeLocalLobby"
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:visibility="gone"
+                    android:text="@string/mode_local_lobby" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
