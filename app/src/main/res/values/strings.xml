@@ -149,7 +149,7 @@
 
     <string name="error_online_requires_internet">No internet connection detected. Check your network and try again.</string>
     <string name="round_result_score">Round won by %1$s. Score %2$d-%3$d</string>
-    <string name="round_result_double_line_score">%1$s scored two lines in the same round! Score %2$d-%3$d</string>
+    <string name="round_result_double_line_score" tools:ignore="MissingTranslation">%1$s scored two lines in the same round! Score %2$d-%3$d</string>
     <string name="round_draw_replay">Round draw. Score stays %1$d-%2$d</string>
     <string name="rounds_finished_score">🏆 Match finished! Final rounds score: %1$d-%2$d</string>
 
@@ -184,33 +184,33 @@
     <string name="store_pack_best_value">Best Value</string>
 
     <string name="store_title">Store</string>
-    <string name="store_personalization_title">Personalization</string>
-    <string name="store_theme_royal_preview">♔  X • O</string>
-    <string name="store_theme_void_preview">✦  X • O</string>
-    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
-    <string name="store_theme_royal_price">180 Core Coins</string>
-    <string name="store_theme_void_price">220 Core Coins</string>
-    <string name="store_style_neon_price">210 Core Coins</string>
-    <string name="store_style_samurai_price">240 Core Coins</string>
-    <string name="store_style_classic_name">Classic (X / O)</string>
-    <string name="store_style_rune_name">Rune Glyphs (✦ / ◉)</string>
-    <string name="store_style_future_name">Future Tech (✕ / ⬡)</string>
-    <string name="store_style_neon_name">Neon Pulse (✶ / ◎)</string>
-    <string name="store_style_samurai_name">Samurai Ink (メ / ◍)</string>
-    <string name="store_card_type_theme">Symbol Style</string>
-    <string name="store_card_type_style">Symbol Style</string>
-    <string name="store_style_rune_name_short">Rune</string>
-    <string name="store_style_future_name_short">Future</string>
-    <string name="store_style_neon_name_short">Neon</string>
-    <string name="store_style_samurai_name_short">Samurai</string>
-    <string name="profile_personalization_hint">Personalization: select an already owned style to equip.</string>
+    <string name="store_personalization_title" tools:ignore="MissingTranslation">Personalization</string>
+    <string name="store_theme_royal_preview" tools:ignore="MissingTranslation">♔  X • O</string>
+    <string name="store_theme_void_preview" tools:ignore="MissingTranslation">✦  X • O</string>
+    <string name="store_style_preview" tools:ignore="MissingTranslation">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
+    <string name="store_theme_royal_price" tools:ignore="MissingTranslation">180 Core Coins</string>
+    <string name="store_theme_void_price" tools:ignore="MissingTranslation">220 Core Coins</string>
+    <string name="store_style_neon_price" tools:ignore="MissingTranslation">210 Core Coins</string>
+    <string name="store_style_samurai_price" tools:ignore="MissingTranslation">240 Core Coins</string>
+    <string name="store_style_classic_name" tools:ignore="MissingTranslation">Classic (X / O)</string>
+    <string name="store_style_rune_name" tools:ignore="MissingTranslation">Rune Glyphs (✦ / ◉)</string>
+    <string name="store_style_future_name" tools:ignore="MissingTranslation">Future Tech (✕ / ⬡)</string>
+    <string name="store_style_neon_name" tools:ignore="MissingTranslation">Neon Pulse (✶ / ◎)</string>
+    <string name="store_style_samurai_name" tools:ignore="MissingTranslation">Samurai Ink (メ / ◍)</string>
+    <string name="store_card_type_theme" tools:ignore="MissingTranslation">Symbol Style</string>
+    <string name="store_card_type_style" tools:ignore="MissingTranslation">Symbol Style</string>
+    <string name="store_style_rune_name_short" tools:ignore="MissingTranslation">Rune</string>
+    <string name="store_style_future_name_short" tools:ignore="MissingTranslation">Future</string>
+    <string name="store_style_neon_name_short" tools:ignore="MissingTranslation">Neon</string>
+    <string name="store_style_samurai_name_short" tools:ignore="MissingTranslation">Samurai</string>
+    <string name="profile_personalization_hint" tools:ignore="MissingTranslation">Personalization: select an already owned style to equip.</string>
 
 
-    <string name="store_badge_acquired">Owned</string>
-    <string name="store_btn_equip">Equip</string>
-    <string name="store_btn_unequip">Unequip</string>
-    <string name="toast_theme_default_equipped">Default theme equipped.</string>
-    <string name="toast_style_default_equipped">Default symbol style equipped.</string>
+    <string name="store_badge_acquired" tools:ignore="MissingTranslation">Owned</string>
+    <string name="store_btn_equip" tools:ignore="MissingTranslation">Equip</string>
+    <string name="store_btn_unequip" tools:ignore="MissingTranslation">Unequip</string>
+    <string name="toast_theme_default_equipped" tools:ignore="MissingTranslation">Default theme equipped.</string>
+    <string name="toast_style_default_equipped" tools:ignore="MissingTranslation">Default symbol style equipped.</string>
 
 
     <string name="mode_loading_building_board">Building board…</string>
