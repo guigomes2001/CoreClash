@@ -19,9 +19,9 @@
     <item android:gravity="top|end" android:right="14dp" android:top="14dp" android:width="24dp" android:height="24dp" android:drawable="@drawable/ic_fa_user" />
 
     <item android:left="42dp" android:top="24dp" android:width="92dp" android:height="2dp"><shape><solid android:color="#66BCE8FF" /></shape></item>
-    <item android:gravity="top|center_horizontal" android:top="19dp" android:width="14dp" android:height="8dp"><shape><solid android:color="#7DEEE0" /></shape></item>
+    <item android:gravity="top|center_horizontal" android:top="19dp" android:width="18dp" android:height="8dp"><shape><solid android:color="#7DEEE0" /></shape></item>
 
-    <item android:gravity="bottom|center_horizontal" android:bottom="12dp" android:width="110dp" android:height="34dp">
+    <item android:gravity="bottom|center_horizontal" android:bottom="12dp" android:width="116dp" android:height="34dp">
         <shape>
             <corners android:radius="8dp" />
             <gradient android:angle="0" android:startColor="#16344D" android:endColor="#12253D" />

@@ -11,7 +11,7 @@
         <shape>
             <corners android:radius="10dp" />
             <solid android:color="#122238" />
-            <stroke android:width="1dp" android:color="#5A7DEEE0" />
+            <stroke android:width="1dp" android:color="#BFA45C" />
         </shape>
     </item>
 
@@ -21,13 +21,13 @@
         <shape>
             <size android:width="46dp" android:height="28dp" />
             <corners android:radius="8dp" />
-            <gradient android:angle="0" android:startColor="#1A3D63" android:endColor="#153657" />
+            <gradient android:angle="0" android:startColor="#3B2F14" android:endColor="#2E2412" />
             <stroke android:width="1dp" android:color="#5A7DEEE0" />
         </shape>
     </item>
     <item android:gravity="top|end" android:right="30dp" android:top="20dp" android:width="14dp" android:height="14dp" android:drawable="@drawable/ic_flash_simple" />
 
-    <item android:left="44dp" android:top="27dp" android:width="84dp" android:height="2dp"><shape><solid android:color="#66BCE8FF" /></shape></item>
+    <item android:left="44dp" android:top="27dp" android:width="84dp" android:height="2dp"><shape><solid android:color="#BFA45C" /></shape></item>
 
     <item android:gravity="bottom|center_horizontal" android:bottom="12dp" android:width="92dp" android:height="42dp">
         <shape>
