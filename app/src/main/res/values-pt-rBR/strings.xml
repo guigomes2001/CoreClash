@@ -181,4 +181,9 @@
     <string name="store_pack_starter">Pacote Inicial</string>
     <string name="store_pack_best_value">Melhor Custo</string>
     <string name="store_title">Somente Loja</string>
+
+    <string name="mode_loading_building_board">Construindo tabuleiro…</string>
+    <string name="mode_loading_preparing_local_match">Preparando partida local…</string>
+    <string name="transition_loading_title">Entrando no Centro de Comando</string>
+    <string name="transition_loading_subtitle">Sincronizando módulos para sua próxima ação</string>
 </resources>
