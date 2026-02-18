@@ -335,6 +335,7 @@ public class BoardManager {
             if ("SAMURAI".equals(activeStyle)) return "メ";
             if ("ROYAL".equals(activeStyle)) return "✥";
             if ("VOID".equals(activeStyle)) return "✣";
+            if ("MYTHIC".equals(activeStyle)) return "⟁";
             return "X";
         }
         if ("O".equals(symbol)) {
@@ -344,6 +345,7 @@ public class BoardManager {
             if ("SAMURAI".equals(activeStyle)) return "◍";
             if ("ROYAL".equals(activeStyle)) return "◌";
             if ("VOID".equals(activeStyle)) return "◈";
+            if ("MYTHIC".equals(activeStyle)) return "◉";
             return "O";
         }
         return symbol;
