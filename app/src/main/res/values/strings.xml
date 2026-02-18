@@ -33,6 +33,7 @@
     <string name="btn_modes">Modes</string>
     <string name="mode_title">Match type</string>
     <string name="mode_subtitle_online_offline">Offline: play vs bot. Online: real-time PvP.</string>
+    <string name="mode_badge_selected">Selected</string>
     <string name="mode_subtitle">Choose your battle pace</string>
     <string name="btn_mode_offline">Offline</string>
     <string name="btn_mode_online">Online</string>

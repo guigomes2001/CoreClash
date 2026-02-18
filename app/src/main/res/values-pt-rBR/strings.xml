@@ -33,6 +33,7 @@
     <string name="btn_modes">Modos</string>
     <string name="mode_title">Modo de jogo</string>
     <string name="mode_subtitle_online_offline">Offline: Jogador vs Máquina. Online: Jogador vs Jogador.</string>
+    <string name="mode_badge_selected">Selecionado</string>
     <string name="mode_subtitle">Escolha seu ritmo de batalha</string>
     <string name="btn_mode_offline">Offline</string>
     <string name="btn_mode_online">Online</string>
