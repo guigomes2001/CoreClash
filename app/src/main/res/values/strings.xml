@@ -212,4 +212,7 @@
     <string name="toast_theme_default_equipped">Default theme equipped.</string>
     <string name="toast_style_default_equipped">Default symbol style equipped.</string>
 
+
+    <string name="mode_loading_building_board">Building board…</string>
+    <string name="mode_loading_preparing_local_match">Preparing local match…</string>
 </resources>
