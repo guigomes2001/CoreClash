@@ -3,12 +3,9 @@ package ui.anim.flow;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.dynamicanimation.animation.DynamicAnimation;
@@ -197,12 +194,12 @@ public class HomeFlowManager {
     }
 
     private void styleModeButton(@NonNull android.widget.Button button, boolean selected, @NonNull View badge) {
-        button.setTextColor(selected ? 0xFF04131F : 0xFFEAF2FF);
-        button.setBackgroundResource(selected ? R.drawable.bg_mode_card_selected : R.drawable.bg_mode_card);
-        button.setAlpha(selected ? 1f : 0.96f);
-        button.setElevation(selected ? 10f : 0f);
-        button.setScaleX(selected ? 1.01f : 1f);
-        button.setScaleY(selected ? 1.01f : 1f);
+        button.setTextColor(selected ? 0xFFD8EEFF : 0xFFEAF2FF);
+        button.setBackgroundResource(selected ? R.drawable.bg_store_item_equipped : R.drawable.bg_mode_card);
+        button.setAlpha(selected ? 0.78f : 1f);
+        button.setElevation(0f);
+        button.setScaleX(1f);
+        button.setScaleY(1f);
 
         if (selected) {
             badge.setVisibility(View.VISIBLE);
@@ -211,11 +208,6 @@ public class HomeFlowManager {
             badge.setScaleY(0.88f);
             badge.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(170).start();
 
-            ObjectAnimator glow = ObjectAnimator.ofFloat(button, View.ALPHA, 0.84f, 1f);
-            glow.setDuration(640);
-            glow.setRepeatCount(1);
-            glow.setRepeatMode(ObjectAnimator.REVERSE);
-            glow.start();
         } else {
             badge.animate().cancel();
             badge.setVisibility(View.GONE);
@@ -225,30 +217,9 @@ public class HomeFlowManager {
 
 
     private void applyModeCardArts() {
-        applyModeArt(binding.imgModeOfflinePreview,
-                "mode_offline_card",
-                "mode_offline",
-                "offline_mode_card");
-        applyModeArt(binding.imgModeOnlinePreview,
-                "mode_online_card",
-                "mode_online",
-                "online_mode_card");
-        applyModeArt(binding.imgModeLocalPassPlayPreview,
-                "mode_local_card",
-                "mode_local",
-                "local_mode_card",
-                "mode_local_multiplayer_card");
-    }
-
-    private void applyModeArt(@NonNull ImageView imageView, @NonNull String... drawableNames) {
-        String packageName = binding.getRoot().getContext().getPackageName();
-        for (String drawableName : drawableNames) {
-            int drawableId = binding.getRoot().getResources().getIdentifier(drawableName, "drawable", packageName);
-            if (drawableId != 0) {
-                imageView.setImageResource(drawableId);
-                return;
-            }
-        }
+        binding.imgModeOfflinePreview.setImageResource(R.drawable.bg_mode_preview_offline);
+        binding.imgModeOnlinePreview.setImageResource(R.drawable.bg_mode_preview_online);
+        binding.imgModeLocalPassPlayPreview.setImageResource(R.drawable.bg_mode_preview_local);
     }
 
     public void playHomeEntrance() {

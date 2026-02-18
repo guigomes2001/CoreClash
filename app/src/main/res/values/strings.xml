@@ -122,17 +122,17 @@
     <string name="label_bot">BOT</string>
     <string name="hint_room_code_example">ABC123</string>
     <string name="error_invalid_room_code">Invalid room code.</string>
-    <string name="btn_profile">Perfil</string>
-    <string name="btn_friends">Amigos</string>
-    <string name="profile_title">Perfil</string>
-    <string name="profile_name">Nome</string>
+    <string name="btn_profile">Profile</string>
+    <string name="btn_friends">Friends</string>
+    <string name="profile_title">Profile</string>
+    <string name="profile_name">Name</string>
     <string name="profile_tag">Tag</string>
-    <string name="profile_save">Salvar</string>
-    <string name="friends_title">Amigos</string>
-    <string name="friends_add_by_tag">Adicionar por TAG</string>
+    <string name="profile_save">Save</string>
+    <string name="friends_title">Friends</string>
+    <string name="friends_add_by_tag">Add by tag</string>
     <string name="friends_tag_hint">GUI#1234</string>
-    <string name="friends_request_sent">Pedido enviado.</string>
-    <string name="friends_request_error">Falha ao enviar pedido.</string>
+    <string name="friends_request_sent">Request sent.</string>
+    <string name="friends_request_error">Failed to send request.</string>
 
     <string name="room_code_alphabet">ABCDEFGHJKLMNPQRSTUVWXYZ23456789</string>
 
@@ -149,7 +149,7 @@
 
     <string name="error_online_requires_internet">No internet connection detected. Check your network and try again.</string>
     <string name="round_result_score">Round won by %1$s. Score %2$d-%3$d</string>
-    <string name="round_result_double_line_score">%1$s fez duas linhas no mesmo round! Placar %2$d-%3$d</string>
+    <string name="round_result_double_line_score">%1$s scored two lines in the same round! Score %2$d-%3$d</string>
     <string name="round_draw_replay">Round draw. Score stays %1$d-%2$d</string>
     <string name="rounds_finished_score">🏆 Match finished! Final rounds score: %1$d-%2$d</string>
 
@@ -168,7 +168,7 @@
     <string name="privacy_dialog_title">About &amp; Privacy</string>
     <string name="privacy_dialog_message">CoreClash uses account and purchase services to enable profile sync and coin purchases. Read our Privacy Policy for data usage and retention details.</string>
     <string name="privacy_dialog_open_policy">Open Privacy Policy</string>
-    <string name="privacy_policy_url">https://SEU-USUARIO.github.io/CoreClashOfficial/privacy.html</string>
+    <string name="privacy_policy_url">https://guigomes2001.github.io/CoreClashOfficial/privacy.html</string>
     <string name="store_restore_purchases">Restore purchases</string>
     <string name="toast_restore_success">%1$d purchase(s) restored.</string>
     <string name="toast_restore_empty">No purchases were found to restore.</string>
@@ -212,4 +212,9 @@
     <string name="toast_theme_default_equipped">Default theme equipped.</string>
     <string name="toast_style_default_equipped">Default symbol style equipped.</string>
 
+
+    <string name="mode_loading_building_board">Building board…</string>
+    <string name="mode_loading_preparing_local_match">Preparing local match…</string>
+    <string name="transition_loading_title">Entering Control Center</string>
+    <string name="transition_loading_subtitle">Synchronizing modules for your next action</string>
 </resources>
