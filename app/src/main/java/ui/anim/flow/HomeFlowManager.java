@@ -197,7 +197,7 @@ public class HomeFlowManager {
     }
 
     private void styleModeButton(@NonNull android.widget.Button button, boolean selected, @NonNull View badge) {
-        button.setTextColor(selected ? 0xFF04131F : 0xFFEAF2FF);
+        button.setTextColor(0xFFEAF2FF);
         button.setBackgroundResource(selected ? R.drawable.bg_mode_card_selected : R.drawable.bg_mode_card);
         button.setAlpha(selected ? 1f : 0.96f);
         button.setElevation(selected ? 10f : 0f);
