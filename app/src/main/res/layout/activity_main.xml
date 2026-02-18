@@ -89,7 +89,7 @@
                 
         <!-- CARD CENTRAL (premium) -->
                 
-        <FrameLayout android:layout_gravity="center" android:layout_height="match_parent" android:layout_width="match_parent" android:paddingVertical="22dp">
+        <com.example.coreclash.view.NonScrollableNestedScrollView android:clipToPadding="false" android:fillViewport="true" android:layout_gravity="center" android:layout_height="match_parent" android:layout_width="match_parent" android:overScrollMode="never" android:paddingVertical="22dp" android:scrollbars="none">
                         
             <androidx.constraintlayout.widget.ConstraintLayout android:background="@drawable/bg_cyber_glass" android:id="@+id/homeCard" android:layout_gravity="center_horizontal" android:layout_height="wrap_content" android:layout_marginHorizontal="26dp" android:layout_width="match_parent" android:maxWidth="560dp" android:padding="16dp">
                                 
@@ -129,7 +129,7 @@
                             
             </androidx.constraintlayout.widget.ConstraintLayout>
                     
-        </FrameLayout>
+        </com.example.coreclash.view.NonScrollableNestedScrollView>
             
     </FrameLayout>
         
