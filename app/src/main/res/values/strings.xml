@@ -122,13 +122,13 @@
     <string name="label_bot">BOT</string>
     <string name="hint_room_code_example">ABC123</string>
     <string name="error_invalid_room_code">Invalid room code.</string>
-    <string name="btn_profile">Perfil</string>
-    <string name="btn_friends">Amigos</string>
-    <string name="profile_title">Perfil</string>
+    <string name="btn_profile">Profile</string>
+    <string name="btn_friends">Friends</string>
+    <string name="profile_title">Profile</string>
     <string name="profile_name">Nome</string>
     <string name="profile_tag">Tag</string>
     <string name="profile_save">Salvar</string>
-    <string name="friends_title">Amigos</string>
+    <string name="friends_title">Friends</string>
     <string name="friends_add_by_tag">Adicionar por TAG</string>
     <string name="friends_tag_hint">GUI#1234</string>
     <string name="friends_request_sent">Pedido enviado.</string>
