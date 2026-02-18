@@ -108,10 +108,6 @@ public class HomeFlowManager {
     }
 
     private void configureModeOverlayButtons() {
-        int iconColor = 0xFFEAF2FF;
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 13, iconColor, 6);
         binding.btnModeLocalLobby.setVisibility(View.GONE);
     }
 
@@ -179,15 +175,48 @@ public class HomeFlowManager {
     }
 
     public void updateModeButtonStyles() {
-        styleModeButton(binding.btnModeOffline, selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT);
-        styleModeButton(binding.btnModeOnline, selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP);
-        styleModeButton(binding.btnModeLocalPassPlay, selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY);
+        styleModeButton(
+                binding.btnModeOffline,
+                selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT,
+                binding.badgeModeOffline
+        );
+        styleModeButton(
+                binding.btnModeOnline,
+                selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP,
+                binding.badgeModeOnline
+        );
+        styleModeButton(
+                binding.btnModeLocalPassPlay,
+                selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY,
+                binding.badgeModeLocalPassPlay
+        );
     }
 
-    private void styleModeButton(@NonNull android.widget.Button button, boolean selected) {
+    private void styleModeButton(@NonNull android.widget.Button button, boolean selected, @NonNull View badge) {
         button.setTextColor(selected ? 0xFF04131F : 0xFFEAF2FF);
         button.setBackgroundResource(selected ? R.drawable.bg_mode_card_selected : R.drawable.bg_mode_card);
         button.setAlpha(selected ? 1f : 0.96f);
+        button.setElevation(selected ? 10f : 0f);
+        button.setScaleX(selected ? 1.01f : 1f);
+        button.setScaleY(selected ? 1.01f : 1f);
+
+        if (selected) {
+            badge.setVisibility(View.VISIBLE);
+            badge.setAlpha(0f);
+            badge.setScaleX(0.88f);
+            badge.setScaleY(0.88f);
+            badge.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(170).start();
+
+            ObjectAnimator glow = ObjectAnimator.ofFloat(button, View.ALPHA, 0.84f, 1f);
+            glow.setDuration(640);
+            glow.setRepeatCount(1);
+            glow.setRepeatMode(ObjectAnimator.REVERSE);
+            glow.start();
+        } else {
+            badge.animate().cancel();
+            badge.setVisibility(View.GONE);
+            badge.setAlpha(1f);
+        }
     }
 
     public void playHomeEntrance() {
