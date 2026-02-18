@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.dynamicanimation.animation.DynamicAnimation;
@@ -108,11 +109,8 @@ public class HomeFlowManager {
     }
 
     private void configureModeOverlayButtons() {
-        int iconColor = 0xFFEAF2FF;
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 13, iconColor, 6);
         binding.btnModeLocalLobby.setVisibility(View.GONE);
+        applyModeCardArts();
     }
 
     private void setupSpringInteractions() {
@@ -179,15 +177,76 @@ public class HomeFlowManager {
     }
 
     public void updateModeButtonStyles() {
-        styleModeButton(binding.btnModeOffline, selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT);
-        styleModeButton(binding.btnModeOnline, selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP);
-        styleModeButton(binding.btnModeLocalPassPlay, selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY);
+        styleModeButton(
+                binding.btnModeOffline,
+                selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT,
+                binding.badgeModeOffline
+        );
+        styleModeButton(
+                binding.btnModeOnline,
+                selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP,
+                binding.badgeModeOnline
+        );
+        styleModeButton(
+                binding.btnModeLocalPassPlay,
+                selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY,
+                binding.badgeModeLocalPassPlay
+        );
     }
 
-    private void styleModeButton(@NonNull android.widget.Button button, boolean selected) {
+    private void styleModeButton(@NonNull android.widget.Button button, boolean selected, @NonNull View badge) {
         button.setTextColor(selected ? 0xFF04131F : 0xFFEAF2FF);
         button.setBackgroundResource(selected ? R.drawable.bg_mode_card_selected : R.drawable.bg_mode_card);
         button.setAlpha(selected ? 1f : 0.96f);
+        button.setElevation(selected ? 10f : 0f);
+        button.setScaleX(selected ? 1.01f : 1f);
+        button.setScaleY(selected ? 1.01f : 1f);
+
+        if (selected) {
+            badge.setVisibility(View.VISIBLE);
+            badge.setAlpha(0f);
+            badge.setScaleX(0.88f);
+            badge.setScaleY(0.88f);
+            badge.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(170).start();
+
+            ObjectAnimator glow = ObjectAnimator.ofFloat(button, View.ALPHA, 0.84f, 1f);
+            glow.setDuration(640);
+            glow.setRepeatCount(1);
+            glow.setRepeatMode(ObjectAnimator.REVERSE);
+            glow.start();
+        } else {
+            badge.animate().cancel();
+            badge.setVisibility(View.GONE);
+            badge.setAlpha(1f);
+        }
+    }
+
+
+    private void applyModeCardArts() {
+        applyModeArt(binding.imgModeOfflinePreview,
+                "mode_offline_card",
+                "mode_offline",
+                "offline_mode_card");
+        applyModeArt(binding.imgModeOnlinePreview,
+                "mode_online_card",
+                "mode_online",
+                "online_mode_card");
+        applyModeArt(binding.imgModeLocalPassPlayPreview,
+                "mode_local_card",
+                "mode_local",
+                "local_mode_card",
+                "mode_local_multiplayer_card");
+    }
+
+    private void applyModeArt(@NonNull ImageView imageView, @NonNull String... drawableNames) {
+        String packageName = binding.getRoot().getContext().getPackageName();
+        for (String drawableName : drawableNames) {
+            int drawableId = binding.getRoot().getResources().getIdentifier(drawableName, "drawable", packageName);
+            if (drawableId != 0) {
+                imageView.setImageResource(drawableId);
+                return;
+            }
+        }
     }
 
     public void playHomeEntrance() {
