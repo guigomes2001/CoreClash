@@ -89,7 +89,15 @@
                 
         <!-- CARD CENTRAL (premium) -->
                 
-        <androidx.core.widget.NestedScrollView android:clipToPadding="false" android:fillViewport="true" android:layout_gravity="center" android:layout_height="match_parent" android:layout_width="match_parent" android:overScrollMode="never" android:paddingVertical="22dp" android:scrollbars="none">
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            android:paddingVertical="22dp"
+            android:scrollbars="none">
                         
             <androidx.constraintlayout.widget.ConstraintLayout android:background="@drawable/bg_cyber_glass" android:id="@+id/homeCard" android:layout_gravity="center_horizontal" android:layout_height="wrap_content" android:layout_marginHorizontal="26dp" android:layout_width="match_parent" android:maxWidth="560dp" android:padding="16dp">
                                 
