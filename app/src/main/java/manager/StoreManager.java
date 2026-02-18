@@ -47,10 +47,20 @@ public class StoreManager {
         this.cb = callbacks;
 
         if (context instanceof Activity activity) {
-            billingManager.start(activity, amount -> {
-                profile.coins += amount;
-                finalizePurchase();
-                Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+            billingManager.start(activity, new BillingManager.PurchaseListener() {
+                @Override
+                public void onCoinsGranted(int amount) {
+                    profile.coins += amount;
+                    finalizePurchase();
+                    Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onRankedPassGranted() {
+                    profile.rankedPassActive = true;
+                    finalizePurchase();
+                    Toast.makeText(context, context.getString(R.string.toast_ranked_pass_activated), Toast.LENGTH_SHORT).show();
+                }
             });
         }
 
@@ -71,6 +81,7 @@ public class StoreManager {
         binding.btnBuyCoins.setOnClickListener(v -> buyCoreclashSmall());
         binding.btnBuyCoinsPro.setOnClickListener(v -> buyCoreclashPro());
         binding.btnRestorePurchases.setOnClickListener(v -> restorePurchases());
+        binding.btnBuyRankedPass.setOnClickListener(v -> buyRankedPass());
     }
 
     private void buyCoreclashSmall() {
@@ -135,6 +146,9 @@ public class StoreManager {
     private void refreshStoreUI() {
         binding.txtStoreCoinsFull.setText(context.getString(R.string.store_coins_format, profile.coins));
         binding.txtHomeWallet.setText(context.getString(R.string.store_coins_format, profile.coins));
+        binding.btnBuyRankedPass.setText(profile.rankedPassActive
+                ? context.getString(R.string.store_ranked_pass_active)
+                : context.getString(R.string.store_ranked_pass_price));
         refreshOwnershipCards();
     }
 
