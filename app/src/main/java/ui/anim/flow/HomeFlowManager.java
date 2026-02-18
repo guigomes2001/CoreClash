@@ -108,10 +108,6 @@ public class HomeFlowManager {
     }
 
     private void configureModeOverlayButtons() {
-        int iconColor = 0xFFEAF2FF;
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 13, iconColor, 6);
         binding.btnModeLocalLobby.setVisibility(View.GONE);
     }
 

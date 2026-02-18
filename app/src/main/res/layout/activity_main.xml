@@ -728,23 +728,35 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginBottom="10dp">
+                    android:layout_height="112dp"
+                    android:layout_marginBottom="12dp">
 
                     <Button
                         android:id="@+id/btnModeOffline"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_mode_card_selected"
-                        android:gravity="center_horizontal|center_vertical"
-                        android:paddingHorizontal="14dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:gravity="top|start"
+                        android:paddingStart="14dp"
+                        android:paddingTop="12dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="12dp"
                         android:text="@string/mode_vs_bot"
                         android:textAllCaps="false"
                         android:textColor="#EAF2FF"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtModeOfflineDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|bottom"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginBottom="12dp"
+                        android:text="@string/mode_vs_bot_desc"
+                        android:textColor="#BFDDF9"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/badgeModeOffline"
@@ -766,23 +778,35 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginBottom="10dp">
+                    android:layout_height="112dp"
+                    android:layout_marginBottom="12dp">
 
                     <Button
                         android:id="@+id/btnModeOnline"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_mode_card"
-                        android:gravity="center_horizontal|center_vertical"
-                        android:paddingHorizontal="14dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:gravity="top|start"
+                        android:paddingStart="14dp"
+                        android:paddingTop="12dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="12dp"
                         android:text="@string/mode_online_world"
                         android:textAllCaps="false"
                         android:textColor="#EAF2FF"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtModeOnlineDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|bottom"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginBottom="12dp"
+                        android:text="@string/mode_online_world_desc"
+                        android:textColor="#BFDDF9"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/badgeModeOnline"
@@ -802,24 +826,36 @@
                         android:visibility="gone"/>
                 </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="100dp">
+                    android:layout_height="112dp">
 
                     <Button
                         android:id="@+id/btnModeLocalPassPlay"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_mode_card"
-                        android:gravity="center_horizontal|center_vertical"
-                        android:paddingHorizontal="14dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:gravity="top|start"
+                        android:paddingStart="14dp"
+                        android:paddingTop="12dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="12dp"
                         android:text="@string/mode_local_pass_play"
                         android:textAllCaps="false"
                         android:textColor="#EAF2FF"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtModeLocalPassPlayDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|bottom"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginBottom="12dp"
+                        android:text="@string/mode_local_pass_play_desc"
+                        android:textColor="#BFDDF9"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/badgeModeLocalPassPlay"
@@ -837,7 +873,7 @@
                         android:textSize="10sp"
                         android:textStyle="bold"
                         android:visibility="gone"/>
-                </LinearLayout>
+                </FrameLayout>
 
                 <Button
                     android:id="@+id/btnModeLocalLobby"
@@ -893,19 +929,40 @@
             android:layout_gravity="top"
             android:paddingHorizontal="16dp"
             android:paddingTop="14dp"
-            android:paddingBottom="8dp"
+            android:paddingBottom="10dp"
             android:gravity="center_vertical"
             android:background="@drawable/bg_cyber_glass"
             android:elevation="8dp">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/store_title"
-                android:textColor="#F8FAFC"
-                android:textStyle="bold"
-                android:textSize="24sp"/>
+                android:orientation="vertical"
+                android:paddingEnd="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/store_title"
+                    android:textColor="#F8FAFC"
+                    android:textStyle="bold"
+                    android:textSize="24sp"/>
+
+                <TextView
+                    android:id="@+id/txtStoreCoinsFull"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_store_wallet_chip"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:text="@string/store_coins_default"
+                    android:textColor="#F8FAFC"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btnStoreOverlayClose"
@@ -943,18 +1000,6 @@
                 android:paddingHorizontal="0dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="20dp">
-
-            <TextView
-                android:id="@+id/txtStoreCoinsFull"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:layout_marginHorizontal="4dp"
-                android:text="@string/store_coins_default"
-                android:textColor="#D6EEFF"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
 
             <TextView
                 android:layout_width="match_parent"
