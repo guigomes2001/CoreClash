@@ -3,9 +3,12 @@ package ui.anim.flow;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.dynamicanimation.animation.DynamicAnimation;
@@ -108,11 +111,8 @@ public class HomeFlowManager {
     }
 
     private void configureModeOverlayButtons() {
-        int iconColor = 0xFFEAF2FF;
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOnline, binding.getRoot().getContext().getString(R.string.fa_bolt), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeOffline, binding.getRoot().getContext().getString(R.string.fa_gamepad), 13, iconColor, 6);
-        FontAwesomeIconFactory.applyTopIcon(binding.btnModeLocalPassPlay, binding.getRoot().getContext().getString(R.string.fa_users), 13, iconColor, 6);
         binding.btnModeLocalLobby.setVisibility(View.GONE);
+        applyModeCardArts();
     }
 
     private void setupSpringInteractions() {
@@ -179,15 +179,121 @@ public class HomeFlowManager {
     }
 
     public void updateModeButtonStyles() {
-        styleModeButton(binding.btnModeOffline, selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT);
-        styleModeButton(binding.btnModeOnline, selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP);
-        styleModeButton(binding.btnModeLocalPassPlay, selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY);
+        styleModeButton(
+                binding.btnModeOffline,
+                selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT,
+                binding.badgeModeOffline
+        );
+        styleModeButton(
+                binding.btnModeOnline,
+                selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP,
+                binding.badgeModeOnline
+        );
+        styleModeButton(
+                binding.btnModeLocalPassPlay,
+                selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY,
+                binding.badgeModeLocalPassPlay
+        );
     }
 
-    private void styleModeButton(@NonNull android.widget.Button button, boolean selected) {
+    private void styleModeButton(@NonNull android.widget.Button button, boolean selected, @NonNull View badge) {
         button.setTextColor(selected ? 0xFF04131F : 0xFFEAF2FF);
         button.setBackgroundResource(selected ? R.drawable.bg_mode_card_selected : R.drawable.bg_mode_card);
         button.setAlpha(selected ? 1f : 0.96f);
+        button.setElevation(selected ? 10f : 0f);
+        button.setScaleX(selected ? 1.01f : 1f);
+        button.setScaleY(selected ? 1.01f : 1f);
+
+        if (selected) {
+            badge.setVisibility(View.VISIBLE);
+            badge.setAlpha(0f);
+            badge.setScaleX(0.88f);
+            badge.setScaleY(0.88f);
+            badge.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(170).start();
+
+            ObjectAnimator glow = ObjectAnimator.ofFloat(button, View.ALPHA, 0.84f, 1f);
+            glow.setDuration(640);
+            glow.setRepeatCount(1);
+            glow.setRepeatMode(ObjectAnimator.REVERSE);
+            glow.start();
+        } else {
+            badge.animate().cancel();
+            badge.setVisibility(View.GONE);
+            badge.setAlpha(1f);
+        }
+    }
+
+
+    private void applyModeCardArts() {
+        applyModeArt(binding.imgModeOfflinePreview, "mode_offline_card");
+        applyModeArt(binding.imgModeOnlinePreview, "mode_online_card");
+        applyModeArt(binding.imgModeLocalPassPlayPreview, "mode_local_card");
+    }
+
+    private void applyModeArt(@NonNull ImageView imageView, @NonNull String assetName) {
+        int drawableId = binding.getRoot().getResources().getIdentifier(
+                assetName,
+                "drawable",
+                binding.getRoot().getContext().getPackageName()
+        );
+
+        if (drawableId == 0) {
+            return;
+        }
+
+        try {
+            Bitmap source = BitmapFactory.decodeResource(binding.getRoot().getResources(), drawableId);
+            if (source == null) {
+                return;
+            }
+            Bitmap processed = removeWhiteBackground(source);
+            imageView.setImageBitmap(processed);
+        } catch (Throwable ignored) {
+            // keep fallback drawable configured in XML
+        }
+    }
+
+    @NonNull
+    private Bitmap removeWhiteBackground(@NonNull Bitmap source) {
+        Bitmap mutable = source.copy(Bitmap.Config.ARGB_8888, true);
+        if (mutable == null) {
+            return source;
+        }
+
+        int width = mutable.getWidth();
+        int height = mutable.getHeight();
+        int[] pixels = new int[width * height];
+        mutable.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        for (int i = 0; i < pixels.length; i++) {
+            int color = pixels[i];
+            int alpha = (color >>> 24) & 0xFF;
+            if (alpha == 0) {
+                continue;
+            }
+
+            int red = (color >>> 16) & 0xFF;
+            int green = (color >>> 8) & 0xFF;
+            int blue = color & 0xFF;
+
+            int max = Math.max(red, Math.max(green, blue));
+            int min = Math.min(red, Math.min(green, blue));
+            int spread = max - min;
+
+            if (red >= 245 && green >= 245 && blue >= 245) {
+                pixels[i] = 0x00000000;
+                continue;
+            }
+
+            if (min >= 225 && spread <= 16) {
+                int fade = Math.max(0, Math.min(255, (245 - min) * 14));
+                int newAlpha = Math.min(alpha, fade);
+                pixels[i] = (newAlpha << 24) | (red << 16) | (green << 8) | blue;
+            }
+        }
+
+        mutable.setPixels(pixels, 0, width, 0, 0, width, height);
+        return mutable;
     }
 
     public void playHomeEntrance() {
