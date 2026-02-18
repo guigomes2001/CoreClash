@@ -155,73 +155,290 @@
             
     </FrameLayout>
         
-    <FrameLayout android:background="@drawable/bg_gradient_dark" android:clickable="true" android:elevation="94dp" android:focusable="true" android:id="@+id/modeOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:visibility="gone">
-                
-        <LinearLayout android:background="@drawable/bg_cyber_glass" android:id="@+id/modeCard" android:layout_gravity="center" android:layout_height="wrap_content" android:layout_marginHorizontal="18dp" android:layout_width="match_parent" android:orientation="vertical" android:paddingBottom="16dp" android:paddingHorizontal="18dp" android:paddingTop="18dp">
-                        
-            <TextView android:gravity="center" android:layout_height="wrap_content" android:layout_width="match_parent" android:text="@string/mode_title" android:textSize="28sp" style="@style/Text.CoreClash.Title"/>
-                        
-            <TextView android:gravity="center" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:layout_width="match_parent" android:text="@string/mode_subtitle_online_offline" android:textSize="13sp" style="@style/Text.CoreClash.Subtitle"/>
-                        
-            <HorizontalScrollView android:clipToPadding="false" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_width="match_parent" android:overScrollMode="never" android:paddingHorizontal="2dp" android:scrollbars="none">
-                                
-                <LinearLayout android:layout_height="wrap_content" android:layout_width="wrap_content" android:orientation="horizontal" android:paddingEnd="8dp">
-                                        
-                    <FrameLayout android:layout_height="196dp" android:layout_marginEnd="12dp" android:layout_width="214dp">
-                                                
-                        <Button android:background="@drawable/bg_mode_card_selected" android:gravity="bottom|start" android:id="@+id/btnModeOffline" android:layout_height="match_parent" android:layout_width="match_parent" android:paddingBottom="40dp" android:paddingEnd="14dp" android:paddingStart="14dp" android:paddingTop="126dp" android:text="@string/mode_vs_bot" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="17sp" android:textStyle="bold"/>
-                                                
-                        <ImageView android:background="@drawable/bg_mode_preview_placeholder" android:contentDescription="@null" android:id="@+id/imgModeOfflinePreview" android:layout_gravity="top" android:layout_height="104dp" android:layout_marginEnd="10dp" android:layout_marginStart="10dp" android:layout_marginTop="10dp" android:layout_width="match_parent" android:scaleType="centerCrop" android:src="@drawable/bg_mode_preview_offline"/>
-                                                
-                        <TextView android:id="@+id/txtModeOfflineDesc" android:layout_gravity="start|bottom" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:layout_marginStart="14dp" android:layout_width="wrap_content" android:text="@string/mode_vs_bot_desc" android:textColor="#BFDDF9" android:textSize="12sp"/>
-                                                
-                        <TextView android:background="@drawable/bg_store_acquired_badge" android:id="@+id/badgeModeOffline" android:layout_gravity="top|end" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:text="@string/mode_badge_selected" android:textAllCaps="true" android:textColor="#EAF2FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone"/>
-                                            
-                    </FrameLayout>
-                                        
-                    <FrameLayout android:layout_height="196dp" android:layout_marginEnd="12dp" android:layout_width="214dp">
-                                                
-                        <Button android:background="@drawable/bg_mode_card" android:gravity="bottom|start" android:id="@+id/btnModeOnline" android:layout_height="match_parent" android:layout_width="match_parent" android:paddingBottom="40dp" android:paddingEnd="14dp" android:paddingStart="14dp" android:paddingTop="126dp" android:text="@string/mode_online_world" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="17sp" android:textStyle="bold"/>
-                                                
-                        <ImageView android:background="@drawable/bg_mode_preview_placeholder" android:contentDescription="@null" android:id="@+id/imgModeOnlinePreview" android:layout_gravity="top" android:layout_height="104dp" android:layout_marginEnd="10dp" android:layout_marginStart="10dp" android:layout_marginTop="10dp" android:layout_width="match_parent" android:scaleType="centerCrop" android:src="@drawable/bg_mode_preview_online"/>
-                                                
-                        <TextView android:id="@+id/txtModeOnlineDesc" android:layout_gravity="start|bottom" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:layout_marginStart="14dp" android:layout_width="wrap_content" android:text="@string/mode_online_world_desc" android:textColor="#BFDDF9" android:textSize="12sp"/>
-                                                
-                        <TextView android:background="@drawable/bg_store_acquired_badge" android:id="@+id/badgeModeOnline" android:layout_gravity="top|end" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:text="@string/mode_badge_selected" android:textAllCaps="true" android:textColor="#EAF2FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone"/>
-                                            
-                    </FrameLayout>
-                                        
-                    <FrameLayout android:layout_height="196dp" android:layout_width="214dp">
-                                                
-                        <Button android:background="@drawable/bg_mode_card" android:gravity="bottom|start" android:id="@+id/btnModeLocalPassPlay" android:layout_height="match_parent" android:layout_width="match_parent" android:paddingBottom="40dp" android:paddingEnd="14dp" android:paddingStart="14dp" android:paddingTop="126dp" android:text="@string/mode_local_pass_play" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="17sp" android:textStyle="bold"/>
-                                                
-                        <ImageView android:background="@drawable/bg_mode_preview_placeholder" android:contentDescription="@null" android:id="@+id/imgModeLocalPassPlayPreview" android:layout_gravity="top" android:layout_height="104dp" android:layout_marginEnd="10dp" android:layout_marginStart="10dp" android:layout_marginTop="10dp" android:layout_width="match_parent" android:scaleType="centerCrop" android:src="@drawable/bg_mode_preview_local"/>
-                                                
-                        <TextView android:id="@+id/txtModeLocalPassPlayDesc" android:layout_gravity="start|bottom" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:layout_marginStart="14dp" android:layout_width="wrap_content" android:text="@string/mode_local_pass_play_desc" android:textColor="#BFDDF9" android:textSize="12sp"/>
-                                                
-                        <TextView android:background="@drawable/bg_store_acquired_badge" android:id="@+id/badgeModeLocalPassPlay" android:layout_gravity="top|end" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:text="@string/mode_badge_selected" android:textAllCaps="true" android:textColor="#EAF2FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone"/>
-                                            
-                    </FrameLayout>
-                                        
-                    <Button android:id="@+id/btnModeLocalLobby" android:layout_height="1dp" android:layout_width="1dp" android:text="@string/mode_local_lobby" android:visibility="gone"/>
-                                    
-                </LinearLayout>
-                            
+        <FrameLayout
+        android:id="@+id/modeOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_gradient_dark"
+        android:visibility="gone"
+        android:elevation="94dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:id="@+id/modeCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="18dp"
+            android:background="@drawable/bg_cyber_glass"
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                style="@style/Text.CoreClash.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/mode_title"
+                android:textSize="28sp" />
+
+            <TextView
+                style="@style/Text.CoreClash.Subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/mode_subtitle_online_offline"
+                android:textSize="13sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                android:fillViewport="true">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/modeCardsRow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp">
+
+                        <FrameLayout
+                            android:layout_width="214dp"
+                            android:layout_height="196dp"
+                            android:layout_marginEnd="12dp">
+
+                            <Button
+                                android:id="@+id/btnModeOffline"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_mode_card_selected"
+                                android:gravity="bottom|start"
+                                android:paddingStart="14dp"
+                                android:paddingTop="126dp"
+                                android:paddingEnd="14dp"
+                                android:paddingBottom="40dp"
+                                android:text="@string/mode_vs_bot"
+                                android:textAllCaps="false"
+                                android:textColor="#EAF2FF"
+                                android:textSize="17sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:id="@+id/imgModeOfflinePreview"
+                                android:layout_width="match_parent"
+                                android:layout_height="104dp"
+                                android:layout_gravity="top"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginEnd="10dp"
+                                android:background="@drawable/bg_mode_preview_placeholder"
+                                android:src="@drawable/bg_mode_preview_offline"
+                                android:contentDescription="@null"
+                                android:scaleType="centerCrop" />
+
+                            <TextView
+                                android:id="@+id/txtModeOfflineDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|bottom"
+                                android:layout_marginStart="14dp"
+                                android:layout_marginBottom="12dp"
+                                android:text="@string/mode_vs_bot_desc"
+                                android:textColor="#BFDDF9"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/badgeModeOffline"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|end"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/bg_store_acquired_badge"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="@string/mode_badge_selected"
+                                android:textAllCaps="true"
+                                android:textColor="#EAF2FF"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="214dp"
+                            android:layout_height="196dp"
+                            android:layout_marginEnd="12dp">
+
+                            <Button
+                                android:id="@+id/btnModeOnline"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_mode_card"
+                                android:gravity="bottom|start"
+                                android:paddingStart="14dp"
+                                android:paddingTop="126dp"
+                                android:paddingEnd="14dp"
+                                android:paddingBottom="40dp"
+                                android:text="@string/mode_online_world"
+                                android:textAllCaps="false"
+                                android:textColor="#EAF2FF"
+                                android:textSize="17sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:id="@+id/imgModeOnlinePreview"
+                                android:layout_width="match_parent"
+                                android:layout_height="104dp"
+                                android:layout_gravity="top"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginEnd="10dp"
+                                android:background="@drawable/bg_mode_preview_placeholder"
+                                android:src="@drawable/bg_mode_preview_online"
+                                android:contentDescription="@null"
+                                android:scaleType="centerCrop" />
+
+                            <TextView
+                                android:id="@+id/txtModeOnlineDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|bottom"
+                                android:layout_marginStart="14dp"
+                                android:layout_marginBottom="12dp"
+                                android:text="@string/mode_online_world_desc"
+                                android:textColor="#BFDDF9"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/badgeModeOnline"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|end"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/bg_store_acquired_badge"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="@string/mode_badge_selected"
+                                android:textAllCaps="true"
+                                android:textColor="#EAF2FF"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="214dp"
+                            android:layout_height="196dp">
+
+                            <Button
+                                android:id="@+id/btnModeLocalPassPlay"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_mode_card"
+                                android:gravity="bottom|start"
+                                android:paddingStart="14dp"
+                                android:paddingTop="126dp"
+                                android:paddingEnd="14dp"
+                                android:paddingBottom="40dp"
+                                android:text="@string/mode_local_pass_play"
+                                android:textAllCaps="false"
+                                android:textColor="#EAF2FF"
+                                android:textSize="17sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:id="@+id/imgModeLocalPassPlayPreview"
+                                android:layout_width="match_parent"
+                                android:layout_height="104dp"
+                                android:layout_gravity="top"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginEnd="10dp"
+                                android:background="@drawable/bg_mode_preview_placeholder"
+                                android:src="@drawable/bg_mode_preview_local"
+                                android:contentDescription="@null"
+                                android:scaleType="centerCrop" />
+
+                            <TextView
+                                android:id="@+id/txtModeLocalPassPlayDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|bottom"
+                                android:layout_marginStart="14dp"
+                                android:layout_marginBottom="12dp"
+                                android:text="@string/mode_local_pass_play_desc"
+                                android:textColor="#BFDDF9"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/badgeModeLocalPassPlay"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|end"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/bg_store_acquired_badge"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="@string/mode_badge_selected"
+                                android:textAllCaps="true"
+                                android:textColor="#EAF2FF"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <Button
+                            android:id="@+id/btnModeLocalLobby"
+                            android:layout_width="1dp"
+                            android:layout_height="1dp"
+                            android:visibility="gone"
+                            android:text="@string/mode_local_lobby" />
+                    </LinearLayout>
+                </FrameLayout>
             </HorizontalScrollView>
-                        
-            <LinearLayout android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_width="match_parent" android:orientation="horizontal">
-                                
-                <Button android:id="@+id/btnModeCancel" android:layout_weight="1" android:layout_width="0dp" android:text="@string/btn_back" style="@style/Widget.CoreClash.Button.Tertiary"/>
-                                
-                <Button android:id="@+id/btnModeConfirm" android:layout_marginStart="10dp" android:layout_weight="1" android:layout_width="0dp" android:text="@string/btn_ok" style="@style/Widget.CoreClash.Button.Primary"/>
-                            
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnModeCancel"
+                    style="@style/Widget.CoreClash.Button.Tertiary"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_back" />
+
+                <Button
+                    android:id="@+id/btnModeConfirm"
+                    style="@style/Widget.CoreClash.Button.Primary"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/btn_ok" />
             </LinearLayout>
-                    
+
         </LinearLayout>
-            
     </FrameLayout>
-        
-    <FrameLayout android:background="@drawable/bg_gradient_dark" android:clickable="true" android:clipChildren="true" android:clipToPadding="false" android:elevation="96dp" android:focusable="true" android:id="@+id/storeOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:padding="14dp" android:visibility="gone">
+
+<FrameLayout android:background="@drawable/bg_gradient_dark" android:clickable="true" android:clipChildren="true" android:clipToPadding="false" android:elevation="96dp" android:focusable="true" android:id="@+id/storeOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:padding="14dp" android:visibility="gone">
                 
         <LinearLayout android:background="@drawable/bg_cyber_glass" android:elevation="8dp" android:gravity="center_vertical" android:id="@+id/storeOverlayHeaderBar" android:layout_gravity="top" android:layout_height="wrap_content" android:layout_marginHorizontal="12dp" android:layout_width="match_parent" android:paddingBottom="10dp" android:paddingHorizontal="16dp" android:paddingTop="14dp">
                         

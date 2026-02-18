@@ -98,9 +98,9 @@
 
 
     <string name="mode_online_world">Multiplayer</string>
-    <string name="mode_vs_bot_desc">Treine contra IA com ritmo rápido.</string>
-    <string name="mode_online_world_desc">Conecte e dispute em tempo real.</string>
-    <string name="mode_local_pass_play_desc">Revezamento local no mesmo dispositivo.</string>
+    <string name="mode_vs_bot_desc">Practice quickly against adaptive AI.</string>
+    <string name="mode_online_world_desc">Connect and battle players in real time.</string>
+    <string name="mode_local_pass_play_desc">Pass-and-play on the same device.</string>
     <string name="mode_vs_bot">Quick Match (Bot)</string>
     <string name="mode_local_pass_play">Local Multiplayer</string>
     <string name="mode_local_lobby">Local Lobby (Invite)</string>
@@ -183,7 +183,7 @@
     <string name="store_pack_starter">Starter Pack</string>
     <string name="store_pack_best_value">Best Value</string>
 
-    <string name="store_title">Somente Loja</string>
+    <string name="store_title">Store</string>
     <string name="store_personalization_title">Personalization</string>
     <string name="store_theme_royal_preview">♔  X • O</string>
     <string name="store_theme_void_preview">✦  X • O</string>
