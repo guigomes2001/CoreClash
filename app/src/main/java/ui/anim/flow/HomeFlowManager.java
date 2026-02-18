@@ -194,12 +194,12 @@ public class HomeFlowManager {
     }
 
     private void styleModeButton(@NonNull android.widget.Button button, boolean selected, @NonNull View badge) {
-        button.setTextColor(0xFFEAF2FF);
+        button.setTextColor(selected ? 0xFFD8EEFF : 0xFFEAF2FF);
         button.setBackgroundResource(selected ? R.drawable.bg_store_item_equipped : R.drawable.bg_mode_card);
-        button.setAlpha(selected ? 0.98f : 0.96f);
-        button.setElevation(selected ? 10f : 0f);
-        button.setScaleX(selected ? 1.01f : 1f);
-        button.setScaleY(selected ? 1.01f : 1f);
+        button.setAlpha(selected ? 0.78f : 1f);
+        button.setElevation(0f);
+        button.setScaleX(1f);
+        button.setScaleY(1f);
 
         if (selected) {
             badge.setVisibility(View.VISIBLE);
@@ -208,11 +208,6 @@ public class HomeFlowManager {
             badge.setScaleY(0.88f);
             badge.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(170).start();
 
-            ObjectAnimator glow = ObjectAnimator.ofFloat(button, View.ALPHA, 0.84f, 1f);
-            glow.setDuration(640);
-            glow.setRepeatCount(1);
-            glow.setRepeatMode(ObjectAnimator.REVERSE);
-            glow.start();
         } else {
             badge.animate().cancel();
             badge.setVisibility(View.GONE);
