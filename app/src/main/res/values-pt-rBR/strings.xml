@@ -33,6 +33,7 @@
     <string name="btn_modes">Modos</string>
     <string name="mode_title">Modo de jogo</string>
     <string name="mode_subtitle_online_offline">Offline: Jogador vs Máquina. Online: Jogador vs Jogador.</string>
+    <string name="mode_badge_selected">Selecionado</string>
     <string name="mode_subtitle">Escolha seu ritmo de batalha</string>
     <string name="btn_mode_offline">Offline</string>
     <string name="btn_mode_online">Online</string>
@@ -96,6 +97,9 @@
 
 
     <string name="mode_online_world">Multiplayer</string>
+    <string name="mode_vs_bot_desc">Treine contra IA com partidas rápidas.</string>
+    <string name="mode_online_world_desc">Conecte e dispute em tempo real.</string>
+    <string name="mode_local_pass_play_desc">Revezamento local no mesmo dispositivo.</string>
     <string name="mode_vs_bot">Jogo rápido (Bot)</string>
     <string name="mode_local_pass_play">Multiplayer local</string>
     <string name="mode_local_lobby">Sala Local (Convite)</string>
@@ -176,4 +180,5 @@
     <string name="store_wallet_plus_desc">Abrir loja de Core Coins</string>
     <string name="store_pack_starter">Pacote Inicial</string>
     <string name="store_pack_best_value">Melhor Custo</string>
+    <string name="store_title">Somente Loja</string>
 </resources>
