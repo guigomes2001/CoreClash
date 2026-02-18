@@ -421,18 +421,28 @@
 
                 <Button
                     android:id="@+id/btnModeCancel"
-                    style="@style/Widget.CoreClash.Button.Tertiary"
                     android:layout_width="0dp"
+                    android:layout_height="54dp"
                     android:layout_weight="1"
-                    android:text="@string/btn_back" />
+                    android:background="@drawable/selector_menu_tile"
+                    android:text="@string/btn_back"
+                    android:textAllCaps="false"
+                    android:textColor="#EAF2FF"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null" />
 
                 <Button
                     android:id="@+id/btnModeConfirm"
-                    style="@style/Widget.CoreClash.Button.Primary"
                     android:layout_width="0dp"
+                    android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginStart="10dp"
-                    android:text="@string/btn_ok" />
+                    android:background="@drawable/selector_menu_tile"
+                    android:text="@string/btn_ok"
+                    android:textAllCaps="false"
+                    android:textColor="#EAF2FF"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null" />
             </LinearLayout>
 
         </LinearLayout>
