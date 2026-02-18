@@ -121,8 +121,10 @@
                     <androidx.appcompat.widget.AppCompatImageButton android:background="@drawable/bg_wallet_plus" android:contentDescription="@string/store_wallet_plus_desc" android:id="@+id/btnWalletPlus" android:layout_height="34dp" android:layout_marginStart="8dp" android:layout_width="34dp" android:padding="7dp" app:srcCompat="@drawable/ic_plus_small" app:tint="#D8F1FF"/>
                                     
                 </LinearLayout>
+
+                <TextView android:background="@drawable/bg_store_wallet_chip" android:fontFamily="sans-serif-medium" android:gravity="center" android:id="@+id/txtHomeRankBadge" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:paddingHorizontal="12dp" android:paddingVertical="5dp" android:text="@string/ranked_badge_default" android:textColor="#F8FAFC" android:textSize="12sp" android:textStyle="bold" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/homeWalletRow"/>
                                 
-                <LinearLayout android:gravity="center" android:id="@+id/homeQuickActions" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_width="0dp" android:orientation="horizontal" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/homeWalletRow">
+                <LinearLayout android:gravity="center" android:id="@+id/homeQuickActions" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_width="0dp" android:orientation="horizontal" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/txtHomeRankBadge">
                                         
                     <androidx.appcompat.widget.AppCompatImageButton android:background="@drawable/bg_button_tertiary" android:contentDescription="@string/btn_settings" android:id="@+id/btnSettings" android:layout_height="48dp" android:layout_marginHorizontal="5dp" android:layout_width="48dp" android:padding="12dp" app:srcCompat="@drawable/ic_settings_gear" app:tint="#F8FAFC"/>
                                         
@@ -632,6 +634,8 @@
                 </LinearLayout>
                             
                 <TextView android:layout_height="wrap_content" android:layout_marginTop="6dp" android:layout_width="match_parent" android:text="@string/store_buy_coreclash_hint" android:textColor="#8CC5EA" android:textSize="12sp"/>
+                            
+                <Button android:background="@drawable/bg_store_buy_button" android:id="@+id/btnBuyRankedPass" android:layout_height="48dp" android:layout_marginTop="10dp" android:layout_width="match_parent" android:text="@string/store_ranked_pass_price" android:textColor="#04131F" android:textStyle="bold"/>
                             
                 <Button android:background="@drawable/bg_button_tertiary" android:id="@+id/btnRestorePurchases" android:layout_height="48dp" android:layout_marginTop="10dp" android:layout_width="match_parent" android:text="@string/store_restore_purchases" android:textColor="#DDEBFF" android:textStyle="bold"/>
                             

@@ -186,4 +186,17 @@
     <string name="mode_loading_preparing_local_match">Preparando partida local…</string>
     <string name="transition_loading_title">Entrando no Centro de Comando</string>
     <string name="transition_loading_subtitle">Sincronizando módulos para sua próxima ação</string>
+    <string name="ranked_badge_default">RANK • BRONZE • 1000</string>
+    <string name="ranked_badge_format">RANK • %1$s • %2$d</string>
+    <string name="ranked_tier_bronze">BRONZE</string>
+    <string name="ranked_tier_silver">PRATA</string>
+    <string name="ranked_tier_gold">OURO</string>
+    <string name="toast_ranked_gain">Rank up +%1$d MMR</string>
+    <string name="toast_ranked_loss">Ajuste de rank %1$d MMR</string>
+    <string name="toast_ranked_pass_activated">Passe da temporada ativado! Recompensas exclusivas liberadas.</string>
+    <string name="toast_ranked_pass_already_active">Passe da temporada já está ativo.</string>
+    <string name="store_ranked_pass_price">Passe da Temporada • R$ 19,90</string>
+    <string name="store_ranked_pass_active">Passe da Temporada • Ativo</string>
+    <string name="profile_ranked_stats">Temporada %1$s • %2$s • %3$d MMR • V%4$d/D%5$d</string>
+    <string name="store_style_mythic_name">Selo Mítico (⟁ / ◉)</string>
 </resources>

@@ -25,8 +25,9 @@ import util.NullUtil;
 
 public class BillingManager implements PurchasesUpdatedListener {
 
-    public interface CoinsListener {
+    public interface PurchaseListener {
         void onCoinsGranted(int amount);
+        void onRankedPassGranted();
     }
 
     public interface RestoreListener {
@@ -35,6 +36,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 
     public static final String PRODUCT_CORECLASH_SMALL = "coreclash_pack_small";
     public static final String PRODUCT_CORECLASH_PRO = "coreclash_pack_pro";
+    public static final String PRODUCT_RANKED_PASS = "coreclash_ranked_pass";
 
     private static final String PREFS_NAME = "billing_prefs";
     private static final String TOKEN_PREFIX = "ack_";
@@ -42,11 +44,11 @@ public class BillingManager implements PurchasesUpdatedListener {
     private final Map<String, ProductDetails> productDetailsById = new HashMap<>();
 
     private BillingClient billingClient;
-    private CoinsListener coinsListener;
+    private PurchaseListener purchaseListener;
     private SharedPreferences prefs;
 
-    public void start(@NonNull Activity activity, @NonNull CoinsListener listener) {
-        this.coinsListener = listener;
+    public void start(@NonNull Activity activity, @NonNull PurchaseListener listener) {
+        this.purchaseListener = listener;
         this.prefs = activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE);
 
         billingClient = BillingClient.newBuilder(activity)
@@ -77,6 +79,10 @@ public class BillingManager implements PurchasesUpdatedListener {
                 .build());
         products.add(QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(PRODUCT_CORECLASH_PRO)
+                .setProductType(BillingClient.ProductType.INAPP)
+                .build());
+        products.add(QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(PRODUCT_RANKED_PASS)
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build());
 
@@ -172,19 +178,25 @@ public class BillingManager implements PurchasesUpdatedListener {
         }
 
         int granted = 0;
+        boolean grantedPass = false;
         List<String> products = purchase.getProducts();
         for (String productId : products) {
+            if (PRODUCT_RANKED_PASS.equals(productId)) {
+                grantedPass = true;
+                continue;
+            }
             granted += coresForProduct(productId);
         }
 
-        if (granted <= 0) {
+        if (granted <= 0 && !grantedPass) {
             granted = 500;
         }
 
         markTokenProcessed(token);
 
-        if (!NullUtil.isNull(coinsListener)) {
-            coinsListener.onCoinsGranted(granted);
+        if (!NullUtil.isNull(purchaseListener)) {
+            if (granted > 0) purchaseListener.onCoinsGranted(granted);
+            if (grantedPass) purchaseListener.onRankedPassGranted();
         }
         return 1;
     }
