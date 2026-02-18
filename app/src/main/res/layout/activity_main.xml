@@ -90,6 +90,7 @@
         <!-- CARD CENTRAL (premium) -->
                 
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/homeScroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
@@ -98,8 +99,16 @@
             android:overScrollMode="never"
             android:paddingVertical="22dp"
             android:scrollbars="none">
-                        
-            <androidx.constraintlayout.widget.ConstraintLayout android:background="@drawable/bg_cyber_glass" android:id="@+id/homeCard" android:layout_gravity="center_horizontal" android:layout_height="wrap_content" android:layout_marginHorizontal="26dp" android:layout_width="match_parent" android:maxWidth="560dp" android:padding="16dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/homeCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginHorizontal="26dp"
+                android:background="@drawable/bg_cyber_glass"
+                android:maxWidth="560dp"
+                android:padding="16dp">
                                 
                 <TextView android:fontFamily="sans-serif-black" android:gravity="center" android:id="@+id/txtHomeTitle" android:layout_height="wrap_content" android:layout_width="0dp" android:letterSpacing="0.03" android:text="@string/app_name" android:textColor="#F8FAFC" android:textSize="34sp" android:textStyle="bold" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
                                 
