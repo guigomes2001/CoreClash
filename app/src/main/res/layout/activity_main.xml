@@ -129,7 +129,7 @@
                             
             </androidx.constraintlayout.widget.ConstraintLayout>
                     
-        </androidx.core.widget.NestedScrollView>
+        </com.example.coreclash.view.NonScrollableNestedScrollView>
             
     </FrameLayout>
         
