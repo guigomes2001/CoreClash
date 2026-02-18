@@ -125,14 +125,14 @@
     <string name="btn_profile">Profile</string>
     <string name="btn_friends">Friends</string>
     <string name="profile_title">Profile</string>
-    <string name="profile_name">Nome</string>
+    <string name="profile_name">Name</string>
     <string name="profile_tag">Tag</string>
-    <string name="profile_save">Salvar</string>
+    <string name="profile_save">Save</string>
     <string name="friends_title">Friends</string>
-    <string name="friends_add_by_tag">Adicionar por TAG</string>
+    <string name="friends_add_by_tag">Add by tag</string>
     <string name="friends_tag_hint">GUI#1234</string>
-    <string name="friends_request_sent">Pedido enviado.</string>
-    <string name="friends_request_error">Falha ao enviar pedido.</string>
+    <string name="friends_request_sent">Request sent.</string>
+    <string name="friends_request_error">Failed to send request.</string>
 
     <string name="room_code_alphabet">ABCDEFGHJKLMNPQRSTUVWXYZ23456789</string>
 
@@ -149,7 +149,7 @@
 
     <string name="error_online_requires_internet">No internet connection detected. Check your network and try again.</string>
     <string name="round_result_score">Round won by %1$s. Score %2$d-%3$d</string>
-    <string name="round_result_double_line_score" translatable="false">%1$s fez duas linhas no mesmo round! Placar %2$d-%3$d</string>
+    <string name="round_result_double_line_score">%1$s scored two lines in the same round! Score %2$d-%3$d</string>
     <string name="round_draw_replay">Round draw. Score stays %1$d-%2$d</string>
     <string name="rounds_finished_score">🏆 Match finished! Final rounds score: %1$d-%2$d</string>
 
@@ -184,33 +184,33 @@
     <string name="store_pack_best_value">Best Value</string>
 
     <string name="store_title">Store</string>
-    <string name="store_personalization_title" translatable="false">Personalization</string>
-    <string name="store_theme_royal_preview" translatable="false">♔  X • O</string>
-    <string name="store_theme_void_preview" translatable="false">✦  X • O</string>
-    <string name="store_style_preview" translatable="false">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
-    <string name="store_theme_royal_price" translatable="false">180 Core Coins</string>
-    <string name="store_theme_void_price" translatable="false">220 Core Coins</string>
-    <string name="store_style_neon_price" translatable="false">210 Core Coins</string>
-    <string name="store_style_samurai_price" translatable="false">240 Core Coins</string>
-    <string name="store_style_classic_name" translatable="false">Classic (X / O)</string>
-    <string name="store_style_rune_name" translatable="false">Rune Glyphs (✦ / ◉)</string>
-    <string name="store_style_future_name" translatable="false">Future Tech (✕ / ⬡)</string>
-    <string name="store_style_neon_name" translatable="false">Neon Pulse (✶ / ◎)</string>
-    <string name="store_style_samurai_name" translatable="false">Samurai Ink (メ / ◍)</string>
-    <string name="store_card_type_theme" translatable="false">Symbol Style</string>
-    <string name="store_card_type_style" translatable="false">Symbol Style</string>
-    <string name="store_style_rune_name_short" translatable="false">Rune</string>
-    <string name="store_style_future_name_short" translatable="false">Future</string>
-    <string name="store_style_neon_name_short" translatable="false">Neon</string>
-    <string name="store_style_samurai_name_short" translatable="false">Samurai</string>
-    <string name="profile_personalization_hint" translatable="false">Personalization: select an already owned style to equip.</string>
+    <string name="store_personalization_title">Personalization</string>
+    <string name="store_theme_royal_preview">♔  X • O</string>
+    <string name="store_theme_void_preview">✦  X • O</string>
+    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
+    <string name="store_theme_royal_price">180 Core Coins</string>
+    <string name="store_theme_void_price">220 Core Coins</string>
+    <string name="store_style_neon_price">210 Core Coins</string>
+    <string name="store_style_samurai_price">240 Core Coins</string>
+    <string name="store_style_classic_name">Classic (X / O)</string>
+    <string name="store_style_rune_name">Rune Glyphs (✦ / ◉)</string>
+    <string name="store_style_future_name">Future Tech (✕ / ⬡)</string>
+    <string name="store_style_neon_name">Neon Pulse (✶ / ◎)</string>
+    <string name="store_style_samurai_name">Samurai Ink (メ / ◍)</string>
+    <string name="store_card_type_theme">Symbol Style</string>
+    <string name="store_card_type_style">Symbol Style</string>
+    <string name="store_style_rune_name_short">Rune</string>
+    <string name="store_style_future_name_short">Future</string>
+    <string name="store_style_neon_name_short">Neon</string>
+    <string name="store_style_samurai_name_short">Samurai</string>
+    <string name="profile_personalization_hint">Personalization: select an already owned style to equip.</string>
 
 
-    <string name="store_badge_acquired" translatable="false">Owned</string>
-    <string name="store_btn_equip" translatable="false">Equip</string>
-    <string name="store_btn_unequip" translatable="false">Unequip</string>
-    <string name="toast_theme_default_equipped" translatable="false">Default theme equipped.</string>
-    <string name="toast_style_default_equipped" translatable="false">Default symbol style equipped.</string>
+    <string name="store_badge_acquired">Owned</string>
+    <string name="store_btn_equip">Equip</string>
+    <string name="store_btn_unequip">Unequip</string>
+    <string name="toast_theme_default_equipped">Default theme equipped.</string>
+    <string name="toast_style_default_equipped">Default symbol style equipped.</string>
 
 
     <string name="mode_loading_building_board">Building board…</string>
