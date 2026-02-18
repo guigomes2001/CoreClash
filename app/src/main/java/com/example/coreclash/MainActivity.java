@@ -3,6 +3,7 @@ package com.example.coreclash;
 import android.animation.ValueAnimator;
 import android.animation.ArgbEvaluator;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -126,6 +127,14 @@ public class MainActivity extends AppCompatActivity {
     private final String selectedMode = DomainGameMode.CASUAL.getValue();
     private final RankedSeasonManager rankedSeasonManager = new RankedSeasonManager();
     private DomainDifficulty currentBotDifficulty = DomainDifficulty.BEGINNER;
+    private static final String PREF_TUTORIAL = "coreclash_tutorial";
+    private static final String KEY_TUTORIAL_DONE = "tactical_onboarding_done";
+    private static final int TUTORIAL_STEP_NORMAL = 0;
+    private static final int TUTORIAL_STEP_TRIANGLE = 1;
+    private static final int TUTORIAL_STEP_SQUARE = 2;
+    private static final int TUTORIAL_STEP_DONE = 3;
+    private boolean tutorialActive = false;
+    private int tutorialStep = TUTORIAL_STEP_DONE;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -230,6 +239,12 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            if (tutorialActive && tutorialStep != TUTORIAL_STEP_NORMAL) {
+                showUiToastDedupedStyled(getString(R.string.tutorial_hint_use_skill), getString(R.string.fa_bolt), 0xFFF8D464);
+                AnimationHelper.shakeButton(binding.turnHudBar);
+                return;
+            }
+
             playTurn(row, col);
         });
 
@@ -252,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
         updateHeaderStatus();
         updateSkillVisuals();
         updateScoreHud(false, null, false);
+        maybeStartTacticalOnboarding();
     }
 
 
@@ -681,6 +697,12 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            if (tutorialActive && tutorialStep != TUTORIAL_STEP_TRIANGLE) {
+                showUiToastDedupedStyled(getString(R.string.tutorial_hint_normal_first), getString(R.string.fa_gamepad), 0xFF67E8F9);
+                AnimationHelper.shakeButton(v);
+                return;
+            }
+
             boolean actingX = state.isXTurn();
 
             if (gameManager.useTriangle()) {
@@ -695,6 +717,12 @@ public class MainActivity extends AppCompatActivity {
 
                 updateHeaderStatus();
                 updateSkillVisuals();
+
+                if (tutorialActive) {
+                    tutorialStep = TUTORIAL_STEP_SQUARE;
+                    showUiToastDedupedStyled(getString(R.string.tutorial_step_square), getString(R.string.fa_bolt), 0xFFA78BFA);
+                    return;
+                }
 
                 if (!matchManager.isOnlineMatch()) botManager.maybeRunBotTurn();
             }
@@ -727,6 +755,12 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            if (tutorialActive && tutorialStep != TUTORIAL_STEP_SQUARE) {
+                showUiToastDedupedStyled(getString(R.string.tutorial_hint_triangle_first), getString(R.string.fa_gamepad), 0xFF67E8F9);
+                AnimationHelper.shakeButton(v);
+                return;
+            }
+
             boolean actingX = state.isXTurn();
 
             if (gameManager.useSquare()) {
@@ -741,6 +775,11 @@ public class MainActivity extends AppCompatActivity {
 
                 updateHeaderStatus();
                 updateSkillVisuals();
+
+                if (tutorialActive) {
+                    finishTacticalOnboarding();
+                    return;
+                }
 
                 if (!matchManager.isOnlineMatch()) botManager.maybeRunBotTurn();
             }
@@ -1281,7 +1320,42 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        if (tutorialActive && tutorialStep == TUTORIAL_STEP_NORMAL) {
+            tutorialStep = TUTORIAL_STEP_TRIANGLE;
+            showUiToastDedupedStyled(getString(R.string.tutorial_step_triangle), getString(R.string.fa_bolt), 0xFFF8D464);
+            return;
+        }
+
         botManager.maybeRunBotTurn();
+    }
+
+    private void maybeStartTacticalOnboarding() {
+        SharedPreferences prefs = getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE);
+        boolean tutorialDone = prefs.getBoolean(KEY_TUTORIAL_DONE, false);
+        if (tutorialDone) return;
+
+        handler.postDelayed(() -> {
+            tutorialActive = true;
+            tutorialStep = TUTORIAL_STEP_NORMAL;
+            showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
+            prepareOfflineMatchFromMode();
+        }, 420L);
+    }
+
+    private void finishTacticalOnboarding() {
+        tutorialActive = false;
+        tutorialStep = TUTORIAL_STEP_DONE;
+        getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
+
+        showUiToastDedupedStyled(getString(R.string.tutorial_done_cta), getString(R.string.fa_wifi), 0xFF6EE7FF);
+
+        matchStarted = false;
+        botManager.cancelPending();
+        gameManager.resetGame();
+        victoryOverlayAnimator.clearLines();
+        showHomeScreen();
+        homeFlow.setSelectedMatchKind(enums.DomainMatchKind.ONLINE_PVP);
+        homeFlow.openModeModal();
     }
 
     private void resetRoundSeries() {

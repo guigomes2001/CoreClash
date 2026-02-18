@@ -224,10 +224,13 @@
     <string name="ranked_tier_gold">GOLD</string>
     <string name="toast_ranked_gain">Rank up +%1$d MMR</string>
     <string name="toast_ranked_loss">Rank shift %1$d MMR</string>
-    <string name="toast_ranked_pass_activated">Season Pass activated! Exclusive rewards enabled.</string>
-    <string name="toast_ranked_pass_already_active">Season Pass already active.</string>
-    <string name="store_ranked_pass_price">Season Pass • R$ 19,90</string>
-    <string name="store_ranked_pass_active">Season Pass • Active</string>
     <string name="profile_ranked_stats">Season %1$s • %2$s • %3$d MMR • W%4$d/L%5$d</string>
     <string name="store_style_mythic_name">Mythic Sigil (⟁ / ◉)</string>
+    <string name="tutorial_intro">Tactical tutorial: place one normal move.</string>
+    <string name="tutorial_step_triangle">Great! Now use Triangle skill.</string>
+    <string name="tutorial_step_square">Nice! Now use Square skill.</string>
+    <string name="tutorial_done_cta">Tutorial complete. Ready for Play Online.</string>
+    <string name="tutorial_hint_use_skill">Use the requested skill to continue the tutorial.</string>
+    <string name="tutorial_hint_normal_first">First place one normal move.</string>
+    <string name="tutorial_hint_triangle_first">Use Triangle first, then Square.</string>
 </resources>

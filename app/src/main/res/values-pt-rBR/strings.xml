@@ -193,10 +193,13 @@
     <string name="ranked_tier_gold">OURO</string>
     <string name="toast_ranked_gain">Rank up +%1$d MMR</string>
     <string name="toast_ranked_loss">Ajuste de rank %1$d MMR</string>
-    <string name="toast_ranked_pass_activated">Passe da temporada ativado! Recompensas exclusivas liberadas.</string>
-    <string name="toast_ranked_pass_already_active">Passe da temporada já está ativo.</string>
-    <string name="store_ranked_pass_price">Passe da Temporada • R$ 19,90</string>
-    <string name="store_ranked_pass_active">Passe da Temporada • Ativo</string>
     <string name="profile_ranked_stats">Temporada %1$s • %2$s • %3$d MMR • V%4$d/D%5$d</string>
     <string name="store_style_mythic_name">Selo Mítico (⟁ / ◉)</string>
+    <string name="tutorial_intro">Tutorial tático: faça uma jogada normal.</string>
+    <string name="tutorial_step_triangle">Boa! Agora use a skill Triângulo.</string>
+    <string name="tutorial_step_square">Perfeito! Agora use a skill Quadrado.</string>
+    <string name="tutorial_done_cta">Tutorial concluído. Pronto para jogar Online.</string>
+    <string name="tutorial_hint_use_skill">Use a skill indicada para continuar o tutorial.</string>
+    <string name="tutorial_hint_normal_first">Primeiro faça uma jogada normal.</string>
+    <string name="tutorial_hint_triangle_first">Use Triângulo primeiro, depois Quadrado.</string>
 </resources>

@@ -41,7 +41,7 @@ public final class RankedSeasonManager {
             return false;
         }
 
-        if (profile.rankedPassActive && tierFor(profile.mmr) == Tier.GOLD && !profile.ownsSymbolStyle(EXCLUSIVE_STYLE_MYTHIC)) {
+        if (tierFor(profile.mmr) == Tier.GOLD && !profile.ownsSymbolStyle(EXCLUSIVE_STYLE_MYTHIC)) {
             profile.ownedSymbolStyles.add(EXCLUSIVE_STYLE_MYTHIC);
         }
 
@@ -49,7 +49,6 @@ public final class RankedSeasonManager {
         profile.mmr = DEFAULT_MMR;
         profile.rankedWins = 0;
         profile.rankedLosses = 0;
-        profile.rankedPassActive = false;
         return true;
     }
 

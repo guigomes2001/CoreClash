@@ -44,7 +44,6 @@ public class LocalProfileRepository implements ProfileRepository {
         profile.rankedWins = sharedPreferences.getInt("rankedWins", 0);
         profile.rankedLosses = sharedPreferences.getInt("rankedLosses", 0);
         profile.seasonId = sharedPreferences.getString("seasonId", java.time.LocalDate.now(java.time.ZoneOffset.UTC).getYear() + "-" + String.format("%02d", java.time.LocalDate.now(java.time.ZoneOffset.UTC).getMonthValue()));
-        profile.rankedPassActive = sharedPreferences.getBoolean("rankedPassActive", false);
         callback.onSuccess(profile);
     }
 
@@ -62,7 +61,6 @@ public class LocalProfileRepository implements ProfileRepository {
                 .putInt("rankedWins", profile.rankedWins)
                 .putInt("rankedLosses", profile.rankedLosses)
                 .putString("seasonId", profile.seasonId)
-                .putBoolean("rankedPassActive", profile.rankedPassActive)
                 .apply();
     }
 }
