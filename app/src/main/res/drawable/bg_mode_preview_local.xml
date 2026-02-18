@@ -5,28 +5,48 @@
             <corners android:radius="12dp" />
             <gradient
                 android:angle="315"
-                android:startColor="#A61C1A46"
-                android:endColor="#D0252F7A" />
+                android:startColor="#FF131934"
+                android:centerColor="#FF23335D"
+                android:endColor="#FF171E43" />
         </shape>
     </item>
-    <item android:gravity="bottom|center_horizontal" android:bottom="10dp">
+
+    <item android:left="8dp" android:top="8dp" android:right="8dp" android:bottom="8dp">
         <shape>
-            <size android:width="76dp" android:height="28dp" />
-            <solid android:color="#223A5FE0" />
+            <corners android:radius="10dp" />
+            <gradient android:angle="0" android:startColor="#663B4FA5" android:endColor="#66363FA2" />
+            <stroke android:width="1dp" android:color="#70C2ECFF" />
+        </shape>
+    </item>
+
+    <item android:left="14dp" android:top="16dp" android:width="72dp" android:height="36dp">
+        <shape>
             <corners android:radius="8dp" />
-            <stroke android:width="1dp" android:color="#88CBEAFF" />
+            <gradient android:angle="0" android:startColor="#CC6D28D9" android:endColor="#CC4F46E5" />
+            <stroke android:width="1dp" android:color="#88E4ECFF" />
         </shape>
     </item>
-    <item android:gravity="top|left" android:left="14dp" android:top="12dp">
+    <item android:left="22dp" android:top="24dp" android:width="18dp" android:height="18dp" android:drawable="@drawable/ic_square_outline" />
+
+    <item android:left="94dp" android:top="16dp" android:width="72dp" android:height="36dp">
         <shape>
-            <size android:width="22dp" android:height="22dp" />
-            <solid android:color="#FF5252" />
+            <corners android:radius="8dp" />
+            <gradient android:angle="0" android:startColor="#CC0E7490" android:endColor="#CC0284C7" />
+            <stroke android:width="1dp" android:color="#88E4ECFF" />
         </shape>
     </item>
-    <item android:gravity="top|right" android:right="14dp" android:top="12dp">
-        <shape android:shape="oval">
-            <size android:width="22dp" android:height="22dp" />
-            <solid android:color="#29B6F6" />
+    <item android:left="102dp" android:top="24dp" android:width="18dp" android:height="18dp" android:drawable="@drawable/ic_triangle_outline" />
+
+    <item android:left="14dp" android:top="58dp" android:right="14dp" android:height="1dp"><shape><solid android:color="#66C6EBFF" /></shape></item>
+
+    <item android:gravity="bottom|center_horizontal" android:bottom="12dp">
+        <shape>
+            <size android:width="150dp" android:height="26dp" />
+            <corners android:radius="9dp" />
+            <gradient android:angle="0" android:startColor="#AA101E3A" android:endColor="#AA173160" />
+            <stroke android:width="1dp" android:color="#76C8ECFF" />
         </shape>
     </item>
+
+    <item android:gravity="bottom|center_horizontal" android:bottom="19dp" android:width="20dp" android:height="12dp" android:drawable="@drawable/ic_flash_simple" />
 </layer-list>
