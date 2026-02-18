@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
     private HomeFlowManager initHomeFlow() {
         return new HomeFlowManager(binding, new HomeFlowManager.Callbacks() {
             @Override public void onQuickPlayClicked() {
-                startOfflineVsBot();
+                prepareOfflineMatchFromMode();
             }
 
             @Override public void onPlayOnlineClicked() {
@@ -366,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmOfflineVsBot() {
-                startOfflineVsBot();
+                prepareOfflineMatchFromMode();
             }
 
             @Override public void onConfirmOnlinePvp() {
@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override public void onConfirmLocalPassPlay() {
-                startLocalPassAndPlay();
+                prepareLocalPassPlayFromMode();
             }
 
             @Override public void onConfirmLocalLobby() {
@@ -1008,8 +1008,29 @@ public class MainActivity extends AppCompatActivity {
         board.setSymbolStyle(style);
     }
 
+    private void prepareOfflineMatchFromMode() {
+        homeFlow.closeModeModal();
+        showMatchmakingLoading(getString(R.string.mode_loading_building_board));
+        binding.btnMatchmakingCancel.setEnabled(false);
+        binding.btnMatchmakingCancel.setAlpha(0.45f);
+        handler.postDelayed(() -> {
+            hideMatchmakingLoading();
+            startOfflineVsBot();
+        }, 360L);
+    }
+
+    private void prepareLocalPassPlayFromMode() {
+        homeFlow.closeModeModal();
+        showMatchmakingLoading(getString(R.string.mode_loading_preparing_local_match));
+        binding.btnMatchmakingCancel.setEnabled(false);
+        binding.btnMatchmakingCancel.setAlpha(0.45f);
+        handler.postDelayed(() -> {
+            hideMatchmakingLoading();
+            startLocalPassAndPlay();
+        }, 360L);
+    }
+
     private void startLocalPassAndPlay() {
-        hideMatchmakingLoading();
         passAndPlayMode = true;
         versusBot = false;
         matchPhase = DomainMatchPhase.LOADING;
@@ -1143,6 +1164,7 @@ public class MainActivity extends AppCompatActivity {
         binding.txtMatchmakingStatus.setText(stableStatus);
         binding.txtMatchmakingDots.setText("");
         binding.btnMatchmakingCancel.setEnabled(true);
+        binding.btnMatchmakingCancel.setAlpha(1f);
 
         if (binding.matchmakingOverlay.getVisibility() != View.VISIBLE) {
             binding.matchmakingOverlay.setVisibility(View.VISIBLE);
@@ -1174,6 +1196,7 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(() -> {
                     binding.matchmakingOverlay.setVisibility(View.GONE);
                     binding.btnMatchmakingCancel.setEnabled(false);
+                    binding.btnMatchmakingCancel.setAlpha(1f);
                     binding.lottieMatchmaking.cancelAnimation();
                     binding.txtMatchmakingDots.setText("");
                     binding.matchmakingOverlay.setAlpha(1f);
@@ -1468,7 +1491,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startOfflineVsBot() {
-        hideMatchmakingLoading();
         versusBot = true;
         opponentName = randomBotName();
         currentBotDifficulty = randomDifficulty();
