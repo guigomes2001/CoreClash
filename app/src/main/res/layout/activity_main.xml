@@ -89,7 +89,7 @@
                 
         <!-- CARD CENTRAL (premium) -->
                 
-        <androidx.core.widget.NestedScrollView
+        <ScrollView
             android:id="@+id/homeScroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -146,7 +146,7 @@
                             
             </androidx.constraintlayout.widget.ConstraintLayout>
                     
-        </com.example.coreclash.view.NonScrollableNestedScrollView>
+        </ScrollView>
             
     </FrameLayout>
         
