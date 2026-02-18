@@ -3,30 +3,33 @@
     <item>
         <shape>
             <corners android:radius="12dp" />
-            <gradient
-                android:angle="315"
-                android:startColor="#A61C1A46"
-                android:endColor="#D0252F7A" />
+            <gradient android:angle="270" android:startColor="#16344D" android:centerColor="#12253D" android:endColor="#102032" />
         </shape>
     </item>
-    <item android:gravity="bottom|center_horizontal" android:bottom="10dp">
+
+    <item android:left="8dp" android:top="8dp" android:right="8dp" android:bottom="8dp">
         <shape>
-            <size android:width="76dp" android:height="28dp" />
-            <solid android:color="#223A5FE0" />
+            <corners android:radius="10dp" />
+            <solid android:color="#122238" />
+            <stroke android:width="1dp" android:color="#5A7DEEE0" />
+        </shape>
+    </item>
+
+    <item android:left="14dp" android:top="14dp" android:width="24dp" android:height="24dp" android:drawable="@drawable/ic_fa_user" />
+    <item android:gravity="top|end" android:right="14dp" android:top="14dp" android:width="24dp" android:height="24dp" android:drawable="@drawable/ic_fa_user" />
+
+    <item android:left="42dp" android:top="24dp" android:width="92dp" android:height="2dp"><shape><solid android:color="#66BCE8FF" /></shape></item>
+    <item android:gravity="top|center_horizontal" android:top="19dp" android:width="18dp" android:height="8dp"><shape><solid android:color="#7DEEE0" /></shape></item>
+
+    <item android:gravity="bottom|center_horizontal" android:bottom="12dp" android:width="116dp" android:height="34dp">
+        <shape>
             <corners android:radius="8dp" />
-            <stroke android:width="1dp" android:color="#88CBEAFF" />
+            <gradient android:angle="0" android:startColor="#16344D" android:endColor="#12253D" />
+            <stroke android:width="1dp" android:color="#5A7DEEE0" />
         </shape>
     </item>
-    <item android:gravity="top|left" android:left="14dp" android:top="12dp">
-        <shape>
-            <size android:width="22dp" android:height="22dp" />
-            <solid android:color="#FF5252" />
-        </shape>
-    </item>
-    <item android:gravity="top|right" android:right="14dp" android:top="12dp">
-        <shape android:shape="oval">
-            <size android:width="22dp" android:height="22dp" />
-            <solid android:color="#29B6F6" />
-        </shape>
-    </item>
+
+    <item android:gravity="bottom|center_horizontal" android:bottom="22dp" android:left="-26dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_square_outline" />
+    <item android:gravity="bottom|center_horizontal" android:bottom="22dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_triangle_outline" />
+    <item android:gravity="bottom|center_horizontal" android:bottom="22dp" android:left="26dp" android:width="12dp" android:height="12dp" android:drawable="@drawable/ic_square_outline" />
 </layer-list>
