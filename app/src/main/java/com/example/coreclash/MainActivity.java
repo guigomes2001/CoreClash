@@ -280,6 +280,8 @@ public class MainActivity extends AppCompatActivity {
         updateScoreHud(false, null, false);
         updateTutorialProgressUi();
         maybeStartTacticalOnboarding();
+        SafeClickUtil.setSafeClick(binding.badgeModeTutorial, 320, v -> showTutorialDecisionDialog());
+        SafeClickUtil.setSafeClick(binding.txtModeTutorialHint, 320, v -> showTutorialDecisionDialog());
     }
 
 
@@ -1115,7 +1117,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void applyDialogStyle(@NonNull AlertDialog dialog) {
         Window window = dialog.getWindow();
-        if (!NullUtil.isNull(window)) window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
+        if (!NullUtil.isNull(window)) window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass_v2);
+
+        TextView message = dialog.findViewById(android.R.id.message);
+        if (!NullUtil.isNull(message)) {
+            message.setTextColor(Color.parseColor("#EAF6FF"));
+            message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        }
+
+        int titleId = getResources().getIdentifier("alertTitle", "id", "android");
+        TextView title = dialog.findViewById(titleId);
+        if (!NullUtil.isNull(title)) {
+            title.setTextColor(Color.parseColor("#D8EEFF"));
+        }
 
         Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -1348,15 +1362,25 @@ public class MainActivity extends AppCompatActivity {
     private void maybeStartTacticalOnboarding() {
         SharedPreferences prefs = getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE);
         boolean tutorialDone = prefs.getBoolean(KEY_TUTORIAL_DONE, false);
-        if (tutorialDone) {
-            binding.badgeModeTutorial.setVisibility(View.GONE);
-            binding.txtModeTutorialHint.setVisibility(View.GONE);
-            return;
+
+        if (shouldMarkTutorialAsCompletedForVeteranPlayer()) {
+            prefs.edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
+            tutorialDone = true;
         }
 
         binding.badgeModeTutorial.setVisibility(View.VISIBLE);
         binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
-        handler.postDelayed(this::showTutorialDecisionDialog, 420L);
+        binding.badgeModeTutorial.setText(getString(tutorialDone ? R.string.tutorial_badge_replay : R.string.tutorial_badge));
+        binding.txtModeTutorialHint.setText(getString(tutorialDone ? R.string.tutorial_mode_hint_replay : R.string.tutorial_mode_hint));
+
+        if (!tutorialDone) {
+            handler.postDelayed(this::showTutorialDecisionDialog, 420L);
+        }
+    }
+
+    private boolean shouldMarkTutorialAsCompletedForVeteranPlayer() {
+        if (NullUtil.isNull(currentProfile)) return false;
+        return currentProfile.rankedWins > 0 || currentProfile.rankedLosses > 0;
     }
 
     private void showTutorialDecisionDialog() {
@@ -1364,11 +1388,13 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog tutorialDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.tutorial_dialog_title)
-                .setMessage(getString(R.string.tutorial_dialog_message))
+                .setMessage(getString(isTutorialAlreadyDone() ? R.string.tutorial_dialog_message_replay : R.string.tutorial_dialog_message))
                 .setNegativeButton(R.string.tutorial_dialog_skip, (d, which) -> {
                     getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
-                    binding.badgeModeTutorial.setVisibility(View.GONE);
-                    binding.txtModeTutorialHint.setVisibility(View.GONE);
+                    binding.badgeModeTutorial.setVisibility(View.VISIBLE);
+                    binding.badgeModeTutorial.setText(getString(R.string.tutorial_badge_replay));
+                    binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
+                    binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
                     state.setTutorialSkillOverride(false);
                     d.dismiss();
                 })
@@ -1387,13 +1413,19 @@ public class MainActivity extends AppCompatActivity {
         applyDialogStyle(tutorialDialog);
     }
 
+    private boolean isTutorialAlreadyDone() {
+        return getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).getBoolean(KEY_TUTORIAL_DONE, false);
+    }
+
     private void finishTacticalOnboarding() {
         tutorialActive = false;
         tutorialStep = TUTORIAL_STEP_DONE;
         state.setTutorialSkillOverride(false);
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
-        binding.badgeModeTutorial.setVisibility(View.GONE);
-        binding.txtModeTutorialHint.setVisibility(View.GONE);
+        binding.badgeModeTutorial.setVisibility(View.VISIBLE);
+        binding.badgeModeTutorial.setText(getString(R.string.tutorial_badge_replay));
+        binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
+        binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
         updateTutorialProgressUi();
 
         showUiToastDedupedStyled(getString(R.string.tutorial_done_cta), getString(R.string.fa_wifi), 0xFF6EE7FF);

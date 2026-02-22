@@ -236,4 +236,7 @@
     <string name="tutorial_label_win">Vença uma rodada</string>
     <string name="tutorial_label_done">Concluído</string>
 
+    <string name="tutorial_badge_replay">★ Repetir Tutorial</string>
+    <string name="tutorial_mode_hint_replay">Refaça o tutorial quando quiser por este card</string>
+    <string name="tutorial_dialog_message_replay">Você quer refazer agora o tutorial guiado completo?</string>
 </resources>

@@ -267,4 +267,7 @@
     <string name="tutorial_label_win">Win a round</string>
     <string name="tutorial_label_done">Complete</string>
 
+    <string name="tutorial_badge_replay">★ Replay Tutorial</string>
+    <string name="tutorial_mode_hint_replay">Replay tutorial anytime from this mode card</string>
+    <string name="tutorial_dialog_message_replay">Do you want to replay the full guided tutorial now?</string>
 </resources>
