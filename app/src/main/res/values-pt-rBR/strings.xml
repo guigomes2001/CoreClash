@@ -218,4 +218,7 @@
     <string name="bp_toast_premium_granted">Battle Pass Premium ativado.</string>
 
     <string name="bp_xp_gain_toast">Passe de batalha +%1$d XP</string>
+    <string name="store_ranked_pass_price">Passe Ranqueado • R$ 19,90</string>
+    <string name="store_ranked_pass_active">Passe Ranqueado ativo</string>
+    <string name="toast_ranked_pass_activated">Passe Ranqueado ativado!</string>
 </resources>
