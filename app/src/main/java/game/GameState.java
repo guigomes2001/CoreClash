@@ -15,6 +15,7 @@ public class GameState {
     private boolean squareExists = true;
     private Boolean triangleOwnerIsX = null;
     private Boolean squareOwnerIsX = null;
+    private boolean tutorialSkillOverride = false;
 
     private String gameMode = String.valueOf(DomainGameMode.CASUAL);
     private int totalWins = 0;
@@ -32,12 +33,12 @@ public class GameState {
     }
 
     public boolean canUseTriangle() {
-        if (!triangleExists || moveCount < TRIANGLE_UNLOCK_MOVE) return false;
+        if (!triangleExists || (!tutorialSkillOverride && moveCount < TRIANGLE_UNLOCK_MOVE)) return false;
         return NullUtil.isNull(triangleOwnerIsX) || triangleOwnerIsX == xTurn;
     }
 
     public boolean canUseSquare() {
-        if (!squareExists || moveCount < SQUARE_UNLOCK_MOVE) {
+        if (!squareExists || (!tutorialSkillOverride && moveCount < SQUARE_UNLOCK_MOVE)) {
             return false;
         }
         return NullUtil.isNull(squareOwnerIsX) || squareOwnerIsX == xTurn;
@@ -55,6 +56,15 @@ public class GameState {
         if (triangleExists) {
             triangleOwnerIsX = !xTurn;
         }
+    }
+
+
+    public void setTutorialSkillOverride(boolean enabled) {
+        tutorialSkillOverride = enabled;
+    }
+
+    public boolean isTutorialSkillOverride() {
+        return tutorialSkillOverride;
     }
 
     public void addMove() {
@@ -111,6 +121,7 @@ public class GameState {
         squareExists = true;
         triangleOwnerIsX = null;
         squareOwnerIsX = null;
+        tutorialSkillOverride = false;
         timeoutStreakX = 0;
         timeoutStreakO = 0;
     }
