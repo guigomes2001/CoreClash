@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.HashMap;
@@ -61,10 +60,22 @@ public class RewardGranter {
                 .addOnFailureListener(callback::onError);
     }
 
-    private boolean userOwnsCosmetic(Transaction transaction, DocumentReference inventoryRef, String itemId) throws FirebaseFirestoreException {
-        var inv = transaction.get(inventoryRef);
-        List<String> cosmetics = (List<String>) inv.get("cosmeticsOwned");
-        return cosmetics != null && cosmetics.contains(itemId);
+    private boolean userOwnsCosmetic(Transaction transaction, DocumentReference inventoryRef, String itemId) {
+        try {
+            var inv = transaction.get(inventoryRef);
+            Object raw = inv.get("cosmeticsOwned");
+            if (!(raw instanceof List<?> cosmetics)) {
+                return false;
+            }
+            for (Object cosmetic : cosmetics) {
+                if (itemId.equals(String.valueOf(cosmetic))) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private void applyCurrency(Transaction transaction, DocumentReference inventoryRef, int amount) {

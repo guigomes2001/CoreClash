@@ -136,7 +136,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int TUTORIAL_STEP_NORMAL = 0;
     private static final int TUTORIAL_STEP_TRIANGLE = 1;
     private static final int TUTORIAL_STEP_SQUARE = 2;
-    private static final int TUTORIAL_STEP_DONE = 3;
+    private static final int TUTORIAL_STEP_WIN_ROUND = 3;
+    private static final int TUTORIAL_STEP_DONE = 4;
     private boolean tutorialActive = false;
     private int tutorialStep = TUTORIAL_STEP_DONE;
 
@@ -249,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (tutorialActive && tutorialStep != TUTORIAL_STEP_NORMAL) {
+            if (tutorialActive && tutorialStep != TUTORIAL_STEP_NORMAL && tutorialStep != TUTORIAL_STEP_WIN_ROUND) {
                 showUiToastDedupedStyled(getString(R.string.tutorial_hint_use_skill), getString(R.string.fa_bolt), 0xFFF8D464);
                 AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
@@ -277,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
         updateHeaderStatus();
         updateSkillVisuals();
         updateScoreHud(false, null, false);
+        updateTutorialProgressUi();
         maybeStartTacticalOnboarding();
     }
 
@@ -730,6 +732,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (tutorialActive) {
                     tutorialStep = TUTORIAL_STEP_SQUARE;
+                    updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_square), getString(R.string.fa_bolt), 0xFFA78BFA);
                     return;
                 }
@@ -787,7 +790,9 @@ public class MainActivity extends AppCompatActivity {
                 updateSkillVisuals();
 
                 if (tutorialActive) {
-                    finishTacticalOnboarding();
+                    tutorialStep = TUTORIAL_STEP_WIN_ROUND;
+                    updateTutorialProgressUi();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_step_win_round), getString(R.string.fa_bolt), 0xFF6EE7FF);
                     return;
                 }
 
@@ -1332,6 +1337,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (tutorialActive && tutorialStep == TUTORIAL_STEP_NORMAL) {
             tutorialStep = TUTORIAL_STEP_TRIANGLE;
+            updateTutorialProgressUi();
             showUiToastDedupedStyled(getString(R.string.tutorial_step_triangle), getString(R.string.fa_bolt), 0xFFF8D464);
             return;
         }
@@ -1342,20 +1348,48 @@ public class MainActivity extends AppCompatActivity {
     private void maybeStartTacticalOnboarding() {
         SharedPreferences prefs = getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE);
         boolean tutorialDone = prefs.getBoolean(KEY_TUTORIAL_DONE, false);
-        if (tutorialDone) return;
+        if (tutorialDone) {
+            binding.badgeModeTutorial.setVisibility(View.GONE);
+            binding.txtModeTutorialHint.setVisibility(View.GONE);
+            return;
+        }
 
-        handler.postDelayed(() -> {
-            tutorialActive = true;
-            tutorialStep = TUTORIAL_STEP_NORMAL;
-            showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
-            prepareOfflineMatchFromMode();
-        }, 420L);
+        binding.badgeModeTutorial.setVisibility(View.VISIBLE);
+        binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
+        handler.postDelayed(this::showTutorialDecisionDialog, 420L);
+    }
+
+    private void showTutorialDecisionDialog() {
+        if (isFinishing() || isDestroyed()) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.tutorial_dialog_title)
+                .setMessage(getString(R.string.tutorial_dialog_message))
+                .setNegativeButton(R.string.tutorial_dialog_skip, (dialog, which) -> {
+                    getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
+                    binding.badgeModeTutorial.setVisibility(View.GONE);
+                    binding.txtModeTutorialHint.setVisibility(View.GONE);
+                    dialog.dismiss();
+                })
+                .setPositiveButton(R.string.tutorial_dialog_start, (dialog, which) -> {
+                    tutorialActive = true;
+                    tutorialStep = TUTORIAL_STEP_NORMAL;
+                    updateTutorialProgressUi();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
+                    prepareOfflineMatchFromMode();
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void finishTacticalOnboarding() {
         tutorialActive = false;
         tutorialStep = TUTORIAL_STEP_DONE;
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
+        binding.badgeModeTutorial.setVisibility(View.GONE);
+        binding.txtModeTutorialHint.setVisibility(View.GONE);
+        updateTutorialProgressUi();
 
         showUiToastDedupedStyled(getString(R.string.tutorial_done_cta), getString(R.string.fa_wifi), 0xFF6EE7FF);
 
@@ -1366,6 +1400,29 @@ public class MainActivity extends AppCompatActivity {
         showHomeScreen();
         homeFlow.setSelectedMatchKind(enums.DomainMatchKind.ONLINE_PVP);
         homeFlow.openModeModal();
+    }
+
+    private void updateTutorialProgressUi() {
+        if (!tutorialActive || tutorialStep >= TUTORIAL_STEP_DONE) {
+            binding.txtTutorialProgress.setVisibility(View.GONE);
+            return;
+        }
+
+        int current = tutorialStep + 1;
+        int total = 4;
+        binding.txtTutorialProgress.setText(getString(R.string.tutorial_progress_format, current, total, tutorialStepLabel()));
+        binding.txtTutorialProgress.setVisibility(View.VISIBLE);
+    }
+
+    @NonNull
+    private String tutorialStepLabel() {
+        return switch (tutorialStep) {
+            case TUTORIAL_STEP_NORMAL -> getString(R.string.tutorial_label_normal);
+            case TUTORIAL_STEP_TRIANGLE -> getString(R.string.tutorial_label_triangle);
+            case TUTORIAL_STEP_SQUARE -> getString(R.string.tutorial_label_square);
+            case TUTORIAL_STEP_WIN_ROUND -> getString(R.string.tutorial_label_win);
+            default -> getString(R.string.tutorial_label_done);
+        };
     }
 
     private void resetRoundSeries() {
@@ -1451,6 +1508,11 @@ public class MainActivity extends AppCompatActivity {
             int roundPoints = Math.max(1, winLinesInRound);
             if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX += roundPoints;
             if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO += roundPoints;
+
+            if (tutorialActive && tutorialStep == TUTORIAL_STEP_WIN_ROUND && DomainSymmetries.X.getValue().equals(winnerSymbol)) {
+                finishTacticalOnboarding();
+                return;
+            }
 
             boolean doubleLineSweep = roundPoints >= 2;
             updateScoreHud(true, winnerSymbol, doubleLineSweep);
