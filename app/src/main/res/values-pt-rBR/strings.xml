@@ -202,4 +202,38 @@
     <string name="tutorial_hint_use_skill">Use a skill indicada para continuar o tutorial.</string>
     <string name="tutorial_hint_normal_first">Primeiro faça uma jogada normal.</string>
     <string name="tutorial_hint_triangle_first">Use Triângulo primeiro, depois Quadrado.</string>
+
+    <string name="bp_title">Passe de Batalha</string>
+    <string name="bp_missions">Missões</string>
+    <string name="bp_buy_premium">Desbloquear Premium</string>
+    <string name="bp_restore">Restaurar compra</string>
+    <string name="bp_back">Voltar</string>
+    <string name="bp_error_loading">Não foi possível carregar o Passe de Batalha.</string>
+    <string name="bp_level_value">Nível %1$d</string>
+    <string name="bp_xp_value">XP %1$d / %2$d</string>
+    <string name="bp_season_status">Status da temporada: %1$s</string>
+    <string name="bp_premium_owned">Premium ativo</string>
+    <string name="bp_premium_locked">Premium bloqueado</string>
+    <string name="bp_mission_row">[%1$s] %2$s: %3$d/%4$d • %5$d XP</string>
+    <string name="bp_toast_premium_granted">Battle Pass Premium ativado.</string>
+
+    <string name="bp_xp_gain_toast">Passe de batalha +%1$d XP</string>
+    <string name="store_ranked_pass_price">Passe Ranqueado • R$ 19,90</string>
+    <string name="store_ranked_pass_active">Passe Ranqueado ativo</string>
+    <string name="toast_ranked_pass_activated">Passe Ranqueado ativado!</string>
+
+    <string name="tutorial_mode_hint">Tutorial disponível para novos jogadores</string>
+    <string name="tutorial_badge">★ Tutorial</string>
+    <string name="tutorial_dialog_title">Bem-vindo ao Core Clash</string>
+    <string name="tutorial_dialog_message">Quer um tutorial guiado para dominar jogada normal e as skills Triângulo e Quadrado?</string>
+    <string name="tutorial_dialog_skip">Agora não</string>
+    <string name="tutorial_dialog_start">Iniciar tutorial</string>
+    <string name="tutorial_step_win_round">Perfeito! Agora vença uma rodada usando o que aprendeu.</string>
+    <string name="tutorial_progress_format">Etapa %1$d/%2$d • %3$s</string>
+    <string name="tutorial_label_normal">Faça uma jogada normal</string>
+    <string name="tutorial_label_triangle">Use a skill Triângulo</string>
+    <string name="tutorial_label_square">Use a skill Quadrado</string>
+    <string name="tutorial_label_win">Vença uma rodada</string>
+    <string name="tutorial_label_done">Concluído</string>
+
 </resources>

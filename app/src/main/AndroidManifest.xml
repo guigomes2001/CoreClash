@@ -12,6 +12,17 @@
         android:localeConfig="@xml/locales_config"
         tools:targetApi="33">
 
+        
+        <activity
+            android:name=".battlepass.ui.BattlePassActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".battlepass.ui.MissionsActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

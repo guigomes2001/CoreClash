@@ -29,6 +29,7 @@
             <TextView android:id="@+id/txtHudVersus" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/versus_center" android:textAllCaps="true" android:textColor="#CBD5E1" android:textSize="15sp" android:textStyle="bold"/>
                         
             <TextView android:id="@+id/txtHudScoreInline" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:text="0 × 0" android:textColor="#D1E2FF" android:textSize="14sp" android:textStyle="bold"/>
+            <TextView android:id="@+id/txtTutorialProgress" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:background="@drawable/bg_store_wallet_chip" android:paddingHorizontal="8dp" android:paddingVertical="2dp" android:text="" android:textColor="#C7F1FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone"/>
                     
         </LinearLayout>
                 
@@ -89,7 +90,7 @@
                 
         <!-- CARD CENTRAL (premium) -->
                 
-        <ScrollView
+        <com.example.coreclash.view.NonScrollableNestedScrollView
             android:id="@+id/homeScroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -148,7 +149,7 @@
                             
             </androidx.constraintlayout.widget.ConstraintLayout>
                     
-        </ScrollView>
+        </com.example.coreclash.view.NonScrollableNestedScrollView>
             
     </FrameLayout>
         
@@ -212,6 +213,20 @@
                 android:gravity="center"
                 android:text="@string/mode_subtitle_online_offline"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/txtModeTutorialHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_store_wallet_chip"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="@string/tutorial_mode_hint"
+                android:textColor="#CDEBFF"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -295,6 +310,21 @@
                                 android:textSize="10sp"
                                 android:textStyle="bold"
                                 android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/badgeModeTutorial"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|start"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginTop="8dp"
+                                android:background="@drawable/bg_store_wallet_chip"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="@string/tutorial_badge"
+                                android:textColor="#D8F4FF"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
                         </FrameLayout>
 
                         <FrameLayout
