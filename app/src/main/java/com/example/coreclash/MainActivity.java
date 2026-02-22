@@ -39,6 +39,10 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.coreclash.battlepass.data.BattlePassRepository;
+import com.example.coreclash.battlepass.data.MissionsRepository;
+import com.example.coreclash.battlepass.domain.BpProgressCalculator;
+import com.example.coreclash.battlepass.domain.MissionEngine;
 import com.example.coreclash.data.FirebaseProfileRepository;
 import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.databinding.ActivityMainBinding;
@@ -132,9 +136,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int TUTORIAL_STEP_NORMAL = 0;
     private static final int TUTORIAL_STEP_TRIANGLE = 1;
     private static final int TUTORIAL_STEP_SQUARE = 2;
-    private static final int TUTORIAL_STEP_DONE = 3;
+    private static final int TUTORIAL_STEP_WIN_ROUND = 3;
+    private static final int TUTORIAL_STEP_DONE = 4;
     private boolean tutorialActive = false;
     private int tutorialStep = TUTORIAL_STEP_DONE;
+    private boolean tutorialPendingOpponentSkillDemo = false;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -142,6 +148,10 @@ public class MainActivity extends AppCompatActivity {
     private BotManager botManager;
     private HomeAwayManager homeAwayManager;
     private SocialManager socialManager;
+    private BattlePassRepository battlePassRepository;
+    private MissionsRepository missionsRepository;
+    private final MissionEngine missionEngine = new MissionEngine();
+    private final BpProgressCalculator bpProgressCalculator = new BpProgressCalculator();
 
     private TimeoutBannerAnimator timeoutBannerAnimator;
     private MatchIntroAnimator matchIntroAnimator;
@@ -175,6 +185,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         authenticationManager = new AuthenticationManager(this);
+        battlePassRepository = new BattlePassRepository(this);
+        missionsRepository = new MissionsRepository();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -239,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            if (tutorialActive && tutorialStep != TUTORIAL_STEP_NORMAL) {
+            if (tutorialActive && tutorialStep != TUTORIAL_STEP_NORMAL && tutorialStep != TUTORIAL_STEP_WIN_ROUND) {
                 showUiToastDedupedStyled(getString(R.string.tutorial_hint_use_skill), getString(R.string.fa_bolt), 0xFFF8D464);
                 AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
@@ -267,7 +279,9 @@ public class MainActivity extends AppCompatActivity {
         updateHeaderStatus();
         updateSkillVisuals();
         updateScoreHud(false, null, false);
+        updateTutorialProgressUi();
         maybeStartTacticalOnboarding();
+        SafeClickUtil.setSafeClick(binding.txtModeTutorialHint, 320, v -> showTutorialDecisionDialog());
     }
 
 
@@ -327,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public boolean isGameOver() { return gameManager.isGameOver(); }
                     @Override public boolean isActionLocked() { return MainActivity.this.isActionLocked(); }
                     @NonNull @Override public DomainDifficulty getDifficulty() { return currentBotDifficulty; }
+                    @Override public boolean isTutorialActive() { return tutorialActive; }
                 },
                 new BotManager.Callbacks() {
                     @Override public void onRender() {
@@ -720,6 +735,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if (tutorialActive) {
                     tutorialStep = TUTORIAL_STEP_SQUARE;
+                    tutorialPendingOpponentSkillDemo = true;
+                    updateTutorialProgressUi();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_bolt), 0xFF8BD1FF);
+                    runTutorialOpponentSkillDemo();
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_square), getString(R.string.fa_bolt), 0xFFA78BFA);
                     return;
                 }
@@ -777,7 +796,12 @@ public class MainActivity extends AppCompatActivity {
                 updateSkillVisuals();
 
                 if (tutorialActive) {
-                    finishTacticalOnboarding();
+                    tutorialStep = TUTORIAL_STEP_WIN_ROUND;
+                    tutorialPendingOpponentSkillDemo = true;
+                    updateTutorialProgressUi();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_bolt), 0xFF8BD1FF);
+                    runTutorialOpponentSkillDemo();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_step_win_round), getString(R.string.fa_bolt), 0xFF6EE7FF);
                     return;
                 }
 
@@ -891,7 +915,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUiToastDeduped(@NonNull String message) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 2200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -899,7 +923,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 2200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
 
@@ -911,7 +935,7 @@ public class MainActivity extends AppCompatActivity {
         text.setText(message);
 
         Toast toast = new Toast(this);
-        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(content);
         toast.show();
     }
@@ -1100,7 +1124,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void applyDialogStyle(@NonNull AlertDialog dialog) {
         Window window = dialog.getWindow();
-        if (!NullUtil.isNull(window)) window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass);
+        if (!NullUtil.isNull(window)) window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass_v2);
+
+        TextView message = dialog.findViewById(android.R.id.message);
+        if (!NullUtil.isNull(message)) {
+            message.setTextColor(Color.parseColor("#EAF6FF"));
+            message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        }
+
+        int titleId = getResources().getIdentifier("alertTitle", "id", "android");
+        TextView title = dialog.findViewById(titleId);
+        if (!NullUtil.isNull(title)) {
+            title.setTextColor(Color.parseColor("#D8EEFF"));
+        }
 
         Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -1322,6 +1358,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (tutorialActive && tutorialStep == TUTORIAL_STEP_NORMAL) {
             tutorialStep = TUTORIAL_STEP_TRIANGLE;
+            updateTutorialProgressUi();
             showUiToastDedupedStyled(getString(R.string.tutorial_step_triangle), getString(R.string.fa_bolt), 0xFFF8D464);
             return;
         }
@@ -1332,20 +1369,96 @@ public class MainActivity extends AppCompatActivity {
     private void maybeStartTacticalOnboarding() {
         SharedPreferences prefs = getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE);
         boolean tutorialDone = prefs.getBoolean(KEY_TUTORIAL_DONE, false);
-        if (tutorialDone) return;
+
+        if (shouldMarkTutorialAsCompletedForVeteranPlayer()) {
+            prefs.edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
+            tutorialDone = true;
+        }
+
+        binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
+        binding.txtModeTutorialHint.setText(getString(tutorialDone ? R.string.tutorial_mode_hint_replay : R.string.tutorial_mode_hint));
+
+        if (!tutorialDone) {
+            handler.postDelayed(this::showTutorialDecisionDialog, 420L);
+        }
+    }
+
+    private boolean shouldMarkTutorialAsCompletedForVeteranPlayer() {
+        if (NullUtil.isNull(currentProfile)) return false;
+        return currentProfile.rankedWins > 0 || currentProfile.rankedLosses > 0;
+    }
+
+    private void showTutorialDecisionDialog() {
+        if (isFinishing() || isDestroyed()) return;
+
+        AlertDialog tutorialDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.tutorial_dialog_title)
+                .setMessage(getString(isTutorialAlreadyDone() ? R.string.tutorial_dialog_message_replay : R.string.tutorial_dialog_message))
+                .setNegativeButton(R.string.tutorial_dialog_skip, (d, which) -> {
+                    getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
+                    binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
+                    binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
+                    state.setTutorialSkillOverride(false);
+                    tutorialPendingOpponentSkillDemo = false;
+                    d.dismiss();
+                })
+                .setPositiveButton(R.string.tutorial_dialog_start, (d, which) -> {
+                    tutorialActive = true;
+                    tutorialStep = TUTORIAL_STEP_NORMAL;
+                    state.setTutorialSkillOverride(true);
+                    updateTutorialProgressUi();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
+                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_unlock_note), getString(R.string.fa_bolt), 0xFFF8D464);
+                    prepareOfflineMatchFromMode();
+                    d.dismiss();
+                })
+                                .setCancelable(false)
+                .create();
+        tutorialDialog.show();
+        applyTutorialDialogStyle(tutorialDialog);
+    }
+
+    private void runTutorialOpponentSkillDemo() {
+        if (!tutorialActive || !tutorialPendingOpponentSkillDemo) return;
 
         handler.postDelayed(() -> {
-            tutorialActive = true;
-            tutorialStep = TUTORIAL_STEP_NORMAL;
-            showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
-            prepareOfflineMatchFromMode();
-        }, 420L);
+            if (!tutorialActive || !matchStarted || gameManager.isGameOver() || state.isXTurn()) return;
+
+            boolean used = false;
+            if (gameManager.canUseTriangleNow()) {
+                used = gameManager.useTriangle();
+            } else if (gameManager.canUseSquareNow()) {
+                used = gameManager.useSquare();
+            }
+
+            if (used) {
+                tutorialPendingOpponentSkillDemo = false;
+                updateHeaderStatus();
+                updateSkillVisuals();
+                showUiToastDedupedStyled(getString(R.string.tutorial_bot_skill_demo), getString(R.string.fa_bolt), 0xFFA78BFA);
+            }
+        }, 900L);
+    }
+
+    private void applyTutorialDialogStyle(@NonNull AlertDialog dialog) {
+        Window window = dialog.getWindow();
+        if (!NullUtil.isNull(window)) window.setBackgroundDrawableResource(R.drawable.bg_tutorial_modal);
+        applyDialogStyle(dialog);
+    }
+
+    private boolean isTutorialAlreadyDone() {
+        return getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).getBoolean(KEY_TUTORIAL_DONE, false);
     }
 
     private void finishTacticalOnboarding() {
         tutorialActive = false;
         tutorialStep = TUTORIAL_STEP_DONE;
+        state.setTutorialSkillOverride(false);
+        tutorialPendingOpponentSkillDemo = false;
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
+        binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
+        binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
+        updateTutorialProgressUi();
 
         showUiToastDedupedStyled(getString(R.string.tutorial_done_cta), getString(R.string.fa_wifi), 0xFF6EE7FF);
 
@@ -1356,6 +1469,29 @@ public class MainActivity extends AppCompatActivity {
         showHomeScreen();
         homeFlow.setSelectedMatchKind(enums.DomainMatchKind.ONLINE_PVP);
         homeFlow.openModeModal();
+    }
+
+    private void updateTutorialProgressUi() {
+        if (!tutorialActive || tutorialStep >= TUTORIAL_STEP_DONE) {
+            binding.txtTutorialProgress.setVisibility(View.GONE);
+            return;
+        }
+
+        int current = tutorialStep + 1;
+        int total = 4;
+        binding.txtTutorialProgress.setText(getString(R.string.tutorial_progress_format, current, total, tutorialStepLabel()));
+        binding.txtTutorialProgress.setVisibility(View.VISIBLE);
+    }
+
+    @NonNull
+    private String tutorialStepLabel() {
+        return switch (tutorialStep) {
+            case TUTORIAL_STEP_NORMAL -> getString(R.string.tutorial_label_normal);
+            case TUTORIAL_STEP_TRIANGLE -> getString(R.string.tutorial_label_triangle);
+            case TUTORIAL_STEP_SQUARE -> getString(R.string.tutorial_label_square);
+            case TUTORIAL_STEP_WIN_ROUND -> getString(R.string.tutorial_label_win);
+            default -> getString(R.string.tutorial_label_done);
+        };
     }
 
     private void resetRoundSeries() {
@@ -1442,6 +1578,11 @@ public class MainActivity extends AppCompatActivity {
             if (DomainSymmetries.X.getValue().equals(winnerSymbol)) roundsWonX += roundPoints;
             if (DomainSymmetries.O.getValue().equals(winnerSymbol)) roundsWonO += roundPoints;
 
+            if (tutorialActive && tutorialStep == TUTORIAL_STEP_WIN_ROUND && DomainSymmetries.X.getValue().equals(winnerSymbol)) {
+                finishTacticalOnboarding();
+                return;
+            }
+
             boolean doubleLineSweep = roundPoints >= 2;
             updateScoreHud(true, winnerSymbol, doubleLineSweep);
 
@@ -1453,6 +1594,7 @@ public class MainActivity extends AppCompatActivity {
                     matchPhase = DomainMatchPhase.FINISHED;
                     String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
                     applyRankedOutcomeIfOnlineMatchFinished(champion);
+                    onMatchFinishedForBattlePass(champion, roundPoints);
                     showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
                     victoryOverlayAnimator.showWin(champion, 450);
                     return;
@@ -1517,6 +1659,38 @@ public class MainActivity extends AppCompatActivity {
                 getString(won ? R.string.fa_bolt : R.string.fa_xmark),
                 won ? 0xFF6EE7FF : 0xFFFF9CAA
         );
+    }
+
+    private void onMatchFinishedForBattlePass(@NonNull String championSymbol, int winLinesInFinalRound) {
+        if (NullUtil.isNull(FirebaseAuth.getInstance().getCurrentUser())) return;
+        battlePassRepository.fetchActiveSeasonAndState(new BattlePassRepository.SeasonStateCallback() {
+            @Override
+            public void onResult(com.example.coreclash.battlepass.model.Season season, com.example.coreclash.battlepass.model.BpState state) {
+                missionsRepository.fetchMissions(season.id, missions -> {
+                    boolean won = matchManager.isOnlineMatch()
+                            ? championSymbol.equals(matchManager.getMySymbolOnline())
+                            : DomainSymmetries.X.getValue().equals(championSymbol);
+                    int gained = missionEngine.applyMatchResult(state, missions,
+                            new MissionEngine.MatchFinishedEvent(won, matchManager.isOnlineMatch(), winLinesInFinalRound));
+                    state.level = bpProgressCalculator.levelFromXp(season, state.xp);
+                    battlePassRepository.upsertState(state, new BattlePassRepository.CompletionCallback() {
+                        @Override
+                        public void onComplete() { }
+
+                        @Override
+                        public void onError(Exception error) { }
+                    });
+                    showUiToastDedupedStyled(
+                            getString(R.string.bp_xp_gain_toast, gained),
+                            getString(R.string.fa_bolt),
+                            0xFF78E8FF
+                    );
+                }, error -> { });
+            }
+
+            @Override
+            public void onError(Exception error) { }
+        });
     }
 
     public void updateHeaderStatus() {
