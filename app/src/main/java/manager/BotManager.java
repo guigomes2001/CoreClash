@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -22,6 +23,7 @@ public class BotManager {
         boolean isGameOver();
         boolean isActionLocked();
         @NonNull DomainDifficulty getDifficulty();
+        boolean isTutorialActive();
     }
 
     public interface Callbacks {
@@ -60,7 +62,7 @@ public class BotManager {
 
             DomainDifficulty difficulty = gate.getDifficulty();
 
-            if (shouldBotUseSkill(difficulty) && tryUseRandomBotSkill()) {
+            if (!gate.isTutorialActive() && shouldBotUseSkill(difficulty) && tryUseRandomBotSkill()) {
                 cb.onRender();
                 return;
             }
@@ -107,9 +109,30 @@ public class BotManager {
         return canTriangle ? gameManager.useTriangle() : gameManager.useSquare();
     }
 
+    private int[] chooseTutorialFriendlyMove(@NonNull List<int[]> moves) {
+        int[] winning = gameManager.findWinningMoveFor(DomainSymbols.O.getValue());
+        if (NullUtil.isNull(winning)) {
+            return moves.get(random.nextInt(moves.size()));
+        }
+
+        List<int[]> safeMoves = new ArrayList<>();
+        for (int[] move : moves) {
+            if (move[0] == winning[0] && move[1] == winning[1]) continue;
+            safeMoves.add(move);
+        }
+        if (!safeMoves.isEmpty()) {
+            return safeMoves.get(random.nextInt(safeMoves.size()));
+        }
+        return moves.get(random.nextInt(moves.size()));
+    }
+
     private int[] chooseBotMove(@NonNull DomainDifficulty difficulty) {
         List<int[]> moves = gameManager.getAvailableMoves();
         if (CollectionUtil.isNullOrEmpty(moves)) return null;
+
+        if (gate.isTutorialActive()) {
+            return chooseTutorialFriendlyMove(moves);
+        }
 
         if (difficulty == DomainDifficulty.BEGINNER) {
             return moves.get(random.nextInt(moves.size()));
