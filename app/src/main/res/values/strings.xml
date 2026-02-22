@@ -254,7 +254,7 @@
     <string name="toast_ranked_pass_activated">Ranked Pass activated!</string>
 
     <string name="tutorial_mode_hint">Tutorial available for first-time players</string>
-    <string name="tutorial_badge">★ Tutorial</string>
+    <string name="tutorial_badge">Tutorial</string>
     <string name="tutorial_dialog_title">Welcome to Core Clash</string>
     <string name="tutorial_dialog_message">Want a guided tutorial to master normal moves, Triangle and Square skills?</string>
     <string name="tutorial_dialog_skip">Skip for now</string>
@@ -267,7 +267,10 @@
     <string name="tutorial_label_win">Win a round</string>
     <string name="tutorial_label_done">Complete</string>
 
-    <string name="tutorial_badge_replay">★ Replay Tutorial</string>
+    <string name="tutorial_badge_replay">Replay Tutorial</string>
     <string name="tutorial_mode_hint_replay">Replay tutorial anytime from this mode card</string>
     <string name="tutorial_dialog_message_replay">Do you want to replay the full guided tutorial now?</string>
+    <string name="tutorial_skill_unlock_note">In normal matches, skills unlock after a few turns. In tutorial, we unlock them early so you can learn faster.</string>
+    <string name="tutorial_skill_pass_rule">Rule: using Triangle or Square transfers the remaining skill to your opponent.</string>
+    <string name="tutorial_bot_skill_demo">Bot used the transferred skill. This is how the real match flow works.</string>
 </resources>

@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int TUTORIAL_STEP_DONE = 4;
     private boolean tutorialActive = false;
     private int tutorialStep = TUTORIAL_STEP_DONE;
+    private boolean tutorialPendingOpponentSkillDemo = false;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -341,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override public boolean isGameOver() { return gameManager.isGameOver(); }
                     @Override public boolean isActionLocked() { return MainActivity.this.isActionLocked(); }
                     @NonNull @Override public DomainDifficulty getDifficulty() { return currentBotDifficulty; }
+                    @Override public boolean isTutorialActive() { return tutorialActive; }
                 },
                 new BotManager.Callbacks() {
                     @Override public void onRender() {
@@ -734,7 +736,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if (tutorialActive) {
                     tutorialStep = TUTORIAL_STEP_SQUARE;
+                    tutorialPendingOpponentSkillDemo = true;
                     updateTutorialProgressUi();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_bolt), 0xFF8BD1FF);
+                    runTutorialOpponentSkillDemo();
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_square), getString(R.string.fa_bolt), 0xFFA78BFA);
                     return;
                 }
@@ -793,7 +798,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if (tutorialActive) {
                     tutorialStep = TUTORIAL_STEP_WIN_ROUND;
+                    tutorialPendingOpponentSkillDemo = true;
                     updateTutorialProgressUi();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_bolt), 0xFF8BD1FF);
+                    runTutorialOpponentSkillDemo();
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_win_round), getString(R.string.fa_bolt), 0xFF6EE7FF);
                     return;
                 }
@@ -1396,6 +1404,7 @@ public class MainActivity extends AppCompatActivity {
                     binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
                     binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
                     state.setTutorialSkillOverride(false);
+                    tutorialPendingOpponentSkillDemo = false;
                     d.dismiss();
                 })
                 .setPositiveButton(R.string.tutorial_dialog_start, (d, which) -> {
@@ -1404,6 +1413,7 @@ public class MainActivity extends AppCompatActivity {
                     state.setTutorialSkillOverride(true);
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
+                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_unlock_note), getString(R.string.fa_bolt), 0xFFF8D464);
                     prepareOfflineMatchFromMode();
                     d.dismiss();
                 })
@@ -1411,6 +1421,28 @@ public class MainActivity extends AppCompatActivity {
                 .create();
         tutorialDialog.show();
         applyDialogStyle(tutorialDialog);
+    }
+
+    private void runTutorialOpponentSkillDemo() {
+        if (!tutorialActive || !tutorialPendingOpponentSkillDemo) return;
+
+        handler.postDelayed(() -> {
+            if (!tutorialActive || !matchStarted || gameManager.isGameOver() || state.isXTurn()) return;
+
+            boolean used = false;
+            if (gameManager.canUseTriangleNow()) {
+                used = gameManager.useTriangle();
+            } else if (gameManager.canUseSquareNow()) {
+                used = gameManager.useSquare();
+            }
+
+            if (used) {
+                tutorialPendingOpponentSkillDemo = false;
+                updateHeaderStatus();
+                updateSkillVisuals();
+                showUiToastDedupedStyled(getString(R.string.tutorial_bot_skill_demo), getString(R.string.fa_bolt), 0xFFA78BFA);
+            }
+        }, 900L);
     }
 
     private boolean isTutorialAlreadyDone() {
@@ -1421,6 +1453,7 @@ public class MainActivity extends AppCompatActivity {
         tutorialActive = false;
         tutorialStep = TUTORIAL_STEP_DONE;
         state.setTutorialSkillOverride(false);
+        tutorialPendingOpponentSkillDemo = false;
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
         binding.badgeModeTutorial.setVisibility(View.VISIBLE);
         binding.badgeModeTutorial.setText(getString(R.string.tutorial_badge_replay));
