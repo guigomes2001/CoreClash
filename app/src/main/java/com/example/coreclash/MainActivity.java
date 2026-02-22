@@ -1362,30 +1362,35 @@ public class MainActivity extends AppCompatActivity {
     private void showTutorialDecisionDialog() {
         if (isFinishing() || isDestroyed()) return;
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.tutorial_dialog_title)
                 .setMessage(getString(R.string.tutorial_dialog_message))
                 .setNegativeButton(R.string.tutorial_dialog_skip, (dialog, which) -> {
                     getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
                     binding.badgeModeTutorial.setVisibility(View.GONE);
                     binding.txtModeTutorialHint.setVisibility(View.GONE);
+                    state.setTutorialSkillOverride(false);
                     dialog.dismiss();
                 })
                 .setPositiveButton(R.string.tutorial_dialog_start, (dialog, which) -> {
                     tutorialActive = true;
                     tutorialStep = TUTORIAL_STEP_NORMAL;
+                    state.setTutorialSkillOverride(true);
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
                     prepareOfflineMatchFromMode();
                     dialog.dismiss();
                 })
-                .setCancelable(false)
-                .show();
+                                .setCancelable(false)
+                .create();
+        dialog.show();
+        applyDialogStyle(dialog);
     }
 
     private void finishTacticalOnboarding() {
         tutorialActive = false;
         tutorialStep = TUTORIAL_STEP_DONE;
+        state.setTutorialSkillOverride(false);
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
         binding.badgeModeTutorial.setVisibility(View.GONE);
         binding.txtModeTutorialHint.setVisibility(View.GONE);
