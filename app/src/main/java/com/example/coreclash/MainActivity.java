@@ -1362,29 +1362,29 @@ public class MainActivity extends AppCompatActivity {
     private void showTutorialDecisionDialog() {
         if (isFinishing() || isDestroyed()) return;
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog tutorialDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.tutorial_dialog_title)
                 .setMessage(getString(R.string.tutorial_dialog_message))
-                .setNegativeButton(R.string.tutorial_dialog_skip, (dialog, which) -> {
+                .setNegativeButton(R.string.tutorial_dialog_skip, (d, which) -> {
                     getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
                     binding.badgeModeTutorial.setVisibility(View.GONE);
                     binding.txtModeTutorialHint.setVisibility(View.GONE);
                     state.setTutorialSkillOverride(false);
-                    dialog.dismiss();
+                    d.dismiss();
                 })
-                .setPositiveButton(R.string.tutorial_dialog_start, (dialog, which) -> {
+                .setPositiveButton(R.string.tutorial_dialog_start, (d, which) -> {
                     tutorialActive = true;
                     tutorialStep = TUTORIAL_STEP_NORMAL;
                     state.setTutorialSkillOverride(true);
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
                     prepareOfflineMatchFromMode();
-                    dialog.dismiss();
+                    d.dismiss();
                 })
                                 .setCancelable(false)
                 .create();
-        dialog.show();
-        applyDialogStyle(dialog);
+        tutorialDialog.show();
+        applyDialogStyle(tutorialDialog);
     }
 
     private void finishTacticalOnboarding() {
