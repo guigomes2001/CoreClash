@@ -242,4 +242,5 @@
     <string name="tutorial_skill_unlock_note">Em partidas normais, as skills desbloqueiam após alguns turnos. No tutorial, liberamos antes para você aprender mais rápido.</string>
     <string name="tutorial_skill_pass_rule">Regra: ao usar Triângulo ou Quadrado, a skill restante vai para o adversário.</string>
     <string name="tutorial_bot_skill_demo">O bot usou a skill transferida. É assim que o fluxo real funciona.</string>
+    <string name="tutorial_mode_hint_star">★ Tutorial jogável por aqui a qualquer momento</string>
 </resources>

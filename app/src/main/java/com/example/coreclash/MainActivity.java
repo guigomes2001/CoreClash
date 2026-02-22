@@ -281,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
         updateScoreHud(false, null, false);
         updateTutorialProgressUi();
         maybeStartTacticalOnboarding();
-        SafeClickUtil.setSafeClick(binding.badgeModeTutorial, 320, v -> showTutorialDecisionDialog());
         SafeClickUtil.setSafeClick(binding.txtModeTutorialHint, 320, v -> showTutorialDecisionDialog());
     }
 
@@ -916,7 +915,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUiToastDeduped(@NonNull String message) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 2200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -924,7 +923,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 1200L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 2200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
 
@@ -936,7 +935,7 @@ public class MainActivity extends AppCompatActivity {
         text.setText(message);
 
         Toast toast = new Toast(this);
-        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(content);
         toast.show();
     }
@@ -1376,9 +1375,7 @@ public class MainActivity extends AppCompatActivity {
             tutorialDone = true;
         }
 
-        binding.badgeModeTutorial.setVisibility(View.VISIBLE);
         binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
-        binding.badgeModeTutorial.setText(getString(tutorialDone ? R.string.tutorial_badge_replay : R.string.tutorial_badge));
         binding.txtModeTutorialHint.setText(getString(tutorialDone ? R.string.tutorial_mode_hint_replay : R.string.tutorial_mode_hint));
 
         if (!tutorialDone) {
@@ -1399,8 +1396,6 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(getString(isTutorialAlreadyDone() ? R.string.tutorial_dialog_message_replay : R.string.tutorial_dialog_message))
                 .setNegativeButton(R.string.tutorial_dialog_skip, (d, which) -> {
                     getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
-                    binding.badgeModeTutorial.setVisibility(View.VISIBLE);
-                    binding.badgeModeTutorial.setText(getString(R.string.tutorial_badge_replay));
                     binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
                     binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
                     state.setTutorialSkillOverride(false);
@@ -1420,7 +1415,7 @@ public class MainActivity extends AppCompatActivity {
                                 .setCancelable(false)
                 .create();
         tutorialDialog.show();
-        applyDialogStyle(tutorialDialog);
+        applyTutorialDialogStyle(tutorialDialog);
     }
 
     private void runTutorialOpponentSkillDemo() {
@@ -1445,6 +1440,12 @@ public class MainActivity extends AppCompatActivity {
         }, 900L);
     }
 
+    private void applyTutorialDialogStyle(@NonNull AlertDialog dialog) {
+        Window window = dialog.getWindow();
+        if (!NullUtil.isNull(window)) window.setBackgroundDrawableResource(R.drawable.bg_tutorial_modal);
+        applyDialogStyle(dialog);
+    }
+
     private boolean isTutorialAlreadyDone() {
         return getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).getBoolean(KEY_TUTORIAL_DONE, false);
     }
@@ -1455,8 +1456,6 @@ public class MainActivity extends AppCompatActivity {
         state.setTutorialSkillOverride(false);
         tutorialPendingOpponentSkillDemo = false;
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
-        binding.badgeModeTutorial.setVisibility(View.VISIBLE);
-        binding.badgeModeTutorial.setText(getString(R.string.tutorial_badge_replay));
         binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
         binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
         updateTutorialProgressUi();
