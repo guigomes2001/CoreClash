@@ -201,18 +201,11 @@ public class HomeFlowManager {
         button.setScaleX(1f);
         button.setScaleY(1f);
 
-        if (selected) {
-            badge.setVisibility(View.VISIBLE);
-            badge.setAlpha(0f);
-            badge.setScaleX(0.88f);
-            badge.setScaleY(0.88f);
-            badge.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(170).start();
-
-        } else {
-            badge.animate().cancel();
-            badge.setVisibility(View.GONE);
-            badge.setAlpha(1f);
-        }
+        badge.animate().cancel();
+        badge.setVisibility(View.GONE);
+        badge.setAlpha(1f);
+        badge.setScaleX(1f);
+        badge.setScaleY(1f);
     }
 
 
