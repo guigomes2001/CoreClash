@@ -740,6 +740,7 @@ public class MainActivity extends AppCompatActivity {
                     tutorialStep = TUTORIAL_STEP_SQUARE;
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_square), getString(R.string.fa_bolt), 0xFFA78BFA);
+                    handler.postDelayed(() -> botManager.maybeRunBotTurn(), SKILL_ACTION_LOCK_MS + 80L);
                     return;
                 }
 
@@ -801,6 +802,7 @@ public class MainActivity extends AppCompatActivity {
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_xmark), 0xFFFF4D5A);
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_win_round), getString(R.string.fa_bolt), 0xFF6EE7FF);
+                    handler.postDelayed(() -> botManager.maybeRunBotTurn(), SKILL_ACTION_LOCK_MS + 80L);
                     return;
                 }
 
@@ -1364,6 +1366,7 @@ public class MainActivity extends AppCompatActivity {
             tutorialStep = TUTORIAL_STEP_TRIANGLE;
             updateTutorialProgressUi();
             showUiToastDedupedStyled(getString(R.string.tutorial_step_triangle), getString(R.string.fa_bolt), 0xFFF8D464);
+            botManager.maybeRunBotTurn();
             return;
         }
 
