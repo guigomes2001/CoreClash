@@ -273,5 +273,5 @@
     <string name="tutorial_skill_unlock_note">In normal matches, skills unlock after a few turns. In tutorial, we unlock them early so you can learn faster.</string>
     <string name="tutorial_skill_pass_rule">Rule: using Triangle or Square transfers the remaining skill to your opponent.</string>
     <string name="tutorial_bot_skill_demo">Bot used the transferred skill. This is how the real match flow works.</string>
-    <string name="tutorial_mode_hint_star">★ Tutorial playable here anytime</string>
+    <string name="tutorial_mode_hint_star">★ Interactive guide available here anytime</string>
 </resources>

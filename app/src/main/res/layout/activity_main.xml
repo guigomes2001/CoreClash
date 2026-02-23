@@ -136,15 +136,61 @@
                 </LinearLayout>
                                 
                 <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/homeMenuGrid" android:layout_height="wrap_content" android:layout_marginBottom="4dp" android:layout_marginTop="12dp" android:layout_width="0dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/homeQuickActions">
-                                        
-                    <Button android:gravity="center" android:id="@+id/btnPlay" android:layout_height="72dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_width="0dp" android:background="@drawable/selector_home_big_button" android:paddingHorizontal="8dp" android:paddingVertical="11dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="16sp" android:textStyle="bold" app:backgroundTint="@null" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintWidth_percent="0.96"/>
-                                        
-                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnOnline" android:layout_height="60dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_width="0dp" android:padding="8dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" android:visibility="gone" app:backgroundTint="@null" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toEndOf="@id/btnPlay" app:layout_constraintTop_toTopOf="parent" app:layout_constraintWidth_percent="0.47"/>
-                                        
-                    <Button android:gravity="center" android:id="@+id/btnStore" android:layout_height="72dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_marginTop="8dp" android:layout_width="0dp" android:background="@drawable/selector_home_big_button" android:paddingHorizontal="8dp" android:paddingVertical="11dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="16sp" android:textStyle="bold" app:backgroundTint="@null" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/btnPlay" app:layout_constraintWidth_percent="0.96"/>
-                                        
-                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnArena" android:layout_height="60dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_marginTop="8dp" android:layout_width="0dp" android:padding="8dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" android:visibility="gone" app:backgroundTint="@null" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toEndOf="@id/btnStore" app:layout_constraintTop_toBottomOf="@id/btnOnline" app:layout_constraintWidth_percent="0.47"/>
-                                    
+
+                    <LinearLayout
+                        android:id="@+id/homeMainCtaGroup"
+                        android:layout_width="0dp"
+                        android:layout_height="72dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="horizontal"
+                        android:weightSum="2"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintWidth_percent="0.96">
+
+                        <Button
+                            android:id="@+id/btnPlay"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/selector_home_big_button_left"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="11dp"
+                            android:textAllCaps="false"
+                            android:textColor="#EAF2FF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@null" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_home_cta_divider"
+                            android:contentDescription="@null" />
+
+                        <Button
+                            android:id="@+id/btnStore"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/selector_home_big_button_right"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="11dp"
+                            android:textAllCaps="false"
+                            android:textColor="#EAF2FF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@null" />
+                    </LinearLayout>
+
+                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnOnline" android:layout_height="1dp" android:layout_width="1dp" android:visibility="gone" />
+                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnArena" android:layout_height="1dp" android:layout_width="1dp" android:visibility="gone" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
                             
             </androidx.constraintlayout.widget.ConstraintLayout>
