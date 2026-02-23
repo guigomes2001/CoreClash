@@ -119,10 +119,12 @@ public class GameManager {
     }
 
     public boolean useTriangle() {
-        if (isGameOver || !state.canUseTriangle() || !board.canApplyTriangleEffect()) {
+        boolean tutorialOverride = state.isTutorialSkillOverride();
+        boolean canApply = board.canApplyTriangleEffect();
+        if (isGameOver || !state.canUseTriangle() || (!tutorialOverride && !canApply)) {
             return false;
         }
-        int affected = board.applyTriangleEffect();
+        int affected = tutorialOverride ? board.applyTriangleEffect() : (canApply ? board.applyTriangleEffect() : 0);
         state.addGhosts(affected);
         state.triggerTriangleUsed();
         state.nextTurn();
@@ -130,10 +132,12 @@ public class GameManager {
     }
 
     public boolean useSquare() {
-        if (isGameOver || !state.canUseSquare() || !board.canApplySquareEffect()) {
+        boolean tutorialOverride = state.isTutorialSkillOverride();
+        boolean canApply = board.canApplySquareEffect();
+        if (isGameOver || !state.canUseSquare() || (!tutorialOverride && !canApply)) {
             return false;
         }
-        int affected = board.applySquareEffect();
+        int affected = tutorialOverride ? board.applySquareEffect() : (canApply ? board.applySquareEffect() : 0);
         state.addGhosts(affected);
         state.triggerSquareUsed();
         state.nextTurn();
@@ -240,11 +244,11 @@ public class GameManager {
     }
 
     public boolean canUseTriangleNow() {
-        return !isGameOver && state.canUseTriangle() && board.canApplyTriangleEffect();
+        return !isGameOver && state.canUseTriangle() && (state.isTutorialSkillOverride() || board.canApplyTriangleEffect());
     }
 
     public boolean canUseSquareNow() {
-        return !isGameOver && state.canUseSquare() && board.canApplySquareEffect();
+        return !isGameOver && state.canUseSquare() && (state.isTutorialSkillOverride() || board.canApplySquareEffect());
     }
 
     private int minimax(boolean maximizing, int depth) {
