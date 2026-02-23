@@ -1404,7 +1404,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.tutorial_dialog_start, (d, which) -> {
                     tutorialActive = true;
                     tutorialStep = TUTORIAL_STEP_NORMAL;
-        syncTutorialSkillOverride();
+                    syncTutorialSkillOverride();
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
                     showUiToastDedupedStyled(getString(R.string.tutorial_skill_unlock_note), getString(R.string.fa_bolt), 0xFFF8D464);
@@ -1486,22 +1486,31 @@ public class MainActivity extends AppCompatActivity {
     private void updateTutorialFocusUi() {
         if (!tutorialActive || tutorialStep >= TUTORIAL_STEP_DONE) {
             binding.boardContainer.animate().alpha(1f).setDuration(140).start();
+            binding.turnHudBar.animate().alpha(1f).setDuration(140).start();
             binding.containerTriangle.animate().alpha(1f).setDuration(140).start();
             binding.containerSquare.animate().alpha(1f).setDuration(140).start();
+            binding.lineLeftConnector.animate().alpha(1f).setDuration(140).start();
+            binding.lineRightConnector.animate().alpha(1f).setDuration(140).start();
             return;
         }
 
-        float boardAlpha = (tutorialStep == TUTORIAL_STEP_NORMAL || tutorialStep == TUTORIAL_STEP_WIN_ROUND) ? 1f : 0.35f;
-        float triangleAlpha = tutorialStep == TUTORIAL_STEP_TRIANGLE ? 1f : 0.32f;
-        float squareAlpha = tutorialStep == TUTORIAL_STEP_SQUARE ? 1f : 0.32f;
+        binding.boardContainer.animate().alpha(1f).setDuration(140).start();
+        binding.turnHudBar.animate().alpha(1f).setDuration(140).start();
 
-        binding.boardContainer.animate().alpha(boardAlpha).setDuration(160).start();
-        binding.containerTriangle.animate().alpha(triangleAlpha).setDuration(160).start();
-        binding.containerSquare.animate().alpha(squareAlpha).setDuration(160).start();
+        float triangleAlpha = tutorialStep == TUTORIAL_STEP_TRIANGLE ? 1f : 0.35f;
+        float squareAlpha = tutorialStep == TUTORIAL_STEP_SQUARE ? 1f : 0.35f;
+        float connectorAlpha = (tutorialStep == TUTORIAL_STEP_TRIANGLE || tutorialStep == TUTORIAL_STEP_SQUARE) ? 0.35f : 1f;
+
+        binding.containerTriangle.animate().alpha(triangleAlpha).setDuration(180).start();
+        binding.containerSquare.animate().alpha(squareAlpha).setDuration(180).start();
+        binding.lineLeftConnector.animate().alpha(connectorAlpha).setDuration(180).start();
+        binding.lineRightConnector.animate().alpha(connectorAlpha).setDuration(180).start();
 
         if (tutorialStep == TUTORIAL_STEP_TRIANGLE) {
+            binding.containerTriangle.clearAnimation();
             AnimationHelper.pulse(binding.containerTriangle);
         } else if (tutorialStep == TUTORIAL_STEP_SQUARE) {
+            binding.containerSquare.clearAnimation();
             AnimationHelper.pulse(binding.containerSquare);
         }
     }

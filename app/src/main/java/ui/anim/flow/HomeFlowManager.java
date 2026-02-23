@@ -178,22 +178,19 @@ public class HomeFlowManager {
     public void updateModeButtonStyles() {
         styleModeButton(
                 binding.btnModeOffline,
-                selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT,
-                binding.badgeModeOffline
+                selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT
         );
         styleModeButton(
                 binding.btnModeOnline,
-                selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP,
-                binding.badgeModeOnline
+                selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP
         );
         styleModeButton(
                 binding.btnModeLocalPassPlay,
-                selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY,
-                binding.badgeModeLocalPassPlay
+                selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY
         );
     }
 
-    private void styleModeButton(@NonNull android.widget.Button button, boolean selected, @NonNull View badge) {
+    private void styleModeButton(@NonNull android.widget.Button button, boolean selected) {
         button.setTextColor(selected ? 0xFFD8EEFF : 0xFFEAF2FF);
         button.setBackgroundResource(selected ? R.drawable.bg_store_item_equipped : R.drawable.bg_mode_card);
         button.setAlpha(selected ? 0.78f : 1f);
@@ -201,11 +198,6 @@ public class HomeFlowManager {
         button.setScaleX(1f);
         button.setScaleY(1f);
 
-        badge.animate().cancel();
-        badge.setVisibility(View.GONE);
-        badge.setAlpha(1f);
-        badge.setScaleX(1f);
-        badge.setScaleY(1f);
     }
 
 
