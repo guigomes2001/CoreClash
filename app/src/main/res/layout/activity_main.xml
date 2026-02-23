@@ -215,7 +215,7 @@
                         
             <TextView android:gravity="center" android:id="@+id/txtMatchmakingSub" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:layout_width="wrap_content" android:text="@string/matchmaking_loading_subtitle" android:textSize="13sp" style="@style/Text.CoreClash.Subtitle"/>
                         
-            <Button android:background="@drawable/selector_menu_tile" android:gravity="center" android:id="@+id/btnMatchmakingCancel" android:layout_height="56dp" android:layout_marginTop="14dp" android:layout_width="match_parent" android:padding="8dp" android:text="@string/btn_cancel_matchmaking" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" app:backgroundTint="@null"/>
+            <Button android:gravity="center" android:id="@+id/btnMatchmakingCancel" android:background="@drawable/selector_home_big_button" android:layout_height="58dp" android:layout_marginTop="14dp" android:layout_width="match_parent" android:paddingVertical="10dp" android:paddingHorizontal="8dp" android:text="@string/btn_cancel_matchmaking" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" app:backgroundTint="@null"/>
                     
         </LinearLayout>
             
@@ -515,11 +515,10 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/btnModeCancel"
+                    android:id="@+id/btnModeCancel" android:background="@drawable/selector_home_big_button"
                     android:layout_width="0dp"
-                    android:layout_height="54dp"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
-                    android:background="@drawable/selector_menu_tile"
                     android:text="@string/btn_back"
                     android:textAllCaps="false"
                     android:textColor="#EAF2FF"
@@ -527,12 +526,11 @@
                     app:backgroundTint="@null" />
 
                 <Button
-                    android:id="@+id/btnModeConfirm"
+                    android:id="@+id/btnModeConfirm" android:background="@drawable/selector_home_big_button"
                     android:layout_width="0dp"
-                    android:layout_height="54dp"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:layout_marginStart="10dp"
-                    android:background="@drawable/selector_menu_tile"
                     android:text="@string/btn_ok"
                     android:textAllCaps="false"
                     android:textColor="#EAF2FF"

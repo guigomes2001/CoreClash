@@ -1441,12 +1441,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyTutorialDialogStyle(@NonNull AlertDialog dialog) {
+        applyDialogStyle(dialog);
         Window window = dialog.getWindow();
         if (!NullUtil.isNull(window)) {
             window.setBackgroundDrawableResource(R.drawable.bg_tutorial_modal);
-            window.setDimAmount(0.82f);
+            window.setDimAmount(0.9f);
         }
-        applyDialogStyle(dialog);
     }
 
     private boolean isTutorialAlreadyDone() {
