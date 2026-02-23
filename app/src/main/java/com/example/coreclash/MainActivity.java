@@ -919,7 +919,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUiToastDeduped(@NonNull String message) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 3400L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 4200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -927,7 +927,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 3400L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 4200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
 
@@ -941,7 +941,7 @@ public class MainActivity extends AppCompatActivity {
         Toast toast = new Toast(this);
         toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(content);
-        toast.setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL, 0, 140);
+        toast.setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL, 0, 220);
         toast.show();
     }
 
@@ -1575,7 +1575,10 @@ public class MainActivity extends AppCompatActivity {
 
                 victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
-        syncTutorialSkillOverride();
+                syncTutorialSkillOverride();
+                if (tutorialActive && tutorialStep == TUTORIAL_STEP_WIN_ROUND) {
+                    updateTutorialProgressUi();
+                }
                 victoryOverlayAnimator.clearLines();
                 updateHeaderStatus();
                 updateSkillVisuals();
@@ -1661,7 +1664,10 @@ public class MainActivity extends AppCompatActivity {
                 showUiToastDeduped(getString(doubleLineSweep ? R.string.round_result_double_line_score : R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
                 victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
-        syncTutorialSkillOverride();
+                syncTutorialSkillOverride();
+                if (tutorialActive && tutorialStep == TUTORIAL_STEP_WIN_ROUND) {
+                    updateTutorialProgressUi();
+                }
                 victoryOverlayAnimator.clearLines();
                 updateHeaderStatus();
                 updateSkillVisuals();

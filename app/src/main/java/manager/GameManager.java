@@ -124,7 +124,7 @@ public class GameManager {
         if (isGameOver || !state.canUseTriangle() || (!tutorialOverride && !canApply)) {
             return false;
         }
-        int affected = canApply ? board.applyTriangleEffect() : 0;
+        int affected = tutorialOverride ? board.applyTriangleEffect() : (canApply ? board.applyTriangleEffect() : 0);
         state.addGhosts(affected);
         state.triggerTriangleUsed();
         state.nextTurn();
@@ -137,7 +137,7 @@ public class GameManager {
         if (isGameOver || !state.canUseSquare() || (!tutorialOverride && !canApply)) {
             return false;
         }
-        int affected = canApply ? board.applySquareEffect() : 0;
+        int affected = tutorialOverride ? board.applySquareEffect() : (canApply ? board.applySquareEffect() : 0);
         state.addGhosts(affected);
         state.triggerSquareUsed();
         state.nextTurn();
