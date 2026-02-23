@@ -101,6 +101,21 @@ public class StoreManager {
     }
 
 
+
+    private void buyRankedPass() {
+        if (profile.rankedPassActive) {
+            Toast.makeText(context, context.getString(R.string.store_ranked_pass_active), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (context instanceof Activity activity
+                && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_RANKED_PASS)) {
+            return;
+        }
+
+        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
     private void restorePurchases() {
         billingManager.restorePurchases(restoredCount -> {
             if (restoredCount > 0) {
