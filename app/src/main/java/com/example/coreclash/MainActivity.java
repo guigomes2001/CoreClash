@@ -736,10 +736,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (tutorialActive) {
                     tutorialStep = TUTORIAL_STEP_SQUARE;
-                    tutorialPendingOpponentSkillDemo = true;
                     updateTutorialProgressUi();
-                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_bolt), 0xFF8BD1FF);
-                    runTutorialOpponentSkillDemo();
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_square), getString(R.string.fa_bolt), 0xFFA78BFA);
                     return;
                 }
@@ -798,10 +795,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (tutorialActive) {
                     tutorialStep = TUTORIAL_STEP_WIN_ROUND;
-                    tutorialPendingOpponentSkillDemo = true;
                     updateTutorialProgressUi();
-                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_bolt), 0xFF8BD1FF);
-                    runTutorialOpponentSkillDemo();
+                    showUiToastDedupedStyled(getString(R.string.tutorial_skill_pass_rule), getString(R.string.fa_xmark), 0xFFFF4D5A);
                     showUiToastDedupedStyled(getString(R.string.tutorial_step_win_round), getString(R.string.fa_bolt), 0xFF6EE7FF);
                     return;
                 }
@@ -1404,13 +1399,12 @@ public class MainActivity extends AppCompatActivity {
                     binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
                     binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
                     state.setTutorialSkillOverride(false);
-                    tutorialPendingOpponentSkillDemo = false;
                     d.dismiss();
                 })
                 .setPositiveButton(R.string.tutorial_dialog_start, (d, which) -> {
                     tutorialActive = true;
                     tutorialStep = TUTORIAL_STEP_NORMAL;
-                    syncTutorialSkillOverride();
+        syncTutorialSkillOverride();
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
                     showUiToastDedupedStyled(getString(R.string.tutorial_skill_unlock_note), getString(R.string.fa_bolt), 0xFFF8D464);
@@ -1421,28 +1415,6 @@ public class MainActivity extends AppCompatActivity {
                 .create();
         tutorialDialog.show();
         applyTutorialDialogStyle(tutorialDialog);
-    }
-
-    private void runTutorialOpponentSkillDemo() {
-        if (!tutorialActive || !tutorialPendingOpponentSkillDemo) return;
-
-        handler.postDelayed(() -> {
-            if (!tutorialActive || !matchStarted || gameManager.isGameOver() || state.isXTurn()) return;
-
-            boolean used = false;
-            if (gameManager.canUseTriangleNow()) {
-                used = gameManager.useTriangle();
-            } else if (gameManager.canUseSquareNow()) {
-                used = gameManager.useSquare();
-            }
-
-            if (used) {
-                tutorialPendingOpponentSkillDemo = false;
-                updateHeaderStatus();
-                updateSkillVisuals();
-                showUiToastDedupedStyled(getString(R.string.tutorial_bot_skill_demo), getString(R.string.fa_bolt), 0xFFA78BFA);
-            }
-        }, 900L);
     }
 
     private void applyTutorialDialogStyle(@NonNull AlertDialog dialog) {
@@ -1462,7 +1434,6 @@ public class MainActivity extends AppCompatActivity {
         tutorialActive = false;
         tutorialStep = TUTORIAL_STEP_DONE;
         syncTutorialSkillOverride();
-        tutorialPendingOpponentSkillDemo = false;
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
         binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
         binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
@@ -1483,6 +1454,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateTutorialProgressUi() {
         if (!tutorialActive || tutorialStep >= TUTORIAL_STEP_DONE) {
             setTutorialStepViewsVisible(false);
+            updateTutorialFocusUi();
             return;
         }
 
@@ -1491,6 +1463,7 @@ public class MainActivity extends AppCompatActivity {
         binding.txtTutorialStep2.setText(buildTutorialStepStatus(2, getString(R.string.tutorial_label_triangle), tutorialStep > TUTORIAL_STEP_TRIANGLE));
         binding.txtTutorialStep3.setText(buildTutorialStepStatus(3, getString(R.string.tutorial_label_square), tutorialStep > TUTORIAL_STEP_SQUARE));
         binding.txtTutorialStep4.setText(buildTutorialStepStatus(4, getString(R.string.tutorial_label_win), tutorialStep > TUTORIAL_STEP_WIN_ROUND));
+        updateTutorialFocusUi();
     }
 
     private void setTutorialStepViewsVisible(boolean visible) {
@@ -1508,6 +1481,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void syncTutorialSkillOverride() {
         state.setTutorialSkillOverride(tutorialActive && tutorialStep < TUTORIAL_STEP_DONE);
+    }
+
+    private void updateTutorialFocusUi() {
+        if (!tutorialActive || tutorialStep >= TUTORIAL_STEP_DONE) {
+            binding.boardContainer.animate().alpha(1f).setDuration(140).start();
+            binding.containerTriangle.animate().alpha(1f).setDuration(140).start();
+            binding.containerSquare.animate().alpha(1f).setDuration(140).start();
+            return;
+        }
+
+        float boardAlpha = (tutorialStep == TUTORIAL_STEP_NORMAL || tutorialStep == TUTORIAL_STEP_WIN_ROUND) ? 1f : 0.35f;
+        float triangleAlpha = tutorialStep == TUTORIAL_STEP_TRIANGLE ? 1f : 0.32f;
+        float squareAlpha = tutorialStep == TUTORIAL_STEP_SQUARE ? 1f : 0.32f;
+
+        binding.boardContainer.animate().alpha(boardAlpha).setDuration(160).start();
+        binding.containerTriangle.animate().alpha(triangleAlpha).setDuration(160).start();
+        binding.containerSquare.animate().alpha(squareAlpha).setDuration(160).start();
+
+        if (tutorialStep == TUTORIAL_STEP_TRIANGLE) {
+            AnimationHelper.pulse(binding.containerTriangle);
+        } else if (tutorialStep == TUTORIAL_STEP_SQUARE) {
+            AnimationHelper.pulse(binding.containerSquare);
+        }
     }
 
     private void resetRoundSeries() {

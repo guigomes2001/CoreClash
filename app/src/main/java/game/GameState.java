@@ -33,14 +33,16 @@ public class GameState {
     }
 
     public boolean canUseTriangle() {
-        if (!triangleExists || (!tutorialSkillOverride && moveCount < TRIANGLE_UNLOCK_MOVE)) return false;
+        if (!triangleExists) return false;
+        if (tutorialSkillOverride) return true;
+        if (moveCount < TRIANGLE_UNLOCK_MOVE) return false;
         return NullUtil.isNull(triangleOwnerIsX) || triangleOwnerIsX == xTurn;
     }
 
     public boolean canUseSquare() {
-        if (!squareExists || (!tutorialSkillOverride && moveCount < SQUARE_UNLOCK_MOVE)) {
-            return false;
-        }
+        if (!squareExists) return false;
+        if (tutorialSkillOverride) return true;
+        if (moveCount < SQUARE_UNLOCK_MOVE) return false;
         return NullUtil.isNull(squareOwnerIsX) || squareOwnerIsX == xTurn;
     }
 
