@@ -941,7 +941,8 @@ public class MainActivity extends AppCompatActivity {
         Toast toast = new Toast(this);
         toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(content);
-        toast.setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL, 0, 36);
+        toast.setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL, 0, 24);
+        toast.setMargin(0f, 0f);
         toast.show();
     }
 
