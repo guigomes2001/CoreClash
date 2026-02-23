@@ -1,7 +1,6 @@
 package com.example.coreclash.battlepass.ui;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +14,7 @@ import com.example.coreclash.battlepass.model.Season;
 import com.example.coreclash.databinding.ActivityMissionsBinding;
 
 import java.util.List;
+import util.StyledToast;
 
 public class MissionsActivity extends AppCompatActivity {
 
@@ -38,14 +38,14 @@ public class MissionsActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception error) {
-                Toast.makeText(MissionsActivity.this, getString(R.string.bp_error_loading), Toast.LENGTH_SHORT).show();
+                StyledToast.show(MissionsActivity.this, getString(R.string.bp_error_loading));
             }
         });
     }
 
     private void loadMissions(Season season, BpState state) {
         missionsRepository.fetchMissions(season.id, missions -> renderMissions(missions, state),
-                error -> Toast.makeText(this, getString(R.string.bp_error_loading), Toast.LENGTH_SHORT).show());
+                error -> StyledToast.show(this, getString(R.string.bp_error_loading)));
     }
 
     private void renderMissions(List<Mission> missions, BpState state) {

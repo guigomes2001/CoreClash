@@ -15,6 +15,7 @@ import com.example.coreclash.battlepass.model.BpState;
 import com.example.coreclash.battlepass.model.Season;
 import com.example.coreclash.billing.BillingManager;
 import com.example.coreclash.databinding.ActivityBattlePassBinding;
+import util.StyledToast;
 
 public class BattlePassActivity extends AppCompatActivity {
 
@@ -78,7 +79,7 @@ public class BattlePassActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception error) {
-                Toast.makeText(BattlePassActivity.this, getString(R.string.bp_error_loading), Toast.LENGTH_SHORT).show();
+                StyledToast.show(BattlePassActivity.this, getString(R.string.bp_error_loading));
             }
         });
     }

@@ -28,7 +28,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -83,6 +82,7 @@ import util.NullUtil;
 import util.SafeClickUtil;
 import util.StringUtil;
 import util.DateTimeUtil;
+import util.StyledToast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -373,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String uid = getMyUidOrNull();
                 if (NullUtil.isNull(uid)) {
-                    Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+                    StyledToast.show(MainActivity.this, getString(R.string.auth_not_ready));
                     return;
                 }
 
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override public void onStoreClicked() {
                 if (NullUtil.isNull(storeManager)) {
-                    Toast.makeText(MainActivity.this, getString(R.string.toast_offline_loaded), Toast.LENGTH_SHORT).show();
+                    StyledToast.show(MainActivity.this, getString(R.string.toast_offline_loaded));
                     return;
                 }
                 storeManager.openStore();
@@ -412,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String uid = getMyUidOrNull();
                 if (NullUtil.isNull(uid)) {
-                    Toast.makeText(MainActivity.this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+                    StyledToast.show(MainActivity.this, getString(R.string.auth_not_ready));
                     return;
                 }
                 showMatchmakingLoading(getString(R.string.toast_looking_match));
@@ -670,11 +670,11 @@ public class MainActivity extends AppCompatActivity {
                             @Override public void onGoogleLinked(String displayName) {
                                 playerServices.updateDisplayNameAndPersist(displayName);
                                 updateHeaderStatus();
-                                Toast.makeText(MainActivity.this, getString(R.string.toast_progress_linked), Toast.LENGTH_SHORT).show();
+                                StyledToast.show(MainActivity.this, getString(R.string.toast_progress_linked));
                             }
 
                             @Override public void onFailure(String message) {
-                                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                                StyledToast.show(MainActivity.this, message);
                             }
                         });
                     }
@@ -922,7 +922,7 @@ public class MainActivity extends AppCompatActivity {
         if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 4200L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        StyledToast.show(this, message);
     }
 
     private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
@@ -1176,7 +1176,7 @@ public class MainActivity extends AppCompatActivity {
 
         String uid = getMyUidOrNull();
         if (NullUtil.isNull(uid)) {
-            Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+            StyledToast.show(this, getString(R.string.auth_not_ready));
             return;
         }
 
@@ -1186,7 +1186,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(getString(R.string.local_lobby_create), (d, w) -> {
                     String code = generateRoomCode();
                     showMatchmakingLoading(getString(R.string.local_lobby_waiting));
-                    Toast.makeText(this, getString(R.string.local_lobby_host_code, code), Toast.LENGTH_LONG).show();
+                    StyledToast.show(this, getString(R.string.local_lobby_host_code, code));
                     matchManager.createLocalLobby(uid, code);
                 })
                 .setNegativeButton(getString(R.string.local_lobby_join), (d, w) -> {
@@ -1200,7 +1200,7 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(getString(R.string.local_lobby_join), (d2, w2) -> {
                                 String code = NullUtil.isNull(input.getText()) ? "" : input.getText().toString().trim().toUpperCase();
                                 if (code.length() < 4) {
-                                    Toast.makeText(this, getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
+                                    StyledToast.show(this, getString(R.string.error_invalid_room_code));
                                     return;
                                 }
                                 showMatchmakingLoading(getString(R.string.local_lobby_waiting));
@@ -1877,7 +1877,7 @@ public class MainActivity extends AppCompatActivity {
     private void openProfileDialog() {
         String uid = getMyUidOrNull();
         if (NullUtil.isNull(uid)) {
-            Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+            StyledToast.show(this, getString(R.string.auth_not_ready));
             return;
         }
 
@@ -1928,7 +1928,7 @@ public class MainActivity extends AppCompatActivity {
 
                     socialManager.upsertUserProfile(uid, displayName, tag);
                     playerServices.updateDisplayNameAndPersist(displayName);
-                    Toast.makeText(this, getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
+                    StyledToast.show(this, getString(R.string.toast_style_equipped));
                     updateHeaderStatus();
                 })
                 .setNegativeButton(getString(R.string.btn_back), null)
@@ -1952,7 +1952,7 @@ public class MainActivity extends AppCompatActivity {
     private void openFriendsDialog() {
         String uid = getMyUidOrNull();
         if (NullUtil.isNull(uid)) {
-            Toast.makeText(this, getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+            StyledToast.show(this, getString(R.string.auth_not_ready));
             return;
         }
 
@@ -1970,12 +1970,12 @@ public class MainActivity extends AppCompatActivity {
                     socialManager.sendFriendRequestByTag(uid, tag, new SocialManager.Callback() {
                         @Override
                         public void onSuccess() {
-                            Toast.makeText(MainActivity.this, getString(R.string.friends_request_sent), Toast.LENGTH_SHORT).show();
+                            StyledToast.show(MainActivity.this, getString(R.string.friends_request_sent));
                         }
 
                         @Override
                         public void onError(@NonNull String message) {
-                            Toast.makeText(MainActivity.this, getString(R.string.friends_request_error), Toast.LENGTH_SHORT).show();
+                            StyledToast.show(MainActivity.this, getString(R.string.friends_request_error));
                         }
                     });
                 })

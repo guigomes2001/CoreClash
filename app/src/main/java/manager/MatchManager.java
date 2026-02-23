@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import util.NullUtil;
 import util.StringUtil;
 import util.ValidationUtil;
+import util.StyledToast;
 
 public class MatchManager {
 
@@ -137,7 +138,7 @@ public class MatchManager {
     public void startOnlineMatchmaking(@NonNull Supplier<String> myUidSupplier) {
         String myUid = myUidSupplier.get();
         if (!ValidationUtil.isValidUid(myUid)) {
-            Toast.makeText(context, context.getString(R.string.auth_not_ready), Toast.LENGTH_SHORT).show();
+            StyledToast.show(context, context.getString(R.string.auth_not_ready));
             return;
         }
 
@@ -161,7 +162,7 @@ public class MatchManager {
                 }
                 cb.onRestoreMenuButtons();
                 cb.onSetArenaUiVisible(false);
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, message);
             }
         });
     }
@@ -169,7 +170,7 @@ public class MatchManager {
 
     public void createLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
         if (!ValidationUtil.isValidUid(myUid) || !ValidationUtil.isValidRoomCode(roomCode)) {
-            Toast.makeText(context, context.getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
+            StyledToast.show(context, context.getString(R.string.error_invalid_room_code));
             return;
         }
 
@@ -184,14 +185,14 @@ public class MatchManager {
             public void onError(@NonNull String message) {
                 cb.onRestoreMenuButtons();
                 cb.onSetArenaUiVisible(false);
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, message);
             }
         });
     }
 
     public void joinLocalLobby(@NonNull String myUid, @NonNull String roomCode) {
         if (!ValidationUtil.isValidUid(myUid) || !ValidationUtil.isValidRoomCode(roomCode)) {
-            Toast.makeText(context, context.getString(R.string.error_invalid_room_code), Toast.LENGTH_SHORT).show();
+            StyledToast.show(context, context.getString(R.string.error_invalid_room_code));
             return;
         }
 
@@ -205,7 +206,7 @@ public class MatchManager {
             public void onError(@NonNull String message) {
                 cb.onRestoreMenuButtons();
                 cb.onSetArenaUiVisible(false);
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, message);
             }
         });
     }
@@ -368,7 +369,7 @@ public class MatchManager {
                     @Override
                     public void onOpponentLeft() {
                         cb.runOnUi(() -> {
-                            Toast.makeText(context, context.getString(R.string.toast_opponent_left), Toast.LENGTH_SHORT).show();
+                            StyledToast.show(context, context.getString(R.string.toast_opponent_left));
                             endOnlineSessionToMenu();
                         });
                     }
