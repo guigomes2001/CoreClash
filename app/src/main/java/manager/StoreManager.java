@@ -3,7 +3,6 @@ package manager;
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -13,6 +12,7 @@ import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
 
 import util.NullUtil;
+import util.StyledToast;
 
 public class StoreManager {
 
@@ -52,14 +52,14 @@ public class StoreManager {
                 public void onCoinsGranted(int amount) {
                     profile.coins += amount;
                     finalizePurchase();
-                    Toast.makeText(context, context.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
+                    StyledToast.show(context, context.getString(R.string.toast_coins_added));
                 }
 
                 @Override
                 public void onRankedPassGranted() {
                     profile.rankedPassActive = true;
                     finalizePurchase();
-                    Toast.makeText(context, context.getString(R.string.toast_ranked_pass_activated), Toast.LENGTH_SHORT).show();
+                    StyledToast.show(context, context.getString(R.string.toast_ranked_pass_activated));
                 }
             });
         }
@@ -89,7 +89,7 @@ public class StoreManager {
             return;
         }
 
-        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+        StyledToast.show(context, context.getString(R.string.toast_store_billing_unavailable));
     }
 
     private void buyCoreclashPro() {
@@ -97,16 +97,31 @@ public class StoreManager {
             return;
         }
 
-        Toast.makeText(context, context.getString(R.string.toast_store_billing_unavailable), Toast.LENGTH_SHORT).show();
+        StyledToast.show(context, context.getString(R.string.toast_store_billing_unavailable));
     }
 
+
+
+    private void buyRankedPass() {
+        if (profile.rankedPassActive) {
+            StyledToast.show(context, context.getString(R.string.store_ranked_pass_active));
+            return;
+        }
+
+        if (context instanceof Activity activity
+                && billingManager.launchProductPurchase(activity, BillingManager.PRODUCT_RANKED_PASS)) {
+            return;
+        }
+
+        StyledToast.show(context, context.getString(R.string.toast_store_billing_unavailable));
+    }
 
     private void restorePurchases() {
         billingManager.restorePurchases(restoredCount -> {
             if (restoredCount > 0) {
-                Toast.makeText(context, context.getString(R.string.toast_restore_success, restoredCount), Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, context.getString(R.string.toast_restore_success, restoredCount));
             } else {
-                Toast.makeText(context, context.getString(R.string.toast_restore_empty), Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, context.getString(R.string.toast_restore_empty));
             }
             refreshStoreUI();
         });
@@ -157,14 +172,14 @@ public class StoreManager {
             if (themeId.equals(profile.equippedSymbolStyle)) {
                 profile.equippedTheme = "ARENA";
                 profile.equippedSymbolStyle = "CLASSIC";
-                Toast.makeText(context, context.getString(R.string.toast_style_default_equipped), Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, context.getString(R.string.toast_style_default_equipped));
             } else {
                 profile.equippedTheme = themeId;
                 profile.equippedSymbolStyle = themeId;
                 if (!profile.ownedSymbolStyles.contains(themeId)) {
                     profile.ownedSymbolStyles.add(themeId);
                 }
-                Toast.makeText(context, context.getString(R.string.toast_theme_equipped), Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, context.getString(R.string.toast_theme_equipped));
             }
         } else if (profile.coins >= price) {
             profile.coins -= price;
@@ -174,9 +189,9 @@ public class StoreManager {
             }
             profile.equippedTheme = themeId;
             profile.equippedSymbolStyle = themeId;
-            Toast.makeText(context, context.getString(R.string.toast_theme_bought), Toast.LENGTH_SHORT).show();
+            StyledToast.show(context, context.getString(R.string.toast_theme_bought));
         } else {
-            Toast.makeText(context, context.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
+            StyledToast.show(context, context.getString(R.string.toast_insufficient_coins));
             return;
         }
 
@@ -187,18 +202,18 @@ public class StoreManager {
         if (profile.ownsSymbolStyle(styleId)) {
             if (styleId.equals(profile.equippedSymbolStyle)) {
                 profile.equippedSymbolStyle = "CLASSIC";
-                Toast.makeText(context, context.getString(R.string.toast_style_default_equipped), Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, context.getString(R.string.toast_style_default_equipped));
             } else {
                 profile.equippedSymbolStyle = styleId;
-                Toast.makeText(context, context.getString(R.string.toast_style_equipped), Toast.LENGTH_SHORT).show();
+                StyledToast.show(context, context.getString(R.string.toast_style_equipped));
             }
         } else if (profile.coins >= price) {
             profile.coins -= price;
             profile.ownedSymbolStyles.add(styleId);
             profile.equippedSymbolStyle = styleId;
-            Toast.makeText(context, context.getString(R.string.toast_style_bought), Toast.LENGTH_SHORT).show();
+            StyledToast.show(context, context.getString(R.string.toast_style_bought));
         } else {
-            Toast.makeText(context, context.getString(R.string.toast_insufficient_coins), Toast.LENGTH_SHORT).show();
+            StyledToast.show(context, context.getString(R.string.toast_insufficient_coins));
             return;
         }
 

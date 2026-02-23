@@ -3,10 +3,12 @@ package manager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -17,6 +19,7 @@ import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
 
 import enums.DomainLanguage;
+import util.StyledToast;
 
 public class SettingManager {
 
@@ -61,14 +64,16 @@ public class SettingManager {
     private void showLanguageDialog() {
         String[] options = DomainLanguage.getDisplayNames();
 
-        new AlertDialog.Builder(activity)
+        AlertDialog languageDialog = new AlertDialog.Builder(activity)
                 .setTitle(activity.getString(R.string.btn_language))
                 .setItems(options, (dialog, which) -> {
                     DomainLanguage selected = DomainLanguage.values()[which];
                     setAppLocale(selected.getTag());
                 })
                 .setNegativeButton(R.string.btn_close, null)
-                .show();
+                .create();
+        languageDialog.show();
+        applyDialogStyle(languageDialog);
     }
 
     private void showPrivacyDialog() {
@@ -89,15 +94,44 @@ public class SettingManager {
         });
 
         dialog.show();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        applyDialogStyle(dialog);
+    }
+
+    private void applyDialogStyle(AlertDialog dialog) {
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(R.drawable.bg_cyber_glass_v2);
+        }
+
+        TextView message = dialog.findViewById(android.R.id.message);
+        if (message != null) {
+            message.setTextColor(Color.parseColor("#EAF6FF"));
+            message.setTextSize(15f);
+        }
+
+        int titleId = activity.getResources().getIdentifier("alertTitle", "id", "android");
+        TextView title = dialog.findViewById(titleId);
+        if (title != null) {
+            title.setTextColor(Color.parseColor("#D8EEFF"));
+        }
+
+        Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+        if (positive != null) {
+            positive.setAllCaps(false);
+            positive.setTextColor(Color.parseColor("#6EE7FF"));
+        }
+        if (negative != null) {
+            negative.setAllCaps(false);
+            negative.setTextColor(Color.parseColor("#D8E9FF"));
         }
     }
 
     private void openPrivacyPolicy() {
         String rawUrl = activity.getString(R.string.privacy_policy_url).trim();
         if (rawUrl.isEmpty()) {
-            Toast.makeText(activity, activity.getString(R.string.privacy_link_invalid), Toast.LENGTH_SHORT).show();
+            StyledToast.show(activity, activity.getString(R.string.privacy_link_invalid));
             return;
         }
 
@@ -109,9 +143,9 @@ public class SettingManager {
         try {
             activity.startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(activity, activity.getString(R.string.privacy_browser_not_found), Toast.LENGTH_SHORT).show();
+            StyledToast.show(activity, activity.getString(R.string.privacy_browser_not_found));
         } catch (Exception e) {
-            Toast.makeText(activity, activity.getString(R.string.privacy_link_invalid), Toast.LENGTH_SHORT).show();
+            StyledToast.show(activity, activity.getString(R.string.privacy_link_invalid));
         }
     }
 

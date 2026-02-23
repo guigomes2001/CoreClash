@@ -20,6 +20,7 @@ import java.util.Objects;
 
 import util.DateTimeUtil;
 import util.NullUtil;
+import util.StyledToast;
 
 public class PlayerServicesManager {
 
@@ -161,7 +162,7 @@ public class PlayerServicesManager {
                 ui.runOnUi(() -> {
                     cb.onProfileReady(profile);
                     cb.onRender();
-                    Toast.makeText(uiContext, uiContext.getString(R.string.toast_offline_loaded), Toast.LENGTH_SHORT).show();
+                    StyledToast.show(uiContext, uiContext.getString(R.string.toast_offline_loaded));
                 });
             }
 
