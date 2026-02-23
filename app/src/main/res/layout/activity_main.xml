@@ -8,7 +8,7 @@
             <TextView android:ellipsize="end" android:fontFamily="sans-serif-medium" android:gravity="center" android:id="@+id/txtTurnHudNameX" android:layout_height="wrap_content" android:layout_width="match_parent" android:maxLines="1" android:text="@string/turn_hud_player_default" android:textColor="#F8FAFC" android:textSize="14sp" android:textStyle="bold"/>
             		
             
-            <FrameLayout android:clipChildren="true" android:clipToPadding="true" android:id="@+id/turnHudTrackX" android:layout_height="22dp" android:layout_marginTop="4dp" android:layout_width="match_parent">
+            <FrameLayout android:clipChildren="false" android:clipToPadding="false" android:id="@+id/turnHudTrackX" android:layout_height="34dp" android:layout_marginTop="4dp" android:layout_width="match_parent">
                                 
                 <ProgressBar android:id="@+id/progressTurnHudX" android:layout_gravity="center_vertical" android:layout_height="7dp" android:layout_width="match_parent" android:max="100" android:progress="0" android:progressBackgroundTint="#22333455" android:progressTint="#FB7185" style="?android:attr/progressBarStyleHorizontal"/>
                                 
@@ -18,17 +18,18 @@
                                 
                 <TextView android:alpha="0" android:id="@+id/txtTimeoutArrow3X" android:layout_gravity="center_vertical" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="»" android:textColor="#FFF8FA" android:textSize="14sp" android:textStyle="bold" android:visibility="invisible"/>
                                 
-                <TextView android:alpha="0" android:id="@+id/txtTimeoutX" android:layout_gravity="center_vertical" android:layout_height="wrap_content" android:layout_width="wrap_content" android:letterSpacing="0.04" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:shadowColor="#AA000000" android:shadowDx="0" android:shadowDy="0" android:shadowRadius="6" android:text="@string/turn_overlay_default" android:textColor="#FFF8F8" android:textSize="14sp" android:textStyle="bold" android:visibility="invisible"/>
+                <TextView android:alpha="0" android:id="@+id/txtTimeoutX" android:layout_gravity="center_vertical" android:layout_height="wrap_content" android:layout_width="wrap_content" android:letterSpacing="0.04" android:paddingHorizontal="12dp" android:paddingVertical="6dp" android:shadowColor="#AA000000" android:shadowDx="0" android:shadowDy="0" android:shadowRadius="6" android:text="@string/turn_overlay_default" android:textColor="#FFF8F8" android:textSize="14sp" android:textStyle="bold" android:visibility="invisible"/>
                             
             </FrameLayout>
                     
         </LinearLayout>
                 
-        <LinearLayout android:gravity="center" android:layout_height="wrap_content" android:layout_width="wrap_content" android:orientation="vertical" android:paddingHorizontal="10dp">
+        <LinearLayout android:gravity="center" android:layout_height="wrap_content" android:layout_width="wrap_content" android:orientation="vertical" android:paddingHorizontal="12dp">
                         
             <TextView android:id="@+id/txtHudVersus" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/versus_center" android:textAllCaps="true" android:textColor="#CBD5E1" android:textSize="15sp" android:textStyle="bold"/>
                         
             <TextView android:id="@+id/txtHudScoreInline" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:text="0 × 0" android:textColor="#D1E2FF" android:textSize="14sp" android:textStyle="bold"/>
+            
                     
         </LinearLayout>
                 
@@ -37,7 +38,7 @@
             <TextView android:ellipsize="end" android:fontFamily="sans-serif-medium" android:gravity="center" android:id="@+id/txtTurnHudNameO" android:layout_height="wrap_content" android:layout_width="match_parent" android:maxLines="1" android:text="@string/turn_hud_opponent_default" android:textColor="#F8FAFC" android:textSize="14sp" android:textStyle="bold"/>
                             
             
-            <FrameLayout android:clipChildren="true" android:clipToPadding="true" android:id="@+id/turnHudTrackO" android:layout_height="22dp" android:layout_marginTop="6dp" android:layout_width="match_parent">
+            <FrameLayout android:clipChildren="false" android:clipToPadding="false" android:id="@+id/turnHudTrackO" android:layout_height="34dp" android:layout_marginTop="6dp" android:layout_width="match_parent">
                                 
                 <ProgressBar android:id="@+id/progressTurnHudO" android:layout_gravity="center_vertical" android:layout_height="7dp" android:layout_width="match_parent" android:max="100" android:progress="0" android:progressBackgroundTint="#22333455" android:progressTint="#22D3EE" style="?android:attr/progressBarStyleHorizontal"/>
                                 
@@ -47,7 +48,7 @@
                                 
                 <TextView android:alpha="0" android:id="@+id/txtTimeoutArrow3O" android:layout_gravity="center_vertical" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="»" android:textColor="#ECFEFF" android:textSize="14sp" android:textStyle="bold" android:visibility="invisible"/>
                                 
-                <TextView android:alpha="0" android:id="@+id/txtTimeoutO" android:layout_gravity="center_vertical" android:layout_height="wrap_content" android:layout_width="wrap_content" android:letterSpacing="0.04" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:shadowColor="#AA000000" android:shadowDx="0" android:shadowDy="0" android:shadowRadius="6" android:text="@string/turn_overlay_default" android:textColor="#ECFEFF" android:textSize="14sp" android:textStyle="bold" android:visibility="invisible"/>
+                <TextView android:alpha="0" android:id="@+id/txtTimeoutO" android:layout_gravity="center_vertical" android:layout_height="wrap_content" android:layout_width="wrap_content" android:letterSpacing="0.04" android:paddingHorizontal="12dp" android:paddingVertical="6dp" android:shadowColor="#AA000000" android:shadowDx="0" android:shadowDy="0" android:shadowRadius="6" android:text="@string/turn_overlay_default" android:textColor="#ECFEFF" android:textSize="14sp" android:textStyle="bold" android:visibility="invisible"/>
                             
             </FrameLayout>
                     
@@ -78,6 +79,14 @@
     </FrameLayout>
         
     <View android:background="#667DD3FC" android:id="@+id/lineRightConnector" android:layout_height="2dp" android:layout_width="8dp" app:layout_constraintBottom_toBottomOf="@id/containerSquare" app:layout_constraintEnd_toStartOf="@id/containerSquare" app:layout_constraintStart_toEndOf="@id/boardContainer" app:layout_constraintTop_toTopOf="@id/containerSquare"/>
+    <TextView android:id="@+id/txtTutorialStep1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginBottom="20dp" android:background="@drawable/bg_tutorial_modal" android:gravity="center_vertical" android:minHeight="40dp" android:paddingHorizontal="12dp" android:paddingVertical="8dp" android:text="" android:textColor="#EAF6FF" android:textSize="14sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/containerTriangle" app:layout_constraintEnd_toEndOf="@id/containerTriangle" app:layout_constraintStart_toStartOf="@id/mainRoot" app:layout_constraintWidth_max="200dp"/>
+
+    <TextView android:id="@+id/txtTutorialStep2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_tutorial_modal" android:gravity="center_vertical" android:minHeight="40dp" android:paddingHorizontal="12dp" android:paddingVertical="8dp" android:text="" android:textColor="#EAF6FF" android:textSize="14sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintEnd_toEndOf="@id/txtTutorialStep1" app:layout_constraintStart_toStartOf="@id/txtTutorialStep1" app:layout_constraintTop_toBottomOf="@id/txtTutorialStep1"/>
+
+    <TextView android:id="@+id/txtTutorialStep3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginBottom="20dp" android:background="@drawable/bg_tutorial_modal" android:gravity="center_vertical" android:minHeight="40dp" android:paddingHorizontal="12dp" android:paddingVertical="8dp" android:text="" android:textColor="#EAF6FF" android:textSize="14sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/containerSquare" app:layout_constraintEnd_toEndOf="@id/mainRoot" app:layout_constraintStart_toStartOf="@id/containerSquare" app:layout_constraintWidth_max="200dp"/>
+
+    <TextView android:id="@+id/txtTutorialStep4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_tutorial_modal" android:gravity="center_vertical" android:minHeight="40dp" android:paddingHorizontal="12dp" android:paddingVertical="8dp" android:text="" android:textColor="#EAF6FF" android:textSize="14sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintEnd_toEndOf="@id/txtTutorialStep3" app:layout_constraintStart_toStartOf="@id/txtTutorialStep3" app:layout_constraintTop_toBottomOf="@id/txtTutorialStep3"/>
+
            
     <FrameLayout android:background="@drawable/bg_gradient_dark" android:clickable="true" android:elevation="92dp" android:focusable="true" android:id="@+id/homeOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:padding="10dp">
                 
@@ -89,7 +98,7 @@
                 
         <!-- CARD CENTRAL (premium) -->
                 
-        <ScrollView
+        <com.example.coreclash.view.NonScrollableNestedScrollView
             android:id="@+id/homeScroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -135,20 +144,66 @@
                 </LinearLayout>
                                 
                 <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/homeMenuGrid" android:layout_height="wrap_content" android:layout_marginBottom="4dp" android:layout_marginTop="12dp" android:layout_width="0dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/homeQuickActions">
-                                        
-                    <Button android:background="@drawable/selector_menu_tile" android:gravity="center" android:id="@+id/btnPlay" android:layout_height="60dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_width="0dp" android:padding="8dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" app:backgroundTint="@null" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintWidth_percent="0.96"/>
-                                        
-                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnOnline" android:layout_height="60dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_width="0dp" android:padding="8dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" android:visibility="gone" app:backgroundTint="@null" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toEndOf="@id/btnPlay" app:layout_constraintTop_toTopOf="parent" app:layout_constraintWidth_percent="0.47"/>
-                                        
-                    <Button android:background="@drawable/selector_menu_tile" android:gravity="center" android:id="@+id/btnStore" android:layout_height="60dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_marginTop="8dp" android:layout_width="0dp" android:padding="8dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" app:backgroundTint="@null" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/btnPlay" app:layout_constraintWidth_percent="0.96"/>
-                                        
-                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnArena" android:layout_height="60dp" android:layout_marginEnd="8dp" android:layout_marginStart="8dp" android:layout_marginTop="8dp" android:layout_width="0dp" android:padding="8dp" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" android:visibility="gone" app:backgroundTint="@null" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toEndOf="@id/btnStore" app:layout_constraintTop_toBottomOf="@id/btnOnline" app:layout_constraintWidth_percent="0.47"/>
-                                    
+
+                    <LinearLayout
+                        android:id="@+id/homeMainCtaGroup"
+                        android:layout_width="0dp"
+                        android:layout_height="72dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="horizontal"
+                        android:weightSum="2"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintWidth_percent="0.96">
+
+                        <Button
+                            android:id="@+id/btnPlay"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/selector_home_big_button_left"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="11dp"
+                            android:textAllCaps="false"
+                            android:textColor="#EAF2FF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@null" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_home_cta_divider"
+                            android:contentDescription="@null" />
+
+                        <Button
+                            android:id="@+id/btnStore"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/selector_home_big_button_right"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="11dp"
+                            android:textAllCaps="false"
+                            android:textColor="#EAF2FF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@null" />
+                    </LinearLayout>
+
+                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnOnline" android:layout_height="1dp" android:layout_width="1dp" android:visibility="gone" />
+                    <Button android:background="@drawable/selector_menu_tile_right" android:gravity="center" android:id="@+id/btnArena" android:layout_height="1dp" android:layout_width="1dp" android:visibility="gone" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
                             
             </androidx.constraintlayout.widget.ConstraintLayout>
                     
-        </ScrollView>
+        </com.example.coreclash.view.NonScrollableNestedScrollView>
             
     </FrameLayout>
         
@@ -168,7 +223,7 @@
                         
             <TextView android:gravity="center" android:id="@+id/txtMatchmakingSub" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:layout_width="wrap_content" android:text="@string/matchmaking_loading_subtitle" android:textSize="13sp" style="@style/Text.CoreClash.Subtitle"/>
                         
-            <Button android:background="@drawable/selector_menu_tile" android:gravity="center" android:id="@+id/btnMatchmakingCancel" android:layout_height="56dp" android:layout_marginTop="14dp" android:layout_width="match_parent" android:padding="8dp" android:text="@string/btn_cancel_matchmaking" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" app:backgroundTint="@null"/>
+            <Button android:gravity="center" android:id="@+id/btnMatchmakingCancel" android:background="@drawable/selector_home_big_button" android:layout_height="58dp" android:layout_marginTop="14dp" android:layout_width="match_parent" android:paddingVertical="10dp" android:paddingHorizontal="8dp" android:text="@string/btn_cancel_matchmaking" android:textAllCaps="false" android:textColor="#EAF2FF" android:textSize="15sp" android:textStyle="bold" app:backgroundTint="@null"/>
                     
         </LinearLayout>
             
@@ -212,6 +267,20 @@
                 android:gravity="center"
                 android:text="@string/mode_subtitle_online_offline"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/txtModeTutorialHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_store_wallet_chip"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="@string/tutorial_mode_hint_star"
+                android:textColor="#EAF6FF"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -278,23 +347,6 @@
                                 android:text="@string/mode_vs_bot_desc"
                                 android:textColor="#BFDDF9"
                                 android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/badgeModeOffline"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="top|end"
-                                android:layout_marginTop="8dp"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/bg_store_acquired_badge"
-                                android:paddingHorizontal="10dp"
-                                android:paddingVertical="4dp"
-                                android:text="@string/mode_badge_selected"
-                                android:textAllCaps="true"
-                                android:textColor="#EAF2FF"
-                                android:textSize="10sp"
-                                android:textStyle="bold"
-                                android:visibility="gone" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -341,23 +393,6 @@
                                 android:text="@string/mode_online_world_desc"
                                 android:textColor="#BFDDF9"
                                 android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/badgeModeOnline"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="top|end"
-                                android:layout_marginTop="8dp"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/bg_store_acquired_badge"
-                                android:paddingHorizontal="10dp"
-                                android:paddingVertical="4dp"
-                                android:text="@string/mode_badge_selected"
-                                android:textAllCaps="true"
-                                android:textColor="#EAF2FF"
-                                android:textSize="10sp"
-                                android:textStyle="bold"
-                                android:visibility="gone" />
                         </FrameLayout>
 
                         <FrameLayout
@@ -403,23 +438,6 @@
                                 android:text="@string/mode_local_pass_play_desc"
                                 android:textColor="#BFDDF9"
                                 android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/badgeModeLocalPassPlay"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="top|end"
-                                android:layout_marginTop="8dp"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/bg_store_acquired_badge"
-                                android:paddingHorizontal="10dp"
-                                android:paddingVertical="4dp"
-                                android:text="@string/mode_badge_selected"
-                                android:textAllCaps="true"
-                                android:textColor="#EAF2FF"
-                                android:textSize="10sp"
-                                android:textStyle="bold"
-                                android:visibility="gone" />
                         </FrameLayout>
 
                         <Button
@@ -439,11 +457,10 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/btnModeCancel"
+                    android:id="@+id/btnModeCancel" android:background="@drawable/selector_home_big_button"
                     android:layout_width="0dp"
-                    android:layout_height="54dp"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
-                    android:background="@drawable/selector_menu_tile"
                     android:text="@string/btn_back"
                     android:textAllCaps="false"
                     android:textColor="#EAF2FF"
@@ -451,12 +468,11 @@
                     app:backgroundTint="@null" />
 
                 <Button
-                    android:id="@+id/btnModeConfirm"
+                    android:id="@+id/btnModeConfirm" android:background="@drawable/selector_home_big_button"
                     android:layout_width="0dp"
-                    android:layout_height="54dp"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:layout_marginStart="10dp"
-                    android:background="@drawable/selector_menu_tile"
                     android:text="@string/btn_ok"
                     android:textAllCaps="false"
                     android:textColor="#EAF2FF"
