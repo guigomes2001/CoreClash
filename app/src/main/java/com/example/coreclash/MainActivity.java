@@ -591,6 +591,7 @@ public class MainActivity extends AppCompatActivity {
                         resetRoundSeries();
                         state.setGameMode(DomainGameMode.ONLINE.getValue());
                         gameManager.resetGame();
+        syncTutorialSkillOverride();
                         victoryOverlayAnimator.clearLines();
 
                         opponentName = matchManager.getOpponentName();
@@ -826,6 +827,7 @@ public class MainActivity extends AppCompatActivity {
             victoryOverlayAnimator.hide();
             matchPhase = DomainMatchPhase.LOADING;
             gameManager.resetGame();
+        syncTutorialSkillOverride();
             victoryOverlayAnimator.clearLines();
             updateSkillVisuals();
 
@@ -843,6 +845,7 @@ public class MainActivity extends AppCompatActivity {
             victoryOverlayAnimator.hide();
             matchPhase = DomainMatchPhase.LOADING;
             gameManager.resetGame();
+        syncTutorialSkillOverride();
             victoryOverlayAnimator.clearLines();
 
             botManager.cancelPending();
@@ -902,6 +905,7 @@ public class MainActivity extends AppCompatActivity {
     private void beginPlayingAfterCountdown(boolean onlineMatch) {
         matchStarted = true;
         matchPhase = DomainMatchPhase.PLAYING;
+        syncTutorialSkillOverride();
         updateHeaderStatus();
         updateSkillVisuals();
 
@@ -915,15 +919,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUiToastDeduped(@NonNull String message) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 2200L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 3400L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void showUiToastDedupedStyled(@NonNull String message, @NonNull String iconGlyph, int iconColor) {
         long now = DateTimeUtil.nowMillis();
-        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 2200L) return;
+        if (message.equals(lastUiToastMessage) && (now - lastUiToastAtMs) < 3400L) return;
         lastUiToastMessage = message;
         lastUiToastAtMs = now;
 
@@ -1113,6 +1117,7 @@ public class MainActivity extends AppCompatActivity {
         setGameMode();
         state.setGameMode(DomainGameMode.LOCAL_PASS_PLAY.getValue());
         gameManager.resetGame();
+        syncTutorialSkillOverride();
         state.setXTurn(true);
         victoryOverlayAnimator.clearLines();
         applyArenaUiVisibility(false);
@@ -1405,7 +1410,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.tutorial_dialog_start, (d, which) -> {
                     tutorialActive = true;
                     tutorialStep = TUTORIAL_STEP_NORMAL;
-                    state.setTutorialSkillOverride(true);
+                    syncTutorialSkillOverride();
                     updateTutorialProgressUi();
                     showUiToastDedupedStyled(getString(R.string.tutorial_intro), getString(R.string.fa_gamepad), 0xFF67E8F9);
                     showUiToastDedupedStyled(getString(R.string.tutorial_skill_unlock_note), getString(R.string.fa_bolt), 0xFFF8D464);
@@ -1456,7 +1461,7 @@ public class MainActivity extends AppCompatActivity {
     private void finishTacticalOnboarding() {
         tutorialActive = false;
         tutorialStep = TUTORIAL_STEP_DONE;
-        state.setTutorialSkillOverride(false);
+        syncTutorialSkillOverride();
         tutorialPendingOpponentSkillDemo = false;
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
         binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
@@ -1468,6 +1473,7 @@ public class MainActivity extends AppCompatActivity {
         matchStarted = false;
         botManager.cancelPending();
         gameManager.resetGame();
+        syncTutorialSkillOverride();
         victoryOverlayAnimator.clearLines();
         showHomeScreen();
         homeFlow.setSelectedMatchKind(enums.DomainMatchKind.ONLINE_PVP);
@@ -1476,25 +1482,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateTutorialProgressUi() {
         if (!tutorialActive || tutorialStep >= TUTORIAL_STEP_DONE) {
-            binding.txtTutorialProgress.setVisibility(View.GONE);
+            setTutorialStepViewsVisible(false);
             return;
         }
 
-        int current = tutorialStep + 1;
-        int total = 4;
-        binding.txtTutorialProgress.setText(getString(R.string.tutorial_progress_format, current, total, tutorialStepLabel()));
-        binding.txtTutorialProgress.setVisibility(View.VISIBLE);
+        setTutorialStepViewsVisible(true);
+        binding.txtTutorialStep1.setText(buildTutorialStepStatus(1, getString(R.string.tutorial_label_normal), tutorialStep > TUTORIAL_STEP_NORMAL));
+        binding.txtTutorialStep2.setText(buildTutorialStepStatus(2, getString(R.string.tutorial_label_triangle), tutorialStep > TUTORIAL_STEP_TRIANGLE));
+        binding.txtTutorialStep3.setText(buildTutorialStepStatus(3, getString(R.string.tutorial_label_square), tutorialStep > TUTORIAL_STEP_SQUARE));
+        binding.txtTutorialStep4.setText(buildTutorialStepStatus(4, getString(R.string.tutorial_label_win), tutorialStep > TUTORIAL_STEP_WIN_ROUND));
+    }
+
+    private void setTutorialStepViewsVisible(boolean visible) {
+        int vis = visible ? View.VISIBLE : View.GONE;
+        binding.txtTutorialStep1.setVisibility(vis);
+        binding.txtTutorialStep2.setVisibility(vis);
+        binding.txtTutorialStep3.setVisibility(vis);
+        binding.txtTutorialStep4.setVisibility(vis);
     }
 
     @NonNull
-    private String tutorialStepLabel() {
-        return switch (tutorialStep) {
-            case TUTORIAL_STEP_NORMAL -> getString(R.string.tutorial_label_normal);
-            case TUTORIAL_STEP_TRIANGLE -> getString(R.string.tutorial_label_triangle);
-            case TUTORIAL_STEP_SQUARE -> getString(R.string.tutorial_label_square);
-            case TUTORIAL_STEP_WIN_ROUND -> getString(R.string.tutorial_label_win);
-            default -> getString(R.string.tutorial_label_done);
-        };
+    private String buildTutorialStepStatus(int index, @NonNull String label, boolean completed) {
+        return (completed ? "☑ " : "☐ ") + index + ". " + label;
+    }
+
+    private void syncTutorialSkillOverride() {
+        state.setTutorialSkillOverride(tutorialActive && tutorialStep < TUTORIAL_STEP_DONE);
     }
 
     private void resetRoundSeries() {
@@ -1557,6 +1570,7 @@ public class MainActivity extends AppCompatActivity {
 
                 victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
+        syncTutorialSkillOverride();
                 victoryOverlayAnimator.clearLines();
                 updateHeaderStatus();
                 updateSkillVisuals();
@@ -1616,6 +1630,7 @@ public class MainActivity extends AppCompatActivity {
 
                     victoryOverlayAnimator.hideInstant();
                     gameManager.resetGame();
+        syncTutorialSkillOverride();
                     victoryOverlayAnimator.clearLines();
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -1641,6 +1656,7 @@ public class MainActivity extends AppCompatActivity {
                 showUiToastDeduped(getString(doubleLineSweep ? R.string.round_result_double_line_score : R.string.round_result_score, winnerSymbol, roundsWonX, roundsWonO));
                 victoryOverlayAnimator.hideInstant();
                 gameManager.resetGame();
+        syncTutorialSkillOverride();
                 victoryOverlayAnimator.clearLines();
                 updateHeaderStatus();
                 updateSkillVisuals();
@@ -1796,6 +1812,7 @@ public class MainActivity extends AppCompatActivity {
         setGameMode();
         state.setGameMode(DomainGameMode.BOT.getValue());
         gameManager.resetGame();
+        syncTutorialSkillOverride();
         boolean playerHomeVsBot = homeAwayManager.chooseHome(getPlayerDisplayName(), getString(R.string.label_bot));
         state.setXTurn(playerHomeVsBot);
         victoryOverlayAnimator.clearLines();

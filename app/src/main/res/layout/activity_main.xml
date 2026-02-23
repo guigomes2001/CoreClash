@@ -29,7 +29,7 @@
             <TextView android:id="@+id/txtHudVersus" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/versus_center" android:textAllCaps="true" android:textColor="#CBD5E1" android:textSize="15sp" android:textStyle="bold"/>
                         
             <TextView android:id="@+id/txtHudScoreInline" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:text="0 × 0" android:textColor="#D1E2FF" android:textSize="14sp" android:textStyle="bold"/>
-            <TextView android:id="@+id/txtTutorialProgress" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:background="@drawable/bg_tutorial_modal" android:paddingHorizontal="8dp" android:paddingVertical="2dp" android:text="" android:textColor="#C7F1FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone"/>
+            
                     
         </LinearLayout>
                 
@@ -79,6 +79,14 @@
     </FrameLayout>
         
     <View android:background="#667DD3FC" android:id="@+id/lineRightConnector" android:layout_height="2dp" android:layout_width="8dp" app:layout_constraintBottom_toBottomOf="@id/containerSquare" app:layout_constraintEnd_toStartOf="@id/containerSquare" app:layout_constraintStart_toEndOf="@id/boardContainer" app:layout_constraintTop_toTopOf="@id/containerSquare"/>
+    <TextView android:id="@+id/txtTutorialStep1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_tutorial_modal" android:paddingHorizontal="8dp" android:paddingVertical="4dp" android:text="" android:textColor="#EAF6FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/containerTriangle" app:layout_constraintEnd_toEndOf="@id/containerTriangle" app:layout_constraintTop_toTopOf="@id/boardContainer"/>
+
+    <TextView android:id="@+id/txtTutorialStep2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:background="@drawable/bg_tutorial_modal" android:paddingHorizontal="8dp" android:paddingVertical="4dp" android:text="" android:textColor="#EAF6FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintTop_toBottomOf="@id/txtTutorialStep1" app:layout_constraintEnd_toEndOf="@id/containerTriangle"/>
+
+    <TextView android:id="@+id/txtTutorialStep3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_tutorial_modal" android:paddingHorizontal="8dp" android:paddingVertical="4dp" android:text="" android:textColor="#EAF6FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/containerSquare" app:layout_constraintStart_toStartOf="@id/containerSquare" app:layout_constraintTop_toTopOf="@id/boardContainer"/>
+
+    <TextView android:id="@+id/txtTutorialStep4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:background="@drawable/bg_tutorial_modal" android:paddingHorizontal="8dp" android:paddingVertical="4dp" android:text="" android:textColor="#EAF6FF" android:textSize="10sp" android:textStyle="bold" android:visibility="gone" app:layout_constraintTop_toBottomOf="@id/txtTutorialStep3" app:layout_constraintStart_toStartOf="@id/containerSquare"/>
+
            
     <FrameLayout android:background="@drawable/bg_gradient_dark" android:clickable="true" android:elevation="92dp" android:focusable="true" android:id="@+id/homeOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:padding="10dp">
                 
