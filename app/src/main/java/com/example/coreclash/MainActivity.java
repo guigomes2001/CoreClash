@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int TUTORIAL_STEP_DONE = 4;
     private boolean tutorialActive = false;
     private int tutorialStep = TUTORIAL_STEP_DONE;
+    private boolean tutorialPendingOpponentSkillDemo = false;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
