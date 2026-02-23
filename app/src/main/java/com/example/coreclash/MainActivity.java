@@ -248,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (versusBot && !state.isXTurn()) {
+                AnimationHelper.shakeButton(binding.turnHudBar);
                 return;
             }
 
@@ -687,6 +688,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupSkills() {
         binding.containerTriangle.setOnClickListener(v -> {
+            if (tutorialActive) syncTutorialSkillOverride();
             if (!matchStarted || gameManager.isGameOver() || !state.canUseTriangle() || decidingStarter) {
                 AnimationHelper.shakeButton(v);
                 return;
@@ -746,6 +748,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.containerSquare.setOnClickListener(v -> {
+            if (tutorialActive) syncTutorialSkillOverride();
             if (!matchStarted || gameManager.isGameOver() || !state.canUseSquare() || decidingStarter) {
                 AnimationHelper.shakeButton(v);
                 return;
@@ -936,6 +939,7 @@ public class MainActivity extends AppCompatActivity {
         Toast toast = new Toast(this);
         toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(content);
+        toast.setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL, 0, 140);
         toast.show();
     }
 
@@ -1506,13 +1510,6 @@ public class MainActivity extends AppCompatActivity {
         binding.lineLeftConnector.animate().alpha(connectorAlpha).setDuration(180).start();
         binding.lineRightConnector.animate().alpha(connectorAlpha).setDuration(180).start();
 
-        if (tutorialStep == TUTORIAL_STEP_TRIANGLE) {
-            binding.containerTriangle.clearAnimation();
-            AnimationHelper.pulse(binding.containerTriangle);
-        } else if (tutorialStep == TUTORIAL_STEP_SQUARE) {
-            binding.containerSquare.clearAnimation();
-            AnimationHelper.pulse(binding.containerSquare);
-        }
     }
 
     private void resetRoundSeries() {
@@ -1766,6 +1763,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSkillVisuals() {
+        if (tutorialActive) syncTutorialSkillOverride();
         float triAlpha = state.canUseTriangle() && matchStarted ? 1f : 0.25f;
         float sqAlpha  = state.canUseSquare() && matchStarted ? 1f : 0.25f;
 
