@@ -12,9 +12,10 @@
 
     <TextView
         android:id="@+id/txtToastIcon"
-        android:layout_width="wrap_content"
+        android:layout_width="18dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/fa_solid_900"
+        android:gravity="center"
         android:text="@string/fa_bolt"
         android:textColor="#6EE7FF"
         android:textSize="16sp" />
@@ -24,10 +25,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:gravity="center_horizontal"
         android:maxWidth="240dp"
         android:maxLines="4"
+        android:textAlignment="center"
         android:textColor="#EAF2FF"
         android:textSize="14sp"
         android:textStyle="bold" />
+
+    <View
+        android:layout_width="18dp"
+        android:layout_height="1dp"
+        android:visibility="invisible" />
 
 </LinearLayout>
