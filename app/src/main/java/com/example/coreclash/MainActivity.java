@@ -1356,7 +1356,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (tutorialActive && tutorialStep == TUTORIAL_STEP_NORMAL) {
+        if (tutorialActive && tutorialStep == TUTORIAL_STEP_NORMAL && actingX) {
             tutorialStep = TUTORIAL_STEP_TRIANGLE;
             updateTutorialProgressUi();
             showUiToastDedupedStyled(getString(R.string.tutorial_step_triangle), getString(R.string.fa_bolt), 0xFFF8D464);
