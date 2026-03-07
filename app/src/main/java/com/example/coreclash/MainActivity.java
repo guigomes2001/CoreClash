@@ -57,6 +57,7 @@ import ui.anim.flow.HomeFlowManager;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -1848,23 +1849,34 @@ public class MainActivity extends AppCompatActivity {
         nameInput.setText(getPlayerDisplayName());
         styleInput(nameInput);
 
-        List<String> ownedStyles = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
+        List<String> ownedStylesRaw = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
                 ? new ArrayList<>()
                 : currentProfile.ownedSymbolStyles;
-        if (ownedStyles.isEmpty()) {
-            ownedStyles = new ArrayList<>();
-            ownedStyles.add("CLASSIC");
+
+        LinkedHashSet<String> uniqueStyles = new LinkedHashSet<>();
+        for (String style : ownedStylesRaw) {
+            if (!NullUtil.isNull(style) && !style.trim().isEmpty()) {
+                uniqueStyles.add(style.trim());
+            }
         }
-        final List<String> availableStyles = ownedStyles;
+        if (uniqueStyles.isEmpty()) {
+            uniqueStyles.add("CLASSIC");
+        }
+
+        String equippedStyle = !NullUtil.isNull(currentProfile) && !NullUtil.isNull(currentProfile.equippedSymbolStyle)
+                ? currentProfile.equippedSymbolStyle
+                : "CLASSIC";
+        if (!uniqueStyles.contains(equippedStyle)) {
+            uniqueStyles.add(equippedStyle);
+        }
+
+        final List<String> availableStyles = new ArrayList<>(uniqueStyles);
+        int selectedStyleIndex = Math.max(0, availableStyles.indexOf(equippedStyle));
 
         List<CharSequence> styleOptions = new ArrayList<>();
-        int selectedStyleIndex = 0;
         for (int i = 0; i < availableStyles.size(); i++) {
             String styleId = availableStyles.get(i);
-            styleOptions.add(buildProfileStyleOption(styleId));
-            if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
-                selectedStyleIndex = i;
-            }
+            styleOptions.add(buildProfileStyleOption(styleId, i == selectedStyleIndex));
         }
 
         ArrayAdapter<CharSequence> styleAdapter = new ArrayAdapter<>(this, R.layout.item_profile_spinner_selected, styleOptions);
@@ -1928,21 +1940,46 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private CharSequence buildProfileStyleOption(@NonNull String styleId) {
-        String label = getSymbolStyleLabel(styleId) + "  (X / O)";
+    private CharSequence buildProfileStyleOption(@NonNull String styleId, boolean selected) {
+        String styleName = getSymbolStyleNameOnly(styleId);
+        String[] pair = stylePairForStyle(styleId);
+        String prefix = selected ? "✓ " : "";
+        String label = prefix + styleName + " • " + pair[0] + " / " + pair[1];
         SpannableString styled = new SpannableString(label);
 
-        int xIndex = label.lastIndexOf("X");
-        int oIndex = label.lastIndexOf("O");
-        if (xIndex >= 0) {
-            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#FB7185")), xIndex, xIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            styled.setSpan(new StyleSpan(Typeface.BOLD), xIndex, xIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        int firstIndex = label.lastIndexOf(pair[0]);
+        int secondIndex = label.lastIndexOf(pair[1]);
+
+        if (firstIndex >= 0) {
+            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#FB7185")), firstIndex, firstIndex + pair[0].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(new StyleSpan(Typeface.BOLD), firstIndex, firstIndex + pair[0].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        if (oIndex >= 0) {
-            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#67E8F9")), oIndex, oIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            styled.setSpan(new StyleSpan(Typeface.BOLD), oIndex, oIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (secondIndex >= 0) {
+            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#67E8F9")), secondIndex, secondIndex + pair[1].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(new StyleSpan(Typeface.BOLD), secondIndex, secondIndex + pair[1].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         return styled;
+    }
+
+    private String getSymbolStyleNameOnly(@NonNull String styleId) {
+        String fullLabel = getSymbolStyleLabel(styleId);
+        int symbolStart = fullLabel.indexOf("(");
+        if (symbolStart > 0) {
+            return fullLabel.substring(0, symbolStart).trim();
+        }
+        return fullLabel;
+    }
+
+    @NonNull
+    private String[] stylePairForStyle(@NonNull String styleId) {
+        return switch (styleId) {
+            case "RUNE" -> new String[]{"✦", "◉"};
+            case "FUTURE" -> new String[]{"✕", "⬡"};
+            case "NEON" -> new String[]{"✶", "◎"};
+            case "SAMURAI" -> new String[]{"メ", "◍"};
+            case "MYTHIC" -> new String[]{"⟁", "◉"};
+            default -> new String[]{"X", "O"};
+        };
     }
 
     private String getSymbolStyleLabel(@NonNull String styleId) {
