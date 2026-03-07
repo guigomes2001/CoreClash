@@ -235,9 +235,6 @@
     <string name="tutorial_hint_triangle_first">Use Triangle first, then Square.</string>
 
 
-    <string name="store_ranked_pass_price">Ranked Pass • R$ 19,90</string>
-    <string name="store_ranked_pass_active">Ranked Pass Active</string>
-    <string name="toast_ranked_pass_activated">Ranked Pass activated!</string>
 
     <string name="tutorial_mode_hint">★ Interactive guide available here anytime</string>
     <string name="tutorial_badge">Tutorial</string>

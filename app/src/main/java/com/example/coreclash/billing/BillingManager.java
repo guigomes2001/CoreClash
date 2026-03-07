@@ -26,7 +26,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 
     public interface PurchaseListener {
         void onCoinsGranted(int amount);
-        void onRankedPassGranted();
     }
 
     public interface RestoreListener {
@@ -35,7 +34,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 
     public static final String PRODUCT_CORECLASH_SMALL = "coreclash_pack_small";
     public static final String PRODUCT_CORECLASH_PRO = "coreclash_pack_pro";
-    public static final String PRODUCT_RANKED_PASS = "coreclash_ranked_pass";
 
     private static final String PREFS_NAME = "billing_prefs";
     private static final String TOKEN_PREFIX = "ack_";
@@ -73,7 +71,6 @@ public class BillingManager implements PurchasesUpdatedListener {
         List<QueryProductDetailsParams.Product> products = new ArrayList<>();
         products.add(buildInApp(PRODUCT_CORECLASH_SMALL));
         products.add(buildInApp(PRODUCT_CORECLASH_PRO));
-        products.add(buildInApp(PRODUCT_RANKED_PASS));
 
         QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
                 .setProductList(products)
@@ -174,17 +171,12 @@ public class BillingManager implements PurchasesUpdatedListener {
         }
 
         int granted = 0;
-        boolean grantedPass = false;
         List<String> products = purchase.getProducts();
         for (String productId : products) {
-            if (PRODUCT_RANKED_PASS.equals(productId)) {
-                grantedPass = true;
-                continue;
-            }
             granted += coresForProduct(productId);
         }
 
-        if (granted <= 0 && !grantedPass) {
+        if (granted <= 0) {
             granted = 500;
         }
 
@@ -192,7 +184,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 
         if (!NullUtil.isNull(purchaseListener)) {
             if (granted > 0) purchaseListener.onCoinsGranted(granted);
-            if (grantedPass) purchaseListener.onRankedPassGranted();
         }
         return 1;
     }
