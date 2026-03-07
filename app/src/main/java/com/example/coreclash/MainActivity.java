@@ -39,10 +39,6 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.example.coreclash.battlepass.data.BattlePassRepository;
-import com.example.coreclash.battlepass.data.MissionsRepository;
-import com.example.coreclash.battlepass.domain.BpProgressCalculator;
-import com.example.coreclash.battlepass.domain.MissionEngine;
 import com.example.coreclash.data.FirebaseProfileRepository;
 import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.databinding.ActivityMainBinding;
@@ -149,10 +145,6 @@ public class MainActivity extends AppCompatActivity {
     private BotManager botManager;
     private HomeAwayManager homeAwayManager;
     private SocialManager socialManager;
-    private BattlePassRepository battlePassRepository;
-    private MissionsRepository missionsRepository;
-    private final MissionEngine missionEngine = new MissionEngine();
-    private final BpProgressCalculator bpProgressCalculator = new BpProgressCalculator();
 
     private TimeoutBannerAnimator timeoutBannerAnimator;
     private MatchIntroAnimator matchIntroAnimator;
@@ -186,9 +178,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         authenticationManager = new AuthenticationManager(this);
-        battlePassRepository = new BattlePassRepository(this);
-        missionsRepository = new MissionsRepository();
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         applySiteLikeTypography(binding.getRoot());
@@ -589,8 +578,8 @@ public class MainActivity extends AppCompatActivity {
                         resetRoundSeries();
                         state.setGameMode(DomainGameMode.ONLINE.getValue());
                         gameManager.resetGame();
-        syncTutorialSkillOverride();
-                        victoryOverlayAnimator.clearLines();
+                    syncTutorialSkillOverride();
+                    victoryOverlayAnimator.clearLines();
 
                         opponentName = matchManager.getOpponentName();
                     }
@@ -1617,7 +1606,6 @@ public class MainActivity extends AppCompatActivity {
                     matchPhase = DomainMatchPhase.FINISHED;
                     String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
                     applyRankedOutcomeIfOnlineMatchFinished(champion);
-                    onMatchFinishedForBattlePass(champion, roundPoints);
                     showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
                     victoryOverlayAnimator.showWin(champion, 450);
                     return;
@@ -1636,7 +1624,7 @@ public class MainActivity extends AppCompatActivity {
 
                     victoryOverlayAnimator.hideInstant();
                     gameManager.resetGame();
-        syncTutorialSkillOverride();
+                    syncTutorialSkillOverride();
                     victoryOverlayAnimator.clearLines();
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -1687,38 +1675,6 @@ public class MainActivity extends AppCompatActivity {
                 getString(won ? R.string.fa_bolt : R.string.fa_xmark),
                 won ? 0xFF6EE7FF : 0xFFFF9CAA
         );
-    }
-
-    private void onMatchFinishedForBattlePass(@NonNull String championSymbol, int winLinesInFinalRound) {
-        if (NullUtil.isNull(FirebaseAuth.getInstance().getCurrentUser())) return;
-        battlePassRepository.fetchActiveSeasonAndState(new BattlePassRepository.SeasonStateCallback() {
-            @Override
-            public void onResult(com.example.coreclash.battlepass.model.Season season, com.example.coreclash.battlepass.model.BpState state) {
-                missionsRepository.fetchMissions(season.id, missions -> {
-                    boolean won = matchManager.isOnlineMatch()
-                            ? championSymbol.equals(matchManager.getMySymbolOnline())
-                            : DomainSymmetries.X.getValue().equals(championSymbol);
-                    int gained = missionEngine.applyMatchResult(state, missions,
-                            new MissionEngine.MatchFinishedEvent(won, matchManager.isOnlineMatch(), winLinesInFinalRound));
-                    state.level = bpProgressCalculator.levelFromXp(season, state.xp);
-                    battlePassRepository.upsertState(state, new BattlePassRepository.CompletionCallback() {
-                        @Override
-                        public void onComplete() { }
-
-                        @Override
-                        public void onError(Exception error) { }
-                    });
-                    showUiToastDedupedStyled(
-                            getString(R.string.bp_xp_gain_toast, gained),
-                            getString(R.string.fa_bolt),
-                            0xFF78E8FF
-                    );
-                }, error -> { });
-            }
-
-            @Override
-            public void onError(Exception error) { }
-        });
     }
 
     public void updateHeaderStatus() {
