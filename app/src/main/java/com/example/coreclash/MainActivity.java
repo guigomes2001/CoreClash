@@ -24,10 +24,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.LinearInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -39,10 +41,6 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.example.coreclash.battlepass.data.BattlePassRepository;
-import com.example.coreclash.battlepass.data.MissionsRepository;
-import com.example.coreclash.battlepass.domain.BpProgressCalculator;
-import com.example.coreclash.battlepass.domain.MissionEngine;
 import com.example.coreclash.data.FirebaseProfileRepository;
 import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.databinding.ActivityMainBinding;
@@ -149,10 +147,6 @@ public class MainActivity extends AppCompatActivity {
     private BotManager botManager;
     private HomeAwayManager homeAwayManager;
     private SocialManager socialManager;
-    private BattlePassRepository battlePassRepository;
-    private MissionsRepository missionsRepository;
-    private final MissionEngine missionEngine = new MissionEngine();
-    private final BpProgressCalculator bpProgressCalculator = new BpProgressCalculator();
 
     private TimeoutBannerAnimator timeoutBannerAnimator;
     private MatchIntroAnimator matchIntroAnimator;
@@ -186,9 +180,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         authenticationManager = new AuthenticationManager(this);
-        battlePassRepository = new BattlePassRepository(this);
-        missionsRepository = new MissionsRepository();
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         applySiteLikeTypography(binding.getRoot());
@@ -589,8 +580,8 @@ public class MainActivity extends AppCompatActivity {
                         resetRoundSeries();
                         state.setGameMode(DomainGameMode.ONLINE.getValue());
                         gameManager.resetGame();
-        syncTutorialSkillOverride();
-                        victoryOverlayAnimator.clearLines();
+                    syncTutorialSkillOverride();
+                    victoryOverlayAnimator.clearLines();
 
                         opponentName = matchManager.getOpponentName();
                     }
@@ -1617,7 +1608,6 @@ public class MainActivity extends AppCompatActivity {
                     matchPhase = DomainMatchPhase.FINISHED;
                     String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
                     applyRankedOutcomeIfOnlineMatchFinished(champion);
-                    onMatchFinishedForBattlePass(champion, roundPoints);
                     showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
                     victoryOverlayAnimator.showWin(champion, 450);
                     return;
@@ -1636,7 +1626,7 @@ public class MainActivity extends AppCompatActivity {
 
                     victoryOverlayAnimator.hideInstant();
                     gameManager.resetGame();
-        syncTutorialSkillOverride();
+                    syncTutorialSkillOverride();
                     victoryOverlayAnimator.clearLines();
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -1687,38 +1677,6 @@ public class MainActivity extends AppCompatActivity {
                 getString(won ? R.string.fa_bolt : R.string.fa_xmark),
                 won ? 0xFF6EE7FF : 0xFFFF9CAA
         );
-    }
-
-    private void onMatchFinishedForBattlePass(@NonNull String championSymbol, int winLinesInFinalRound) {
-        if (NullUtil.isNull(FirebaseAuth.getInstance().getCurrentUser())) return;
-        battlePassRepository.fetchActiveSeasonAndState(new BattlePassRepository.SeasonStateCallback() {
-            @Override
-            public void onResult(com.example.coreclash.battlepass.model.Season season, com.example.coreclash.battlepass.model.BpState state) {
-                missionsRepository.fetchMissions(season.id, missions -> {
-                    boolean won = matchManager.isOnlineMatch()
-                            ? championSymbol.equals(matchManager.getMySymbolOnline())
-                            : DomainSymmetries.X.getValue().equals(championSymbol);
-                    int gained = missionEngine.applyMatchResult(state, missions,
-                            new MissionEngine.MatchFinishedEvent(won, matchManager.isOnlineMatch(), winLinesInFinalRound));
-                    state.level = bpProgressCalculator.levelFromXp(season, state.xp);
-                    battlePassRepository.upsertState(state, new BattlePassRepository.CompletionCallback() {
-                        @Override
-                        public void onComplete() { }
-
-                        @Override
-                        public void onError(Exception error) { }
-                    });
-                    showUiToastDedupedStyled(
-                            getString(R.string.bp_xp_gain_toast, gained),
-                            getString(R.string.fa_bolt),
-                            0xFF78E8FF
-                    );
-                }, error -> { });
-            }
-
-            @Override
-            public void onError(Exception error) { }
-        });
     }
 
     public void updateHeaderStatus() {
@@ -1878,9 +1836,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        EditText nameInput = new EditText(this);
+        View profileView = getLayoutInflater().inflate(R.layout.dialog_profile, null);
+        EditText nameInput = profileView.findViewById(R.id.inputProfileName);
+        TextView txtProfileTag = profileView.findViewById(R.id.txtProfileDialogTag);
+        TextView txtRankedStats = profileView.findViewById(R.id.txtProfileDialogRankedStats);
+        Spinner spinnerStyle = profileView.findViewById(R.id.spinnerProfileStyle);
+
         nameInput.setText(getPlayerDisplayName());
-        nameInput.setHint(getString(R.string.profile_name));
         styleInput(nameInput);
 
         List<String> ownedStyles = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
@@ -1892,32 +1854,42 @@ public class MainActivity extends AppCompatActivity {
         }
         final List<String> availableStyles = ownedStyles;
 
-        String[] styleOptions = new String[availableStyles.size()];
+        List<String> styleOptions = new ArrayList<>();
         int selectedStyleIndex = 0;
         for (int i = 0; i < availableStyles.size(); i++) {
             String styleId = availableStyles.get(i);
-            styleOptions[i] = getSymbolStyleLabel(styleId);
+            styleOptions.add(getSymbolStyleLabel(styleId));
             if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
                 selectedStyleIndex = i;
             }
         }
 
-        final int[] selectedIndexHolder = { selectedStyleIndex };
+        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, styleOptions);
+        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStyle.setAdapter(styleAdapter);
+        spinnerStyle.setSelection(selectedStyleIndex);
+
         String tag = buildTagFromUid(uid);
+        txtProfileTag.setText(getString(R.string.profile_tag_format, tag));
+
+        if (!NullUtil.isNull(currentProfile)) {
+            txtRankedStats.setText(getString(R.string.profile_ranked_stats,
+                    currentProfile.seasonId,
+                    rankedTierLabel(currentProfile.mmr),
+                    currentProfile.mmr,
+                    currentProfile.rankedWins,
+                    currentProfile.rankedLosses));
+        }
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.profile_title))
-                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" +
-                        getString(R.string.profile_ranked_stats, currentProfile.seasonId, rankedTierLabel(currentProfile.mmr), currentProfile.mmr, currentProfile.rankedWins, currentProfile.rankedLosses) + "\n" +
-                        getString(R.string.profile_personalization_hint))
-                .setView(nameInput)
-                .setSingleChoiceItems(styleOptions, selectedStyleIndex, (d, which) -> selectedIndexHolder[0] = which)
+                .setView(profileView)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
                     String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
                     if (displayName.isEmpty()) displayName = getPlayerDisplayName();
 
-                    if (!NullUtil.isNull(currentProfile) && selectedIndexHolder[0] >= 0 && selectedIndexHolder[0] < availableStyles.size()) {
-                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndexHolder[0]);
+                    int selectedIndex = spinnerStyle.getSelectedItemPosition();
+                    if (!NullUtil.isNull(currentProfile) && selectedIndex >= 0 && selectedIndex < availableStyles.size()) {
+                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndex);
                         if (!NullUtil.isNull(storeManager)) {
                             storeManager.applyEquippedCosmetics();
                         }

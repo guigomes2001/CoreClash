@@ -17,8 +17,6 @@ public class PlayerProfile {
     public int rankedWins;
     public int rankedLosses;
     public String seasonId;
-    @Deprecated
-    public boolean rankedPassActive;
 
     public PlayerProfile() {
 
@@ -37,7 +35,6 @@ public class PlayerProfile {
         profile.rankedWins = 0;
         profile.rankedLosses = 0;
         profile.seasonId = java.time.LocalDate.now(java.time.ZoneOffset.UTC).getYear() + "-" + String.format("%02d", java.time.LocalDate.now(java.time.ZoneOffset.UTC).getMonthValue());
-        profile.rankedPassActive = false;
         return profile;
     }
 
