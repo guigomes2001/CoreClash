@@ -127,6 +127,17 @@
     <string name="profile_name">Nome</string>
     <string name="profile_tag">Tag</string>
     <string name="profile_save">Salvar</string>
+    <string name="profile_ranked_title">Resumo ranqueado</string>
+    <string name="profile_symbol_style">Estilo dos símbolos</string>
+    <string name="profile_tag_format">Tag: %1$s</string>
+    <string name="profile_style_helper">Selecione um estilo já adquirido para equipar seus símbolos.</string>
+    <string name="profile_stat_season">Temporada: %1$s</string>
+    <string name="profile_stat_tier">Tier: %1$s</string>
+    <string name="profile_stat_mmr">MMR: %1$d</string>
+    <string name="profile_stat_record">Campanha: V%1$d / D%2$d</string>
+    <string name="profile_toast_name_updated">Nome atualizado com sucesso.</string>
+    <string name="profile_toast_updated_name_style">Nome e estilo atualizados com sucesso.</string>
+    <string name="profile_toast_no_changes">Nenhuma alteração para salvar.</string>
     <string name="friends_title">Amigos</string>
     <string name="friends_add_by_tag">Adicionar por TAG</string>
     <string name="friends_tag_hint">GUI#1234</string>
@@ -194,6 +205,17 @@
     <string name="toast_ranked_gain">Rank up +%1$d MMR</string>
     <string name="toast_ranked_loss">Ajuste de rank %1$d MMR</string>
     <string name="profile_ranked_stats">Temporada %1$s • %2$s • %3$d MMR • V%4$d/D%5$d</string>
+
+    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
+    <string name="store_style_classic_name">Classic (X / O)</string>
+    <string name="store_style_rune_name">Rune Glyphs (✦ / ◉)</string>
+    <string name="store_style_future_name">Future Tech (✕ / ⬡)</string>
+    <string name="store_style_neon_name">Neon Pulse (✶ / ◎)</string>
+    <string name="store_style_samurai_name">Samurai Ink (メ / ◍)</string>
+    <string name="store_style_rune_name_short">Rune</string>
+    <string name="store_style_future_name_short">Future</string>
+    <string name="store_style_neon_name_short">Neon</string>
+    <string name="store_style_samurai_name_short">Samurai</string>
     <string name="store_style_mythic_name">Selo Mítico (⟁ / ◉)</string>
     <string name="tutorial_intro">Tutorial tático: faça uma jogada normal.</string>
     <string name="tutorial_step_triangle">Boa! Agora use a skill Triângulo.</string>
@@ -203,24 +225,7 @@
     <string name="tutorial_hint_normal_first">Primeiro faça uma jogada normal.</string>
     <string name="tutorial_hint_triangle_first">Use Triângulo primeiro, depois Quadrado.</string>
 
-    <string name="bp_title">Passe de Batalha</string>
-    <string name="bp_missions">Missões</string>
-    <string name="bp_buy_premium">Desbloquear Premium</string>
-    <string name="bp_restore">Restaurar compra</string>
-    <string name="bp_back">Voltar</string>
-    <string name="bp_error_loading">Não foi possível carregar o Passe de Batalha.</string>
-    <string name="bp_level_value">Nível %1$d</string>
-    <string name="bp_xp_value">XP %1$d / %2$d</string>
-    <string name="bp_season_status">Status da temporada: %1$s</string>
-    <string name="bp_premium_owned">Premium ativo</string>
-    <string name="bp_premium_locked">Premium bloqueado</string>
-    <string name="bp_mission_row">[%1$s] %2$s: %3$d/%4$d • %5$d XP</string>
-    <string name="bp_toast_premium_granted">Battle Pass Premium ativado.</string>
 
-    <string name="bp_xp_gain_toast">Passe de batalha +%1$d XP</string>
-    <string name="store_ranked_pass_price">Passe Ranqueado • R$ 19,90</string>
-    <string name="store_ranked_pass_active">Passe Ranqueado ativo</string>
-    <string name="toast_ranked_pass_activated">Passe Ranqueado ativado!</string>
 
     <string name="tutorial_mode_hint">★ Guia interativo disponível aqui a qualquer momento</string>
     <string name="tutorial_badge">Tutorial</string>

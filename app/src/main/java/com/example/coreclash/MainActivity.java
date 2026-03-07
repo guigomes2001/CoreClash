@@ -24,10 +24,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.LinearInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -39,10 +41,6 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.example.coreclash.battlepass.data.BattlePassRepository;
-import com.example.coreclash.battlepass.data.MissionsRepository;
-import com.example.coreclash.battlepass.domain.BpProgressCalculator;
-import com.example.coreclash.battlepass.domain.MissionEngine;
 import com.example.coreclash.data.FirebaseProfileRepository;
 import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.databinding.ActivityMainBinding;
@@ -59,6 +57,7 @@ import ui.anim.flow.HomeFlowManager;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -149,10 +148,6 @@ public class MainActivity extends AppCompatActivity {
     private BotManager botManager;
     private HomeAwayManager homeAwayManager;
     private SocialManager socialManager;
-    private BattlePassRepository battlePassRepository;
-    private MissionsRepository missionsRepository;
-    private final MissionEngine missionEngine = new MissionEngine();
-    private final BpProgressCalculator bpProgressCalculator = new BpProgressCalculator();
 
     private TimeoutBannerAnimator timeoutBannerAnimator;
     private MatchIntroAnimator matchIntroAnimator;
@@ -186,9 +181,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         authenticationManager = new AuthenticationManager(this);
-        battlePassRepository = new BattlePassRepository(this);
-        missionsRepository = new MissionsRepository();
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         applySiteLikeTypography(binding.getRoot());
@@ -589,8 +581,8 @@ public class MainActivity extends AppCompatActivity {
                         resetRoundSeries();
                         state.setGameMode(DomainGameMode.ONLINE.getValue());
                         gameManager.resetGame();
-        syncTutorialSkillOverride();
-                        victoryOverlayAnimator.clearLines();
+                    syncTutorialSkillOverride();
+                    victoryOverlayAnimator.clearLines();
 
                         opponentName = matchManager.getOpponentName();
                     }
@@ -1617,7 +1609,6 @@ public class MainActivity extends AppCompatActivity {
                     matchPhase = DomainMatchPhase.FINISHED;
                     String champion = roundsWonX > roundsWonO ? DomainSymmetries.X.getValue() : DomainSymmetries.O.getValue();
                     applyRankedOutcomeIfOnlineMatchFinished(champion);
-                    onMatchFinishedForBattlePass(champion, roundPoints);
                     showUiToastDeduped(getString(R.string.rounds_finished_score, winnerRounds, loserRounds));
                     victoryOverlayAnimator.showWin(champion, 450);
                     return;
@@ -1636,7 +1627,7 @@ public class MainActivity extends AppCompatActivity {
 
                     victoryOverlayAnimator.hideInstant();
                     gameManager.resetGame();
-        syncTutorialSkillOverride();
+                    syncTutorialSkillOverride();
                     victoryOverlayAnimator.clearLines();
                     updateHeaderStatus();
                     updateSkillVisuals();
@@ -1687,38 +1678,6 @@ public class MainActivity extends AppCompatActivity {
                 getString(won ? R.string.fa_bolt : R.string.fa_xmark),
                 won ? 0xFF6EE7FF : 0xFFFF9CAA
         );
-    }
-
-    private void onMatchFinishedForBattlePass(@NonNull String championSymbol, int winLinesInFinalRound) {
-        if (NullUtil.isNull(FirebaseAuth.getInstance().getCurrentUser())) return;
-        battlePassRepository.fetchActiveSeasonAndState(new BattlePassRepository.SeasonStateCallback() {
-            @Override
-            public void onResult(com.example.coreclash.battlepass.model.Season season, com.example.coreclash.battlepass.model.BpState state) {
-                missionsRepository.fetchMissions(season.id, missions -> {
-                    boolean won = matchManager.isOnlineMatch()
-                            ? championSymbol.equals(matchManager.getMySymbolOnline())
-                            : DomainSymmetries.X.getValue().equals(championSymbol);
-                    int gained = missionEngine.applyMatchResult(state, missions,
-                            new MissionEngine.MatchFinishedEvent(won, matchManager.isOnlineMatch(), winLinesInFinalRound));
-                    state.level = bpProgressCalculator.levelFromXp(season, state.xp);
-                    battlePassRepository.upsertState(state, new BattlePassRepository.CompletionCallback() {
-                        @Override
-                        public void onComplete() { }
-
-                        @Override
-                        public void onError(Exception error) { }
-                    });
-                    showUiToastDedupedStyled(
-                            getString(R.string.bp_xp_gain_toast, gained),
-                            getString(R.string.fa_bolt),
-                            0xFF78E8FF
-                    );
-                }, error -> { });
-            }
-
-            @Override
-            public void onError(Exception error) { }
-        });
     }
 
     public void updateHeaderStatus() {
@@ -1878,61 +1837,172 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        EditText nameInput = new EditText(this);
+        View profileView = getLayoutInflater().inflate(R.layout.dialog_profile, null);
+        EditText nameInput = profileView.findViewById(R.id.inputProfileName);
+        TextView txtProfileTag = profileView.findViewById(R.id.txtProfileDialogTag);
+        TextView txtSeason = profileView.findViewById(R.id.txtProfileStatSeason);
+        TextView txtTier = profileView.findViewById(R.id.txtProfileStatTier);
+        TextView txtMmr = profileView.findViewById(R.id.txtProfileStatMmr);
+        TextView txtRecord = profileView.findViewById(R.id.txtProfileStatRecord);
+        Spinner spinnerStyle = profileView.findViewById(R.id.spinnerProfileStyle);
+
         nameInput.setText(getPlayerDisplayName());
-        nameInput.setHint(getString(R.string.profile_name));
         styleInput(nameInput);
 
-        List<String> ownedStyles = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
+        List<String> ownedStylesRaw = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
                 ? new ArrayList<>()
                 : currentProfile.ownedSymbolStyles;
-        if (ownedStyles.isEmpty()) {
-            ownedStyles = new ArrayList<>();
-            ownedStyles.add("CLASSIC");
-        }
-        final List<String> availableStyles = ownedStyles;
 
-        String[] styleOptions = new String[availableStyles.size()];
-        int selectedStyleIndex = 0;
-        for (int i = 0; i < availableStyles.size(); i++) {
-            String styleId = availableStyles.get(i);
-            styleOptions[i] = getSymbolStyleLabel(styleId);
-            if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
-                selectedStyleIndex = i;
+        LinkedHashSet<String> uniqueStyles = new LinkedHashSet<>();
+        for (String style : ownedStylesRaw) {
+            String canonical = canonicalStyleId(style);
+            if (!canonical.isEmpty()) {
+                uniqueStyles.add(canonical);
             }
         }
+        if (uniqueStyles.isEmpty()) {
+            uniqueStyles.add("CLASSIC");
+        }
 
-        final int[] selectedIndexHolder = { selectedStyleIndex };
+        String equippedStyle = !NullUtil.isNull(currentProfile)
+                ? canonicalStyleId(currentProfile.equippedSymbolStyle)
+                : "CLASSIC";
+        if (equippedStyle.isEmpty()) equippedStyle = "CLASSIC";
+        if (!uniqueStyles.contains(equippedStyle)) {
+            uniqueStyles.add(equippedStyle);
+        }
+
+        final List<String> availableStyles = new ArrayList<>(uniqueStyles);
+        int selectedStyleIndex = Math.max(0, availableStyles.indexOf(equippedStyle));
+
+        List<CharSequence> styleOptions = new ArrayList<>();
+        for (int i = 0; i < availableStyles.size(); i++) {
+            String styleId = availableStyles.get(i);
+            styleOptions.add(buildProfileStyleOption(styleId, i == selectedStyleIndex));
+        }
+
+        ArrayAdapter<CharSequence> styleAdapter = new ArrayAdapter<>(this, R.layout.item_profile_spinner_selected, styleOptions);
+        styleAdapter.setDropDownViewResource(R.layout.item_profile_spinner_dropdown);
+        spinnerStyle.setAdapter(styleAdapter);
+        spinnerStyle.setSelection(selectedStyleIndex);
+
         String tag = buildTagFromUid(uid);
+        txtProfileTag.setText(getString(R.string.profile_tag_format, tag));
+
+        if (!NullUtil.isNull(currentProfile)) {
+            txtSeason.setText(getString(R.string.profile_stat_season, currentProfile.seasonId));
+            txtTier.setText(getString(R.string.profile_stat_tier, rankedTierLabel(currentProfile.mmr)));
+            txtMmr.setText(getString(R.string.profile_stat_mmr, currentProfile.mmr));
+            txtRecord.setText(getString(R.string.profile_stat_record, currentProfile.rankedWins, currentProfile.rankedLosses));
+        }
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.profile_title))
-                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" +
-                        getString(R.string.profile_ranked_stats, currentProfile.seasonId, rankedTierLabel(currentProfile.mmr), currentProfile.mmr, currentProfile.rankedWins, currentProfile.rankedLosses) + "\n" +
-                        getString(R.string.profile_personalization_hint))
-                .setView(nameInput)
-                .setSingleChoiceItems(styleOptions, selectedStyleIndex, (d, which) -> selectedIndexHolder[0] = which)
-                .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
-                    String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
-                    if (displayName.isEmpty()) displayName = getPlayerDisplayName();
-
-                    if (!NullUtil.isNull(currentProfile) && selectedIndexHolder[0] >= 0 && selectedIndexHolder[0] < availableStyles.size()) {
-                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndexHolder[0]);
-                        if (!NullUtil.isNull(storeManager)) {
-                            storeManager.applyEquippedCosmetics();
-                        }
-                    }
-
-                    socialManager.upsertUserProfile(uid, displayName, tag);
-                    playerServices.updateDisplayNameAndPersist(displayName);
-                    StyledToast.show(this, getString(R.string.toast_style_equipped));
-                    updateHeaderStatus();
-                })
-                .setNegativeButton(getString(R.string.btn_back), null)
+                .setView(profileView)
                 .create();
 
         profileDialog.show();
         applyDialogStyle(profileDialog);
+
+        Button btnClose = profileView.findViewById(R.id.btnProfileClose);
+        Button btnSave = profileView.findViewById(R.id.btnProfileSave);
+
+        btnClose.setOnClickListener(v -> profileDialog.dismiss());
+        btnSave.setOnClickListener(v -> {
+            String oldDisplayName = getPlayerDisplayName();
+            String displayName = NullUtil.isNull(nameInput.getText()) ? oldDisplayName : nameInput.getText().toString().trim();
+            if (displayName.isEmpty()) displayName = oldDisplayName;
+
+            int selectedIndex = spinnerStyle.getSelectedItemPosition();
+            String previousStyle = NullUtil.isNull(currentProfile) ? "CLASSIC" : canonicalStyleId(currentProfile.equippedSymbolStyle);
+            if (previousStyle.isEmpty()) previousStyle = "CLASSIC";
+            String selectedStyle = previousStyle;
+            if (!NullUtil.isNull(currentProfile) && selectedIndex >= 0 && selectedIndex < availableStyles.size()) {
+                selectedStyle = availableStyles.get(selectedIndex);
+                currentProfile.equippedSymbolStyle = selectedStyle;
+                if (!NullUtil.isNull(storeManager)) {
+                    storeManager.applyEquippedCosmetics();
+                }
+            }
+
+            socialManager.upsertUserProfile(uid, displayName, tag);
+            playerServices.updateDisplayNameAndPersist(displayName);
+            updateHeaderStatus();
+            profileDialog.dismiss();
+
+            boolean nameChanged = !displayName.equals(oldDisplayName);
+            boolean styleChanged = !selectedStyle.equals(previousStyle);
+            if (nameChanged && styleChanged) {
+                StyledToast.show(this, getString(R.string.profile_toast_updated_name_style));
+            } else if (nameChanged) {
+                StyledToast.show(this, getString(R.string.profile_toast_name_updated));
+            } else if (styleChanged) {
+                StyledToast.show(this, getString(R.string.toast_style_equipped));
+            } else {
+                StyledToast.show(this, getString(R.string.profile_toast_no_changes));
+            }
+        });
+    }
+
+    private CharSequence buildProfileStyleOption(@NonNull String styleId, boolean selected) {
+        String styleName = getSymbolStyleNameOnly(styleId);
+        String[] pair = stylePairForStyle(styleId);
+        String prefix = selected ? "✓ " : "";
+        String label = prefix + styleName + " • " + pair[0] + " / " + pair[1];
+        SpannableString styled = new SpannableString(label);
+
+        int firstIndex = label.lastIndexOf(pair[0]);
+        int secondIndex = label.lastIndexOf(pair[1]);
+
+        if (firstIndex >= 0) {
+            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#FB7185")), firstIndex, firstIndex + pair[0].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(new StyleSpan(Typeface.BOLD), firstIndex, firstIndex + pair[0].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        if (secondIndex >= 0) {
+            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#67E8F9")), secondIndex, secondIndex + pair[1].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(new StyleSpan(Typeface.BOLD), secondIndex, secondIndex + pair[1].length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return styled;
+    }
+
+    private String getSymbolStyleNameOnly(@NonNull String styleId) {
+        String fullLabel = getSymbolStyleLabel(styleId);
+        int symbolStart = fullLabel.indexOf("(");
+        if (symbolStart > 0) {
+            return fullLabel.substring(0, symbolStart).trim();
+        }
+        return fullLabel;
+    }
+
+    @NonNull
+    private String[] stylePairForStyle(@NonNull String styleId) {
+        return switch (styleId) {
+            case "RUNE" -> new String[]{"✦", "◉"};
+            case "FUTURE" -> new String[]{"✕", "⬡"};
+            case "NEON" -> new String[]{"✶", "◎"};
+            case "SAMURAI" -> new String[]{"メ", "◍"};
+            case "MYTHIC" -> new String[]{"⟁", "◉"};
+            default -> new String[]{"X", "O"};
+        };
+    }
+
+    @NonNull
+    private String canonicalStyleId(String rawStyle) {
+        if (NullUtil.isNull(rawStyle)) return "";
+        String normalized = rawStyle.trim().toUpperCase();
+        if (normalized.isEmpty()) return "";
+
+        return switch (normalized) {
+            case "CLASSIC", "RUNE", "FUTURE", "NEON", "SAMURAI", "MYTHIC" -> normalized;
+            default -> {
+                if (normalized.contains("RUNE")) yield "RUNE";
+                if (normalized.contains("FUTURE")) yield "FUTURE";
+                if (normalized.contains("NEON")) yield "NEON";
+                if (normalized.contains("SAMURAI") || normalized.contains("メ") || normalized.contains("◍")) yield "SAMURAI";
+                if (normalized.contains("MYTHIC") || normalized.contains("⟁")) yield "MYTHIC";
+                if (normalized.contains("CLASSIC") || normalized.equals("X/O") || normalized.equals("X / O")) yield "CLASSIC";
+                yield "";
+            }
+        };
     }
 
     private String getSymbolStyleLabel(@NonNull String styleId) {
