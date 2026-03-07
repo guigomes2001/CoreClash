@@ -128,6 +128,17 @@
     <string name="profile_name">Name</string>
     <string name="profile_tag">Tag</string>
     <string name="profile_save">Save</string>
+    <string name="profile_ranked_title">Ranked Snapshot</string>
+    <string name="profile_symbol_style">Symbol style</string>
+    <string name="profile_tag_format">Tag: %1$s</string>
+    <string name="profile_style_helper">Select an owned style to equip your symbols.</string>
+    <string name="profile_stat_season">Season: %1$s</string>
+    <string name="profile_stat_tier">Tier: %1$s</string>
+    <string name="profile_stat_mmr">MMR: %1$d</string>
+    <string name="profile_stat_record">Record: W%1$d / L%2$d</string>
+    <string name="profile_toast_name_updated">Name updated successfully.</string>
+    <string name="profile_toast_updated_name_style">Name and style updated successfully.</string>
+    <string name="profile_toast_no_changes">No changes to save.</string>
     <string name="friends_title">Friends</string>
     <string name="friends_add_by_tag">Add by tag</string>
     <string name="friends_tag_hint">GUI#1234</string>
@@ -187,22 +198,22 @@
     <string name="store_personalization_title">Personalization</string>
     <string name="store_theme_royal_preview">♔  X • O</string>
     <string name="store_theme_void_preview">✦  X • O</string>
-    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
+    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • 侍🔴/🔵</string>
     <string name="store_theme_royal_price">180 Core Coins</string>
     <string name="store_theme_void_price">220 Core Coins</string>
     <string name="store_style_neon_price">210 Core Coins</string>
     <string name="store_style_samurai_price">240 Core Coins</string>
-    <string name="store_style_classic_name">Classic (X / O)</string>
+    <string name="store_style_classic_name">Classic Mark (X / O)</string>
     <string name="store_style_rune_name">Rune Glyphs (✦ / ◉)</string>
     <string name="store_style_future_name">Future Tech (✕ / ⬡)</string>
     <string name="store_style_neon_name">Neon Pulse (✶ / ◎)</string>
-    <string name="store_style_samurai_name">Samurai Ink (メ / ◍)</string>
+    <string name="store_style_samurai_name">Samurai 侍 Script (メ / ◍ • 🔴 / 🔵)</string>
     <string name="store_card_type_theme">Symbol Style</string>
     <string name="store_card_type_style">Symbol Style</string>
-    <string name="store_style_rune_name_short">Rune</string>
-    <string name="store_style_future_name_short">Future</string>
-    <string name="store_style_neon_name_short">Neon</string>
-    <string name="store_style_samurai_name_short">Samurai</string>
+    <string name="store_style_rune_name_short">Rune ✦◉</string>
+    <string name="store_style_future_name_short">Future ✕⬡</string>
+    <string name="store_style_neon_name_short">Neon ✶◎</string>
+    <string name="store_style_samurai_name_short">侍 Samurai 🔴🔵</string>
     <string name="profile_personalization_hint">Personalization: select an already owned style to equip.</string>
 
 
@@ -225,7 +236,7 @@
     <string name="toast_ranked_gain">Rank up +%1$d MMR</string>
     <string name="toast_ranked_loss">Rank shift %1$d MMR</string>
     <string name="profile_ranked_stats">Season %1$s • %2$s • %3$d MMR • W%4$d/L%5$d</string>
-    <string name="store_style_mythic_name">Mythic Sigil (⟁ / ◉)</string>
+    <string name="store_style_mythic_name">Mythic Sigil (⟁ / ◉ • 🟣 / 🔵)</string>
     <string name="tutorial_intro">Tactical tutorial: place one normal move.</string>
     <string name="tutorial_step_triangle">Great! Now use Triangle skill.</string>
     <string name="tutorial_step_square">Nice! Now use Square skill.</string>
@@ -234,24 +245,7 @@
     <string name="tutorial_hint_normal_first">First place one normal move.</string>
     <string name="tutorial_hint_triangle_first">Use Triangle first, then Square.</string>
 
-    <string name="bp_title">Battle Pass</string>
-    <string name="bp_missions">Missions</string>
-    <string name="bp_buy_premium">Unlock Premium</string>
-    <string name="bp_restore">Restore purchase</string>
-    <string name="bp_back">Back</string>
-    <string name="bp_error_loading">Unable to load Battle Pass data.</string>
-    <string name="bp_level_value">Level %1$d</string>
-    <string name="bp_xp_value">XP %1$d / %2$d</string>
-    <string name="bp_season_status">Season status: %1$s</string>
-    <string name="bp_premium_owned">Premium active</string>
-    <string name="bp_premium_locked">Premium locked</string>
-    <string name="bp_mission_row">[%1$s] %2$s: %3$d/%4$d • %5$d XP</string>
-    <string name="bp_toast_premium_granted">Battle Pass Premium activated.</string>
 
-    <string name="bp_xp_gain_toast">Battle Pass +%1$d XP</string>
-    <string name="store_ranked_pass_price">Ranked Pass • R$ 19,90</string>
-    <string name="store_ranked_pass_active">Ranked Pass Active</string>
-    <string name="toast_ranked_pass_activated">Ranked Pass activated!</string>
 
     <string name="tutorial_mode_hint">★ Interactive guide available here anytime</string>
     <string name="tutorial_badge">Tutorial</string>
