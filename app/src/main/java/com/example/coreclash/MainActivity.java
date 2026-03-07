@@ -331,11 +331,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private BotManager initBotManager() {
-        return new BotManager(
-                handler,
-                random,
-                gameManager,
-                new BotManager.Gate() {
+        return new BotManager(handler, random, gameManager, new BotManager.Gate() {
                     @Override public boolean isOnlineMatch() { return !NullUtil.isNull(matchManager) && matchManager.isOnlineMatch(); }
                     @Override public boolean isVersusBot() { return versusBot; }
                     @Override public boolean isMatchStarted() { return matchStarted; }
