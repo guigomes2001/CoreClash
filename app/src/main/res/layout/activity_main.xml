@@ -651,7 +651,6 @@
                             
                 <TextView android:layout_height="wrap_content" android:layout_marginTop="6dp" android:layout_width="match_parent" android:text="@string/store_buy_coreclash_hint" android:textColor="#8CC5EA" android:textSize="12sp"/>
                             
-                <Button android:background="@drawable/bg_store_buy_button" android:id="@+id/btnBuyRankedPass" android:layout_height="48dp" android:layout_marginTop="10dp" android:layout_width="match_parent" android:text="@string/store_ranked_pass_price" android:textColor="#04131F" android:textStyle="bold"/>
                             
                 <Button android:background="@drawable/bg_button_tertiary" android:id="@+id/btnRestorePurchases" android:layout_height="48dp" android:layout_marginTop="10dp" android:layout_width="match_parent" android:text="@string/store_restore_purchases" android:textColor="#DDEBFF" android:textStyle="bold"/>
                             
