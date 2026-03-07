@@ -1,7 +1,6 @@
 package com.example.coreclash.billing;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
@@ -16,10 +15,6 @@ import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,21 +27,15 @@ public class BillingManager implements PurchasesUpdatedListener {
     public interface PurchaseListener {
         void onCoinsGranted(int amount);
         void onRankedPassGranted();
-        default void onPremiumEntitlementChanged(boolean premiumOwned) { }
     }
 
     public interface RestoreListener {
         void onRestoreCompleted(int restoredPurchasesCount);
     }
 
-    public interface PremiumRestoreListener {
-        void onPremiumRestored(boolean active);
-    }
-
     public static final String PRODUCT_CORECLASH_SMALL = "coreclash_pack_small";
     public static final String PRODUCT_CORECLASH_PRO = "coreclash_pack_pro";
     public static final String PRODUCT_RANKED_PASS = "coreclash_ranked_pass";
-    public static final String PRODUCT_BATTLE_PASS_PREMIUM = "coreclash_battle_pass_premium";
 
     private static final String PREFS_NAME = "billing_prefs";
     private static final String TOKEN_PREFIX = "ack_";
@@ -56,12 +45,10 @@ public class BillingManager implements PurchasesUpdatedListener {
     private BillingClient billingClient;
     private PurchaseListener purchaseListener;
     private SharedPreferences prefs;
-    private Context context;
 
     public void start(@NonNull Activity activity, @NonNull PurchaseListener listener) {
         this.purchaseListener = listener;
         this.prefs = activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE);
-        this.context = activity.getApplicationContext();
 
         billingClient = BillingClient.newBuilder(activity)
                 .setListener(this)
@@ -87,7 +74,6 @@ public class BillingManager implements PurchasesUpdatedListener {
         products.add(buildInApp(PRODUCT_CORECLASH_SMALL));
         products.add(buildInApp(PRODUCT_CORECLASH_PRO));
         products.add(buildInApp(PRODUCT_RANKED_PASS));
-        products.add(buildInApp(PRODUCT_BATTLE_PASS_PREMIUM));
 
         QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
                 .setProductList(products)
@@ -133,36 +119,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 
         BillingResult result = billingClient.launchBillingFlow(activity, flowParams);
         return result.getResponseCode() == BillingClient.BillingResponseCode.OK;
-    }
-
-    public boolean launchPremiumBattlePassPurchase(@NonNull Activity activity) {
-        return launchProductPurchase(activity, PRODUCT_BATTLE_PASS_PREMIUM);
-    }
-
-    public void restorePremiumPass(@NonNull PremiumRestoreListener listener) {
-        if (NullUtil.isNull(billingClient)) {
-            listener.onPremiumRestored(false);
-            return;
-        }
-        QueryPurchasesParams params = QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.INAPP)
-                .build();
-
-        billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
-            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || NullUtil.isNull(purchases)) {
-                listener.onPremiumRestored(false);
-                return;
-            }
-            boolean hasPremium = false;
-            for (Purchase purchase : purchases) {
-                if (purchase.getProducts().contains(PRODUCT_BATTLE_PASS_PREMIUM)
-                        && purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-                    hasPremium = true;
-                    processPurchase(purchase);
-                }
-            }
-            listener.onPremiumRestored(hasPremium);
-        });
     }
 
     public void restorePurchases(@NonNull RestoreListener listener) {
@@ -219,21 +175,16 @@ public class BillingManager implements PurchasesUpdatedListener {
 
         int granted = 0;
         boolean grantedPass = false;
-        boolean premiumOwned = false;
         List<String> products = purchase.getProducts();
         for (String productId : products) {
             if (PRODUCT_RANKED_PASS.equals(productId)) {
                 grantedPass = true;
                 continue;
             }
-            if (PRODUCT_BATTLE_PASS_PREMIUM.equals(productId)) {
-                premiumOwned = true;
-                continue;
-            }
             granted += coresForProduct(productId);
         }
 
-        if (granted <= 0 && !grantedPass && !premiumOwned) {
+        if (granted <= 0 && !grantedPass) {
             granted = 500;
         }
 
@@ -242,23 +193,8 @@ public class BillingManager implements PurchasesUpdatedListener {
         if (!NullUtil.isNull(purchaseListener)) {
             if (granted > 0) purchaseListener.onCoinsGranted(granted);
             if (grantedPass) purchaseListener.onRankedPassGranted();
-            if (premiumOwned) purchaseListener.onPremiumEntitlementChanged(true);
-        }
-        if (premiumOwned) {
-            syncPremiumEntitlementFirestore(true);
         }
         return 1;
-    }
-
-    private void syncPremiumEntitlementFirestore(boolean premiumOwned) {
-        String uid = FirebaseAuth.getInstance().getUid();
-        if (uid == null) return;
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("premiumOwned", premiumOwned);
-        payload.put("updatedAt", System.currentTimeMillis());
-        FirebaseFirestore.getInstance().collection("battlePassEntitlements")
-                .document(uid)
-                .set(payload, SetOptions.merge());
     }
 
     private int coresForProduct(@NonNull String productId) {
