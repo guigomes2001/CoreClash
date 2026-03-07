@@ -198,22 +198,22 @@
     <string name="store_personalization_title">Personalization</string>
     <string name="store_theme_royal_preview">♔  X • O</string>
     <string name="store_theme_void_preview">✦  X • O</string>
-    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • メ◍</string>
+    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • 侍🔴/🔵</string>
     <string name="store_theme_royal_price">180 Core Coins</string>
     <string name="store_theme_void_price">220 Core Coins</string>
     <string name="store_style_neon_price">210 Core Coins</string>
     <string name="store_style_samurai_price">240 Core Coins</string>
-    <string name="store_style_classic_name">Classic (X / O)</string>
+    <string name="store_style_classic_name">Classic Mark (X / O)</string>
     <string name="store_style_rune_name">Rune Glyphs (✦ / ◉)</string>
     <string name="store_style_future_name">Future Tech (✕ / ⬡)</string>
     <string name="store_style_neon_name">Neon Pulse (✶ / ◎)</string>
-    <string name="store_style_samurai_name">Samurai Ink (メ / ◍)</string>
+    <string name="store_style_samurai_name">Samurai 侍 Script (メ / ◍ • 🔴 / 🔵)</string>
     <string name="store_card_type_theme">Symbol Style</string>
     <string name="store_card_type_style">Symbol Style</string>
-    <string name="store_style_rune_name_short">Rune</string>
-    <string name="store_style_future_name_short">Future</string>
-    <string name="store_style_neon_name_short">Neon</string>
-    <string name="store_style_samurai_name_short">Samurai</string>
+    <string name="store_style_rune_name_short">Rune ✦◉</string>
+    <string name="store_style_future_name_short">Future ✕⬡</string>
+    <string name="store_style_neon_name_short">Neon ✶◎</string>
+    <string name="store_style_samurai_name_short">侍 Samurai 🔴🔵</string>
     <string name="profile_personalization_hint">Personalization: select an already owned style to equip.</string>
 
 
@@ -236,7 +236,7 @@
     <string name="toast_ranked_gain">Rank up +%1$d MMR</string>
     <string name="toast_ranked_loss">Rank shift %1$d MMR</string>
     <string name="profile_ranked_stats">Season %1$s • %2$s • %3$d MMR • W%4$d/L%5$d</string>
-    <string name="store_style_mythic_name">Mythic Sigil (⟁ / ◉)</string>
+    <string name="store_style_mythic_name">Mythic Sigil (⟁ / ◉ • 🟣 / 🔵)</string>
     <string name="tutorial_intro">Tactical tutorial: place one normal move.</string>
     <string name="tutorial_step_triangle">Great! Now use Triangle skill.</string>
     <string name="tutorial_step_square">Nice! Now use Square skill.</string>
