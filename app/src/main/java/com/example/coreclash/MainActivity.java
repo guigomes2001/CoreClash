@@ -1857,17 +1857,17 @@ public class MainActivity extends AppCompatActivity {
         }
         final List<String> availableStyles = ownedStyles;
 
-        List<String> styleOptions = new ArrayList<>();
+        List<CharSequence> styleOptions = new ArrayList<>();
         int selectedStyleIndex = 0;
         for (int i = 0; i < availableStyles.size(); i++) {
             String styleId = availableStyles.get(i);
-            styleOptions.add(getSymbolStyleLabel(styleId));
+            styleOptions.add(buildProfileStyleOption(styleId));
             if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
                 selectedStyleIndex = i;
             }
         }
 
-        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, R.layout.item_profile_spinner_selected, styleOptions);
+        ArrayAdapter<CharSequence> styleAdapter = new ArrayAdapter<>(this, R.layout.item_profile_spinner_selected, styleOptions);
         styleAdapter.setDropDownViewResource(R.layout.item_profile_spinner_dropdown);
         spinnerStyle.setAdapter(styleAdapter);
         spinnerStyle.setSelection(selectedStyleIndex);
@@ -1926,6 +1926,23 @@ public class MainActivity extends AppCompatActivity {
                 StyledToast.show(this, getString(R.string.profile_toast_no_changes));
             }
         });
+    }
+
+    private CharSequence buildProfileStyleOption(@NonNull String styleId) {
+        String label = getSymbolStyleLabel(styleId) + "  (X / O)";
+        SpannableString styled = new SpannableString(label);
+
+        int xIndex = label.lastIndexOf("X");
+        int oIndex = label.lastIndexOf("O");
+        if (xIndex >= 0) {
+            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#FB7185")), xIndex, xIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(new StyleSpan(Typeface.BOLD), xIndex, xIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        if (oIndex >= 0) {
+            styled.setSpan(new ForegroundColorSpan(Color.parseColor("#67E8F9")), oIndex, oIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(new StyleSpan(Typeface.BOLD), oIndex, oIndex + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return styled;
     }
 
     private String getSymbolStyleLabel(@NonNull String styleId) {
