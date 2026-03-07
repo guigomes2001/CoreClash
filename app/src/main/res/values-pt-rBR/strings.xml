@@ -127,6 +127,9 @@
     <string name="profile_name">Nome</string>
     <string name="profile_tag">Tag</string>
     <string name="profile_save">Salvar</string>
+    <string name="profile_ranked_title">Resumo ranqueado</string>
+    <string name="profile_symbol_style">Estilo dos símbolos</string>
+    <string name="profile_tag_format">Tag: %1$s</string>
     <string name="friends_title">Amigos</string>
     <string name="friends_add_by_tag">Adicionar por TAG</string>
     <string name="friends_tag_hint">GUI#1234</string>

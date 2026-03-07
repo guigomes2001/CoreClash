@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="18dp"
+    android:background="@drawable/bg_modal_panel">
+
+    <TextView
+        android:id="@+id/txtProfileDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/profile_title"
+        android:textColor="#F8FAFC"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-condensed"
+        android:letterSpacing="0.04"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/txtProfileDialogTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:background="@drawable/bg_button_tertiary"
+        android:textColor="#D7E9FF"
+        android:textStyle="bold"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@drawable/bg_store_section">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_ranked_title"
+            android:textColor="#EAF2FF"
+            android:textStyle="bold"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/txtProfileDialogRankedStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="#BFD8F5"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="@string/profile_name"
+        android:textColor="#D8E9FF"
+        android:textStyle="bold"
+        android:textSize="13sp" />
+
+    <EditText
+        android:id="@+id/inputProfileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:hint="@string/profile_name"
+        android:padding="12dp"
+        android:singleLine="true"
+        android:textColor="#EAF2FF"
+        android:textColorHint="#8FAACA"
+        android:background="@drawable/bg_button_tertiary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="@string/profile_symbol_style"
+        android:textColor="#D8E9FF"
+        android:textStyle="bold"
+        android:textSize="13sp" />
+
+    <Spinner
+        android:id="@+id/spinnerProfileStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:paddingHorizontal="8dp"
+        android:background="@drawable/bg_button_tertiary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/profile_personalization_hint"
+        android:textColor="#9EC3E8"
+        android:textSize="12sp" />
+
+</LinearLayout>

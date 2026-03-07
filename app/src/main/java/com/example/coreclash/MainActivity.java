@@ -24,10 +24,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.LinearInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -1834,9 +1836,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        EditText nameInput = new EditText(this);
+        View profileView = getLayoutInflater().inflate(R.layout.dialog_profile, null);
+        EditText nameInput = profileView.findViewById(R.id.inputProfileName);
+        TextView txtProfileTag = profileView.findViewById(R.id.txtProfileDialogTag);
+        TextView txtRankedStats = profileView.findViewById(R.id.txtProfileDialogRankedStats);
+        Spinner spinnerStyle = profileView.findViewById(R.id.spinnerProfileStyle);
+
         nameInput.setText(getPlayerDisplayName());
-        nameInput.setHint(getString(R.string.profile_name));
         styleInput(nameInput);
 
         List<String> ownedStyles = NullUtil.isNull(currentProfile) || NullUtil.isNull(currentProfile.ownedSymbolStyles)
@@ -1848,32 +1854,42 @@ public class MainActivity extends AppCompatActivity {
         }
         final List<String> availableStyles = ownedStyles;
 
-        String[] styleOptions = new String[availableStyles.size()];
+        List<String> styleOptions = new ArrayList<>();
         int selectedStyleIndex = 0;
         for (int i = 0; i < availableStyles.size(); i++) {
             String styleId = availableStyles.get(i);
-            styleOptions[i] = getSymbolStyleLabel(styleId);
+            styleOptions.add(getSymbolStyleLabel(styleId));
             if (!NullUtil.isNull(currentProfile) && styleId.equals(currentProfile.equippedSymbolStyle)) {
                 selectedStyleIndex = i;
             }
         }
 
-        final int[] selectedIndexHolder = { selectedStyleIndex };
+        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, styleOptions);
+        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStyle.setAdapter(styleAdapter);
+        spinnerStyle.setSelection(selectedStyleIndex);
+
         String tag = buildTagFromUid(uid);
+        txtProfileTag.setText(getString(R.string.profile_tag_format, tag));
+
+        if (!NullUtil.isNull(currentProfile)) {
+            txtRankedStats.setText(getString(R.string.profile_ranked_stats,
+                    currentProfile.seasonId,
+                    rankedTierLabel(currentProfile.mmr),
+                    currentProfile.mmr,
+                    currentProfile.rankedWins,
+                    currentProfile.rankedLosses));
+        }
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.profile_title))
-                .setMessage(getString(R.string.profile_tag) + ": " + tag + "\n" +
-                        getString(R.string.profile_ranked_stats, currentProfile.seasonId, rankedTierLabel(currentProfile.mmr), currentProfile.mmr, currentProfile.rankedWins, currentProfile.rankedLosses) + "\n" +
-                        getString(R.string.profile_personalization_hint))
-                .setView(nameInput)
-                .setSingleChoiceItems(styleOptions, selectedStyleIndex, (d, which) -> selectedIndexHolder[0] = which)
+                .setView(profileView)
                 .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
                     String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
                     if (displayName.isEmpty()) displayName = getPlayerDisplayName();
 
-                    if (!NullUtil.isNull(currentProfile) && selectedIndexHolder[0] >= 0 && selectedIndexHolder[0] < availableStyles.size()) {
-                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndexHolder[0]);
+                    int selectedIndex = spinnerStyle.getSelectedItemPosition();
+                    if (!NullUtil.isNull(currentProfile) && selectedIndex >= 0 && selectedIndex < availableStyles.size()) {
+                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndex);
                         if (!NullUtil.isNull(storeManager)) {
                             storeManager.applyEquippedCosmetics();
                         }
