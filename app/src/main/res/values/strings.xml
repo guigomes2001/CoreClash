@@ -234,24 +234,7 @@
     <string name="tutorial_hint_normal_first">First place one normal move.</string>
     <string name="tutorial_hint_triangle_first">Use Triangle first, then Square.</string>
 
-    <string name="bp_title">Battle Pass</string>
-    <string name="bp_missions">Missions</string>
-    <string name="bp_buy_premium">Unlock Premium</string>
-    <string name="bp_restore">Restore purchase</string>
-    <string name="bp_back">Back</string>
-    <string name="bp_error_loading">Unable to load Battle Pass data.</string>
-    <string name="bp_level_value">Level %1$d</string>
-    <string name="bp_xp_value">XP %1$d / %2$d</string>
-    <string name="bp_season_status">Season status: %1$s</string>
-    <string name="bp_premium_owned">Premium active</string>
-    <string name="bp_premium_locked">Premium locked</string>
-    <string name="bp_mission_row">[%1$s] %2$s: %3$d/%4$d • %5$d XP</string>
-    <string name="bp_toast_premium_granted">Battle Pass Premium activated.</string>
 
-    <string name="bp_xp_gain_toast">Battle Pass +%1$d XP</string>
-    <string name="store_ranked_pass_price">Ranked Pass • R$ 19,90</string>
-    <string name="store_ranked_pass_active">Ranked Pass Active</string>
-    <string name="toast_ranked_pass_activated">Ranked Pass activated!</string>
 
     <string name="tutorial_mode_hint">★ Interactive guide available here anytime</string>
     <string name="tutorial_badge">Tutorial</string>
