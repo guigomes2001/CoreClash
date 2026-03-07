@@ -1855,17 +1855,19 @@ public class MainActivity extends AppCompatActivity {
 
         LinkedHashSet<String> uniqueStyles = new LinkedHashSet<>();
         for (String style : ownedStylesRaw) {
-            if (!NullUtil.isNull(style) && !style.trim().isEmpty()) {
-                uniqueStyles.add(style.trim());
+            String canonical = canonicalStyleId(style);
+            if (!canonical.isEmpty()) {
+                uniqueStyles.add(canonical);
             }
         }
         if (uniqueStyles.isEmpty()) {
             uniqueStyles.add("CLASSIC");
         }
 
-        String equippedStyle = !NullUtil.isNull(currentProfile) && !NullUtil.isNull(currentProfile.equippedSymbolStyle)
-                ? currentProfile.equippedSymbolStyle
+        String equippedStyle = !NullUtil.isNull(currentProfile)
+                ? canonicalStyleId(currentProfile.equippedSymbolStyle)
                 : "CLASSIC";
+        if (equippedStyle.isEmpty()) equippedStyle = "CLASSIC";
         if (!uniqueStyles.contains(equippedStyle)) {
             uniqueStyles.add(equippedStyle);
         }
@@ -1911,7 +1913,8 @@ public class MainActivity extends AppCompatActivity {
             if (displayName.isEmpty()) displayName = oldDisplayName;
 
             int selectedIndex = spinnerStyle.getSelectedItemPosition();
-            String previousStyle = NullUtil.isNull(currentProfile) ? "CLASSIC" : currentProfile.equippedSymbolStyle;
+            String previousStyle = NullUtil.isNull(currentProfile) ? "CLASSIC" : canonicalStyleId(currentProfile.equippedSymbolStyle);
+            if (previousStyle.isEmpty()) previousStyle = "CLASSIC";
             String selectedStyle = previousStyle;
             if (!NullUtil.isNull(currentProfile) && selectedIndex >= 0 && selectedIndex < availableStyles.size()) {
                 selectedStyle = availableStyles.get(selectedIndex);
@@ -1979,6 +1982,26 @@ public class MainActivity extends AppCompatActivity {
             case "SAMURAI" -> new String[]{"メ", "◍"};
             case "MYTHIC" -> new String[]{"⟁", "◉"};
             default -> new String[]{"X", "O"};
+        };
+    }
+
+    @NonNull
+    private String canonicalStyleId(String rawStyle) {
+        if (NullUtil.isNull(rawStyle)) return "";
+        String normalized = rawStyle.trim().toUpperCase();
+        if (normalized.isEmpty()) return "";
+
+        return switch (normalized) {
+            case "CLASSIC", "RUNE", "FUTURE", "NEON", "SAMURAI", "MYTHIC" -> normalized;
+            default -> {
+                if (normalized.contains("RUNE")) yield "RUNE";
+                if (normalized.contains("FUTURE")) yield "FUTURE";
+                if (normalized.contains("NEON")) yield "NEON";
+                if (normalized.contains("SAMURAI") || normalized.contains("メ") || normalized.contains("◍")) yield "SAMURAI";
+                if (normalized.contains("MYTHIC") || normalized.contains("⟁")) yield "MYTHIC";
+                if (normalized.contains("CLASSIC") || normalized.equals("X/O") || normalized.equals("X / O")) yield "CLASSIC";
+                yield "";
+            }
         };
     }
 
