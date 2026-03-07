@@ -1839,7 +1839,10 @@ public class MainActivity extends AppCompatActivity {
         View profileView = getLayoutInflater().inflate(R.layout.dialog_profile, null);
         EditText nameInput = profileView.findViewById(R.id.inputProfileName);
         TextView txtProfileTag = profileView.findViewById(R.id.txtProfileDialogTag);
-        TextView txtRankedStats = profileView.findViewById(R.id.txtProfileDialogRankedStats);
+        TextView txtSeason = profileView.findViewById(R.id.txtProfileStatSeason);
+        TextView txtTier = profileView.findViewById(R.id.txtProfileStatTier);
+        TextView txtMmr = profileView.findViewById(R.id.txtProfileStatMmr);
+        TextView txtRecord = profileView.findViewById(R.id.txtProfileStatRecord);
         Spinner spinnerStyle = profileView.findViewById(R.id.spinnerProfileStyle);
 
         nameInput.setText(getPlayerDisplayName());
@@ -1873,12 +1876,10 @@ public class MainActivity extends AppCompatActivity {
         txtProfileTag.setText(getString(R.string.profile_tag_format, tag));
 
         if (!NullUtil.isNull(currentProfile)) {
-            txtRankedStats.setText(getString(R.string.profile_ranked_stats,
-                    currentProfile.seasonId,
-                    rankedTierLabel(currentProfile.mmr),
-                    currentProfile.mmr,
-                    currentProfile.rankedWins,
-                    currentProfile.rankedLosses));
+            txtSeason.setText(getString(R.string.profile_stat_season, currentProfile.seasonId));
+            txtTier.setText(getString(R.string.profile_stat_tier, rankedTierLabel(currentProfile.mmr)));
+            txtMmr.setText(getString(R.string.profile_stat_mmr, currentProfile.mmr));
+            txtRecord.setText(getString(R.string.profile_stat_record, currentProfile.rankedWins, currentProfile.rankedLosses));
         }
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)

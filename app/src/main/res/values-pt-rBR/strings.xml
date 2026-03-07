@@ -130,6 +130,11 @@
     <string name="profile_ranked_title">Resumo ranqueado</string>
     <string name="profile_symbol_style">Estilo dos símbolos</string>
     <string name="profile_tag_format">Tag: %1$s</string>
+    <string name="profile_style_helper">Selecione um estilo já adquirido para equipar seus símbolos.</string>
+    <string name="profile_stat_season">Temporada: %1$s</string>
+    <string name="profile_stat_tier">Tier: %1$s</string>
+    <string name="profile_stat_mmr">MMR: %1$d</string>
+    <string name="profile_stat_record">Campanha: V%1$d / D%2$d</string>
     <string name="friends_title">Amigos</string>
     <string name="friends_add_by_tag">Adicionar por TAG</string>
     <string name="friends_tag_hint">GUI#1234</string>
