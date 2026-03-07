@@ -116,13 +116,15 @@
             android:textStyle="bold"
             android:textSize="13sp" />
 
-        <Spinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinnerProfileStyle"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="6dp"
-            android:paddingHorizontal="8dp"
-            android:background="@drawable/bg_button_tertiary" />
+            android:background="@drawable/bg_button_tertiary"
+            android:dropDownWidth="match_parent"
+            android:popupBackground="@drawable/bg_modal_panel"
+            android:spinnerMode="dropdown" />
 
         <TextView
             android:layout_width="match_parent"
@@ -131,6 +133,38 @@
             android:text="@string/profile_style_helper"
             android:textColor="#9EC3E8"
             android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnProfileClose"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:minWidth="98dp"
+                android:background="@drawable/bg_button_tertiary"
+                android:text="@string/btn_close"
+                android:textAllCaps="false"
+                android:textColor="#DDEBFF"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnProfileSave"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:minWidth="112dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/bg_button_primary"
+                android:text="@string/profile_save"
+                android:textAllCaps="false"
+                android:textColor="#04131F"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

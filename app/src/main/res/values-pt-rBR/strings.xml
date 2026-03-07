@@ -135,6 +135,9 @@
     <string name="profile_stat_tier">Tier: %1$s</string>
     <string name="profile_stat_mmr">MMR: %1$d</string>
     <string name="profile_stat_record">Campanha: V%1$d / D%2$d</string>
+    <string name="profile_toast_name_updated">Nome atualizado com sucesso.</string>
+    <string name="profile_toast_updated_name_style">Nome e estilo atualizados com sucesso.</string>
+    <string name="profile_toast_no_changes">Nenhuma alteração para salvar.</string>
     <string name="friends_title">Amigos</string>
     <string name="friends_add_by_tag">Adicionar por TAG</string>
     <string name="friends_tag_hint">GUI#1234</string>

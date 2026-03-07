@@ -1867,8 +1867,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, styleOptions);
-        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, R.layout.item_profile_spinner_selected, styleOptions);
+        styleAdapter.setDropDownViewResource(R.layout.item_profile_spinner_dropdown);
         spinnerStyle.setAdapter(styleAdapter);
         spinnerStyle.setSelection(selectedStyleIndex);
 
@@ -1884,28 +1884,48 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog profileDialog = new AlertDialog.Builder(this)
                 .setView(profileView)
-                .setPositiveButton(getString(R.string.profile_save), (d, w) -> {
-                    String displayName = NullUtil.isNull(nameInput.getText()) ? getPlayerDisplayName() : nameInput.getText().toString().trim();
-                    if (displayName.isEmpty()) displayName = getPlayerDisplayName();
-
-                    int selectedIndex = spinnerStyle.getSelectedItemPosition();
-                    if (!NullUtil.isNull(currentProfile) && selectedIndex >= 0 && selectedIndex < availableStyles.size()) {
-                        currentProfile.equippedSymbolStyle = availableStyles.get(selectedIndex);
-                        if (!NullUtil.isNull(storeManager)) {
-                            storeManager.applyEquippedCosmetics();
-                        }
-                    }
-
-                    socialManager.upsertUserProfile(uid, displayName, tag);
-                    playerServices.updateDisplayNameAndPersist(displayName);
-                    StyledToast.show(this, getString(R.string.toast_style_equipped));
-                    updateHeaderStatus();
-                })
-                .setNegativeButton(getString(R.string.btn_back), null)
                 .create();
 
         profileDialog.show();
         applyDialogStyle(profileDialog);
+
+        Button btnClose = profileView.findViewById(R.id.btnProfileClose);
+        Button btnSave = profileView.findViewById(R.id.btnProfileSave);
+
+        btnClose.setOnClickListener(v -> profileDialog.dismiss());
+        btnSave.setOnClickListener(v -> {
+            String oldDisplayName = getPlayerDisplayName();
+            String displayName = NullUtil.isNull(nameInput.getText()) ? oldDisplayName : nameInput.getText().toString().trim();
+            if (displayName.isEmpty()) displayName = oldDisplayName;
+
+            int selectedIndex = spinnerStyle.getSelectedItemPosition();
+            String previousStyle = NullUtil.isNull(currentProfile) ? "CLASSIC" : currentProfile.equippedSymbolStyle;
+            String selectedStyle = previousStyle;
+            if (!NullUtil.isNull(currentProfile) && selectedIndex >= 0 && selectedIndex < availableStyles.size()) {
+                selectedStyle = availableStyles.get(selectedIndex);
+                currentProfile.equippedSymbolStyle = selectedStyle;
+                if (!NullUtil.isNull(storeManager)) {
+                    storeManager.applyEquippedCosmetics();
+                }
+            }
+
+            socialManager.upsertUserProfile(uid, displayName, tag);
+            playerServices.updateDisplayNameAndPersist(displayName);
+            updateHeaderStatus();
+            profileDialog.dismiss();
+
+            boolean nameChanged = !displayName.equals(oldDisplayName);
+            boolean styleChanged = !selectedStyle.equals(previousStyle);
+            if (nameChanged && styleChanged) {
+                StyledToast.show(this, getString(R.string.profile_toast_updated_name_style));
+            } else if (nameChanged) {
+                StyledToast.show(this, getString(R.string.profile_toast_name_updated));
+            } else if (styleChanged) {
+                StyledToast.show(this, getString(R.string.toast_style_equipped));
+            } else {
+                StyledToast.show(this, getString(R.string.profile_toast_no_changes));
+            }
+        });
     }
 
     private String getSymbolStyleLabel(@NonNull String styleId) {
