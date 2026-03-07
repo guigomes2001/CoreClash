@@ -205,7 +205,18 @@
     <string name="toast_ranked_gain">Rank up +%1$d MMR</string>
     <string name="toast_ranked_loss">Ajuste de rank %1$d MMR</string>
     <string name="profile_ranked_stats">Temporada %1$s • %2$s • %3$d MMR • V%4$d/D%5$d</string>
-    <string name="store_style_mythic_name">Selo Mítico (⟁ / ◉)</string>
+
+    <string name="store_style_preview">✦◉ • ✕⬡ • ✶◎ • 侍🔴/🔵</string>
+    <string name="store_style_classic_name">Marca Clássica (X / O)</string>
+    <string name="store_style_rune_name">Glifos Rúnicos (✦ / ◉)</string>
+    <string name="store_style_future_name">Tecno Futuro (✕ / ⬡)</string>
+    <string name="store_style_neon_name">Pulso Neon (✶ / ◎)</string>
+    <string name="store_style_samurai_name">Escrita Samurai 侍 (メ / ◍ • 🔴 / 🔵)</string>
+    <string name="store_style_rune_name_short">Rune ✦◉</string>
+    <string name="store_style_future_name_short">Future ✕⬡</string>
+    <string name="store_style_neon_name_short">Neon ✶◎</string>
+    <string name="store_style_samurai_name_short">侍 Samurai 🔴🔵</string>
+    <string name="store_style_mythic_name">Selo Mítico (⟁ / ◉ • 🟣 / 🔵)</string>
     <string name="tutorial_intro">Tutorial tático: faça uma jogada normal.</string>
     <string name="tutorial_step_triangle">Boa! Agora use a skill Triângulo.</string>
     <string name="tutorial_step_square">Perfeito! Agora use a skill Quadrado.</string>
