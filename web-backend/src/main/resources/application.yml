@@ -1,0 +1,6 @@
+server:
+  port: 8080
+
+coreclash:
+  firebase:
+    database-url: ${FIREBASE_DATABASE_URL:}

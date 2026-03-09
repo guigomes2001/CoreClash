@@ -1,0 +1,13 @@
+{
+  "name": "Core Clash Web Application",
+  "short_name": "CoreClash",
+  "description": "Core Clash em formato web application instalável (PWA)",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0f1d",
+  "theme_color": "#0d0f1d",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "./assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
