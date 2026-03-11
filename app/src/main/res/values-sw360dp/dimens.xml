@@ -8,15 +8,18 @@
     <dimen name="game_skill_button_size">72dp</dimen>
     <dimen name="game_skill_button_gap">24dp</dimen>
 
-    <dimen name="mode_modal_title_size">24sp</dimen>
-    <dimen name="mode_modal_action_height">52dp</dimen>
-    <dimen name="mode_option_card_width">188dp</dimen>
-    <dimen name="mode_option_card_height">180dp</dimen>
-    <dimen name="mode_option_card_gap">10dp</dimen>
-    <dimen name="mode_option_preview_height">96dp</dimen>
-    <dimen name="mode_option_title_top_padding">116dp</dimen>
-    <dimen name="mode_option_title_bottom_padding">34dp</dimen>
-    <dimen name="mode_option_title_size">16sp</dimen>
-    <dimen name="mode_option_desc_size">11sp</dimen>
+    <dimen name="mode_modal_title_size">22sp</dimen>
+    <dimen name="mode_modal_action_height">46dp</dimen>
+    <dimen name="mode_option_card_width">164dp</dimen>
+    <dimen name="mode_option_card_height">146dp</dimen>
+    <dimen name="mode_option_card_gap">8dp</dimen>
+    <dimen name="mode_option_preview_height">72dp</dimen>
+    <dimen name="mode_option_title_top_padding">88dp</dimen>
+    <dimen name="mode_option_title_bottom_padding">22dp</dimen>
+    <dimen name="mode_option_title_size">14sp</dimen>
+    <dimen name="mode_option_desc_size">10sp</dimen>
+
+    <dimen name="mode_modal_subtitle_size">11sp</dimen>
+    <dimen name="mode_modal_hint_size">9sp</dimen>
 
 </resources>

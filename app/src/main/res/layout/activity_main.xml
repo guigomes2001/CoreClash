@@ -247,20 +247,12 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_marginHorizontal="12dp"
-            android:layout_marginVertical="18dp"
-            android:fillViewport="true"
-            android:overScrollMode="ifContentScrolls"
-            android:scrollbars="none">
-
-            <LinearLayout
-                android:id="@+id/modeCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_cyber_glass"
-                android:orientation="vertical"
-                android:paddingHorizontal="18dp"
-                android:paddingTop="18dp"
-                android:paddingBottom="16dp">
+            android:layout_marginVertical="14dp"
+            android:background="@drawable/bg_cyber_glass"
+            android:orientation="vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 style="@style/Text.CoreClash.Title"
@@ -277,7 +269,7 @@
                 android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:text="@string/mode_subtitle_online_offline"
-                android:textSize="13sp" />
+                android:textSize="@dimen/mode_modal_subtitle_size" />
 
             <TextView
                 android:id="@+id/txtModeTutorialHint"
@@ -290,13 +282,13 @@
                 android:paddingVertical="4dp"
                 android:text="@string/tutorial_mode_hint_star"
                 android:textColor="#EAF6FF"
-                android:textSize="11sp"
+                android:textSize="@dimen/mode_modal_hint_size"
                 android:textStyle="bold" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:clipToPadding="false"
                 android:overScrollMode="never"
                 android:scrollbars="none"
@@ -312,7 +304,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="6dp">
+                        android:paddingHorizontal="4dp">
 
                         <FrameLayout
                             android:layout_width="@dimen/mode_option_card_width"
@@ -340,7 +332,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
-                                android:layout_marginStart="10dp"
+                                android:layout_marginStart="8dp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:background="@drawable/bg_mode_preview_placeholder"
@@ -386,7 +378,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
-                                android:layout_marginStart="10dp"
+                                android:layout_marginStart="8dp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:background="@drawable/bg_mode_preview_placeholder"
@@ -431,7 +423,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
-                                android:layout_marginStart="10dp"
+                                android:layout_marginStart="8dp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:background="@drawable/bg_mode_preview_placeholder"
@@ -464,7 +456,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -483,7 +475,7 @@
                     android:layout_width="0dp"
                     android:layout_height="@dimen/mode_modal_action_height"
                     android:layout_weight="1"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="8dp"
                     android:text="@string/btn_ok"
                     android:textAllCaps="false"
                     android:textColor="#EAF2FF"
