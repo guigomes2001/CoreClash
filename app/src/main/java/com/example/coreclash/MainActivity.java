@@ -2,6 +2,7 @@ package com.example.coreclash;
 
 import android.animation.ValueAnimator;
 import android.animation.ArgbEvaluator;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -20,6 +21,7 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -191,6 +193,8 @@ public class MainActivity extends AppCompatActivity {
 
         state = new GameState();
         board = new BoardManager();
+        configureResponsiveGameLayout();
+        board.setLowPerformanceMode(isLowPerformanceDevice());
         gameManager = new GameManager(board, state);
 
         timeoutBannerAnimator = new TimeoutBannerAnimator(binding);
@@ -2074,5 +2078,78 @@ public class MainActivity extends AppCompatActivity {
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), decorView);
         controller.hide(WindowInsetsCompat.Type.systemBars());
         controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    }
+
+    private boolean isLowPerformanceDevice() {
+        ActivityManager am = getSystemService(ActivityManager.class);
+        if (NullUtil.isNull(am)) {
+            return false;
+        }
+        return am.isLowRamDevice();
+    }
+
+    private void configureResponsiveGameLayout() {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        float density = dm.density;
+        int screenWidthPx = dm.widthPixels;
+        int screenHeightPx = dm.heightPixels;
+
+        int availableWidthPx = screenWidthPx - dpToPx(24);
+        int heightDp = Math.round(screenHeightPx / density);
+
+        int containerSizePx = Math.min(dpToPx(291), availableWidthPx);
+        if (heightDp <= 700) {
+            containerSizePx = Math.min(containerSizePx, dpToPx(248));
+        }
+        if (heightDp <= 640) {
+            containerSizePx = Math.min(containerSizePx, dpToPx(220));
+        }
+
+        int skillSizePx = clamp(Math.round(containerSizePx * 0.28f), dpToPx(52), dpToPx(86));
+        int skillGapPx = clamp(Math.round(containerSizePx * 0.10f), dpToPx(4), dpToPx(24));
+
+        int requiredWidthPx = containerSizePx + (2 * skillSizePx) + (2 * skillGapPx) + dpToPx(20);
+        if (requiredWidthPx > availableWidthPx) {
+            int overflow = requiredWidthPx - availableWidthPx;
+            containerSizePx = Math.max(dpToPx(200), containerSizePx - overflow);
+            skillSizePx = clamp(Math.round(containerSizePx * 0.27f), dpToPx(48), dpToPx(76));
+            skillGapPx = clamp(Math.round(containerSizePx * 0.06f), dpToPx(2), dpToPx(14));
+        }
+
+        int cellMarginPx = heightDp <= 640 ? dpToPx(2) : dpToPx(3);
+        int cellSizePx = Math.max(dpToPx(52), (containerSizePx - dpToPx(12) - (cellMarginPx * 6)) / 3);
+
+        ViewGroup.LayoutParams containerLp = binding.boardContainer.getLayoutParams();
+        containerLp.width = containerSizePx;
+        containerLp.height = containerSizePx;
+        binding.boardContainer.setLayoutParams(containerLp);
+
+        ViewGroup.LayoutParams triangleLp = binding.containerTriangle.getLayoutParams();
+        triangleLp.width = skillSizePx;
+        triangleLp.height = skillSizePx;
+        binding.containerTriangle.setLayoutParams(triangleLp);
+
+        ViewGroup.LayoutParams squareLp = binding.containerSquare.getLayoutParams();
+        squareLp.width = skillSizePx;
+        squareLp.height = skillSizePx;
+        binding.containerSquare.setLayoutParams(squareLp);
+
+        ViewGroup.MarginLayoutParams triangleMarginLp = (ViewGroup.MarginLayoutParams) binding.containerTriangle.getLayoutParams();
+        triangleMarginLp.setMarginEnd(skillGapPx);
+        binding.containerTriangle.setLayoutParams(triangleMarginLp);
+
+        ViewGroup.MarginLayoutParams squareMarginLp = (ViewGroup.MarginLayoutParams) binding.containerSquare.getLayoutParams();
+        squareMarginLp.setMarginStart(skillGapPx);
+        binding.containerSquare.setLayoutParams(squareMarginLp);
+
+        board.setForcedBoardMetrics(cellSizePx, cellMarginPx);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
+
+    private int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 }

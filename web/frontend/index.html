@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0d111a" />
+  <link rel="manifest" href="/public/manifest.webmanifest" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <title>CoreClash Web</title>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>CoreClash Web</h1>
+      <p>Migração do app Android para Web + PWA + Firebase RealtimeDB</p>
+    </header>
+
+    <section class="controls">
+      <input id="playerName" placeholder="Seu nome" />
+      <select id="mode">
+        <option value="LOCAL">Local (2 jogadores)</option>
+        <option value="BOT">Contra bot</option>
+      </select>
+      <select id="difficulty">
+        <option value="BEGINNER">Bot Iniciante</option>
+        <option value="MODERATE">Bot Moderado</option>
+        <option value="GAME_MASTER">Bot Game Master</option>
+      </select>
+      <button id="startBtn">Iniciar</button>
+      <button id="triangleBtn">Triângulo</button>
+      <button id="squareBtn">Quadrado</button>
+      <button id="resetBtn">Resetar</button>
+    </section>
+
+    <section id="hud" class="hud"></section>
+    <section id="board" class="board"></section>
+    <section id="status" class="status"></section>
+  </main>
+
+  <script type="module" src="/src/app.js"></script>
+</body>
+</html>
