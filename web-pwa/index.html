@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0f1d" />
+  <title>Core Clash Web</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./assets/icons/icon.svg" />
+  <link rel="apple-touch-icon" href="./assets/icons/icon.svg" />
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div>
+        <p class="kicker">CORE CLASH</p>
+        <h1>Web Application + PWA</h1>
+      </div>
+      <button id="installBtn" class="btn ghost" hidden>Instalar</button>
+    </header>
+
+    <section class="card">
+      <h2>Modo de partida</h2>
+      <div class="mode-grid">
+        <button id="modeLocal" class="btn active">Local</button>
+        <button id="modeOnline" class="btn ghost">Online</button>
+      </div>
+      <div id="onlinePanel" class="online-panel" hidden>
+        <input id="roomId" placeholder="ID da sala" maxlength="40" />
+        <div class="mode-grid">
+          <button id="createRoomBtn" class="btn">Criar sala</button>
+          <button id="joinRoomBtn" class="btn ghost">Entrar</button>
+        </div>
+        <p id="onlineStatus" class="muted">Offline</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Jogadores</h2>
+      <input id="playerX" value="Player X" maxlength="16" />
+      <input id="playerO" value="Player O" maxlength="16" />
+      <div class="mode-grid">
+        <button id="newMatchBtn" class="btn">Nova partida</button>
+        <button id="resetScoreBtn" class="btn ghost">Resetar placar</button>
+      </div>
+    </section>
+
+    <section class="hud">
+      <p id="turnText">Vez de Player X (X)</p>
+      <p id="scoreText">Player X 0 x 0 Player O</p>
+    </section>
+
+    <section id="board" class="board" aria-label="Tabuleiro"></section>
+  </main>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
