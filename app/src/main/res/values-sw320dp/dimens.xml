@@ -7,4 +7,16 @@
     <dimen name="game_board_cell_margin">3dp</dimen>
     <dimen name="game_skill_button_size">62dp</dimen>
     <dimen name="game_skill_button_gap">12dp</dimen>
+
+    <dimen name="mode_modal_title_size">22sp</dimen>
+    <dimen name="mode_modal_action_height">50dp</dimen>
+    <dimen name="mode_option_card_width">170dp</dimen>
+    <dimen name="mode_option_card_height">168dp</dimen>
+    <dimen name="mode_option_card_gap">8dp</dimen>
+    <dimen name="mode_option_preview_height">88dp</dimen>
+    <dimen name="mode_option_title_top_padding">108dp</dimen>
+    <dimen name="mode_option_title_bottom_padding">30dp</dimen>
+    <dimen name="mode_option_title_size">15sp</dimen>
+    <dimen name="mode_option_desc_size">10sp</dimen>
+
 </resources>
