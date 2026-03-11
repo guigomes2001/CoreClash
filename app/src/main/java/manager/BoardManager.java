@@ -9,6 +9,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.CornerPathEffect;
@@ -47,6 +48,9 @@ public class BoardManager {
     private final Cell[][] cells = new Cell[3][3];
     private Context context;
     private ShapeOverlayView overlayView;
+    private int forcedCellSizePx = -1;
+    private int forcedCellMarginPx = -1;
+    private boolean lowPerformanceMode = false;
 
 
 
@@ -60,9 +64,13 @@ public class BoardManager {
 
         setupOverlay(grid);
 
-        int cellSize = context.getResources().getDimensionPixelSize(com.example.coreclash.R.dimen.game_board_cell_size);
+        int cellSize = forcedCellSizePx > 0
+                ? forcedCellSizePx
+                : context.getResources().getDimensionPixelSize(com.example.coreclash.R.dimen.game_board_cell_size);
 
-        int margin = context.getResources().getDimensionPixelSize(com.example.coreclash.R.dimen.game_board_cell_margin);
+        int margin = forcedCellMarginPx >= 0
+                ? forcedCellMarginPx
+                : context.getResources().getDimensionPixelSize(com.example.coreclash.R.dimen.game_board_cell_margin);
 
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
@@ -149,7 +157,11 @@ public class BoardManager {
 
         int color = Color.parseColor(isX ? "#FB7185" : "#22D3EE");
         tv.setTextColor(color);
-        tv.setShadowLayer(20, 0, 0, color);
+        if (!lowPerformanceMode) {
+            tv.setShadowLayer(20, 0, 0, color);
+        } else {
+            tv.setShadowLayer(0, 0, 0, 0);
+        }
 
         tv.setScaleX(0.7f);
         tv.setScaleY(0.7f);
@@ -158,8 +170,8 @@ public class BoardManager {
                 .scaleX(1.08f)
                 .scaleY(1.08f)
                 .alpha(1f)
-                .setDuration(140)
-                .withEndAction(() -> tv.animate().scaleX(1f).scaleY(1f).setDuration(110).start())
+                .setDuration(lowPerformanceMode ? 90 : 140)
+                .withEndAction(() -> tv.animate().scaleX(1f).scaleY(1f).setDuration(lowPerformanceMode ? 80 : 110).start())
                 .start();
 
         updateCellGhostState(r, c);
@@ -256,7 +268,7 @@ public class BoardManager {
         TextView tv = symbolViews[r][c];
 
         if (cells[r][c].isGhost()) {
-            container.animate().alpha(0.3f).setDuration(300).start();
+            container.animate().alpha(0.3f).setDuration(lowPerformanceMode ? 180 : 300).start();
             tv.setShadowLayer(0, 0, 0, 0);
         } else {
             container.setAlpha(1.0f);
@@ -279,12 +291,14 @@ public class BoardManager {
             gd.setStroke(1, Color.parseColor("#303030"));
             gd.setColor(COLOR_DEAD);
 
-            container.animate()
-                    .translationX(4f).setDuration(45)
-                    .withEndAction(() -> container.animate().translationX(-3f).setDuration(45)
-                            .withEndAction(() -> container.animate().translationX(0f).setDuration(45).start())
-                            .start())
-                    .start();
+            if (!lowPerformanceMode) {
+                container.animate()
+                        .translationX(4f).setDuration(45)
+                        .withEndAction(() -> container.animate().translationX(-3f).setDuration(45)
+                                .withEndAction(() -> container.animate().translationX(0f).setDuration(45).start())
+                                .start())
+                        .start();
+            }
         } else {
             container.setAlpha(1.0f);
         }
@@ -293,6 +307,15 @@ public class BoardManager {
     public void setBoardTheme(String boardTheme) {
         this.boardTheme = boardTheme;
         applyThemeToBoard();
+    }
+
+    public void setForcedBoardMetrics(int cellSizePx, int cellMarginPx) {
+        this.forcedCellSizePx = Math.max(0, cellSizePx);
+        this.forcedCellMarginPx = Math.max(0, cellMarginPx);
+    }
+
+    public void setLowPerformanceMode(boolean enabled) {
+        this.lowPerformanceMode = enabled;
     }
 
     public void setSymbolStyle(String symbolStyle) {
@@ -399,7 +422,7 @@ public class BoardManager {
         return new PointF(x, y);
     }
 
-    private static class ShapeOverlayView extends View {
+    private class ShapeOverlayView extends View {
         private final Paint paint;
         private final Path path;
         private final Path drawingPath;
@@ -443,7 +466,11 @@ public class BoardManager {
             pathLength = pathMeasure.getLength();
 
             animator = ValueAnimator.ofFloat(0f, 1f);
-            animator.setDuration(800);
+            long baseDuration = lowPerformanceMode ? 540 : 800;
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                baseDuration -= 100;
+            }
+            animator.setDuration(Math.max(420, baseDuration));
             animator.setInterpolator(new DecelerateInterpolator());
             animator.addUpdateListener(animation -> {
                 float val = (float) animation.getAnimatedValue();

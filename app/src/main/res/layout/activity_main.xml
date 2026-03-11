@@ -209,7 +209,7 @@
         
     <FrameLayout android:background="@drawable/bg_gradient_dark" android:clickable="true" android:elevation="95dp" android:focusable="true" android:id="@+id/matchmakingOverlay" android:layout_height="match_parent" android:layout_width="match_parent" android:paddingHorizontal="26dp" android:paddingVertical="36dp" android:visibility="gone">
                 
-        <LinearLayout android:background="@drawable/bg_modal_panel" android:gravity="center" android:id="@+id/matchmakingCard" android:layout_gravity="center" android:layout_height="wrap_content" android:layout_width="320dp" android:orientation="vertical" android:padding="14dp">
+        <LinearLayout android:background="@drawable/bg_modal_panel" android:gravity="center" android:id="@+id/matchmakingCard" android:layout_gravity="center" android:layout_height="wrap_content" android:layout_width="match_parent" android:orientation="vertical" android:padding="14dp">
                         
             <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieMatchmaking" android:layout_height="124dp" android:layout_width="124dp" app:lottie_autoPlay="false" app:lottie_loop="true" app:lottie_rawRes="@raw/matchmaking_loading"/>
                         
