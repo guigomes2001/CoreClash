@@ -229,7 +229,7 @@
             
     </FrameLayout>
         
-        <FrameLayout
+    <FrameLayout
         android:id="@+id/modeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -244,12 +244,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginHorizontal="18dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginVertical="14dp"
             android:background="@drawable/bg_cyber_glass"
             android:orientation="vertical"
-            android:paddingHorizontal="18dp"
-            android:paddingTop="18dp"
-            android:paddingBottom="16dp">
+            android:paddingHorizontal="14dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 style="@style/Text.CoreClash.Title"
@@ -257,7 +258,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/mode_title"
-                android:textSize="28sp" />
+                android:textSize="@dimen/mode_modal_title_size" />
 
             <TextView
                 style="@style/Text.CoreClash.Subtitle"
@@ -266,7 +267,7 @@
                 android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:text="@string/mode_subtitle_online_offline"
-                android:textSize="13sp" />
+                android:textSize="@dimen/mode_modal_subtitle_size" />
 
             <TextView
                 android:id="@+id/txtModeTutorialHint"
@@ -279,13 +280,13 @@
                 android:paddingVertical="4dp"
                 android:text="@string/tutorial_mode_hint_star"
                 android:textColor="#EAF6FF"
-                android:textSize="11sp"
+                android:textSize="@dimen/mode_modal_hint_size"
                 android:textStyle="bold" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:clipToPadding="false"
                 android:overScrollMode="never"
                 android:scrollbars="none"
@@ -301,12 +302,12 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="6dp">
+                        android:paddingHorizontal="4dp">
 
                         <FrameLayout
-                            android:layout_width="214dp"
-                            android:layout_height="196dp"
-                            android:layout_marginEnd="12dp">
+                            android:layout_width="@dimen/mode_option_card_width"
+                            android:layout_height="@dimen/mode_option_card_height"
+                            android:layout_marginEnd="@dimen/mode_option_card_gap">
 
                             <Button
                                 android:id="@+id/btnModeOffline"
@@ -315,21 +316,21 @@
                                 android:background="@drawable/bg_mode_card_selected"
                                 android:gravity="bottom|start"
                                 android:paddingStart="14dp"
-                                android:paddingTop="126dp"
+                                android:paddingTop="@dimen/mode_option_title_top_padding"
                                 android:paddingEnd="14dp"
-                                android:paddingBottom="40dp"
+                                android:paddingBottom="@dimen/mode_option_title_bottom_padding"
                                 android:text="@string/mode_vs_bot"
                                 android:textAllCaps="false"
                                 android:textColor="#EAF2FF"
-                                android:textSize="17sp"
+                                android:textSize="@dimen/mode_option_title_size"
                                 android:textStyle="bold" />
 
                             <ImageView
                                 android:id="@+id/imgModeOfflinePreview"
                                 android:layout_width="match_parent"
-                                android:layout_height="104dp"
+                                android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
-                                android:layout_marginStart="10dp"
+                                android:layout_marginStart="8dp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:background="@drawable/bg_mode_preview_placeholder"
@@ -346,13 +347,13 @@
                                 android:layout_marginBottom="12dp"
                                 android:text="@string/mode_vs_bot_desc"
                                 android:textColor="#BFDDF9"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/mode_option_desc_size" />
                         </FrameLayout>
 
                         <FrameLayout
-                            android:layout_width="214dp"
-                            android:layout_height="196dp"
-                            android:layout_marginEnd="12dp">
+                            android:layout_width="@dimen/mode_option_card_width"
+                            android:layout_height="@dimen/mode_option_card_height"
+                            android:layout_marginEnd="@dimen/mode_option_card_gap">
 
                             <Button
                                 android:id="@+id/btnModeOnline"
@@ -361,21 +362,21 @@
                                 android:background="@drawable/bg_mode_card"
                                 android:gravity="bottom|start"
                                 android:paddingStart="14dp"
-                                android:paddingTop="126dp"
+                                android:paddingTop="@dimen/mode_option_title_top_padding"
                                 android:paddingEnd="14dp"
-                                android:paddingBottom="40dp"
+                                android:paddingBottom="@dimen/mode_option_title_bottom_padding"
                                 android:text="@string/mode_online_world"
                                 android:textAllCaps="false"
                                 android:textColor="#EAF2FF"
-                                android:textSize="17sp"
+                                android:textSize="@dimen/mode_option_title_size"
                                 android:textStyle="bold" />
 
                             <ImageView
                                 android:id="@+id/imgModeOnlinePreview"
                                 android:layout_width="match_parent"
-                                android:layout_height="104dp"
+                                android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
-                                android:layout_marginStart="10dp"
+                                android:layout_marginStart="8dp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:background="@drawable/bg_mode_preview_placeholder"
@@ -392,12 +393,12 @@
                                 android:layout_marginBottom="12dp"
                                 android:text="@string/mode_online_world_desc"
                                 android:textColor="#BFDDF9"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/mode_option_desc_size" />
                         </FrameLayout>
 
                         <FrameLayout
-                            android:layout_width="214dp"
-                            android:layout_height="196dp">
+                            android:layout_width="@dimen/mode_option_card_width"
+                            android:layout_height="@dimen/mode_option_card_height">
 
                             <Button
                                 android:id="@+id/btnModeLocalPassPlay"
@@ -406,21 +407,21 @@
                                 android:background="@drawable/bg_mode_card"
                                 android:gravity="bottom|start"
                                 android:paddingStart="14dp"
-                                android:paddingTop="126dp"
+                                android:paddingTop="@dimen/mode_option_title_top_padding"
                                 android:paddingEnd="14dp"
-                                android:paddingBottom="40dp"
+                                android:paddingBottom="@dimen/mode_option_title_bottom_padding"
                                 android:text="@string/mode_local_pass_play"
                                 android:textAllCaps="false"
                                 android:textColor="#EAF2FF"
-                                android:textSize="17sp"
+                                android:textSize="@dimen/mode_option_title_size"
                                 android:textStyle="bold" />
 
                             <ImageView
                                 android:id="@+id/imgModeLocalPassPlayPreview"
                                 android:layout_width="match_parent"
-                                android:layout_height="104dp"
+                                android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
-                                android:layout_marginStart="10dp"
+                                android:layout_marginStart="8dp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:background="@drawable/bg_mode_preview_placeholder"
@@ -437,7 +438,7 @@
                                 android:layout_marginBottom="12dp"
                                 android:text="@string/mode_local_pass_play_desc"
                                 android:textColor="#BFDDF9"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/mode_option_desc_size" />
                         </FrameLayout>
 
                         <Button
@@ -453,13 +454,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/btnModeCancel" android:background="@drawable/selector_home_big_button"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="@dimen/mode_modal_action_height"
                     android:layout_weight="1"
                     android:text="@string/btn_back"
                     android:textAllCaps="false"
@@ -470,9 +471,9 @@
                 <Button
                     android:id="@+id/btnModeConfirm" android:background="@drawable/selector_home_big_button"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="@dimen/mode_modal_action_height"
                     android:layout_weight="1"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="8dp"
                     android:text="@string/btn_ok"
                     android:textAllCaps="false"
                     android:textColor="#EAF2FF"
@@ -497,7 +498,23 @@
                     
         </LinearLayout>
                 
-        <androidx.core.widget.NestedScrollView android:background="@drawable/bg_store_modal_inner_depth" android:clipChildren="true" android:clipToOutline="true" android:clipToPadding="true" android:fillViewport="true" android:id="@+id/storeScreen" android:layout_height="match_parent" android:layout_marginBottom="8dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="86dp" android:layout_width="match_parent" android:outlineProvider="background" android:overScrollMode="never" android:paddingBottom="22dp" android:paddingHorizontal="16dp" android:paddingTop="10dp">
+        <ScrollView
+            android:id="@+id/storeScreen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="86dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_store_modal_inner_depth"
+            android:clipChildren="true"
+            android:clipToOutline="true"
+            android:clipToPadding="true"
+            android:fillViewport="true"
+            android:outlineProvider="background"
+            android:overScrollMode="never"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="22dp">
                         
             <LinearLayout android:id="@+id/storeContent" android:layout_height="wrap_content" android:layout_width="match_parent" android:orientation="vertical" android:paddingBottom="20dp" android:paddingHorizontal="0dp" android:paddingTop="8dp">
                             
@@ -656,7 +673,7 @@
                             
             </LinearLayout>
                     
-        </androidx.core.widget.NestedScrollView>
+        </ScrollView>
             
     </FrameLayout>
         
