@@ -501,7 +501,23 @@
                     
         </LinearLayout>
                 
-        <androidx.core.widget.NestedScrollView android:background="@drawable/bg_store_modal_inner_depth" android:clipChildren="true" android:clipToOutline="true" android:clipToPadding="true" android:fillViewport="true" android:id="@+id/storeScreen" android:layout_height="match_parent" android:layout_marginBottom="8dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="86dp" android:layout_width="match_parent" android:outlineProvider="background" android:overScrollMode="never" android:paddingBottom="22dp" android:paddingHorizontal="16dp" android:paddingTop="10dp">
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/storeScreen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="86dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_store_modal_inner_depth"
+            android:clipChildren="true"
+            android:clipToOutline="true"
+            android:clipToPadding="true"
+            android:fillViewport="true"
+            android:outlineProvider="background"
+            android:overScrollMode="never"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="22dp">
                         
             <LinearLayout android:id="@+id/storeContent" android:layout_height="wrap_content" android:layout_width="match_parent" android:orientation="vertical" android:paddingBottom="20dp" android:paddingHorizontal="0dp" android:paddingTop="8dp">
                             
