@@ -52,19 +52,19 @@ public class HomeFlowManager {
         SafeClickUtil.setSafeClick(binding.btnStore, 420, v -> cb.onStoreClicked());
         SafeClickUtil.setSafeClick(binding.btnSettings, 320, v -> cb.onSettingsClicked());
 
-        SafeClickUtil.setSafeClick(binding.btnModeOffline, 220, v -> {
+        SafeClickUtil.setSafeClick(binding.btnModeOfflinePrimary, 220, v -> {
             selectedMatchKind = enums.DomainMatchKind.OFFLINE_BOT;
             updateModeButtonStyles();
             cb.onModeChanged(selectedMatchKind);
         });
 
-        SafeClickUtil.setSafeClick(binding.btnModeOnline, 220, v -> {
+        SafeClickUtil.setSafeClick(binding.btnModeOnlinePrimary, 220, v -> {
             selectedMatchKind = enums.DomainMatchKind.ONLINE_PVP;
             updateModeButtonStyles();
             cb.onModeChanged(selectedMatchKind);
         });
 
-        SafeClickUtil.setSafeClick(binding.btnModeLocalPassPlay, 220, v -> {
+        SafeClickUtil.setSafeClick(binding.btnModeLocalPassPlayPrimary, 220, v -> {
             selectedMatchKind = enums.DomainMatchKind.LOCAL_PASS_PLAY;
             updateModeButtonStyles();
             cb.onModeChanged(selectedMatchKind);
@@ -108,7 +108,10 @@ public class HomeFlowManager {
     }
 
     private void configureModeOverlayButtons() {
-        binding.btnModeLocalLobby.setVisibility(View.GONE);
+        View localLobbyButton = binding.getRoot().findViewById(R.id.btnModeLocalLobby);
+        if (localLobbyButton != null) {
+            localLobbyButton.setVisibility(View.GONE);
+        }
         applyModeCardArts();
     }
 
@@ -177,15 +180,15 @@ public class HomeFlowManager {
 
     public void updateModeButtonStyles() {
         styleModeButton(
-                binding.btnModeOffline,
+                binding.btnModeOfflinePrimary,
                 selectedMatchKind == enums.DomainMatchKind.OFFLINE_BOT
         );
         styleModeButton(
-                binding.btnModeOnline,
+                binding.btnModeOnlinePrimary,
                 selectedMatchKind == enums.DomainMatchKind.ONLINE_PVP
         );
         styleModeButton(
-                binding.btnModeLocalPassPlay,
+                binding.btnModeLocalPassPlayPrimary,
                 selectedMatchKind == enums.DomainMatchKind.LOCAL_PASS_PLAY
         );
     }
@@ -202,9 +205,9 @@ public class HomeFlowManager {
 
 
     private void applyModeCardArts() {
-        binding.imgModeOfflinePreview.setImageResource(R.drawable.bg_mode_preview_offline);
-        binding.imgModeOnlinePreview.setImageResource(R.drawable.bg_mode_preview_online);
-        binding.imgModeLocalPassPlayPreview.setImageResource(R.drawable.bg_mode_preview_local);
+        binding.imgModeOfflinePreviewPrimary.setImageResource(R.drawable.bg_mode_preview_offline);
+        binding.imgModeOnlinePreviewPrimary.setImageResource(R.drawable.bg_mode_preview_online);
+        binding.imgModeLocalPassPlayPreviewPrimary.setImageResource(R.drawable.bg_mode_preview_local);
     }
 
     public void playHomeEntrance() {

@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         updateScoreHud(false, null, false);
         updateTutorialProgressUi();
         maybeStartTacticalOnboarding();
-        SafeClickUtil.setSafeClick(binding.txtModeTutorialHint, 320, v -> showTutorialDecisionDialog());
+        SafeClickUtil.setSafeClick(binding.txtModeTutorialHintPrimary, 320, v -> showTutorialDecisionDialog());
     }
 
 
@@ -1376,8 +1376,8 @@ public class MainActivity extends AppCompatActivity {
             tutorialDone = true;
         }
 
-        binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
-        binding.txtModeTutorialHint.setText(getString(tutorialDone ? R.string.tutorial_mode_hint_replay : R.string.tutorial_mode_hint));
+        binding.txtModeTutorialHintPrimary.setVisibility(View.VISIBLE);
+        binding.txtModeTutorialHintPrimary.setText(getString(tutorialDone ? R.string.tutorial_mode_hint_replay : R.string.tutorial_mode_hint));
 
         if (!tutorialDone) {
             handler.postDelayed(this::showTutorialDecisionDialog, 420L);
@@ -1397,8 +1397,8 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(getString(isTutorialAlreadyDone() ? R.string.tutorial_dialog_message_replay : R.string.tutorial_dialog_message))
                 .setNegativeButton(R.string.tutorial_dialog_skip, (d, which) -> {
                     getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
-                    binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
-                    binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
+                    binding.txtModeTutorialHintPrimary.setVisibility(View.VISIBLE);
+                    binding.txtModeTutorialHintPrimary.setText(getString(R.string.tutorial_mode_hint_replay));
                     state.setTutorialSkillOverride(false);
                     d.dismiss();
                 })
@@ -1436,8 +1436,8 @@ public class MainActivity extends AppCompatActivity {
         tutorialStep = TUTORIAL_STEP_DONE;
         syncTutorialSkillOverride();
         getSharedPreferences(PREF_TUTORIAL, MODE_PRIVATE).edit().putBoolean(KEY_TUTORIAL_DONE, true).apply();
-        binding.txtModeTutorialHint.setVisibility(View.VISIBLE);
-        binding.txtModeTutorialHint.setText(getString(R.string.tutorial_mode_hint_replay));
+        binding.txtModeTutorialHintPrimary.setVisibility(View.VISIBLE);
+        binding.txtModeTutorialHintPrimary.setText(getString(R.string.tutorial_mode_hint_replay));
         updateTutorialProgressUi();
 
         showUiToastDedupedStyled(getString(R.string.tutorial_done_cta), getString(R.string.fa_wifi), 0xFF6EE7FF);
