@@ -268,7 +268,7 @@
                 android:textSize="@dimen/mode_modal_subtitle_size" />
 
             <TextView
-                android:id="@+id/txtModeTutorialHint"
+                android:id="@+id/txtModeTutorialHintPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -472,7 +472,7 @@
                             </FrameLayout>
 
                     <LinearLayout
-                        android:id="@+id/modeCardsRow"
+                        android:id="@+id/modeCardsRowPrimary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -485,7 +485,7 @@
                             android:layout_marginEnd="@dimen/mode_option_card_gap">
 
                             <Button
-                                android:id="@+id/btnModeOffline"
+                                android:id="@+id/btnModeOfflinePrimary"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@drawable/bg_mode_card_selected"
@@ -501,7 +501,7 @@
                                 android:textStyle="bold" />
 
                             <ImageView
-                                android:id="@+id/imgModeOfflinePreview"
+                                android:id="@+id/imgModeOfflinePreviewPrimary"
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
@@ -514,7 +514,7 @@
                                 android:scaleType="centerCrop" />
 
                             <TextView
-                                android:id="@+id/txtModeOfflineDesc"
+                                android:id="@+id/txtModeOfflineDescPrimary"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="start|bottom"
@@ -531,7 +531,7 @@
                             android:layout_marginEnd="@dimen/mode_option_card_gap">
 
                             <Button
-                                android:id="@+id/btnModeOnline"
+                                android:id="@+id/btnModeOnlinePrimary"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@drawable/bg_mode_card"
@@ -547,7 +547,7 @@
                                 android:textStyle="bold" />
 
                             <ImageView
-                                android:id="@+id/imgModeOnlinePreview"
+                                android:id="@+id/imgModeOnlinePreviewPrimary"
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
@@ -560,7 +560,7 @@
                                 android:scaleType="centerCrop" />
 
                             <TextView
-                                android:id="@+id/txtModeOnlineDesc"
+                                android:id="@+id/txtModeOnlineDescPrimary"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="start|bottom"
@@ -576,7 +576,7 @@
                             android:layout_height="@dimen/mode_option_card_height">
 
                             <Button
-                                android:id="@+id/btnModeLocalPassPlay"
+                                android:id="@+id/btnModeLocalPassPlayPrimary"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:background="@drawable/bg_mode_card"
@@ -592,7 +592,7 @@
                                 android:textStyle="bold" />
 
                             <ImageView
-                                android:id="@+id/imgModeLocalPassPlayPreview"
+                                android:id="@+id/imgModeLocalPassPlayPreviewPrimary"
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/mode_option_preview_height"
                                 android:layout_gravity="top"
@@ -605,7 +605,7 @@
                                 android:scaleType="centerCrop" />
 
                             <TextView
-                                android:id="@+id/txtModeLocalPassPlayDesc"
+                                android:id="@+id/txtModeLocalPassPlayDescPrimary"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="start|bottom"
