@@ -108,7 +108,10 @@ public class HomeFlowManager {
     }
 
     private void configureModeOverlayButtons() {
-        binding.btnModeLocalLobby.setVisibility(View.GONE);
+        View localLobbyButton = binding.getRoot().findViewById(R.id.btnModeLocalLobby);
+        if (localLobbyButton != null) {
+            localLobbyButton.setVisibility(View.GONE);
+        }
         applyModeCardArts();
     }
 
