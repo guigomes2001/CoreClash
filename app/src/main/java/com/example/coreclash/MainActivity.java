@@ -606,6 +606,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         binding.txtHomeWallet.setText(getString(R.string.home_wallet_format, currentProfile.coins, state.getRankLabel()));
+        binding.txtHomeWallet.setVisibility(View.VISIBLE);
     }
 
     private void maybeShowDailyBonus() {

@@ -1,32 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#3367E8F9">
+    android:color="#1FFFFFFF">
 
     <item>
         <selector>
             <item android:state_selected="true">
                 <shape android:shape="rectangle">
-                    <gradient
-                        android:angle="270"
-                        android:startColor="#22D3EE"
-                        android:endColor="#0EA5E9" />
-                    <stroke
-                        android:width="2dp"
-                        android:color="#88A5F3FC" />
-                    <corners android:radius="16dp" />
+                    <solid android:color="#2A3B5C" />
+                    <corners android:radius="24dp" />
                 </shape>
             </item>
 
             <item>
                 <shape android:shape="rectangle">
-                    <gradient
-                        android:angle="270"
-                        android:startColor="#AA1D1B4B"
-                        android:endColor="#CC16143C" />
+                    <solid android:color="#00000000" />
                     <stroke
-                        android:width="2dp"
-                        android:color="#40818CF8" />
-                    <corners android:radius="16dp" />
+                        android:width="1dp"
+                        android:color="@color/stroke_outline" />
+                    <corners android:radius="24dp" />
                 </shape>
             </item>
         </selector>

@@ -45,9 +45,6 @@
     <string name="btn_new_match">New match</string>
     <string name="btn_back_to_menu">Back to menu</string>
     <string name="btn_link_google">Link Google</string>
-    <string name="mode_dialog_title">Choose mode</string>
-    <string name="mode_dialog_subtitle">If no rival is available, a bot joins the arena automatically.</string>
-    <string name="mode_dialog_ranked">Ranked</string>
     <string name="toast_coins_added">Coins added!</string>
     <string name="toast_theme_equipped">Theme equipped</string>
     <string name="toast_theme_bought">Theme purchased!</string>
@@ -58,25 +55,16 @@
     <string name="auth_google_link_in_use">Could not link: account already in use.</string>
     <string name="status_waiting">Waiting</string>
 
-    <string name="store_theme_royal">👑 Royal</string>
-    <string name="store_theme_void">🌌 Void</string>
-    <string name="store_styles_title">⚔ Styles</string>
-    <string name="store_style_rune_price">Rune 140</string>
-    <string name="store_style_future_price">Future Tech • 160</string>
+    <string name="store_theme_royal">Royal</string>
+    <string name="store_theme_void">Void</string>
+    <string name="store_style_rune">Rune</string>
+    <string name="store_style_future">Future Tech</string>
+    <string name="store_section_themes">Board themes</string>
+    <string name="store_section_styles">Symbol styles</string>
     <string name="store_buy_coins">+500 Coins</string>
     <string name="versus_center">VS</string>
     <string name="versus_title">%1$s VS %2$s</string>
     <string name="versus_match_title_default">Player 1 VS Player 2</string>
-
-    <string name="store_dialog_title">ROYAL STORE</string>
-    <string name="store_dialog_board_themes">BOARD THEMES</string>
-    <string name="store_dialog_theme_royal_price">👑 ROYAL ARENA   •   180</string>
-    <string name="store_dialog_theme_void_price">🌌 VOID TEMPLE   •   220</string>
-    <string name="store_dialog_symbol_styles">SYMBOL STYLES</string>
-    <string name="store_dialog_style_rune_price">✦ RUNE GLYPHS   •   140</string>
-    <string name="store_dialog_style_future_price">⬡ FUTURE TECH   •   160</string>
-
-
 
     <string name="turn_hud_player_default">Player</string>
     <string name="turn_hud_opponent_default">Opponent</string>
