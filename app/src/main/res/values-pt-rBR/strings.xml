@@ -80,4 +80,12 @@
 
     <string name="turn_hud_player_default">Jogador</string>
     <string name="turn_hud_opponent_default">Oponente</string>
+
+    <string name="stats_reward">🪙 +%1$d Core Coins</string>
+    <string name="home_wallet_format">🪙 %1$d   •   🏆 %2$s</string>
+    <string name="daily_bonus_title">🎁 Bônus Diário</string>
+    <string name="daily_bonus_day">Sequência de %1$d dia(s) — sua recompensa:</string>
+    <string name="daily_bonus_coins">+%1$d Core Coins</string>
+    <string name="btn_collect">Coletar</string>
+    <string name="toast_store_unavailable">Loja temporariamente indisponível</string>
 </resources>

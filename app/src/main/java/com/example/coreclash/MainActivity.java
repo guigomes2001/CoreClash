@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +22,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.coreclash.billing.BillingManager;
 import com.example.coreclash.data.FirebaseProfileRepository;
 import com.example.coreclash.data.LocalProfileRepository;
 import com.example.coreclash.data.ProfileRepository;
@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import economy.DailyBonus;
+import economy.MatchRewards;
 import enums.DomainBotNames;
 import enums.DomainDifficulty;
 import enums.DomainGameMode;
@@ -60,11 +62,14 @@ public class MainActivity extends AppCompatActivity {
     private BoardManager board;
     private ProfileManager profileManager;
     private StoreManager storeManager;
+    private BillingManager billingManager;
     private AuthenticationManager authenticationManager;
     private SettingManager settingManager;
     private TurnHudManager turnHud;
 
     private PlayerProfile currentProfile;
+    private int lastMatchRewardCoins = 0;
+    private DailyBonus.Grant pendingDailyGrant;
 
     private boolean matchStarted = false;
     private boolean versusBot = false;
@@ -74,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
     private ObjectAnimator turnAnimatorX;
     private ObjectAnimator turnAnimatorO;
     private String opponentName = "";
-    private GameMode selectedMode = GameMode.CASUAL;
-    private Difficulty currentBotDifficulty = Difficulty.INICIANTE;
+    private DomainGameMode selectedMode = DomainGameMode.CASUAL;
+    private DomainDifficulty currentBotDifficulty = DomainDifficulty.INICIANTE;
 
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
@@ -243,6 +248,11 @@ public class MainActivity extends AppCompatActivity {
             startMatchIntro();
         });
 
+        binding.btnNewMatch.setOnClickListener(v -> {
+            hideVictoryScreen();
+            startMatchmaking(false);
+        });
+
         binding.btnExit.setOnClickListener(v -> {
             hideVictoryScreen();
             gameManager.resetGame();
@@ -251,6 +261,8 @@ public class MainActivity extends AppCompatActivity {
             updateHeaderStatus();
             updateSkillVisuals();
         });
+
+        binding.btnDailyCollect.setOnClickListener(v -> collectDailyBonus());
     }
 
     private void openModeModal() {
@@ -274,31 +286,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateModeButtonStyles() {
         boolean casual = selectedMode == DomainGameMode.CASUAL;
-        int selectedBg = 0xFF22D3EE;
-        int selectedText = 0xFF082F49;
-        int defaultBg = 0xFF312E81;
-        int defaultText = 0xFFE0E7FF;
-
-        binding.btnModeCasual.setBackgroundTintList(ColorStateList.valueOf(casual ? selectedBg : defaultBg));
-        binding.btnModeCasual.setTextColor(casual ? selectedText : defaultText);
-
-        binding.btnModeRanked.setBackgroundTintList(ColorStateList.valueOf(casual ? defaultBg : selectedBg));
-        binding.btnModeRanked.setTextColor(casual ? defaultText : selectedText);
+        // Visual states live in selector_btn_mode / selector_mode_text drawables.
+        binding.btnModeCasual.setSelected(casual);
+        binding.btnModeRanked.setSelected(!casual);
     }
 
     private void startMatchmaking(boolean fromOnlineButton) {
         boolean foundPlayer = fromOnlineButton && random.nextFloat() < 0.45f;
-        versusBot = !foundPlayer;
+        // Every rival is engine-driven; "online" rivals are disguised stronger bots
+        // so the match always has an opponent that actually plays.
+        versusBot = true;
 
-        if (versusBot) {
-            opponentName = randomBotName();
-            currentBotDifficulty = randomDifficulty();
-        } else {
+        if (foundPlayer) {
             opponentName = getString(R.string.online_rival_prefix) + (100 + random.nextInt(900));
-            currentBotDifficulty = DomainDifficulty.MODERADA;
+            currentBotDifficulty = random.nextBoolean() ? DomainDifficulty.MODERADA : DomainDifficulty.MESTRE;
 
             String matchMsg = getString(R.string.toast_match_found, opponentName);
             Toast.makeText(this, matchMsg, Toast.LENGTH_SHORT).show();
+        } else {
+            opponentName = randomBotName();
+            currentBotDifficulty = randomDifficulty();
         }
 
         state.setGameMode(selectedMode == DomainGameMode.RANKED ? GameState.GameMode.RANKED : GameState.GameMode.CASUAL);
@@ -342,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.txtVersusX.setText(playerName);
         binding.txtVersusO.setText(opponentName);
-        String modeLabel = selectedMode == GameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
+        String modeLabel = selectedMode == DomainGameMode.RANKED ? getString(R.string.mode_ranked_label) : getString(R.string.mode_casual_label);
         binding.txtVersusMode.setText(modeLabel);
         binding.txtVersusCenter.setText(getString(R.string.versus_title, playerName, opponentName));
 
@@ -417,13 +424,17 @@ public class MainActivity extends AppCompatActivity {
 
         if (won) {
             matchStarted = false;
+            boolean playerWon = DomainSymbols.X.getValue().equals(symbol);
+            applyMatchRewards(playerWon ? MatchRewards.Outcome.WIN : MatchRewards.Outcome.LOSS);
             drawVictoryLine();
-            handler.postDelayed(() -> showVictoryScreen(symbol), 450);
+            String winnerName = playerWon ? getPlayerDisplayName() : opponentName;
+            handler.postDelayed(() -> showVictoryScreen(winnerName), 450);
             return;
         }
 
         if (gameManager.isGameOver()) {
             matchStarted = false;
+            applyMatchRewards(MatchRewards.Outcome.DRAW);
             drawDrawLine();
             handler.postDelayed(this::showDrawScreen, 420);
             return;
@@ -562,15 +573,84 @@ public class MainActivity extends AppCompatActivity {
         binding.txtWinnerTitle.setText(R.string.game_draw);
         binding.txtStatsMoves.setText(getString(R.string.stats_moves, gameManager.getFinalMoves(), "="));
         binding.txtStatsGhosts.setText(getString(R.string.stats_ghosts, gameManager.getFinalGhosts(), gameManager.getWinStreak()));
+        binding.txtStatsReward.setText(getString(R.string.stats_reward, lastMatchRewardCoins));
         animateVictoryCard();
     }
 
-    private void showVictoryScreen(String winner) {
-        binding.txtWinnerTitle.setText(getString(R.string.game_win, winner));
+    private void showVictoryScreen(String winnerName) {
+        binding.txtWinnerTitle.setText(getString(R.string.game_win, winnerName));
         String winStats = getString(R.string.stats_wins_format, gameManager.getTotalWins());
         binding.txtStatsMoves.setText(getString(R.string.stats_moves, gameManager.getFinalMoves(), winStats));
         binding.txtStatsGhosts.setText(getString(R.string.stats_ghosts, gameManager.getFinalGhosts(), gameManager.getWinStreak()));
+        binding.txtStatsReward.setText(getString(R.string.stats_reward, lastMatchRewardCoins));
         animateVictoryCard();
+    }
+
+    private void applyMatchRewards(MatchRewards.Outcome outcome) {
+        boolean ranked = state.getGameMode() == GameState.GameMode.RANKED;
+        lastMatchRewardCoins = MatchRewards.coinsFor(outcome, ranked, state.getWinStreak(), state.getMoveCount());
+
+        if (currentProfile != null) {
+            currentProfile.coins += lastMatchRewardCoins;
+            currentProfile.totalWins = state.getTotalWins();
+            currentProfile.winStreak = state.getWinStreak();
+            currentProfile.bestWinStreak = state.getBestWinStreak();
+            currentProfile.rankedPoints = state.getRankedPoints();
+            profileManager.persistProfile();
+        }
+        updateHomeWallet();
+    }
+
+    public void updateHomeWallet() {
+        if (currentProfile == null) {
+            return;
+        }
+        binding.txtHomeWallet.setText(getString(R.string.home_wallet_format, currentProfile.coins, state.getRankLabel()));
+    }
+
+    private void maybeShowDailyBonus() {
+        if (currentProfile == null) {
+            return;
+        }
+        long today = DailyBonus.epochDayOf(System.currentTimeMillis());
+        pendingDailyGrant = DailyBonus.evaluate(currentProfile.lastDailyBonusEpochDay, currentProfile.dailyBonusStreak, today);
+        if (pendingDailyGrant == null) {
+            return;
+        }
+
+        binding.txtDailyBonusDay.setText(getString(R.string.daily_bonus_day, pendingDailyGrant.streakDay()));
+        binding.txtDailyBonusCoins.setText(getString(R.string.daily_bonus_coins, pendingDailyGrant.coins()));
+
+        binding.dailyOverlay.setVisibility(View.VISIBLE);
+        binding.dailyOverlay.setAlpha(0f);
+        binding.dailyCard.setScaleX(0.85f);
+        binding.dailyCard.setScaleY(0.85f);
+
+        binding.dailyOverlay.animate().alpha(1f).setDuration(200).start();
+        binding.dailyCard.animate()
+                .scaleX(1f).scaleY(1f)
+                .setInterpolator(new OvershootInterpolator(1.2f))
+                .setDuration(300)
+                .start();
+    }
+
+    private void collectDailyBonus() {
+        if (pendingDailyGrant == null || currentProfile == null) {
+            return;
+        }
+        currentProfile.coins += pendingDailyGrant.coins();
+        currentProfile.dailyBonusStreak = pendingDailyGrant.streakDay();
+        currentProfile.lastDailyBonusEpochDay = DailyBonus.epochDayOf(System.currentTimeMillis());
+        pendingDailyGrant = null;
+
+        profileManager.persistProfile();
+        updateHomeWallet();
+
+        binding.dailyOverlay.animate()
+                .alpha(0f)
+                .setDuration(200)
+                .withEndAction(() -> binding.dailyOverlay.setVisibility(View.GONE))
+                .start();
     }
 
     private void animateVictoryCard() {
@@ -741,12 +821,18 @@ public class MainActivity extends AppCompatActivity {
         profileManager.setCurrentProfile(profile);
         profileManager.localProfileRepository.saveProfile(profile);
 
-        storeManager = new StoreManager(this, binding, profile, profileManager, board);
+        state.restoreProgress(profile.totalWins, profile.winStreak, profile.bestWinStreak, profile.rankedPoints);
+
+        billingManager = new BillingManager();
+        storeManager = new StoreManager(this, binding, profile, profileManager, board, billingManager);
+        billingManager.start(this, amount -> runOnUiThread(() -> storeManager.grantCoins(amount)));
 
         runOnUiThread(() -> {
             storeManager.applyEquippedCosmetics();
+            updateHomeWallet();
             updateHeaderStatus();
             updateSkillVisuals();
+            maybeShowDailyBonus();
         });
     }
 
@@ -756,19 +842,14 @@ public class MainActivity extends AppCompatActivity {
         localRepo.loadOrCreateProfile(new ProfileRepository.Callback() {
             @Override
             public void onSuccess(@NonNull PlayerProfile profile) {
-                currentProfile = profile;
-                runOnUiThread(() -> {
-                    updateHeaderStatus();
-                    updateSkillVisuals();
-                    Toast.makeText(MainActivity.this, getString(R.string.toast_offline_loaded), Toast.LENGTH_SHORT).show();
-                });
+                onProfileReady(profile);
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, getString(R.string.toast_offline_loaded), Toast.LENGTH_SHORT).show());
             }
 
             @Override
             public void onError(@NonNull String error) {
                 Log.e("Fallback", "Critical error");
-                currentProfile = PlayerProfile.createDefault("temp_" + System.currentTimeMillis());
-                updateHeaderStatus();
+                onProfileReady(PlayerProfile.createDefault("temp_" + System.currentTimeMillis()));
             }
         });
     }

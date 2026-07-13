@@ -12,6 +12,12 @@ public class PlayerProfile {
     public List<String> ownedSymbolStyles;
     public String equippedTheme;
     public String equippedSymbolStyle;
+    public int totalWins;
+    public int winStreak;
+    public int bestWinStreak;
+    public int rankedPoints;
+    public long lastDailyBonusEpochDay;
+    public int dailyBonusStreak;
 
     public PlayerProfile() {
 

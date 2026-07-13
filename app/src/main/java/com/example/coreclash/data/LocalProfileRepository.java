@@ -38,6 +38,12 @@ public class LocalProfileRepository implements ProfileRepository {
         profile.equippedSymbolStyle = sharedPreferences.getString("equippedSymbolStyle", "CLASSIC");
         profile.ownedThemes = new ArrayList<>(Arrays.asList(sharedPreferences.getString("ownedThemes", "ARENA").split(",")));
         profile.ownedSymbolStyles = new ArrayList<>(Arrays.asList(sharedPreferences.getString("ownedStyles", "CLASSIC").split(",")));
+        profile.totalWins = sharedPreferences.getInt("totalWins", 0);
+        profile.winStreak = sharedPreferences.getInt("winStreak", 0);
+        profile.bestWinStreak = sharedPreferences.getInt("bestWinStreak", 0);
+        profile.rankedPoints = sharedPreferences.getInt("rankedPoints", 0);
+        profile.lastDailyBonusEpochDay = sharedPreferences.getLong("lastDailyBonusEpochDay", 0);
+        profile.dailyBonusStreak = sharedPreferences.getInt("dailyBonusStreak", 0);
         callback.onSuccess(profile);
     }
 
@@ -51,6 +57,12 @@ public class LocalProfileRepository implements ProfileRepository {
                 .putString("equippedSymbolStyle", profile.equippedSymbolStyle)
                 .putString("ownedThemes", String.join(",", profile.ownedThemes))
                 .putString("ownedStyles", String.join(",", profile.ownedSymbolStyles))
+                .putInt("totalWins", profile.totalWins)
+                .putInt("winStreak", profile.winStreak)
+                .putInt("bestWinStreak", profile.bestWinStreak)
+                .putInt("rankedPoints", profile.rankedPoints)
+                .putLong("lastDailyBonusEpochDay", profile.lastDailyBonusEpochDay)
+                .putInt("dailyBonusStreak", profile.dailyBonusStreak)
                 .apply();
     }
 }

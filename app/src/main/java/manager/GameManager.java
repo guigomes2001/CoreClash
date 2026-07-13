@@ -37,13 +37,17 @@ public class GameManager {
 
         if (checkWinner()) {
             isGameOver = true;
-            state.registerWin();
+            if (state.isXTurn()) {
+                state.registerWin();
+            } else {
+                state.registerLoss();
+            }
             return true;
         }
 
         if (isBoardFull()) {
             isGameOver = true;
-            state.registerLossOrDraw();
+            state.registerDraw();
             return false;
         }
 
@@ -245,9 +249,19 @@ public class GameManager {
 
         for (int[] move : getAvailableMoves()) {
             Cell cell = board.getCellLogic(move[0], move[1]);
+            boolean wasGhost = cell.isGhost();
+            String oldVisual = cell.getVisualSymbol();
+
             cell.setSymbol(maximizing ? "O" : "X");
             int score = minimax(!maximizing, depth + 1);
-            cell.reset();
+
+            if (wasGhost && !oldVisual.isEmpty()) {
+                cell.setSymbol(oldVisual);
+                cell.turnIntoGhost();
+            } else {
+                cell.reset();
+            }
+
             best = maximizing ? Math.max(best, score) : Math.min(best, score);
         }
 
