@@ -2,13 +2,13 @@ package manager;
 
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
 import com.example.coreclash.MainActivity;
 import com.example.coreclash.R;
 import com.example.coreclash.databinding.ActivityMainBinding;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import enums.DomainLanguage;
 
@@ -54,7 +54,7 @@ public class SettingManager {
     private void showLanguageDialog() {
         String[] options = DomainLanguage.getDisplayNames();
 
-        new AlertDialog.Builder(activity)
+        new MaterialAlertDialogBuilder(activity, R.style.ThemeOverlay_CoreClash_Dialog)
                 .setTitle(activity.getString(R.string.btn_language))
                 .setItems(options, (dialog, which) -> {
 

@@ -6,4 +6,16 @@
     </style>
 
     <style name="Theme.CoreClash" parent="Base.Theme.CoreClash" />
+
+    <!-- Dark dialog matching the out-of-match clean UI (language picker etc.).
+         Material 1.13 draws the dialog background with colorSurfaceContainerHigh. -->
+    <style name="ThemeOverlay.CoreClash.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/surface_card</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_card</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_container</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+    </style>
 </resources>

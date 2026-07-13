@@ -203,7 +203,7 @@
         android:id="@+id/homeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0A1024"
+        android:background="@color/surface_bg"
         android:elevation="92dp"
         android:clickable="true"
         android:focusable="true">
@@ -214,80 +214,76 @@
             android:layout_gravity="center"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="18dp">
+            android:padding="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textSize="40sp"
+                android:textSize="38sp"
                 android:textStyle="bold"
-                android:textColor="#F1F5F9"
+                android:textColor="@color/text_primary"
                 android:fontFamily="sans-serif-black"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/home_subtitle"
-                android:textColor="#B8C6D8"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/txtHomeWallet"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_chip"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
                 android:text=""
-                android:textColor="#F7C948"
+                android:visibility="invisible"
+                android:textColor="@color/accent"
                 android:textStyle="bold"
                 android:textSize="14sp" />
 
             <LinearLayout
-                android:layout_width="340dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical"
-                android:padding="18dp"
-                android:background="@drawable/bg_modal_card">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="4dp"
-                    android:layout_marginBottom="14dp"
-                    android:background="#66FBBF24" />
+                android:layout_marginTop="32dp"
+                android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnPlay"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:text="@string/btn_play"
-                    android:drawableStart="@drawable/ic_swords_simple"
-                    android:drawablePadding="10dp"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#1F1300"
+                    android:letterSpacing="0.01"
+                    android:textColor="@color/on_accent"
                     android:background="@drawable/bg_btn_primary"
-                    android:backgroundTint="@null"
-                    android:gravity="center_vertical|center_horizontal"/>
+                    android:backgroundTint="@null"/>
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnOnline"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="12dp"
                     android:text="@string/btn_quick_match"
-                    android:drawableStart="@drawable/ic_flash_simple"
-                    android:drawablePadding="10dp"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    android:textColor="#F8FAFC"
+                    android:letterSpacing="0.01"
+                    android:textColor="@color/text_primary"
                     android:background="@drawable/bg_btn_secondary"
-                    android:backgroundTint="@null"
-                    android:gravity="center_vertical|center_horizontal"/>
+                    android:backgroundTint="@null"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     android:orientation="horizontal">
 
                     <androidx.appcompat.widget.AppCompatButton
@@ -296,28 +292,28 @@
                         android:layout_height="48dp"
                         android:layout_weight="1"
                         android:text="@string/btn_store"
-                        android:drawableStart="@drawable/ic_store_stall"
-                        android:drawablePadding="8dp"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
                         android:textStyle="bold"
-                        android:textColor="#E0F2FE"
+                        android:letterSpacing="0.01"
+                        android:textColor="#E2E8F0"
                         android:background="@drawable/bg_btn_ghost"
-                        android:backgroundTint="@null"
-                        android:gravity="center_vertical|center_horizontal"/>
+                        android:backgroundTint="@null"/>
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnSettings"
                         android:layout_width="0dp"
                         android:layout_height="48dp"
                         android:layout_weight="1"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="12dp"
                         android:text="@string/btn_settings"
-                        android:drawableStart="@drawable/ic_settings_gear"
-                        android:drawablePadding="8dp"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
                         android:textStyle="bold"
-                        android:textColor="#E0F2FE"
+                        android:letterSpacing="0.01"
+                        android:textColor="#E2E8F0"
                         android:background="@drawable/bg_btn_ghost"
-                        android:backgroundTint="@null"
-                        android:gravity="center_vertical|center_horizontal"/>
+                        android:backgroundTint="@null"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -327,7 +323,7 @@
         android:id="@+id/modeOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#C4000000"
+        android:background="@color/scrim"
         android:visibility="gone"
         android:elevation="94dp"
         android:clickable="true"
@@ -335,49 +331,44 @@
 
         <LinearLayout
             android:id="@+id/modeCard"
-            android:layout_width="match_parent"
+            android:layout_width="420dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
-            android:padding="20dp"
-            android:layout_marginHorizontal="24dp"
+            android:padding="24dp"
             android:background="@drawable/bg_modal_card">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginBottom="14dp"
-                android:background="#66FBBF24" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/mode_title"
-                android:textStyle="bold"
-                android:textSize="22sp"
-                android:fontFamily="sans-serif-black"
-                android:textColor="#F8FAFC"/>
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_primary"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/mode_subtitle"
-                android:textColor="#94A3B8"
-                android:textSize="13sp"/>
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnModeCasual"
                     android:layout_width="0dp"
-                    android:layout_height="46dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:text="@string/btn_mode_casual"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:letterSpacing="0.01"
                     android:background="@drawable/selector_btn_mode"
                     android:backgroundTint="@null"
                     android:textColor="@color/selector_mode_text"
@@ -386,10 +377,13 @@
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnModeRanked"
                     android:layout_width="0dp"
-                    android:layout_height="46dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="12dp"
                     android:text="@string/btn_mode_ranked"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:letterSpacing="0.01"
                     android:background="@drawable/selector_btn_mode"
                     android:backgroundTint="@null"
                     android:textColor="@color/selector_mode_text"
@@ -399,29 +393,38 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="24dp"
+                android:gravity="end|center_vertical"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnModeCancel"
-                    android:layout_width="0dp"
-                    android:layout_height="46dp"
-                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="20dp"
                     android:text="@string/btn_back"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    android:textColor="#E0F2FE"
-                    android:background="@drawable/bg_btn_ghost"
+                    android:letterSpacing="0.01"
+                    android:textColor="@color/accent"
+                    android:background="@drawable/bg_btn_text"
                     android:backgroundTint="@null"/>
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnModeConfirm"
-                    android:layout_width="0dp"
-                    android:layout_height="46dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:minWidth="0dp"
+                    android:layout_marginStart="8dp"
+                    android:paddingHorizontal="32dp"
                     android:text="@string/btn_ok"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    android:textColor="#041019"
+                    android:letterSpacing="0.01"
+                    android:textColor="@color/on_accent"
                     android:background="@drawable/bg_btn_primary"
                     android:backgroundTint="@null"/>
             </LinearLayout>
@@ -433,17 +436,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        android:background="#0A1024"
+        android:background="@color/surface_bg"
         android:elevation="96dp"
         android:clickable="true"
         android:focusable="true">
 
         <LinearLayout
             android:id="@+id/storeScreen"
-            android:layout_width="match_parent"
+            android:layout_width="640dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="20dp"
             android:background="@drawable/bg_store_clash">
 
             <LinearLayout
@@ -456,190 +462,273 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/btn_store"
-                    android:textColor="#FFF3C4"
-                    android:textStyle="bold"
-                    android:textSize="24sp"/>
+                    android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="26sp"/>
 
-                <androidx.appcompat.widget.AppCompatButton
+                <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/btnStoreClose"
-                    android:layout_width="54dp"
-                    android:layout_height="40dp"
-                    android:text="X"
-                    android:textStyle="bold"
-                    android:textColor="#E0F2FE"
-                    android:background="@drawable/bg_btn_ghost"
-                    android:backgroundTint="@null"/>
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:src="@drawable/ic_close"
+                    android:scaleType="centerInside"
+                    android:contentDescription="@string/btn_close"
+                    android:background="@drawable/bg_icon_button"/>
             </LinearLayout>
 
             <TextView
                 android:id="@+id/txtStoreCoinsFull"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
                 android:text="@string/store_coins_default"
-                android:textColor="#D6E4FF"
+                android:textSize="14sp"
+                android:textColor="@color/accent"
                 android:textStyle="bold" />
 
-            <HorizontalScrollView
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="190dp"
-                android:layout_marginTop="12dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="20dp"
                 android:scrollbars="none">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/store_section_themes"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
 
                     <LinearLayout
-                        android:layout_width="170dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginEnd="10dp"
-                        android:padding="10dp"
-                        android:background="@drawable/bg_store_section"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/store_theme_royal"
-                            android:textStyle="bold"
-                            android:textColor="#EAF2FF"/>
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="14dp"
+                        android:background="@drawable/bg_store_section">
 
                         <FrameLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="90dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_cyber_glass">
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_store_preview">
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="X  O"
-                                android:textSize="28sp"
+                                android:text="X O"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
-                                android:textColor="#F8FAFC"/>
+                                android:textColor="@color/text_primary"/>
                         </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="14dp"
+                            android:text="@string/store_theme_royal"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"/>
 
                         <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btnThemeRoyal"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="40dp"
-                            android:layout_marginTop="8dp"
+                            android:minWidth="72dp"
+                            android:paddingHorizontal="18dp"
                             android:text="180"
+                            android:textAllCaps="false"
+                            android:textSize="14sp"
                             android:textStyle="bold"
                             android:background="@drawable/bg_store_item"
                             android:backgroundTint="@null"
-                            android:textColor="#FFFFFF"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="170dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginEnd="10dp"
-                        android:padding="10dp"
-                        android:background="@drawable/bg_store_section"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/store_theme_void"
-                            android:textStyle="bold"
-                            android:textColor="#EAF2FF"/>
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="14dp"
+                        android:background="@drawable/bg_store_section">
 
                         <FrameLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="90dp"
-                            android:layout_marginTop="8dp"
-                            android:background="#221A1024">
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_store_preview">
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="✦  ⬡"
-                                android:textSize="28sp"
+                                android:text="✦ ⬡"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="#E9D5FF"/>
                         </FrameLayout>
 
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="14dp"
+                            android:text="@string/store_theme_void"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"/>
+
                         <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btnThemeVoid"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="40dp"
-                            android:layout_marginTop="8dp"
+                            android:minWidth="72dp"
+                            android:paddingHorizontal="18dp"
                             android:text="220"
+                            android:textAllCaps="false"
+                            android:textSize="14sp"
                             android:textStyle="bold"
                             android:background="@drawable/bg_store_item"
                             android:backgroundTint="@null"
-                            android:textColor="#FFFFFF"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="170dp"
-                        android:layout_height="match_parent"
-                        android:padding="10dp"
-                        android:background="@drawable/bg_store_section"
-                        android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/store_section_styles"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/store_styles_title"
-                            android:textStyle="bold"
-                            android:textColor="#EAF2FF"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="14dp"
+                        android:background="@drawable/bg_store_section">
 
                         <FrameLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="90dp"
-                            android:layout_marginTop="8dp"
-                            android:background="#222A447A">
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_store_preview">
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="✦ vs ◉"
-                                android:textSize="26sp"
+                                android:text="✦ ◉"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="#BAE6FD"/>
                         </FrameLayout>
 
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="14dp"
+                            android:text="@string/store_style_rune"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"/>
+
                         <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btnStyleRune"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="40dp"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/store_style_rune_price"
+                            android:minWidth="72dp"
+                            android:paddingHorizontal="18dp"
+                            android:text="140"
+                            android:textAllCaps="false"
+                            android:textSize="14sp"
                             android:textStyle="bold"
                             android:background="@drawable/bg_store_item"
                             android:backgroundTint="@null"
-                            android:textColor="#FFFFFF"/>
+                            android:textColor="@color/text_primary"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="14dp"
+                        android:background="@drawable/bg_store_section">
+
+                        <FrameLayout
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_store_preview">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="⬡"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#BAE6FD"/>
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="14dp"
+                            android:text="@string/store_style_future"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"/>
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnStyleFuture"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:minWidth="72dp"
+                            android:paddingHorizontal="18dp"
+                            android:text="160"
+                            android:textAllCaps="false"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_store_item"
+                            android:backgroundTint="@null"
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
                 </LinearLayout>
-            </HorizontalScrollView>
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnStyleFuture"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_marginTop="12dp"
-                android:text="@string/store_style_future_price"
-                android:textStyle="bold"
-                android:background="@drawable/bg_store_item"
-                android:backgroundTint="@null"
-                android:textColor="#FFFFFF"/>
+            </ScrollView>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnBuyCoins"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="16dp"
                 android:text="@string/store_buy_coins"
+                android:textAllCaps="false"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#1F1300"
+                android:letterSpacing="0.01"
+                android:textColor="@color/on_accent"
                 android:background="@drawable/bg_store_buy_button"
                 android:backgroundTint="@null"/>
         </LinearLayout>
@@ -795,7 +884,7 @@
         android:id="@+id/victoryOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0B1220"
+        android:background="#F20B1220"
         android:visibility="gone"
         android:elevation="100dp"
         android:clickable="true"
@@ -803,28 +892,21 @@
 
         <LinearLayout
             android:id="@+id/victoryCard"
-            android:layout_width="match_parent"
+            android:layout_width="420dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/bg_modal_card"
             android:orientation="vertical"
-            android:layout_marginHorizontal="24dp"
-            android:padding="24dp"
+            android:padding="28dp"
             android:gravity="center">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginBottom="16dp"
-                android:background="#66FBBF24" />
 
             <TextView
                 android:id="@+id/txtWinnerTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/winner_default"
-                android:textColor="#F8FAFC"
-                android:textSize="34sp"
+                android:textColor="@color/text_primary"
+                android:textSize="32sp"
                 android:fontFamily="sans-serif-black"
                 android:textStyle="bold" />
 
@@ -834,8 +916,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="@string/stats_moves_default"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
                 android:gravity="center" />
 
             <TextView
@@ -843,31 +925,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/stats_ghosts_default"
-                android:textColor="#94A3B8"
-                android:textSize="15sp"
-                android:layout_marginTop="10dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:layout_marginTop="6dp"
                 android:gravity="center" />
 
             <TextView
                 android:id="@+id/txtStatsReward"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_chip"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
                 android:text=""
-                android:textColor="#F7C948"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center" />
+                android:textColor="@color/accent"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnRestart"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:drawableStart="@drawable/ic_swords_simple"
-                android:drawablePadding="8dp"
+                android:layout_height="56dp"
                 android:layout_marginTop="24dp"
                 android:text="@string/btn_rematch"
-                android:textColor="#041019"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:letterSpacing="0.01"
+                android:textColor="@color/on_accent"
                 android:background="@drawable/bg_btn_primary"
                 android:backgroundTint="@null"
                 android:textStyle="bold"/>
@@ -875,12 +960,13 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnNewMatch"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:drawableStart="@drawable/ic_flash_simple"
-                android:drawablePadding="8dp"
-                android:layout_marginTop="10dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="12dp"
                 android:text="@string/btn_new_match"
-                android:textColor="#F8FAFC"
+                android:textAllCaps="false"
+                android:textSize="15sp"
+                android:letterSpacing="0.01"
+                android:textColor="@color/text_primary"
                 android:background="@drawable/bg_btn_secondary"
                 android:backgroundTint="@null"
                 android:textStyle="bold"/>
@@ -888,19 +974,16 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnExit"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/btn_back_to_menu"
-                android:textColor="#E0F2FE"
-                android:background="@drawable/bg_btn_ghost"
+                android:textAllCaps="false"
+                android:textSize="15sp"
+                android:letterSpacing="0.01"
+                android:textColor="@color/accent"
+                android:background="@drawable/bg_btn_text"
                 android:backgroundTint="@null"
                 android:textStyle="bold"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:layout_marginTop="18dp"
-                android:background="#5522D3EE" />
         </LinearLayout>
     </FrameLayout>
 
@@ -908,7 +991,7 @@
         android:id="@+id/settingsOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#D60A1024"
+        android:background="@color/scrim"
         android:visibility="gone"
         android:elevation="97dp"
         android:clickable="true"
@@ -916,65 +999,64 @@
 
         <LinearLayout
             android:id="@+id/settingsCard"
-            android:layout_width="match_parent"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginHorizontal="32dp"
             android:background="@drawable/bg_modal_card"
             android:orientation="vertical"
             android:padding="24dp">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginBottom="16dp"
-                android:background="#66FBBF24" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/btn_settings"
-                android:textColor="#F8FAFC"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-black"
-                android:layout_gravity="center"
-                android:layout_marginBottom="24dp"/>
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="20dp"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnChangeLanguage"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:text="@string/btn_language"
+                android:textAllCaps="false"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#E0F2FE"
+                android:letterSpacing="0.01"
+                android:textColor="#E2E8F0"
                 android:background="@drawable/bg_btn_ghost"
                 android:backgroundTint="@null"
-                android:drawableStart="@drawable/ic_settings_gear"
-                android:drawablePadding="12dp"
                 android:layout_marginBottom="12dp"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnGoogleLoginSettings"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:text="@string/btn_link_google"
+                android:textAllCaps="false"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#1F1300"
+                android:letterSpacing="0.01"
+                android:textColor="@color/on_accent"
                 android:background="@drawable/bg_btn_primary"
                 android:backgroundTint="@null"
-                android:drawableStart="@drawable/ic_flash_simple"
-                android:drawablePadding="12dp"
-                android:layout_marginBottom="20dp"/>
+                android:layout_marginBottom="16dp"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnSettingsClose"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:minWidth="0dp"
+                android:paddingHorizontal="20dp"
                 android:text="@string/btn_close"
+                android:textAllCaps="false"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#E0F2FE"
-                android:background="@drawable/bg_btn_ghost"
+                android:letterSpacing="0.01"
+                android:textColor="@color/accent"
+                android:background="@drawable/bg_btn_text"
                 android:backgroundTint="@null"/>
         </LinearLayout>
     </FrameLayout>
@@ -983,7 +1065,7 @@
         android:id="@+id/dailyOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#C4000000"
+        android:background="@color/scrim"
         android:visibility="gone"
         android:elevation="98dp"
         android:clickable="true"
@@ -991,57 +1073,52 @@
 
         <LinearLayout
             android:id="@+id/dailyCard"
-            android:layout_width="match_parent"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginHorizontal="32dp"
             android:background="@drawable/bg_modal_card"
             android:orientation="vertical"
-            android:padding="24dp"
+            android:padding="28dp"
             android:gravity="center">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginBottom="16dp"
-                android:background="#66FBBF24" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/daily_bonus_title"
-                android:textColor="#F7C948"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-black"/>
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-medium"/>
 
             <TextView
                 android:id="@+id/txtDailyBonusDay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:text=""
-                android:textColor="#94A3B8"
-                android:textSize="13sp"/>
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/txtDailyBonusCoins"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:text=""
-                android:textColor="#F8FAFC"
-                android:textSize="30sp"
+                android:textColor="@color/accent"
+                android:textSize="32sp"
                 android:textStyle="bold"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDailyCollect"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="20dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/btn_collect"
+                android:textAllCaps="false"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#1F1300"
+                android:letterSpacing="0.01"
+                android:textColor="@color/on_accent"
                 android:background="@drawable/bg_btn_primary"
                 android:backgroundTint="@null"/>
         </LinearLayout>
