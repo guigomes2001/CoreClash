@@ -1,29 +1,35 @@
 package manager;
 
+import android.content.pm.ApplicationInfo;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.coreclash.MainActivity;
 import com.example.coreclash.R;
+import com.example.coreclash.billing.BillingManager;
 import com.example.coreclash.databinding.ActivityMainBinding;
 import com.example.coreclash.model.PlayerProfile;
 
 public class StoreManager {
+
+    private static final int DEV_COINS_PACK_AMOUNT = 500;
 
     private final MainActivity activity;
     private final ActivityMainBinding binding;
     private final PlayerProfile profile;
     private final ProfileManager profileManager;
     private final BoardManager board;
+    private final BillingManager billingManager;
 
     public StoreManager(MainActivity activity, ActivityMainBinding binding,
                         PlayerProfile profile, ProfileManager profileManager,
-                        BoardManager board) {
+                        BoardManager board, BillingManager billingManager) {
         this.activity = activity;
         this.binding = binding;
         this.profile = profile;
         this.profileManager = profileManager;
         this.board = board;
+        this.billingManager = billingManager;
         setupActions();
     }
 
@@ -36,12 +42,35 @@ public class StoreManager {
         binding.btnStyleRune.setOnClickListener(v -> buyOrEquipStyle("RUNE", 140));
         binding.btnStyleFuture.setOnClickListener(v -> buyOrEquipStyle("FUTURE", 160));
 
-        binding.btnBuyCoins.setOnClickListener(v -> {
-            profile.coins += 500;
-            profileManager.persistProfile();
-            refreshStoreUI();
-            Toast.makeText(activity, activity.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
-        });
+        binding.btnBuyCoins.setOnClickListener(v -> launchCoinsPurchase());
+    }
+
+    private void launchCoinsPurchase() {
+        if (billingManager != null && billingManager.launchCoinsPackPurchase(activity)) {
+            return;
+        }
+
+        if (isDebuggableBuild()) {
+            grantCoins(DEV_COINS_PACK_AMOUNT);
+            return;
+        }
+
+        Toast.makeText(activity, activity.getString(R.string.toast_store_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean isDebuggableBuild() {
+        return (activity.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
+
+    public void grantCoins(int amount) {
+        if (profile == null || amount <= 0) {
+            return;
+        }
+        profile.coins += amount;
+        profileManager.persistProfile();
+        refreshStoreUI();
+        activity.updateHomeWallet();
+        Toast.makeText(activity, activity.getString(R.string.toast_coins_added), Toast.LENGTH_SHORT).show();
     }
 
     public void openStore() {
@@ -108,6 +137,7 @@ public class StoreManager {
         profileManager.persistProfile();
         refreshStoreUI();
         applyEquippedCosmetics();
+        activity.updateHomeWallet();
         activity.updateHeaderStatus();
     }
 

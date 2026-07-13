@@ -142,8 +142,22 @@ public class GameState {
         }
     }
 
-    public void registerLossOrDraw() {
+    public void registerLoss() {
         winStreak = 0;
+        if (gameMode == GameMode.RANKED) {
+            rankedPoints = Math.max(0, rankedPoints - 6);
+        }
+    }
+
+    public void registerDraw() {
+        winStreak = 0;
+    }
+
+    public void restoreProgress(int totalWins, int winStreak, int bestWinStreak, int rankedPoints) {
+        this.totalWins = Math.max(0, totalWins);
+        this.winStreak = Math.max(0, winStreak);
+        this.bestWinStreak = Math.max(this.winStreak, bestWinStreak);
+        this.rankedPoints = Math.max(0, rankedPoints);
     }
 
     public void reset() {

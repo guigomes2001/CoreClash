@@ -80,4 +80,12 @@
 
     <string name="turn_hud_player_default">Player</string>
     <string name="turn_hud_opponent_default">Opponent</string>
+
+    <string name="stats_reward">🪙 +%1$d Core Coins</string>
+    <string name="home_wallet_format">🪙 %1$d   •   🏆 %2$s</string>
+    <string name="daily_bonus_title">🎁 Daily Bonus</string>
+    <string name="daily_bonus_day">Day %1$d streak — your reward:</string>
+    <string name="daily_bonus_coins">+%1$d Core Coins</string>
+    <string name="btn_collect">Collect</string>
+    <string name="toast_store_unavailable">Store temporarily unavailable</string>
 </resources>

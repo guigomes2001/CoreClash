@@ -4,15 +4,16 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
-import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryPurchasesParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class BillingManager implements PurchasesUpdatedListener {
     }
 
     private static final String PRODUCT_COINS_SMALL = "coins_pack_small";
+    private static final int COINS_SMALL_AMOUNT = 500;
 
     private BillingClient billingClient;
     private ProductDetails coinsPackDetails;
@@ -41,6 +43,7 @@ public class BillingManager implements PurchasesUpdatedListener {
             public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     queryProducts();
+                    restorePendingPurchases();
                 }
             }
 
@@ -49,6 +52,10 @@ public class BillingManager implements PurchasesUpdatedListener {
                 // reconnect lazily when player opens the store again
             }
         });
+    }
+
+    public boolean isReady() {
+        return billingClient != null && billingClient.isReady() && coinsPackDetails != null;
     }
 
     private void queryProducts() {
@@ -67,6 +74,21 @@ public class BillingManager implements PurchasesUpdatedListener {
                 return;
             }
             coinsPackDetails = productDetailsList.get(0);
+        });
+    }
+
+    private void restorePendingPurchases() {
+        QueryPurchasesParams params = QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.INAPP)
+                .build();
+
+        billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
+            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK) {
+                return;
+            }
+            for (Purchase purchase : purchases) {
+                handlePurchase(purchase);
+            }
         });
     }
 
@@ -95,18 +117,25 @@ public class BillingManager implements PurchasesUpdatedListener {
         }
 
         for (Purchase purchase : purchases) {
-            if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-                if (!purchase.isAcknowledged()) {
-                    AcknowledgePurchaseParams params = AcknowledgePurchaseParams.newBuilder()
-                            .setPurchaseToken(purchase.getPurchaseToken())
-                            .build();
-                    billingClient.acknowledgePurchase(params, result -> {
-                    });
-                }
-                if (coinsListener != null) {
-                    coinsListener.onCoinsGranted(500);
-                }
-            }
+            handlePurchase(purchase);
         }
+    }
+
+    private void handlePurchase(@NonNull Purchase purchase) {
+        if (purchase.getPurchaseState() != Purchase.PurchaseState.PURCHASED) {
+            return;
+        }
+
+        // Coin packs are consumables: consuming (instead of only acknowledging)
+        // is what allows the same player to buy the pack again.
+        ConsumeParams params = ConsumeParams.newBuilder()
+                .setPurchaseToken(purchase.getPurchaseToken())
+                .build();
+
+        billingClient.consumeAsync(params, (result, token) -> {
+            if (result.getResponseCode() == BillingClient.BillingResponseCode.OK && coinsListener != null) {
+                coinsListener.onCoinsGranted(COINS_SMALL_AMOUNT);
+            }
+        });
     }
 }
